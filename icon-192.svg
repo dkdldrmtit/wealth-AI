@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="38" fill="#1a1f2e"/>
+  <g transform="translate(96, 72)" opacity="0.95">
+    <polygon points="0,-38 22,-18 18,8" fill="#c8d0e0" opacity="0.25"/>
+    <polygon points="0,-38 -22,-18 -18,8" fill="#d8e0f0" opacity="0.20"/>
+    <polygon points="22,-18 38,10 18,8" fill="#b0bcd0" opacity="0.30"/>
+    <polygon points="-22,-18 -38,10 -18,8" fill="#c0cce0" opacity="0.28"/>
+    <polygon points="18,8 38,10 20,32" fill="#a8b8cc" opacity="0.35"/>
+    <polygon points="-18,8 -38,10 -20,32" fill="#b8c8dc" opacity="0.30"/>
+    <polygon points="20,32 -20,32 0,10" fill="#d0dae8" opacity="0.22"/>
+    <polygon points="0,-38 22,-18 0,-15" fill="#e8eef8" opacity="0.50"/>
+    <polygon points="0,-38 -22,-18 0,-15" fill="#f0f4fc" opacity="0.45"/>
+    <polygon points="22,-18 18,8 0,-15" fill="#dce4f0" opacity="0.55"/>
+    <polygon points="-22,-18 -18,8 0,-15" fill="#e4ecf8" opacity="0.50"/>
+    <polygon points="18,8 -18,8 0,-15" fill="#eef2fa" opacity="0.40"/>
+    <polygon points="18,8 20,32 0,12" fill="#d4dfee" opacity="0.45"/>
+    <polygon points="-18,8 -20,32 0,12" fill="#dce7f2" opacity="0.42"/>
+    <polygon points="18,8 -18,8 0,12" fill="#e8f0f8" opacity="0.35"/>
+    <g stroke="#ffffff" stroke-width="0.8" fill="none" opacity="0.6">
+      <line x1="0" y1="-38" x2="22" y2="-18"/>
+      <line x1="0" y1="-38" x2="-22" y2="-18"/>
+      <line x1="22" y1="-18" x2="38" y2="10"/>
+      <line x1="-22" y1="-18" x2="-38" y2="10"/>
+      <line x1="22" y1="-18" x2="18" y2="8"/>
+      <line x1="-22" y1="-18" x2="-18" y2="8"/>
+      <line x1="18" y1="8" x2="38" y2="10"/>
+      <line x1="-18" y1="8" x2="-38" y2="10"/>
+      <line x1="18" y1="8" x2="20" y2="32"/>
+      <line x1="-18" y1="8" x2="-20" y2="32"/>
+      <line x1="20" y1="32" x2="-20" y2="32"/>
+      <line x1="0" y1="-38" x2="0" y2="-15"/>
+      <line x1="22" y1="-18" x2="0" y2="-15"/>
+      <line x1="-22" y1="-18" x2="0" y2="-15"/>
+      <line x1="18" y1="8" x2="0" y2="-15"/>
+      <line x1="-18" y1="8" x2="0" y2="-15"/>
+      <line x1="18" y1="8" x2="0" y2="12"/>
+      <line x1="-18" y1="8" x2="0" y2="12"/>
+      <line x1="20" y1="32" x2="0" y2="12"/>
+      <line x1="-20" y1="32" x2="0" y2="12"/>
+    </g>
+    <circle cx="0" cy="-38" r="2.5" fill="#ffffff" opacity="0.9"/>
+    <circle cx="22" cy="-18" r="1.8" fill="#e0eaff" opacity="0.8"/>
+    <circle cx="-22" cy="-18" r="1.8" fill="#e0eaff" opacity="0.8"/>
+    <circle cx="38" cy="10" r="1.5" fill="#c8d8f0" opacity="0.7"/>
+    <circle cx="-38" cy="10" r="1.5" fill="#c8d8f0" opacity="0.7"/>
+    <circle cx="20" cy="32" r="1.5" fill="#c0d0e8" opacity="0.7"/>
+    <circle cx="-20" cy="32" r="1.5" fill="#c0d0e8" opacity="0.7"/>
+    <circle cx="0" cy="-15" r="2" fill="#ffffff" opacity="0.75"/>
+    <circle cx="0" cy="12" r="1.8" fill="#ddeeff" opacity="0.7"/>
+  </g>
+  <text x="96" y="148"
+    font-family="'Helvetica Neue', Arial, sans-serif"
+    font-size="22"
+    font-weight="300"
+    letter-spacing="1"
+    text-anchor="middle"
+    fill="#e8eef8">WealthAI</text>
+</svg>
