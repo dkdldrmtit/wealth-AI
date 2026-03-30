@@ -264,10 +264,10 @@ body::before {
 .inp-group input:focus { border-color:#e8f4ff; }
 
 /* HISTORY */
-.history-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; margin-bottom:14px; }
-.history-card table { width:100%; border-collapse:collapse; }
-.history-card th { background:var(--surface2); font-size:10px; font-weight:700; color:var(--muted); letter-spacing:1px; padding:11px 14px; text-align:left; }
-.history-card td { padding:12px 14px; font-size:12px; border-top:1px solid var(--border); }
+.assetHistory-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; margin-bottom:14px; }
+.assetHistory-card table { width:100%; border-collapse:collapse; }
+.assetHistory-card th { background:var(--surface2); font-size:10px; font-weight:700; color:var(--muted); letter-spacing:1px; padding:11px 14px; text-align:left; }
+.assetHistory-card td { padding:12px 14px; font-size:12px; border-top:1px solid var(--border); }
 .pos { color:var(--teal); } .neg { color:var(--red); }
 
 /* TOAST */
@@ -332,6 +332,13 @@ body::before {
     background: #1a6fa8 !important;
     color: #ffffff !important;
     border: none !important;
+    filter: drop-shadow(0 0 4px rgba(26,111,168,0.4));
+  }
+  /* 라이트모드 활성 필터 칩 */
+  .active-chip {
+    background: rgba(26,111,168,0.12) !important;
+    color: #1a6fa8 !important;
+    border: 0.5px solid rgba(26,111,168,0.3) !important;
   }
   #home-wealth-text { color: #555555 !important; }
   #home-ai-text { color: #1a6fa8 !important; filter: drop-shadow(0 0 6px rgba(26,111,168,0.7)) drop-shadow(0 0 16px rgba(26,111,168,0.4)) !important; }
@@ -487,7 +494,10 @@ body[data-theme="light"] {
     <div class="siri-card-inner">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px">AI 코멘트</div>
-        <button onclick="loadAiComment(true)" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer;">새로고침</button>
+        <div style="display:flex;gap:6px">
+          <button onclick="loadAiComment(true, false)" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;cursor:pointer;">자산 분석</button>
+          <button onclick="loadAiComment(true, true)" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;cursor:pointer;">🌐 시황</button>
+        </div>
       </div>
       <div id="ai-comment-text" style="font-size:13px;color:var(--text);line-height:1.8;letter-spacing:0.1px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer" onclick="toggleAiComment(this)">
         <div style="color:var(--muted);font-size:12px">분석 중...</div>
@@ -559,7 +569,7 @@ body[data-theme="light"] {
       <svg id="donut-svg" width="110" height="110" viewBox="0 0 110 110" style="flex-shrink:0">
         <circle cx="55" cy="55" r="42" fill="none" stroke="#222222" stroke-width="20"/>
         <circle id="d-apt" cx="55" cy="55" r="42" fill="none" stroke="#60a5fa" stroke-width="20" stroke-dasharray="194.8 264" stroke-dashoffset="66" transform="rotate(-90 55 55)"/>
-        <circle id="d-rental" cx="55" cy="55" r="42" fill="none" stroke="#f0c040" stroke-width="20" stroke-dasharray="6.3 264" stroke-dashoffset="-128.8" transform="rotate(-90 55 55)"/>
+        <circle id="d-rental" cx="55" cy="55" r="42" fill="none" stroke="#888888" stroke-width="20" stroke-dasharray="6.3 264" stroke-dashoffset="-128.8" transform="rotate(-90 55 55)"/>
         <circle id="d-fin" cx="55" cy="55" r="42" fill="none" stroke="#e8f4ff" stroke-width="20" stroke-dasharray="34.6 264" stroke-dashoffset="-135.1" transform="rotate(-90 55 55)"/>
         <circle id="d-liq" cx="55" cy="55" r="42" fill="none" stroke="#f59e0b" stroke-width="20" stroke-dasharray="28.3 264" stroke-dashoffset="-169.7" transform="rotate(-90 55 55)"/>
         <text id="d-center" x="55" y="51" text-anchor="middle" fill="#e8eaf0" font-size="11" font-weight="900" font-family="Noto Sans KR">—</text>
@@ -567,7 +577,7 @@ body[data-theme="light"] {
       </svg>
       <div class="donut-legend">
         <div class="dl-item"><div class="dl-left"><div class="dl-dot" style="background:#60a5fa"></div><div class="dl-name" id="dl-apt-name">아파트</div></div><div class="dl-val" id="dl-apt">—</div></div>
-        <div class="dl-item"><div class="dl-left"><div class="dl-dot" style="background:#f0c040"></div><div class="dl-name">월세보증금</div></div><div class="dl-val" id="dl-rental">—</div></div>
+        <div class="dl-item"><div class="dl-left"><div class="dl-dot" style="background:#888888"></div><div class="dl-name">월세보증금</div></div><div class="dl-val" id="dl-rental">—</div></div>
         <div class="dl-item"><div class="dl-left"><div class="dl-dot" style="background:#ffffff"></div><div class="dl-name">금융자산</div></div><div class="dl-val" id="dl-fin">—</div></div>
         <div class="dl-item"><div class="dl-left"><div class="dl-dot" style="background:#f59e0b"></div><div class="dl-name">예정유동성</div></div><div class="dl-val" id="dl-liq">—</div></div>
         <div class="dl-item" style="border-top:1px solid rgba(255,255,255,.06);padding-top:8px;margin-top:2px">
@@ -985,7 +995,7 @@ body[data-theme="light"] {
           style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:12px;padding:11px 13px;outline:none;">
       </div>
       <div style="display:flex;gap:8px">
-        <button class="btn-primary" onclick="saveProxyUrl()" style="background:linear-gradient(135deg,var(--green),#15803d);flex:1">☁️ 저장</button>
+        <button class="btn-primary" onclick="saveProxyUrl()" style="flex:1">저장</button>
         <button onclick="testProxyConnection()" style="padding:14px 16px;border-radius:12px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">🔌 테스트</button>
       </div>
       <div id="proxy-status" style="margin-top:10px;font-size:12px;text-align:center;display:none"></div>    </div>
@@ -1144,7 +1154,7 @@ body[data-theme="light"] {
     <!-- 거래 추가 / 문자 파싱 / 엑셀 / 음성 버튼 -->
     <div id="ledger-add-btn" style="display:none;flex-direction:row;gap:8px;margin-bottom:14px">
       <button onclick="openLedgerAdd()"
-        style="flex:1;height:46px;border-radius:12px;background:#1e1e1e;border:0.5px solid rgba(232,244,255,0.25);color:#e8f4ff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
+        style="flex:1;height:46px;border-radius:12px;background:#1e1e1e;border:0.5px solid rgba(232,244,255,0.3);color:#e8f4ff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;filter:drop-shadow(0 0 6px rgba(232,244,255,0.15))">
         + 거래 추가
       </button>
       <button onclick="openExcelImport()"
@@ -1641,7 +1651,7 @@ body[data-theme="light"] {
       + 종목 추가
     </button>
     <div id="stock-proxy-notice" style="margin-top:12px;padding:12px 14px;background:rgba(240,192,64,.08);border:1px solid rgba(240,192,64,.2);border-radius:12px;font-size:12px;color:var(--muted2);line-height:1.7;display:none">
-      ⚙️ 실시간 시세를 보려면 설정에서 <strong style="color:var(--gold)">Cloudflare 주소</strong>를 입력해주세요.
+      ⚙️ 실시간 시세를 보려면 설정에서 <strong style="color:#e8f4ff">Cloudflare 주소</strong>를 입력해주세요.
     </div>
 
     <!-- 주식 → 자산 반영 버튼 -->
@@ -1672,7 +1682,7 @@ body[data-theme="light"] {
     <div class="siri-card" style="margin-bottom:14px">
       <div class="siri-card-inner">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:1.5px">🤖 AI 포트폴리오 분석</div>
+          <div style="font-size:11px;color:#e8f4ff;font-weight:700;letter-spacing:1.5px">🤖 AI 포트폴리오 분석</div>
           <button onclick="generateStockAnalysis()" id="stk-ai-btn"
             style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer">분석하기</button>
         </div>
@@ -1683,7 +1693,7 @@ body[data-theme="light"] {
 
   <!-- 거래내역 탭 -->
   <div id="stk-content-history" style="display:none">
-    <div id="stk-history-list"></div>
+    <div id="stk-assetHistory-list"></div>
   </div>
 </div>
 
@@ -1939,7 +1949,7 @@ function monthDiff(a, b) { return (b.getFullYear()-a.getFullYear())*12 + b.getMo
 
 function getGoalCurrent(g) {
   // 최신 기록에서 목표 유형에 맞는 값 자동 계산
-  const latest = history.length > 0 ? history[history.length-1] : null;
+  const latest = assetHistory.length > 0 ? assetHistory[assetHistory.length-1] : null;
   if (!latest) return g.current || 0;
 
   const name = g.name || '';
@@ -1973,7 +1983,7 @@ function renderGoals() {
   const list = document.getElementById('goals-list');
   if (!goals.length) { list.innerHTML = '<p style="color:var(--muted);font-size:13px;text-align:center;padding:20px">아직 목표가 없어요. 아래에서 추가해보세요!</p>'; return; }
 
-  const latest = history.length > 0 ? history[history.length-1] : null;
+  const latest = assetHistory.length > 0 ? assetHistory[assetHistory.length-1] : null;
   const latestMonth = latest ? latest.month : null;
 
   list.innerHTML = goals.map((g, i) => {
@@ -2062,7 +2072,7 @@ function editGoal(i) {
   showToast('✏️ 목표를 수정해보세요!');
 }
 // ── History ──
-let history = load('asset-history', []);
+let assetHistory = load('asset-history', []);
 
 function updateHome(rec) {
   const C = 264;
@@ -2158,7 +2168,7 @@ function updateHomeFromItems(rec) {
 function renderMonthCards() {
   const wrap = document.getElementById('month-cards');
   if (!wrap) return;
-  const rows = [...history].reverse();
+  const rows = [...assetHistory].reverse();
   if (!rows.length) {
     wrap.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:40px 0">아직 기록이 없어요.<br>위 버튼을 눌러 첫 기록을 추가해보세요!</div>';
     return;
@@ -2233,7 +2243,7 @@ function renderMonthCards() {
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
         <div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-            <div style="font-size:12px;color:var(--gold);font-weight:700;letter-spacing:1px">${y}년 ${parseInt(m)}월</div>
+            <div style="font-size:12px;color:#e8f4ff;font-weight:700;letter-spacing:1px">${y}년 ${parseInt(m)}월</div>
             ${isLatest ? '<span style="background:rgba(232,244,255,0.1);color:#e8f4ff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px">최신</span>' : ''}
           </div>
           <div style="font-size:22px;font-weight:900;color:var(--teal)">${(r.net/10000).toFixed(2)}<span style="font-size:12px;color:var(--muted);font-weight:400">억 순자산</span></div>
@@ -2304,14 +2314,14 @@ function setAssetView(view) {
 function renderItemView() {
   const wrap = document.getElementById('item-view-cards');
   if (!wrap) return;
-  if (!history.length) {
+  if (!assetHistory.length) {
     wrap.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:40px 0">아직 기록이 없어요.<br>월별 탭에서 기록을 추가해보세요!</div>';
     return;
   }
 
   const itemKeys = [];
   const seen = new Set();
-  history.forEach(function(r) {
+  assetHistory.forEach(function(r) {
     if (!r.items) return;
     r.items.forEach(function(item) {
       const key = item.category + '::' + item.name;
@@ -2333,7 +2343,7 @@ function renderItemView() {
     '부동산': '#4a9eff',
     '민석 금융자산': '#60a5fa',
     '시윤 금융자산': '#34d399',
-    '기타자산': '#f0c040',
+    '기타자산': '#888888',
     '부채': '#f87171'
   };
 
@@ -2344,8 +2354,8 @@ function renderItemView() {
     byCategory[ik.category].push(ik);
   });
 
-  const latestRec = history[history.length - 1];
-  const months = history.map(function(r) { return r.month; });
+  const latestRec = assetHistory[assetHistory.length - 1];
+  const months = assetHistory.map(function(r) { return r.month; });
   const latestMonth = months[months.length - 1];
 
   // ── 도넛 차트 ──
@@ -2422,7 +2432,7 @@ function renderItemView() {
     const isDebt = cat === '부채';
 
     // 최신 월 카테고리 합계
-    const latestRec = history[history.length - 1];
+    const latestRec = assetHistory[assetHistory.length - 1];
     const catTotal = latestRec && latestRec.items
       ? latestRec.items.filter(function(i) { return i.category === cat; }).reduce(function(s,i) { return s + i.amount; }, 0)
       : 0;
@@ -2438,7 +2448,7 @@ function renderItemView() {
 
     items.forEach(function(ik) {
       // 이 항목의 월별 금액 수집
-      const series = history.map(function(r) {
+      const series = assetHistory.map(function(r) {
         const found = r.items && r.items.find(function(i) { return i.category === ik.category && i.name === ik.name; });
         return { month: r.month, amount: found ? found.amount : null };
       });
@@ -2484,16 +2494,16 @@ function renderItemView() {
         return '<rect x="' + x + '" y="' + (svgH - h) + '" width="' + barW + '" height="' + h + '" rx="2" fill="' + fillColor + '"/>';
       }).join('');
 
-      const latestMonth2 = latestEntry && latestAmt ? latestEntry.month : history[history.length - 1].month;
+      const latestMonth2 = latestEntry && latestAmt ? latestEntry.month : assetHistory[assetHistory.length - 1].month;
       html += '<div onclick="closeAssetDetail();openModal(\'' + latestMonth2 + '\')" style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 12px;margin-bottom:6px;cursor:pointer;transition:transform .1s" onmousedown="this.style.transform=\'scale(0.98)\'" onmouseup="this.style.transform=\'\'" ontouchstart="this.style.transform=\'scale(0.98)\'" ontouchend="this.style.transform=\'\'">';
       html += '<div style="display:flex;justify-content:space-between;align-items:center">';
       html += '<div style="min-width:0;flex:1">';
       html += '<div style="font-size:12px;font-weight:700;color:var(--text)">' + ik.name + '</div>';
       html += '<div style="font-size:15px;font-weight:900;color:' + (isDebt ? 'var(--red)' : 'var(--teal)') + ';margin-top:1px">' + amtDisplay + '</div>';
       const latestMemo = (function() {
-        for (var hi = history.length - 1; hi >= 0; hi--) {
-          if (!history[hi].items) continue;
-          const found = history[hi].items.find(function(i) { return i.category === ik.category && i.name === ik.name && i.memo; });
+        for (var hi = assetHistory.length - 1; hi >= 0; hi--) {
+          if (!assetHistory[hi].items) continue;
+          const found = assetHistory[hi].items.find(function(i) { return i.category === ik.category && i.name === ik.name && i.memo; });
           if (found) return found.memo;
         }
         return null;
@@ -2542,7 +2552,7 @@ function renderQuickMonthBtns(selectedMonth, isEdit) {
   ];
   wrap.innerHTML = months.map(m => {
     const isSelected = m.val === selectedMonth;
-    const alreadyExists = history.some(r => r.month === m.val);
+    const alreadyExists = assetHistory.some(r => r.month === m.val);
     return `<button onclick="selectQuickMonth('${m.val}')"
       style="flex:1;padding:8px 4px;border-radius:10px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;
       background:${isSelected ? 'rgba(232,244,255,0.12)' : 'var(--surface3)'};
@@ -2559,7 +2569,7 @@ function selectQuickMonth(monthStr) {
   document.getElementById('i-month').value = monthStr;
   setModalTitle(monthStr);
   renderQuickMonthBtns(monthStr, false);
-  const existing = history.find(r => r.month === monthStr);
+  const existing = assetHistory.find(r => r.month === monthStr);
   if (existing) {
     editingMonth = monthStr;
     document.getElementById('btn-delete').style.display = 'block';
@@ -2567,7 +2577,7 @@ function selectQuickMonth(monthStr) {
   } else {
     editingMonth = null;
     document.getElementById('btn-delete').style.display = 'none';
-    const src = [...history].filter(r=>r.month<monthStr).pop() || (history.length>0?history[history.length-1]:null);
+    const src = [...assetHistory].filter(r=>r.month<monthStr).pop() || (assetHistory.length>0?assetHistory[assetHistory.length-1]:null);
     modalAssetItems = src ? getItemsDefault(src).map(i => ({...i, id:'item_'+Date.now()+'_'+Math.random().toString(36).substr(2,5)})) : [];
   }
   renderLoadMonthBtns(monthStr);
@@ -2628,7 +2638,7 @@ function renderAssetItems() {
   wrap.innerHTML = '';
   const colorMap = {
     '부동산':'#60a5fa','민석 금융자산':'#9ca3af','시윤 금융자산':'#9ca3af',
-    '기타자산':'#f0c040','부채':'#f87171'
+    '기타자산':'#888888','부채':'#f87171'
   };
 
   modalAssetItems.forEach(function(item, idx) {
@@ -2789,7 +2799,7 @@ function openModal(month) {
 
   if (month) {
     // 기존 기록 편집 - 월 고정
-    const rec = history.find(r => r.month === month);
+    const rec = assetHistory.find(r => r.month === month);
     const [y, m] = month.split('-');
     document.getElementById('modal-title').textContent = y + '년 ' + parseInt(m) + '월 편집';
     document.getElementById('i-month').value = month;
@@ -2817,13 +2827,13 @@ function openModal(month) {
     document.getElementById('i-month').disabled = false;
     document.getElementById('btn-delete').style.display = 'none';
     renderQuickMonthBtns(thisMonth, false);
-    const existing = history.find(r => r.month === thisMonth);
+    const existing = assetHistory.find(r => r.month === thisMonth);
     if (existing) {
       editingMonth = thisMonth;
       document.getElementById('btn-delete').style.display = 'block';
       modalAssetItems = getItemsDefault(existing).map(i => ({...i, id:'item_'+Date.now()+'_'+Math.random().toString(36).substr(2,5)}));
-    } else if (history.length > 0) {
-      modalAssetItems = getItemsDefault(history[history.length-1]).map(i => ({...i, id:'item_'+Date.now()+'_'+Math.random().toString(36).substr(2,5)}));
+    } else if (assetHistory.length > 0) {
+      modalAssetItems = getItemsDefault(assetHistory[assetHistory.length-1]).map(i => ({...i, id:'item_'+Date.now()+'_'+Math.random().toString(36).substr(2,5)}));
     } else {
       modalAssetItems = [];
     }
@@ -2851,13 +2861,13 @@ function closeModal() {
 function onMonthChange(val) {
   setModalTitle(val);
   renderQuickMonthBtns(val, false);
-  const existing = history.find(r => r.month === val);
+  const existing = assetHistory.find(r => r.month === val);
   if (existing) {
     editingMonth = val;
     document.getElementById('btn-delete').style.display = 'block';
     modalAssetItems = getItemsDefault(existing).map(i => ({...i, id:'item_'+Date.now()+'_'+Math.random().toString(36).substr(2,5)}));
   } else {
-    const prev = [...history].filter(r => r.month < val).pop();
+    const prev = [...assetHistory].filter(r => r.month < val).pop();
     modalAssetItems = prev ? getItemsDefault(prev).map(i => ({...i, id:'item_'+Date.now()+'_'+Math.random().toString(36).substr(2,5)})) : [];
     document.getElementById('btn-delete').style.display = 'none';
     editingMonth = null;
@@ -2871,10 +2881,10 @@ function deleteRecord() {
   const targetMonth = editingMonth || document.getElementById('i-month').value;
   if (!targetMonth) { showToast('❗ 삭제할 기록을 찾을 수 없어요'); return; }
   if (!confirm(targetMonth + ' 기록을 삭제할까요?')) return;
-  history = history.filter(r => r.month !== targetMonth);
-  store('asset-history', history);
+  assetHistory = assetHistory.filter(r => r.month !== targetMonth);
+  store('asset-history', assetHistory);
   renderMonthCards(); if (currentAssetView === 'item') renderItemView();
-  if (history.length > 0) updateHomeFromItems(history[history.length - 1]);
+  if (assetHistory.length > 0) updateHomeFromItems(assetHistory[assetHistory.length - 1]);
   else {
     // 기록 없으면 홈 초기화
     const el = id => document.getElementById(id);
@@ -2904,12 +2914,12 @@ function saveRecord() {
     items: modalAssetItems.map(i => ({ category:i.category, emoji:i.emoji, type:i.type, name:i.name, amount:i.amount||0, memo:i.memo||'' }))
   };
 
-  const idx = history.findIndex(r => r.month === month);
-  if (idx >= 0) history[idx] = rec; else history.push(rec);
-  history.sort((a,b) => a.month.localeCompare(b.month));
-  store('asset-history', history);
+  const idx = assetHistory.findIndex(r => r.month === month);
+  if (idx >= 0) assetHistory[idx] = rec; else assetHistory.push(rec);
+  assetHistory.sort((a,b) => a.month.localeCompare(b.month));
+  store('asset-history', assetHistory);
 
-  const latest = history[history.length - 1];
+  const latest = assetHistory[assetHistory.length - 1];
   goals = goals.map(g => ({ ...g, current: latest.net }));
   store('goals', goals);
   renderGoals();
@@ -3054,7 +3064,7 @@ function initHome() {
   const now = new Date();
   const sub = document.getElementById('home-date-sub');
   if (sub) {
-    const latest = history.length > 0 ? history[history.length-1] : null;
+    const latest = assetHistory.length > 0 ? assetHistory[assetHistory.length-1] : null;
     if (latest) {
       const [y,m] = latest.month.split('-');
       sub.textContent = y+'년 '+parseInt(m)+'월 기록 기준 · 오늘 '+now.getFullYear()+'.'+(now.getMonth()+1)+'.'+now.getDate();
@@ -3062,14 +3072,14 @@ function initHome() {
       sub.textContent = now.getFullYear()+'년 '+(now.getMonth()+1)+'월 '+now.getDate()+'일 기준';
     }
   }
-  if (history.length > 0) {
-    updateHomeFromItems(history[history.length - 1]);
+  if (assetHistory.length > 0) {
+    updateHomeFromItems(assetHistory[assetHistory.length - 1]);
   }
   renderMiniChart();
   renderSchedules();
   renderHomeLedgerSummary();
   updateHomeWidget();
-  loadAiComment();
+  loadAiComment(false, false); // 자동 호출은 무료 자산분석 모드
   renderHomeApt();
   // 단지명 UI 반영
   const aptS = load('apt-settings', null);
@@ -3447,12 +3457,12 @@ let detailMonth = null;
 
 function openAssetDetail(month) {
   detailMonth = month;
-  const rec = history.find(r => r.month === month);
+  const rec = assetHistory.find(r => r.month === month);
   if (!rec) return;
 
   const [y, m] = month.split('-');
-  const idx = history.findIndex(r => r.month === month);
-  const prev = idx > 0 ? history[idx-1] : null;
+  const idx = assetHistory.findIndex(r => r.month === month);
+  const prev = idx > 0 ? assetHistory[idx-1] : null;
   const diff = prev ? rec.net - prev.net : null;
 
   // 헤더
@@ -3519,7 +3529,7 @@ function openAssetDetail(month) {
   lockScroll();
 
   // 최신 달 + 실거래가 캐시 있으면 반영 버튼 표시
-  const isLatest = month === history[history.length-1]?.month;
+  const isLatest = month === assetHistory[assetHistory.length-1]?.month;
   const cache = load('realestate-cache', null);
   const syncBtn = document.getElementById('detail-apt-sync');
   if (syncBtn) syncBtn.style.display = (isLatest && cache) ? 'block' : 'none';
@@ -3547,10 +3557,10 @@ function openModalFromDetail() {
 function deleteRecordDirect() {
   if (!detailMonth) return;
   if (!confirm(detailMonth + ' 기록을 삭제할까요?')) return;
-  history = history.filter(r => r.month !== detailMonth);
-  store('asset-history', history);
+  assetHistory = assetHistory.filter(r => r.month !== detailMonth);
+  store('asset-history', assetHistory);
   renderMonthCards(); if (currentAssetView === 'item') renderItemView();
-  if (history.length > 0) updateHomeFromItems(history[history.length-1]);
+  if (assetHistory.length > 0) updateHomeFromItems(assetHistory[assetHistory.length-1]);
   closeAssetDetail();
   showToast('✅ 삭제됐어요');
 }
@@ -3896,8 +3906,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ── AI Chat ──
 function buildSystemPrompt() {
-  const latest = history.length > 0 ? history[history.length-1] : null;
-  const prev = history.length > 1 ? history[history.length-2] : null;
+  const latest = assetHistory.length > 0 ? assetHistory[assetHistory.length-1] : null;
+  const prev = assetHistory.length > 1 ? assetHistory[assetHistory.length-2] : null;
   const now = new Date();
   const thisMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
 
@@ -4354,7 +4364,7 @@ function applyAptToAsset(priceMan) {
 
   histArr[histArr.length - 1] = latest;
   store('asset-history', histArr);
-  history = histArr;
+  assetHistory = histArr;
 
   updateHomeFromItems(latest);
   renderMonthCards();
@@ -4440,7 +4450,7 @@ function renderMiniChart() {
   const empty = document.getElementById('mini-chart-empty');
   const badge = document.getElementById('net-change-badge');
 
-  if (!wrap || history.length < 2) {
+  if (!wrap || assetHistory.length < 2) {
     if (wrap) wrap.style.display = 'none';
     if (empty) empty.style.display = 'block';
     return;
@@ -4449,7 +4459,7 @@ function renderMiniChart() {
   wrap.style.display = 'block';
 
   // 전체 데이터 사용 (최대 24개월)
-  const data = history.slice(-24);
+  const data = assetHistory.slice(-24);
   const nets = data.map(r => r.net);
   const min = Math.min(...nets);
   const max = Math.max(...nets);
@@ -4579,46 +4589,57 @@ function renderMiniChart() {
 
 
 // ── AI 오늘의 한마디 ──
-async function loadAiComment(force=false) {
+async function loadAiComment(force=false, useWebSearch=false) {
   const el = document.getElementById('ai-comment-text');
   if (!el) return;
 
-  // 오늘 날짜 캐시 확인 — force=true(새로고침 버튼)가 아니면 캐시 사용
   const todayDate = new Date();
   const todayKey = todayDate.getFullYear() + '-' + (todayDate.getMonth()+1) + '-' + todayDate.getDate();
-  const cached = load('ai-comment-cache', null);
+
+  // 캐시 확인 (자산분석/시황 각각 별도 캐시)
+  const cacheKey = useWebSearch ? 'ai-comment-cache-market' : 'ai-comment-cache';
+  const cached = load(cacheKey, null);
   if (!force && cached && cached.date === todayKey && cached.text) {
     el.innerHTML = cached.text.replace(/\n/g, '<br>');
     return;
   }
 
-  el.innerHTML = '<span style="color:var(--muted);font-size:12px">오늘의 시황 분석 중...</span>';
+  el.innerHTML = '<span style="color:var(--muted);font-size:12px">' + (useWebSearch ? '시황 검색 중...' : '자산 분석 중...') + '</span>';
 
   // 자산 데이터 수집
-  const latest = history.length > 0 ? history[history.length-1] : null;
+  const latest = assetHistory.length > 0 ? assetHistory[assetHistory.length-1] : null;
   const netStr = latest ? (latest.net/10000).toFixed(2)+'억' : '미기록';
   const thisMonth = todayDate.getFullYear() + '-' + String(todayDate.getMonth()+1).padStart(2,'0');
   const monthExpense = ledgerTxs.filter(t=>t.date.startsWith(thisMonth)&&t.type==='expense').reduce((s,t)=>s+t.amount,0);
-  const prevMonth = history.length > 1 ? history[history.length-2] : null;
+  const prevMonth = assetHistory.length > 1 ? assetHistory[assetHistory.length-2] : null;
   const changeStr = (latest && prevMonth) ? ((latest.net-prevMonth.net)/10000).toFixed(2)+'억' : null;
-  const stockStr = stocks.length ? stocks.map(s=>s.name+'('+s.ticker+')').join(', ') : '';
-  const upcoming = schedules.map(s=>({...s,diff:Math.ceil((new Date(s.date)-todayDate)/86400000)})).filter(s=>s.diff>=0&&s.diff<=30).sort((a,b)=>a.diff-b.diff).slice(0,2);
-  const scheduleStr = upcoming.map(s=>s.name+' D-'+s.diff).join(', ');
-
-  // 주제를 랜덤으로 선택 (매번 다른 코멘트)
-
+  const stockStr = stocks.length ? stocks.map(s=>s.name).join(', ') : '';
   const todayStr = todayDate.getFullYear() + '년 ' + (todayDate.getMonth()+1) + '월 ' + todayDate.getDate() + '일';
 
-  const topics = [
-    '오늘(' + todayStr + ') 코스피/코스닥 지수와 주요 종목 시황' + (stockStr ? ', 특히 ' + stockStr : ''),
-    '오늘(' + todayStr + ') 기준 원/달러 환율과 금리 동향',
-    '오늘(' + todayStr + ') 한국 부동산·아파트 시장 뉴스',
-    stockStr ? '오늘(' + todayStr + ') ' + stockStr + ' 주가 및 관련 뉴스' : '오늘(' + todayStr + ') 글로벌 증시 동향',
-    '오늘(' + todayStr + ') 자산관리에 영향을 줄 경제 뉴스'
-  ];
-  const topic = topics[Math.floor(Math.random() * topics.length)];
+  let prompt, systemPrompt, tools;
 
-  const prompt = '오늘은 ' + todayStr + '입니다. 반드시 웹 검색으로 오늘 날짜 기준 최신 정보를 찾은 뒤 답하세요. 검색 없이 학습 데이터로만 답하지 마세요.\n\n주제: ' + topic + '\n\n검색 후 오늘 실제 수치(지수, 환율, 가격 등)를 포함해서 2~3줄로 핵심만 전달하세요.\n\n[문체 규칙]\n- 반드시 명사형으로 끝낼 것. 예: "~상승.", "~하락.", "~기록.", "~전망."\n- "~습니다", "~해요", "~세요" 같은 구어체 어미 절대 금지\n- 마크다운 금지. 이모지 1개만 맨 앞에.';
+  if (useWebSearch) {
+    // 🌐 시황 모드 - 웹검색 사용 (유료)
+    const topics = [
+      '코스피/코스닥 지수와 주요 종목 시황' + (stockStr ? '(특히 ' + stockStr + ')' : ''),
+      '원/달러 환율과 금리 동향',
+      '한국 부동산·아파트 시장 동향',
+      '글로벌 증시 및 경제 뉴스',
+    ];
+    const topic = topics[Math.floor(Math.random() * topics.length)];
+    prompt = '오늘(' + todayStr + ') 기준 ' + topic + '을 웹검색으로 찾아 실제 수치 포함해 2줄로 요약.';
+    systemPrompt = '자산관리 AI. 웹검색으로 오늘 실제 데이터 확인 후 답변. 명사형 어미(~상승. ~하락.). 구어체 금지. 마크다운 금지. 이모지 1개만 맨 앞.';
+    tools = [{ type: 'web_search_20250305', name: 'web_search' }];
+  } else {
+    // 자산분석 모드 - 웹검색 없음 (무료)
+    prompt = '민석·시윤 부부 자산 현황:\n'
+      + '- 순자산: ' + netStr + (changeStr ? ' (전월 대비 ' + changeStr + ')' : '') + '\n'
+      + '- 이번달 지출: ' + Math.round(monthExpense).toLocaleString() + '만원\n'
+      + (stockStr ? '- 보유 주식: ' + stockStr + '\n' : '')
+      + '\n위 데이터를 바탕으로 오늘의 자산관리 한마디를 2줄 이내로.';
+    systemPrompt = '자산관리 AI. 주어진 데이터만 활용. 명사형 어미(~권장. ~필요. ~양호.). 구어체 금지. 마크다운 금지. 이모지 1개만 맨 앞.';
+    tools = undefined;
+  }
 
   try {
     const claudeKey2 = load('claude-api-key', '');
@@ -4628,24 +4649,22 @@ async function loadAiComment(force=false) {
       'anthropic-dangerous-direct-browser-access': 'true'
     };
     if (claudeKey2) aiHeaders['x-api-key'] = claudeKey2;
+
+    const body = {
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 300,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: prompt }]
+    };
+    if (tools) body.tools = tools;
+
     const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: aiHeaders,
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 400,
-        system: '당신은 민석·시윤 부부의 자산관리 AI입니다. 반드시 웹 검색 도구를 사용해서 오늘 날짜 기준 실제 데이터를 찾은 뒤 답하세요. 모든 문장은 명사형으로 끝내세요(예: ~상승. ~하락. ~기록.). 구어체 어미(~습니다, ~해요) 금지. 마크다운 금지. 이모지 1개만 맨 앞.',
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages: [{ role: 'user', content: prompt }]
-      })
+      method: 'POST', headers: aiHeaders, body: JSON.stringify(body)
     });
     const data = await res.json();
-    const text = (data.content || []).filter(c=>c.type==='text').map(c=>c.text).join('') || '오늘도 자산 관리 화이팅! 💪';
-    // 줄바꿈 처리해서 읽기 좋게
+    const text = (data.content || []).filter(c=>c.type==='text').map(c=>c.text).join('') || '오늘도 꾸준한 자산 관리 화이팅! 💪';
     el.innerHTML = text.replace(/\n/g, '<br>');
-    // 오늘 날짜로 캐시 저장
-    store('ai-comment-cache', { date: todayKey, text: text });
-    // 2줄 초과하면 펼치기 힌트 표시
+    store(cacheKey, { date: todayKey, text: text });
     setTimeout(function() {
       if (el.scrollHeight > el.clientHeight + 4) {
         const hint = document.getElementById('ai-comment-expand');
@@ -4810,7 +4829,7 @@ function applyStocksToAsset() {
 
   histArr[histArr.length - 1] = latest;
   store('asset-history', histArr);
-  history = histArr;
+  assetHistory = histArr;
 
   updateHomeFromItems(latest);
   renderMonthCards();
@@ -4860,7 +4879,7 @@ function renderStkDonut() {
     return;
   }
 
-  const colors = ['#4a9eff','#34d399','#f0c040','#a78bfa','#f87171','#ffffff','#fb923c','#60a5fa'];
+  const colors = ['#4a9eff','#34d399','#888888','#a78bfa','#f87171','#ffffff','#fb923c','#60a5fa'];
   // 원화 환산 기준으로 비중 계산
   const evalKrw = function(s) {
     const rate = (s.market === 'US' && usdKrw) ? usdKrw : 1;
@@ -5013,7 +5032,7 @@ async function generateStockAnalysis() {
 
 // ── 거래내역 렌더링
 function renderStockHistory() {
-  const wrap = document.getElementById('stk-history-list');
+  const wrap = document.getElementById('stk-assetHistory-list');
   if (!wrap) return;
 
   const filtered = getFilteredStocks();
@@ -7190,11 +7209,11 @@ function sortAssetItems() {
 function renderLoadMonthBtns(currentMonth) {
   const wrap = document.getElementById('load-month-btns');
   if (!wrap) return;
-  if (!history.length) {
+  if (!assetHistory.length) {
     wrap.innerHTML = '<span style="font-size:11px;color:var(--muted)">저장된 기록 없음</span>';
     return;
   }
-  const sorted = [...history].sort((a,b) => b.month.localeCompare(a.month));
+  const sorted = [...assetHistory].sort((a,b) => b.month.localeCompare(a.month));
   wrap.innerHTML = sorted.slice(0,6).map(r => {
     const [y,m] = r.month.split('-');
     const isCurrent = r.month === currentMonth;
@@ -7211,7 +7230,7 @@ function renderLoadMonthBtns(currentMonth) {
 
 // ── 특정 월 데이터 모달에 불러오기
 function loadMonthDataToModal(month) {
-  const rec = history.find(r => r.month === month);
+  const rec = assetHistory.find(r => r.month === month);
   if (!rec) { showToast('❗ 해당 월 기록이 없어요'); return; }
   modalAssetItems = getItemsDefault(rec).map(i => ({
     ...i,
@@ -7280,7 +7299,7 @@ async function syncLoad(silent=false) {
       }
     });
 
-    history        = load('asset-history', []);
+    assetHistory        = load('asset-history', []);
     goals          = load('goals', []);
     schedules      = load('schedules', []);
     ledgerTxs      = load('ledger-txs', []);
@@ -7472,7 +7491,7 @@ window.addEventListener('popstate', function() {
     if (el && el.style.display !== 'none') {
       el.style.display = 'none';
       unlockScroll();
-      history.pushState(null, '', location.href);
+      window.history.pushState(null, '', location.href);
       return;
     }
   }
@@ -7481,7 +7500,7 @@ window.addEventListener('popstate', function() {
 });
 
 // 페이지 진입 시 히스토리 상태 추가
-history.pushState(null, '', location.href);
+window.history.pushState(null, '', location.href);
 
 </script>
 </body>
