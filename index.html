@@ -90,7 +90,7 @@ body::before {
   background: none;
   pointer-events:none; z-index:0;
 }
-.app { position:relative; z-index:1; max-width:680px; margin:0 auto; padding:0 0 100px; }
+.app { position:relative; z-index:1; max-width:680px; margin:0 auto; padding:env(safe-area-inset-top, 0px) 0 100px; }
 
 /* NAV */
 .nav {
@@ -122,7 +122,7 @@ body::before {
 
 /* HEADER */
 .page-header { margin-bottom:16px; margin-top:8px; }
-#page-home .page-header { margin-top:max(62px, calc(env(safe-area-inset-top, 0px) + 24px)); }
+#page-home .page-header { margin-top:max(52px, calc(env(safe-area-inset-top, 0px) + 16px)); }
 .page-header .eyebrow { font-size:11px; color:var(--muted); font-weight:500; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
 .page-header h1 {
   font-family:'Playfair Display', serif; font-size:28px; line-height:1.15;
