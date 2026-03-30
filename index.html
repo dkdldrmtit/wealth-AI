@@ -122,7 +122,7 @@ body::before {
 
 /* HEADER */
 .page-header { margin-bottom:16px; margin-top:8px; }
-#page-home .page-header { margin-top:62px; }
+#page-home .page-header { margin-top:max(62px, calc(env(safe-area-inset-top, 0px) + 24px)); }
 .page-header .eyebrow { font-size:11px; color:var(--muted); font-weight:500; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
 .page-header h1 {
   font-family:'Playfair Display', serif; font-size:28px; line-height:1.15;
@@ -191,9 +191,9 @@ body::before {
 
 /* BUTTONS */
 .btn-primary {
-  background:linear-gradient(135deg, #f0c040, #e8a020);
-  border:none; border-radius:12px; color:#000;
-  font-family:'Noto Sans KR',sans-serif; font-size:14px; font-weight:800;
+  background: #1e1e1e;
+  border: 0.5px solid rgba(232,244,255,0.25); border-radius:12px; color:#e8f4ff;
+  font-family:'Noto Sans KR',sans-serif; font-size:14px; font-weight:700;
   padding:14px; width:100%; cursor:pointer;
   transition:opacity .2s, transform .1s;
 }
@@ -809,7 +809,7 @@ body[data-theme="light"] {
 
 <!-- ══ 자산 상세보기 모달 ══ -->
 <div id="asset-detail-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:250;overflow-y:auto">
-  <div style="max-width:680px;margin:0 auto;padding:16px 16px 60px">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;overflow:hidden">
 
       <!-- 헤더 -->
@@ -859,7 +859,7 @@ body[data-theme="light"] {
 
 <!-- ══ EDIT MODAL ══ -->
 <div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:200;overflow-y:auto;">
-  <div style="max-width:680px;margin:0 auto;padding:16px 16px 80px;">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 80px;">
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:18px;">
 
       <!-- 헤더 -->
@@ -1308,7 +1308,7 @@ body[data-theme="light"] {
 
 <!-- ══ 거래 입력 모달 ══ -->
 <div id="ledger-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto">
-  <div style="max-width:680px;margin:0 auto;padding:16px 16px 60px">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
@@ -1370,7 +1370,7 @@ body[data-theme="light"] {
 
 <!-- ══ 음성 입력 모달 ══ -->
 <div id="voice-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto">
-  <div style="max-width:680px;margin:0 auto;padding:16px 16px 60px">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -1431,7 +1431,7 @@ body[data-theme="light"] {
 
 <!-- ══ 대기목록 모달 ══ -->
 <div id="pending-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto">
-  <div style="max-width:680px;margin:0 auto;padding:16px 16px 60px">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--text);font-weight:700">미등록 거래</div>
@@ -1455,7 +1455,7 @@ body[data-theme="light"] {
 
 <!-- ══ 엑셀/CSV 가계부 임포트 모달 ══ -->
 <div id="excel-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto">
-  <div style="max-width:680px;margin:0 auto;padding:16px 16px 60px">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
         <div style="font-family:'Playfair Display',serif;font-size:22px;background:linear-gradient(135deg,#4ade80,#fff 60%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">카드 내역 가져오기</div>
@@ -1521,7 +1521,7 @@ body[data-theme="light"] {
 
 <!-- ══ 알림 캡처 파싱 모달 ══ -->
 <div id="sms-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto">
-  <div style="max-width:680px;margin:0 auto;padding:16px 16px 60px">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -1532,7 +1532,7 @@ body[data-theme="light"] {
 
       <!-- 소유자 선택 -->
       <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:14px;gap:2px">
-        <button id="sms-owner-cm" onclick="setSmsOwner('common')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:var(--purple);color:#fff;transition:all .2s">🤝 공동</button>
+        <button id="sms-owner-cm" onclick="setSmsOwner('common')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:#2a2a2a;color:#e8f4ff;border:0.5px solid rgba(232,244,255,0.3);transition:all .2s">🤝 공동</button>
         <button id="sms-owner-ms" onclick="setSmsOwner('minsuk')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">👨 민석</button>
         <button id="sms-owner-sy" onclick="setSmsOwner('siyun')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">👩 시윤</button>
       </div>
@@ -1578,7 +1578,7 @@ body[data-theme="light"] {
 
 <!-- ══ 예산 설정 모달 ══ -->
 <div id="budget-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto">
-  <div style="max-width:680px;margin:0 auto;padding:16px 16px 60px">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
         <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--text);font-weight:300">예산 설정</div>
@@ -1625,7 +1625,7 @@ body[data-theme="light"] {
     <!-- 통화 토글 -->
     <div style="display:flex;background:var(--surface2);border-radius:8px;padding:2px;gap:1px;margin-left:8px">
       <button id="stk-currency-krw" onclick="setStkCurrency('KRW')"
-        style="padding:4px 10px;border-radius:6px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:var(--blue);color:#fff;transition:all .2s">원</button>
+        style="padding:4px 10px;border-radius:6px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:#1e1e1e;color:#e8f4ff;border:0.5px solid rgba(232,244,255,0.3);transition:all .2s">원</button>
       <button id="stk-currency-usd" onclick="setStkCurrency('USD')"
         style="padding:4px 10px;border-radius:6px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">$</button>
     </div>
@@ -1700,7 +1700,7 @@ body[data-theme="light"] {
 
 <!-- ══ 종목 추가/편집 모달 ══ -->
 <div id="stock-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto">
-  <div style="max-width:680px;margin:0 auto;padding:16px 16px 60px">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
@@ -1716,7 +1716,7 @@ body[data-theme="light"] {
 
       <!-- 국내/해외 토글 -->
       <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:16px">
-        <button id="market-kr" onclick="setMarket('KR')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:var(--blue);color:#fff">🇰🇷 국내</button>
+        <button id="market-kr" onclick="setMarket('KR')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:#1e1e1e;color:#e8f4ff;border:0.5px solid rgba(232,244,255,0.3)">🇰🇷 국내</button>
         <button id="market-us" onclick="setMarket('US')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2)">🇺🇸 해외</button>
       </div>
 
@@ -1757,7 +1757,7 @@ body[data-theme="light"] {
 
 <!-- ══ 거래 입력 모달 ══ -->
 <div id="trade-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto">
-  <div style="max-width:680px;margin:0 auto;padding:16px 16px 60px">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
@@ -1767,7 +1767,7 @@ body[data-theme="light"] {
 
       <!-- 매수/매도 -->
       <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:16px">
-        <button id="trade-buy" onclick="setTradeType('buy')" style="flex:1;padding:10px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:800;cursor:pointer;background:var(--blue);color:#fff">📈 매수</button>
+        <button id="trade-buy" onclick="setTradeType('buy')" style="flex:1;padding:10px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:800;cursor:pointer;background:#1e1e1e;color:#e8f4ff;border:0.5px solid rgba(232,244,255,0.3)">📈 매수</button>
         <button id="trade-sell" onclick="setTradeType('sell')" style="flex:1;padding:10px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:800;cursor:pointer;background:transparent;color:var(--muted2)">📉 매도</button>
       </div>
 
