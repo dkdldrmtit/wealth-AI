@@ -1141,9 +1141,9 @@ body[data-theme="light"] {
 
     <!-- 탭 (내역/분석/예산) -->
     <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:16px">
-      <button id="ltab-list" onclick="setLedgerTab('list')" style="flex:1;padding:10px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:#e8f4ff;border-bottom:2px solid #e8f4ff;margin-bottom:-2px">내역</button>
-      <button id="ltab-chart" onclick="setLedgerTab('chart')" style="flex:1;padding:10px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)">분석</button>
-      <button id="ltab-budget" onclick="setLedgerTab('budget')" style="flex:1;padding:10px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)">예산</button>
+<button id="ltab-list" onclick="setLedgerTab('list')" style="flex:1;padding:10px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--text);border-bottom:2px solid var(--text);margin-bottom:-2px">내역</button>
+<button id="ltab-chart" onclick="setLedgerTab('chart')" style="flex:1;padding:10px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)">분석</button>
+<button id="ltab-budget" onclick="setLedgerTab('budget')" style="flex:1;padding:10px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)">예산</button>
     </div>
 
     <!-- 거래 추가 / 문자 파싱 / 엑셀 / 음성 버튼 -->
@@ -5532,9 +5532,9 @@ function setLedgerTab(tab) {
     const cont = document.getElementById('ltab-content-'+t);
     const isActive = t === tab;
     if (btn) {
-      btn.style.color = isActive ? '#e8f4ff' : 'var(--muted)';
+      btn.style.color = isActive ? 'var(--text)' : 'var(--muted)';
       btn.style.fontWeight = isActive ? '700' : '600';
-      btn.style.borderBottom = isActive ? '2px solid #e8f4ff' : '2px solid transparent';
+      btn.style.borderBottom = isActive ? '2px solid var(--text)' : '2px solid transparent';
     }
     if (cont) {
       cont.style.display = isActive ? 'block' : 'none';
