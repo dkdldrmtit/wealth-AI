@@ -1228,7 +1228,7 @@ body[data-theme="light"] {
           style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:10px 0;outline:none">
         <button id="ledger-search-clear" onclick="clearLedgerSearch()" style="display:none;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0">✕</button>
         <div style="width:1px;height:16px;background:var(--border2)"></div>
-        <button id="sort-desc" onclick="setLedgerSort('desc')" title="최신순"
+        <button id="sort-toggle" onclick="toggleLedgerSort()"
           style="background:none;border:none;color:var(--blue);font-size:15px;cursor:pointer;padding:0;font-weight:900;line-height:1">↓</button>
         <button id="sort-asc" onclick="setLedgerSort('asc')" title="과거순"
           style="background:none;border:none;color:var(--muted2);font-size:15px;cursor:pointer;padding:0;font-weight:400;line-height:1">↑</button>
@@ -5569,16 +5569,16 @@ let ledgerSortOrder = 'desc'; // 기본 최신순
 
 function setLedgerSort(order) {
   ledgerSortOrder = order;
-  const descBtn = document.getElementById('sort-desc');
-  const ascBtn  = document.getElementById('sort-asc');
-  if (descBtn) {
-    descBtn.style.color = order === 'desc' ? 'var(--blue)' : 'var(--muted2)';
-    descBtn.style.fontWeight = order === 'desc' ? '900' : '400';
-  }
-  if (ascBtn) {
-    ascBtn.style.color = order === 'asc' ? 'var(--blue)' : 'var(--muted2)';
-    ascBtn.style.fontWeight = order === 'asc' ? '900' : '400';
-  }
+  const btn = document.getElementById('sort-toggle');
+  if (btn) btn.textContent = order === 'desc' ? '↓' : '↑';
+  renderLedger();
+}
+
+function toggleLedgerSort() {
+  const newOrder = ledgerSortOrder === 'desc' ? 'asc' : 'desc';
+  ledgerSortOrder = newOrder;
+  const btn = document.getElementById('sort-toggle');
+  if (btn) btn.textContent = newOrder === 'desc' ? '↓' : '↑';
   renderLedger();
 }
 
