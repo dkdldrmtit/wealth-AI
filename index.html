@@ -1114,12 +1114,6 @@ body[data-theme="light"] {
       <h1>수입 · 지출</h1>
     </div>
 
-    <!-- 월 네비 -->
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
-      <button onclick="ledgerPrevMonth()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:20px;width:38px;height:38px;cursor:pointer;flex-shrink:0;line-height:1">‹</button>
-      <div id="ledger-month-label" style="flex:1;text-align:center;font-size:17px;font-weight:800;color:var(--text)"></div>
-      <button onclick="ledgerNextMonth()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:20px;width:38px;height:38px;cursor:pointer;flex-shrink:0;line-height:1">›</button>
-    </div>
 
     <!-- 수입/지출/잔액 -->
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
@@ -1175,6 +1169,13 @@ body[data-theme="light"] {
 
   <!-- 내역 탭 -->
   <div id="ltab-content-list" style="padding:0 16px 120px">
+
+    <!-- 월 네비 -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;margin-top:4px">
+      <button onclick="ledgerPrevMonth()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:20px;width:38px;height:38px;cursor:pointer;flex-shrink:0;line-height:1">‹</button>
+      <div id="ledger-month-label" style="flex:1;text-align:center;font-size:17px;font-weight:800;color:var(--text)"></div>
+      <button onclick="ledgerNextMonth()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:20px;width:38px;height:38px;cursor:pointer;flex-shrink:0;line-height:1">›</button>
+    </div>
 
     <!-- 필터 영역 -->
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:14px">
@@ -4596,7 +4597,10 @@ async function loadAiComment(force=false, useWebSearch=false) {
   if (!el) return;
 
   const todayDate = new Date();
-  const todayKey = todayDate.getFullYear() + '-' + (todayDate.getMonth()+1) + '-' + todayDate.getDate();
+  const hour = Math.floor(todayDate.getHours() / 6);
+  const todayKey = useWebSearch
+  ? todayDate.getFullYear() + '-' + (todayDate.getMonth()+1) + '-' + todayDate.getDate() + '-' + hour
+  : todayDate.getFullYear() + '-' + (todayDate.getMonth()+1) + '-' + todayDate.getDate();
 
   // 캐시 확인 (자산분석/시황 각각 별도 캐시)
   const cacheKey = useWebSearch ? 'ai-comment-cache-market' : 'ai-comment-cache';
@@ -4654,7 +4658,7 @@ async function loadAiComment(force=false, useWebSearch=false) {
 
     const body = {
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 300,
+      max_tokens: 150,
       system: systemPrompt,
       messages: [{ role: 'user', content: prompt }]
     };
@@ -6732,7 +6736,7 @@ async function runHomeMicParser(text) {
       headers,
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 300,
+        max_tokens: 150,
         system: '사용자의 자연어 지출/수입 내용을 JSON 배열로만 응답. 다른 텍스트 절대 금지.\n카테고리: ' + catList + '\n소유자: "민석"→minsuk, "시윤"→siyun, 언급없거나 "공동/우리/같이"→common\n형식: [{"type":"expense","amount":원단위숫자,"memo":"내용","category":"id","owner":"common|minsuk|siyun"}]',
         messages: [{ role: 'user', content: '오늘(' + todayStr + ') ' + text }]
       })
