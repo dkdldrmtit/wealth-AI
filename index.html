@@ -675,7 +675,7 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
 
   <!-- ① 오늘 지출 위젯 -->
   <div data-card="widget" id="home-card-widget">
-  <div id="home-widget" style="background:var(--surface);border:0.5px solid var(--border2);border-radius:20px;padding:16px;margin-bottom:14px">
+  <div id="home-widget" onclick="goPage('ledger',document.querySelectorAll('.nav-item')[1]);setTimeout(()=>setLedgerTab('list'),300)" style="background:var(--surface);border:0.5px solid var(--border2);border-radius:20px;padding:16px;margin-bottom:14px;cursor:pointer">
     <div style="display:flex;justify-content:space-between;align-items:flex-start">
       <div onclick="goPage('ledger',document.querySelectorAll('.nav-item')[1]);setTimeout(()=>setLedgerPeriod('month'),300)" style="cursor:pointer">
         <div style="font-size:10px;color:var(--muted);font-weight:500;letter-spacing:1px;margin-bottom:4px">TODAY</div>
@@ -729,7 +729,7 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
 
   <!-- ③ 이달 가계부 -->
   <div data-card="ledger" id="home-card-ledger">
-  <div class="card" id="home-ledger-summary" style="border-color:rgba(74,222,128,.2)">
+  <div class="card" id="home-ledger-summary" onclick="goPage('ledger',document.querySelectorAll('.nav-item')[1])" style="border-color:rgba(74,222,128,.2);cursor:pointer">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div class="card-title" style="margin-bottom:0;color:var(--muted)" id="home-ledger-title">이달 가계부</div>
       <button onclick="goPage('ledger',document.querySelectorAll('.nav-item')[1])" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer">자세히 →</button>
@@ -740,7 +740,7 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
 
   <!-- ④ 주요 일정 -->
   <div data-card="schedule" id="home-card-schedule">
-  <div class="card" style="border-color:rgba(167,139,250,.2);padding:14px 16px">
+  <div class="card" onclick="openScheduleEdit()" style="border-color:rgba(167,139,250,.2);padding:14px 16px;cursor:pointer">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px">주요 일정</div>
       <button onclick="openScheduleEdit()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;cursor:pointer;">+ 추가</button>
@@ -760,7 +760,7 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
 
   <!-- ⑥ 순자산 변화 추이 -->
   <div data-card="chart" id="home-card-chart">
-  <div class="card">
+  <div class="card" onclick="goPage('input',document.querySelectorAll('.nav-item')[3])" style="cursor:pointer">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div class="card-title" style="margin-bottom:0;color:var(--muted)">순자산 변화 추이</div>
       <div id="net-change-badge" style="font-size:11px;font-weight:700"></div>
@@ -781,7 +781,7 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
 
   <!-- ⑦ 자산 구성 도넛 -->
   <div data-card="donut" id="home-card-donut">
-  <div class="card">
+  <div class="card" onclick="goPage('input',document.querySelectorAll('.nav-item')[3])" style="cursor:pointer">
     <div class="card-title">자산 구성</div>
     <div class="donut-wrap">
       <svg id="donut-svg" width="110" height="110" viewBox="0 0 110 110" style="flex-shrink:0">
@@ -809,7 +809,7 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
 
   <!-- ⑧ 민석/시윤 금융자산 -->
   <div data-card="owners" id="home-card-owners">
-  <div class="card">
+  <div class="card" onclick="goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>setAssetView('item'),300)" style="cursor:pointer">
     <div class="card-title">민석 · 시윤 금융자산</div>
     <div class="owner-split">
       <div class="owner-box" onclick="goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>{setAssetView('item');setTimeout(()=>{const el=document.getElementById('item-section-민석 금융자산');if(el)el.scrollIntoView({behavior:'smooth'})},200)},300)" style="cursor:pointer">
@@ -828,7 +828,7 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
 
   <!-- ⑨ 아파트 실거래가 -->
   <div data-card="apt" id="home-card-apt">
-  <div class="card" style="border-color:rgba(96,165,250,.2)">
+  <div class="card" onclick="goPage('settings',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab('apt'),200)" style="border-color:rgba(96,165,250,.2);cursor:pointer">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px" id="home-apt-card-title">아파트 실거래가</div>
       <button onclick="fetchAndShowApt()" id="apt-refresh-btn" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer">🔄 새로고침</button>
