@@ -2598,16 +2598,14 @@ function updateHomeFromItems(rec) {
     : '<span style="color:var(--muted)">항목 없음</span>';
 }
 
-  // 로딩 중 스켈레톤 (데이터 있을 때만 스켈레톤 → 즉시 렌더)
+function renderMonthCards() {
+  const wrap = document.getElementById('month-cards');
+  if (!wrap) return;
   if (!assetHistory.length) {
     wrap.innerHTML = '<div class="empty-state"><div class="es-icon">📊</div><div class="es-title">아직 자산 기록이 없어요</div><div class="es-sub">위 버튼을 눌러<br>첫 번째 자산 기록을 추가해보세요!</div></div>';
     return;
   }
   const rows = [...assetHistory].reverse();
-  if (!rows.length) {
-    wrap.innerHTML = '<div class="empty-state"><div class="es-icon">📊</div><div class="es-title">아직 자산 기록이 없어요</div><div class="es-sub">위 버튼을 눌러<br>첫 번째 자산 기록을 추가해보세요!</div></div>';
-    return;
-  }
   wrap.innerHTML = rows.map((r, i) => {
     const prev = rows[i+1];
     const diff = prev ? r.net - prev.net : null;
@@ -8208,6 +8206,18 @@ window.addEventListener('popstate', function() {
 
 // 페이지 진입 시 히스토리 상태 추가
 window.history.pushState(null, '', location.href);
+
+/* ══ 스크롤 잠금/해제 ══ */
+function lockScroll() {
+  document.body.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+  document.body.style.width = '100%';
+}
+function unlockScroll() {
+  document.body.style.overflow = '';
+  document.body.style.position = '';
+  document.body.style.width = '';
+}
 
 /* ══ 계산기 키패드 ══ */
 let calcRawValue = '';
