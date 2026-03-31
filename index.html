@@ -767,6 +767,13 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
   </div>
   </div>
 
+  <!-- ④-1 순자산 목표 게이지 -->
+  <div data-card="goalguage" id="home-card-goalguage">
+  <div class="card" onclick="goPage('goals',{classList:{add:()=>{},remove:()=>{}}})" style="cursor:pointer;margin-bottom:14px">
+    <div id="goal-gauge-wrap"></div>
+  </div>
+  </div>
+
   <!-- ⑤ 총자산/부채/순자산 -->
   <div data-card="summary" id="home-card-summary">
   <div style="margin-bottom:14px">
@@ -1488,6 +1495,9 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
 
   <!-- 분석 탭 -->
   <div id="ltab-content-chart" style="display:none;padding:0 16px 120px">
+
+    <!-- 자동 인사이트 카드 -->
+    <div id="ledger-insight-card" style="margin-bottom:12px"></div>
 
     <!-- AI 월말 리포트 -->
     <div class="siri-card" style="margin-bottom:12px">
@@ -2625,6 +2635,8 @@ function updateHomeFromItems(rec) {
   if(el('h-siyun-items'))  el('h-siyun-items').innerHTML  = syItems.length
     ? syItems.map(i => i.name + ' ' + i.amount.toLocaleString()).join('<br>')
     : '<span style="color:var(--muted)">항목 없음</span>';
+  // 목표 게이지 갱신
+  renderGoalGauge();
 }
 
 function renderMonthCards() {
@@ -3555,6 +3567,7 @@ function initHome() {
     updateHomeFromItems(assetHistory[assetHistory.length - 1]);
   }
   renderMiniChart();
+  renderGoalGauge();
   renderSchedules();
   renderHomeLedgerSummary();
   updateHomeWidget();
@@ -4219,6 +4232,7 @@ const HOME_CARD_DEFAULTS = [
   { id:'ai',      label:'🤖 AI 코멘트',            visible:true  },
   { id:'ledger',  label:'💳 이달 가계부',           visible:true  },
   { id:'schedule',label:'📅 주요 일정',             visible:true  },
+  { id:'goalguage', label:'🎯 순자산 목표 게이지',   visible:true  },
   { id:'summary', label:'📊 총자산/부채/순자산',    visible:true  },
   { id:'chart',   label:'📈 순자산 추이',           visible:true  },
   { id:'donut',   label:'🥧 자산 구성',             visible:false },
@@ -6305,7 +6319,7 @@ function renderLedger() {
     renderCatFilterBtns(ownerFiltered);
     renderLedgerList(filtered);
   }
-  else if (ledgerTab === 'chart') { renderExpenseHeatmap(); renderLedgerTrendChart(); renderCategoryChart(monthTxs); renderOwnerCompare(monthTxs); }
+  else if (ledgerTab === 'chart') { renderLedgerInsights(); renderExpenseHeatmap(); renderLedgerTrendChart(); renderCategoryChart(monthTxs); renderOwnerCompare(monthTxs); }
   else if (ledgerTab === 'budget') { renderBudgetBars(monthTxs); renderRecurringList(); }
 }
 
@@ -6413,6 +6427,254 @@ function renderLedgerList(txs) {
       </div>
     </div>`;
   }).join('');
+}
+
+// ── 순자산 목표 게이지 ──
+function renderGoalGauge() {
+  const wrap = document.getElementById('goal-gauge-wrap');
+  if (!wrap) return;
+
+  // 순자산 목표 중 가장 큰 것 찾기
+  const netGoals = goals.filter(function(g) {
+    return g.name && (g.name.includes('순자산') || g.name.includes('자산'));
+  }).sort(function(a,b) { return b.target - a.target; });
+
+  if (!netGoals.length || !assetHistory.length) {
+    wrap.innerHTML = '<div style="text-align:center;padding:12px;color:var(--muted);font-size:12px">목표 탭에서 순자산 목표를 추가하면<br>여기서 진행률을 확인할 수 있어요!</div>';
+    return;
+  }
+
+  const latest = assetHistory[assetHistory.length - 1];
+  const currentNet = latest.net;
+
+  let html = '';
+  netGoals.slice(0, 2).forEach(function(g, idx) {
+    const pct = Math.min(100, Math.round(currentNet / g.target * 100));
+    const months = monthDiff(new Date(), new Date(g.deadline));
+    const isFirst = idx === 0;
+
+    // 색상 단계
+    const gaugeColor = pct >= 100 ? '#60a5fa'
+      : pct >= 70 ? '#4ade80'
+      : pct >= 40 ? '#fbbf24'
+      : '#f87171';
+
+    const gaugeGlow = pct >= 100 ? 'rgba(96,165,250,0.4)'
+      : pct >= 70 ? 'rgba(74,222,128,0.4)'
+      : pct >= 40 ? 'rgba(251,191,36,0.3)'
+      : 'rgba(248,113,113,0.3)';
+
+    const emoji = pct >= 100 ? '🏆' : pct >= 70 ? '🚀' : pct >= 40 ? '📈' : '💪';
+
+    // 반원형 SVG 게이지
+    const R = 54;
+    const cx = 70, cy = 70;
+    const circumference = Math.PI * R; // 반원 둘레
+    const strokeDash = (pct / 100) * circumference;
+    const strokeGap = circumference - strokeDash;
+
+    if (isFirst) {
+      html += '<div style="display:flex;align-items:center;gap:16px;padding:4px 0">';
+
+      // 왼쪽: 반원 게이지
+      html += '<div style="flex-shrink:0;position:relative;width:140px;height:80px">';
+      html += '<svg width="140" height="80" viewBox="0 0 140 80">';
+      // 배경 트랙
+      html += '<path d="M 16 70 A 54 54 0 0 1 124 70" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="16" stroke-linecap="round"/>';
+      // 진행 바
+      html += '<path d="M 16 70 A 54 54 0 0 1 124 70" fill="none"'
+        + ' stroke="' + gaugeColor + '"'
+        + ' stroke-width="16"'
+        + ' stroke-linecap="round"'
+        + ' stroke-dasharray="' + strokeDash.toFixed(1) + ' ' + (circumference + 10) + '"'
+        + ' style="filter:drop-shadow(0 0 6px ' + gaugeGlow + ')"'
+        + '/>';
+      // 중앙 텍스트
+      html += '<text x="70" y="58" text-anchor="middle" font-size="22" font-weight="900" fill="' + gaugeColor + '" font-family="Noto Sans KR">' + pct + '</text>';
+      html += '<text x="70" y="72" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="Noto Sans KR">%</text>';
+      html += '</svg>';
+      html += '</div>';
+
+      // 오른쪽: 정보
+      html += '<div style="flex:1;min-width:0">';
+      html += '<div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:4px">' + emoji + ' 대표 목표</div>';
+      html += '<div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escHtml(g.name) + '</div>';
+      html += '<div style="display:flex;justify-content:space-between;margin-bottom:4px">';
+      html += '<span style="font-size:11px;color:var(--muted)">현재</span>';
+      html += '<span style="font-size:12px;font-weight:700;color:' + gaugeColor + '">' + (currentNet/10000).toFixed(2) + '억</span>';
+      html += '</div>';
+      html += '<div style="display:flex;justify-content:space-between;margin-bottom:8px">';
+      html += '<span style="font-size:11px;color:var(--muted)">목표</span>';
+      html += '<span style="font-size:12px;font-weight:700;color:var(--muted2)">' + (g.target/10000).toFixed(2) + '억</span>';
+      html += '</div>';
+      // 남은 금액 바
+      const remaining = Math.max(0, g.target - currentNet);
+      html += '<div style="background:rgba(255,255,255,0.06);border-radius:4px;height:4px;overflow:hidden">';
+      html += '<div style="height:100%;width:' + pct + '%;background:' + gaugeColor + ';border-radius:4px;transition:width 1s ease;box-shadow:0 0 6px ' + gaugeGlow + '"></div>';
+      html += '</div>';
+      html += '<div style="font-size:10px;color:var(--muted);margin-top:4px">';
+      if (pct >= 100) {
+        html += '🎉 목표 달성!';
+      } else {
+        html += '앞으로 <span style="color:' + gaugeColor + ';font-weight:700">' + (remaining/10000).toFixed(2) + '억</span> 남음';
+        if (months > 0) html += ' · ' + months + '개월 후';
+      }
+      html += '</div>';
+      html += '</div>';
+      html += '</div>';
+    }
+
+    // 두 번째 목표는 작게
+    if (!isFirst) {
+      html += '<div style="border-top:1px solid var(--border);padding-top:10px;margin-top:6px">';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+      html += '<div style="font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%">' + escHtml(g.name) + '</div>';
+      html += '<span style="font-size:11px;font-weight:700;color:' + gaugeColor + '">' + emoji + ' ' + pct + '%</span>';
+      html += '</div>';
+      html += '<div style="background:rgba(255,255,255,0.06);border-radius:4px;height:5px;overflow:hidden">';
+      html += '<div style="height:100%;width:' + pct + '%;background:' + gaugeColor + ';border-radius:4px;box-shadow:0 0 5px ' + gaugeGlow + '"></div>';
+      html += '</div>';
+      html += '</div>';
+    }
+  });
+
+  wrap.innerHTML = html;
+}
+
+// ── 가계부 자동 인사이트 ──
+function renderLedgerInsights() {
+  const wrap = document.getElementById('ledger-insight-card');
+  if (!wrap) return;
+
+  const now = new Date();
+  const thisMonth = ledgerMonth;
+  const [y, m] = thisMonth.split('-').map(Number);
+
+  // 전달
+  const prevDate = new Date(y, m - 2, 1);
+  const prevMonth = prevDate.getFullYear() + '-' + String(prevDate.getMonth()+1).padStart(2,'0');
+
+  const thisTxs = ledgerTxs.filter(function(t) { return t.date.startsWith(thisMonth); });
+  const prevTxs = ledgerTxs.filter(function(t) { return t.date.startsWith(prevMonth); });
+
+  if (!thisTxs.length) { wrap.innerHTML = ''; return; }
+
+  const thisExp = thisTxs.filter(function(t){ return t.type==='expense'; }).reduce(function(s,t){ return s+t.amount; }, 0);
+  const thisInc = thisTxs.filter(function(t){ return t.type==='income'; }).reduce(function(s,t){ return s+t.amount; }, 0);
+  const prevExp = prevTxs.filter(function(t){ return t.type==='expense'; }).reduce(function(s,t){ return s+t.amount; }, 0);
+
+  const insights = [];
+
+  // 1. 전달 대비 지출 변화
+  if (prevExp > 0 && thisExp > 0) {
+    const diff = ((thisExp - prevExp) / prevExp * 100);
+    if (Math.abs(diff) >= 5) {
+      const isUp = diff > 0;
+      insights.push({
+        emoji: isUp ? '📈' : '📉',
+        color: isUp ? 'var(--red)' : 'var(--green)',
+        bg: isUp ? 'rgba(248,113,113,0.08)' : 'rgba(74,222,128,0.08)',
+        border: isUp ? 'rgba(248,113,113,0.2)' : 'rgba(74,222,128,0.2)',
+        text: '지출이 지난달보다 <strong style="color:' + (isUp?'var(--red)':'var(--green)') + '">' + Math.abs(Math.round(diff)) + '%</strong> ' + (isUp ? '늘었어요' : '줄었어요')
+      });
+    }
+  }
+
+  // 2. 카테고리별 TOP 지출
+  const byCat = {};
+  thisTxs.filter(function(t){ return t.type==='expense'; }).forEach(function(t) {
+    byCat[t.category] = (byCat[t.category]||0) + t.amount;
+  });
+  const topCat = Object.entries(byCat).sort(function(a,b){ return b[1]-a[1]; })[0];
+  if (topCat && thisExp > 0) {
+    const catInfo = CATEGORIES.expense.find(function(c){ return c.id===topCat[0]; }) || { label:'기타', color:'#6b7280' };
+    const pct = Math.round(topCat[1]/thisExp*100);
+    if (pct >= 30) {
+      insights.push({
+        emoji: catInfo.label.split(' ')[0],
+        color: catInfo.color,
+        bg: catInfo.color + '14',
+        border: catInfo.color + '33',
+        text: '<strong style="color:' + catInfo.color + '">' + catInfo.label + '</strong>이 전체 지출의 <strong style="color:' + catInfo.color + '">' + pct + '%</strong>를 차지해요'
+      });
+    }
+  }
+
+  // 3. 주말 vs 평일 지출
+  const weekdayExp = thisTxs.filter(function(t){
+    const d = new Date(t.date).getDay();
+    return t.type==='expense' && d>=1 && d<=5;
+  }).reduce(function(s,t){ return s+t.amount; }, 0);
+  const weekendExp = thisTxs.filter(function(t){
+    const d = new Date(t.date).getDay();
+    return t.type==='expense' && (d===0||d===6);
+  }).reduce(function(s,t){ return s+t.amount; }, 0);
+  const weekdayDays = 5 * Math.ceil(new Date(y, m, 0).getDate() / 7);
+  const weekendDays = 2 * Math.ceil(new Date(y, m, 0).getDate() / 7);
+  const avgWeekday = weekdayDays > 0 ? weekdayExp / weekdayDays : 0;
+  const avgWeekend = weekendDays > 0 ? weekendExp / weekendDays : 0;
+  if (avgWeekend > avgWeekday * 1.5 && weekendExp > 0) {
+    insights.push({
+      emoji: '🗓️',
+      color: '#fbbf24',
+      bg: 'rgba(251,191,36,0.08)',
+      border: 'rgba(251,191,36,0.2)',
+      text: '주말 지출이 평일보다 <strong style="color:#fbbf24">' + Math.round(avgWeekend/avgWeekday*100-100) + '%</strong> 높아요'
+    });
+  }
+
+  // 4. 저축률
+  if (thisInc > 0) {
+    const saveRate = Math.round((thisInc - thisExp) / thisInc * 100);
+    if (saveRate >= 30) {
+      insights.push({
+        emoji: '💰',
+        color: 'var(--green)',
+        bg: 'rgba(74,222,128,0.08)',
+        border: 'rgba(74,222,128,0.2)',
+        text: '이번달 저축률 <strong style="color:var(--green)">' + saveRate + '%</strong> 👏 잘 하고 있어요!'
+      });
+    } else if (saveRate < 0) {
+      insights.push({
+        emoji: '⚠️',
+        color: 'var(--red)',
+        bg: 'rgba(248,113,113,0.08)',
+        border: 'rgba(248,113,113,0.2)',
+        text: '이번달 지출이 수입을 <strong style="color:var(--red)">' + Math.abs(saveRate) + '%</strong> 초과했어요'
+      });
+    }
+  }
+
+  // 5. 가장 많이 쓴 날
+  const dailyExp = {};
+  thisTxs.filter(function(t){ return t.type==='expense'; }).forEach(function(t) {
+    dailyExp[t.date] = (dailyExp[t.date]||0) + t.amount;
+  });
+  const maxDay = Object.entries(dailyExp).sort(function(a,b){ return b[1]-a[1]; })[0];
+  if (maxDay && maxDay[1] > thisExp * 0.25) {
+    const [dy,dm,dd] = maxDay[0].split('-');
+    const dayNames = ['일','월','화','수','목','금','토'];
+    const dayName = dayNames[new Date(maxDay[0]).getDay()];
+    insights.push({
+      emoji: '🔥',
+      color: '#fb923c',
+      bg: 'rgba(251,146,60,0.08)',
+      border: 'rgba(251,146,60,0.2)',
+      text: parseInt(dm) + '/' + parseInt(dd) + '(' + dayName + ')에 <strong style="color:#fb923c">' + Math.round(maxDay[1]).toLocaleString() + '만원</strong> 최대 지출'
+    });
+  }
+
+  if (!insights.length) { wrap.innerHTML = ''; return; }
+
+  wrap.innerHTML = '<div style="background:var(--surface);border:0.5px solid var(--border);border-radius:20px;padding:16px;margin-bottom:12px">'
+    + '<div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:0.5px;margin-bottom:12px">✨ 이번달 인사이트</div>'
+    + insights.slice(0,4).map(function(ins) {
+        return '<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;background:' + ins.bg + ';border:1px solid ' + ins.border + ';border-radius:12px;margin-bottom:8px">'
+          + '<span style="font-size:16px;flex-shrink:0;margin-top:1px">' + ins.emoji + '</span>'
+          + '<span style="font-size:12px;color:var(--text);line-height:1.6">' + ins.text + '</span>'
+          + '</div>';
+      }).join('')
+    + '</div>';
 }
 
 // ── 지출 히트맵 캘린더 ──
