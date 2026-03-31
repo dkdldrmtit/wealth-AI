@@ -108,12 +108,25 @@ body::before {
 }
 .nav-item {
   flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
-  padding:8px 4px; cursor:pointer; color:var(--muted); font-size:10px; font-weight:500;
-  transition: color .2s;
+  padding:8px 4px 6px; cursor:pointer; color:var(--muted); font-size:10px; font-weight:500;
+  transition: color .25s, transform .15s;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
 }
-.nav-item .icon { font-size:22px; line-height:1; }
-.nav-item.active { color: #e8f4ff; filter: drop-shadow(0 0 6px rgba(232,244,255,0.7)); }
 .nav-item .icon { font-size:20px; line-height:1; }
+.nav-item.active { color: #e8f4ff; filter: drop-shadow(0 0 6px rgba(232,244,255,0.7)); }
+/* 활성 탭 상단 글로우 마커 */
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%; transform: translateX(-50%);
+  width: 28px; height: 2px;
+  background: linear-gradient(90deg, transparent, #e8f4ff, transparent);
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 0 8px rgba(232,244,255,0.8);
+}
+/* 탭 누를 때 튕기는 효과 */
+.nav-item:active { transform: scale(0.88); }
 
 /* PAGE */
 .page { display:none; padding:0px 16px 120px; animation: fadeUp .4s ease both; }
@@ -398,6 +411,167 @@ body[data-theme="light"] {
   --muted: #64748b;
   --muted2: #475569;
   --shadow: rgba(0,0,0,0.08);
+}
+
+/* ═══════════════════════════════════════════
+   ✨ UX/UI 개선 모음
+   ═══════════════════════════════════════════ */
+
+/* ── 1. 모달 slide-up 애니메이션 ── */
+@keyframes slideUp {
+  from { opacity:0; transform:translateY(40px) scale(0.97); }
+  to   { opacity:1; transform:translateY(0)    scale(1); }
+}
+@keyframes modalFadeIn {
+  from { opacity:0; }
+  to   { opacity:1; }
+}
+.modal-slide-up {
+  animation: slideUp .32s cubic-bezier(.32,1.1,.6,1) both;
+}
+.modal-backdrop-in {
+  animation: modalFadeIn .25s ease both;
+}
+
+/* ── 2. 카드 탭 피드백 (기존 .card에 추가) ── */
+.card {
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.card:active {
+  transform: scale(0.985);
+}
+/* 클릭 가능한 카드 강조 */
+.card[onclick], .card > [onclick] {
+  cursor: pointer;
+}
+
+/* ── 3. 토스트 - 타입별 스타일 ── */
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 200px;
+  max-width: 320px;
+  text-align: left;
+}
+.toast.toast-success {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(34,197,94,.4);
+}
+.toast.toast-error {
+  background: linear-gradient(135deg, #f87171, #dc2626);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(248,113,113,.4);
+}
+.toast.toast-info {
+  background: linear-gradient(135deg, #60a5fa, #2563eb);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(96,165,250,.4);
+}
+.toast.toast-default {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  box-shadow: 0 4px 20px rgba(0,0,0,.3);
+}
+
+/* ── 4. 목표 달성률 바 색상 단계 ── */
+.goal-bar-fill.pct-low    { background: linear-gradient(90deg, #f87171, #fb923c); }
+.goal-bar-fill.pct-mid    { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+.goal-bar-fill.pct-high   { background: linear-gradient(90deg, #4ade80, #22c55e); }
+.goal-bar-fill.pct-done   { background: linear-gradient(90deg, #e8f4ff, #60a5fa);
+                             box-shadow: 0 0 8px rgba(232,244,255,.5); }
+
+/* ── 5. FAB 마이크 버튼 펄스 애니메이션 ── */
+@keyframes fabPulse {
+  0%   { box-shadow: 0 4px 20px rgba(0,0,0,.6), 0 0 0 0 rgba(255,255,255,0.15); }
+  60%  { box-shadow: 0 4px 20px rgba(0,0,0,.6), 0 0 0 12px rgba(255,255,255,0); }
+  100% { box-shadow: 0 4px 20px rgba(0,0,0,.6), 0 0 0 0 rgba(255,255,255,0); }
+}
+#home-fab-mic {
+  animation: fabPulse 2.4s ease infinite;
+  background: linear-gradient(135deg, #2a2a2a, #1a1a1a) !important;
+  border: 0.5px solid rgba(255,255,255,0.25) !important;
+}
+#home-fab-mic:active {
+  animation: none;
+  transform: scale(0.90) !important;
+}
+
+/* ── 6. Empty State 일러스트 카드 ── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 16px;
+  gap: 10px;
+}
+.empty-state .es-icon {
+  font-size: 44px;
+  opacity: 0.5;
+  line-height: 1;
+}
+.empty-state .es-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted2);
+  text-align: center;
+}
+.empty-state .es-sub {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ── 7. sum-box 탭 피드백 (기존 :active 강화) ── */
+.sum-box {
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+
+/* ── 8. 입력 포커스 시 라벨 강조 ── */
+.inp-group input:focus,
+.ge-group input:focus {
+  border-color: #e8f4ff;
+  box-shadow: 0 0 0 3px rgba(232,244,255,0.08);
+}
+
+/* ── 9. 일정 D-day 배지 색상 개선 ── */
+.dday-urgent { background: rgba(248,113,113,.18); color: #f87171; border: 1px solid rgba(248,113,113,.35); }
+.dday-soon   { background: rgba(251,191,36,.15);  color: #fbbf24; border: 1px solid rgba(251,191,36,.3); }
+.dday-normal { background: rgba(232,244,255,.1);  color: #e8f4ff; border: 1px solid rgba(232,244,255,.2); }
+.dday-past   { background: rgba(107,114,128,.12); color: #6b7280; border: 1px solid rgba(107,114,128,.2); }
+
+/* ── 10. 스와이프 삭제 버튼 개선 ── */
+.swipe-del-btn {
+  background: linear-gradient(135deg, #f87171, #dc2626) !important;
+  border-radius: 0 14px 14px 0 !important;
+  box-shadow: -4px 0 12px rgba(248,113,113,.3) !important;
+}
+
+/* ── 11. 버튼 전반적 터치 피드백 ── */
+button:active {
+  opacity: 0.75;
+}
+.btn-primary:active {
+  opacity: 1;
+  transform: scale(0.97);
+  filter: brightness(0.9);
+}
+
+/* ── 12. 라이트모드 네비바 개선 ── */
+@media (prefers-color-scheme: light) {
+  .nav { background: rgba(255,255,255,0.97) !important; }
+  .nav-item.active::before {
+    background: linear-gradient(90deg, transparent, #1a6fa8, transparent) !important;
+    box-shadow: 0 0 8px rgba(26,111,168,0.6) !important;
+  }
+}
+body[data-theme="light"] .nav { background: rgba(255,255,255,0.97) !important; }
+body[data-theme="light"] .nav-item.active::before {
+  background: linear-gradient(90deg, transparent, #1a6fa8, transparent) !important;
+  box-shadow: 0 0 8px rgba(26,111,168,0.6) !important;
 }
 
 </style>
@@ -742,16 +916,12 @@ body[data-theme="light"] {
 
 <!-- FAB 음성 입력 버튼 (홈 전용, page 밖 고정) -->
 <button id="home-fab-mic" onclick="openHomeMic()"
-  style="position:fixed;bottom:90px;right:20px;width:56px;height:56px;border-radius:28px;
-  background:#1e1e1e;border:0.5px solid rgba(255,255,255,0.2);
-  box-shadow:0 4px 20px rgba(0,0,0,.6), 0 0 16px rgba(255,255,255,0.08);
-  color:#fff;font-size:24px;cursor:pointer;z-index:50;
+  style="position:fixed;bottom:90px;right:20px;width:58px;height:58px;border-radius:29px;
+  color:#fff;font-size:22px;cursor:pointer;z-index:50;
   display:flex;align-items:center;justify-content:center;
-  transition:transform .15s,box-shadow .15s"
-  onmousedown="this.style.transform='scale(0.92)'"
-  onmouseup="this.style.transform='scale(1)'"
-  ontouchstart="this.style.transform='scale(0.92)'"
-  ontouchend="this.style.transform='scale(1)'">
+  transition:transform .15s"
+  ontouchstart="this.style.transform='scale(0.88)';this.style.animation='none'"
+  ontouchend="this.style.transform='scale(1)';this.style.animation=''">
   🎙️
 </button>
 
@@ -1339,9 +1509,9 @@ body[data-theme="light"] {
 </div>
 
 <!-- ══ 거래 입력 모달 ══ -->
-<div id="ledger-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto">
+<div id="ledger-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto" class="modal-backdrop-in">
   <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
-    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
+    <div class="modal-slide-up" style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
         <div id="ledger-modal-title" style="font-family:'Playfair Display',serif;font-size:22px;color:var(--text);font-weight:700">거래 추가</div>
@@ -1401,9 +1571,9 @@ body[data-theme="light"] {
 </div>
 
 <!-- ══ 음성 입력 모달 ══ -->
-<div id="voice-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto">
+<div id="voice-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto" class="modal-backdrop-in">
   <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
-    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
+    <div class="modal-slide-up" style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--text);font-weight:700">음성 입력</div>
@@ -2029,12 +2199,35 @@ function saveRecurringFromModal() {
 }
 
 // ── Toast ──
-function showToast(msg) {
+function showToast(msg, type) {
+  // type: 'success' | 'error' | 'info' | undefined(auto)
   const t = document.getElementById('toast');
+
+  // 자동 타입 감지 (메시지 첫 글자 기준)
+  if (!type) {
+    if (msg.startsWith('✅') || msg.startsWith('💾') || msg.startsWith('🎯') || msg.startsWith('🗑️')) type = 'success';
+    else if (msg.startsWith('❗') || msg.startsWith('⚠️') || msg.startsWith('🚨')) type = 'error';
+    else if (msg.startsWith('🔄') || msg.startsWith('📡') || msg.startsWith('💡')) type = 'info';
+    else type = 'default';
+  }
+
+  // 기존 타입 클래스 제거
+  t.classList.remove('toast-success','toast-error','toast-info','toast-default','show');
+  t.classList.add('toast-' + type);
   t.textContent = msg;
+
+  // 강제 리플로우(연속 호출 시 애니메이션 재시작)
+  void t.offsetWidth;
   t.classList.add('show');
-  haptic('light');
-  setTimeout(() => t.classList.remove('show'), 2200);
+
+  if (type === 'error') haptic('error');
+  else if (type === 'success') haptic('success');
+  else haptic('light');
+
+  clearTimeout(t._toastTimer);
+  t._toastTimer = setTimeout(() => {
+    t.classList.remove('show');
+  }, type === 'error' ? 3000 : 2200);
 }
 // ── 동기화 오류 배너 (재시도 버튼 포함)
 function showSyncError(msg) {
@@ -2106,7 +2299,7 @@ function getGoalCurrent(g) {
 
 function renderGoals() {
   const list = document.getElementById('goals-list');
-  if (!goals.length) { list.innerHTML = '<p style="color:var(--muted);font-size:13px;text-align:center;padding:20px">아직 목표가 없어요. 아래에서 추가해보세요!</p>'; return; }
+  if (!goals.length) { list.innerHTML = '<div class="empty-state"><div class="es-icon">🎯</div><div class="es-title">아직 목표가 없어요</div><div class="es-sub">아래에서 목표를 추가하면<br>달성률을 자동으로 추적해드려요!</div></div>'; return; }
 
   const latest = assetHistory.length > 0 ? assetHistory[assetHistory.length-1] : null;
   const latestMonth = latest ? latest.month : null;
@@ -2114,29 +2307,32 @@ function renderGoals() {
   list.innerHTML = goals.map((g, i) => {
     const current = getGoalCurrent(g);
     const pct = Math.min(100, Math.round(current / g.target * 100));
-    const color = pct >= 80 ? 'var(--teal)' : pct >= 50 ? '#e8f4ff' : 'var(--muted2)';
+    // 달성률에 따라 색상 클래스 + 텍스트 색상 결정
+    const barClass = pct >= 100 ? 'pct-done' : pct >= 70 ? 'pct-high' : pct >= 40 ? 'pct-mid' : 'pct-low';
+    const pctColor = pct >= 100 ? '#e8f4ff' : pct >= 70 ? '#4ade80' : pct >= 40 ? '#fbbf24' : '#f87171';
+    const pctEmoji = pct >= 100 ? '🏆' : pct >= 70 ? '🚀' : pct >= 40 ? '📈' : '💪';
     const months = monthDiff(new Date(), new Date(g.deadline));
     const isAutoLinked = latestMonth !== null;
     return `<div class="goal-item">
       <div class="goal-header">
         <div class="goal-name">
-          ${g.name}
+          ${escHtml(g.name)}
           ${isAutoLinked ? '<span style="font-size:9px;color:var(--teal);border:1px solid var(--teal);padding:2px 6px;border-radius:8px;margin-left:6px;font-weight:600">연동</span>' : ''}
         </div>
         <div style="display:flex;align-items:center;gap:8px">
-          <div class="goal-pct" style="color:${color}">${pct}%</div>
+          <div class="goal-pct" style="color:${pctColor}">${pctEmoji} ${pct}%</div>
           <button class="btn-danger" onclick="editGoal(${i})" style="background:rgba(74,158,255,.12);border:1px solid rgba(74,158,255,.3);color:var(--blue)">수정</button>
           <button class="btn-danger" onclick="deleteGoal(${i})">삭제</button>
         </div>
       </div>
-      <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="goal-bar-bg"><div class="goal-bar-fill ${barClass}" style="width:${pct}%"></div></div>
       <div class="goal-sub">
-        <span style="color:var(--teal);font-weight:600">${(current/10000).toFixed(2)}억</span>
+        <span style="color:${pctColor};font-weight:600">${(current/10000).toFixed(2)}억</span>
         <span style="color:var(--muted)"> / ${(g.target/10000).toFixed(2)}억 목표</span>
       </div>
       <div class="goal-sub" style="margin-top:3px">
         <span>${latestMonth ? latestMonth+' 기준' : '기록 없음'}</span>
-        <span>${months > 0 ? months+'개월 남음' : '기간 초과'} (${g.deadline})</span>
+        <span style="color:${months <= 6 && months > 0 ? '#fbbf24' : 'var(--muted)'}">${months > 0 ? months+'개월 남음' : '<span style="color:var(--red)">기간 초과</span>'} (${g.deadline})</span>
       </div>
     </div>`;
   }).join('');
@@ -2295,7 +2491,7 @@ function renderMonthCards() {
   if (!wrap) return;
   const rows = [...assetHistory].reverse();
   if (!rows.length) {
-    wrap.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:40px 0">아직 기록이 없어요.<br>위 버튼을 눌러 첫 기록을 추가해보세요!</div>';
+    wrap.innerHTML = '<div class="empty-state"><div class="es-icon">📊</div><div class="es-title">아직 자산 기록이 없어요</div><div class="es-sub">위 버튼을 눌러<br>첫 번째 자산 기록을 추가해보세요!</div></div>';
     return;
   }
   wrap.innerHTML = rows.map((r, i) => {
@@ -2440,7 +2636,7 @@ function renderItemView() {
   const wrap = document.getElementById('item-view-cards');
   if (!wrap) return;
   if (!assetHistory.length) {
-    wrap.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:40px 0">아직 기록이 없어요.<br>월별 탭에서 기록을 추가해보세요!</div>';
+    wrap.innerHTML = '<div class="empty-state"><div class="es-icon">📈</div><div class="es-title">항목별 내역이 없어요</div><div class="es-sub">월별 탭에서 자산 기록을 추가하면<br>항목별로 확인할 수 있어요.</div></div>';
     return;
   }
 
@@ -3101,26 +3297,39 @@ function renderSchedules() {
     const d = new Date(s.date);
     const diff = Math.ceil((d - today) / 86400000);
     const isPast = diff < 0;
-    const isUrgent = !isPast && diff <= 30;
-    const color = isPast ? 'var(--muted)' : isUrgent ? 'var(--red)' : 'var(--purple)';
+
+    // D-day 배지 클래스 + 도트 색상 결정
+    let ddayClass, dotColor, nameColor;
+    if (isPast) {
+      ddayClass = 'dday-past'; dotColor = '#6b7280'; nameColor = 'var(--muted)';
+    } else if (diff === 0) {
+      ddayClass = 'dday-urgent'; dotColor = '#f87171'; nameColor = 'var(--text)';
+    } else if (diff <= 30) {
+      ddayClass = 'dday-urgent'; dotColor = '#f87171'; nameColor = 'var(--text)';
+    } else if (diff <= 90) {
+      ddayClass = 'dday-soon'; dotColor = '#fbbf24'; nameColor = 'var(--text)';
+    } else {
+      ddayClass = 'dday-normal'; dotColor = '#a78bfa'; nameColor = 'var(--text)';
+    }
+
     const diffBadge = isPast
-      ? '<span style="font-size:10px;color:var(--muted);background:var(--surface2);padding:2px 7px;border-radius:8px">' + Math.abs(diff) + '일 전</span>'
+      ? '<span class="' + ddayClass + '" style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:8px">' + Math.abs(diff) + '일 전</span>'
       : diff === 0
-      ? '<span style="font-size:10px;color:#fff;background:var(--red);font-weight:800;padding:2px 7px;border-radius:8px">오늘!</span>'
-      : '<span style="font-size:10px;font-weight:700;color:' + color + ';background:' + color + '22;padding:2px 7px;border-radius:8px">D-' + diff + '</span>';
+      ? '<span class="' + ddayClass + '" style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:8px">🔥 오늘!</span>'
+      : '<span class="' + ddayClass + '" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px">D-' + diff + '</span>';
+
     const [y,m,day] = s.date.split('-');
-    // 금액은 오른쪽에 작게만 표시
     const amtStr = s.amount
       ? '<span style="font-size:11px;font-weight:700;color:' + (s.amountType==='in'?'var(--blue)':'var(--red)') + ';margin-right:4px">' + (s.amountType==='in'?'+':'-') + s.amount.toLocaleString() + '만</span>'
       : '';
-    return '<div onclick="openScheduleEdit(' + s.origIdx + ')" style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer">'
-      + '<div style="display:flex;align-items:center;gap:8px">'
-      + '<div style="width:7px;height:7px;border-radius:50%;background:' + color + ';flex-shrink:0"></div>'
+    return '<div onclick="openScheduleEdit(' + s.origIdx + ')" style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity .15s" ontouchstart="this.style.opacity=0.7" ontouchend="this.style.opacity=1">'
+      + '<div style="display:flex;align-items:center;gap:10px">'
+      + '<div style="width:8px;height:8px;border-radius:50%;background:' + dotColor + ';flex-shrink:0;box-shadow:0 0 6px ' + dotColor + '88"></div>'
       + '<div>'
-      + '<div style="font-size:12px;font-weight:600;' + (isPast?'color:var(--muted)':'') + '">' + s.name + '</div>'
-      + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + y + '.' + m + '.' + day + '</div>'
+      + '<div style="font-size:12px;font-weight:600;color:' + nameColor + '">' + escHtml(s.name) + '</div>'
+      + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + y + '. ' + m + '. ' + day + '</div>'
       + '</div></div>'
-      + '<div style="display:flex;align-items:center;gap:4px">' + amtStr + diffBadge + '<span style="font-size:13px;color:var(--muted)">›</span></div>'
+      + '<div style="display:flex;align-items:center;gap:5px">' + amtStr + diffBadge + '<span style="font-size:13px;color:var(--muted);margin-left:2px">›</span></div>'
       + '</div>';
   }).join('');
 
@@ -3406,8 +3615,24 @@ function updateHomeWidget() {
   if(el('widget-today-exp')) el('widget-today-exp').textContent = (todayExp*10000).toLocaleString()+'원';
   if(el('widget-month-exp')) el('widget-month-exp').textContent = Math.round(monthExp).toLocaleString()+'만';
   if(el('widget-month-inc')) el('widget-month-inc').textContent = Math.round(monthInc).toLocaleString()+'만';
-  if(el('widget-save-rate')) el('widget-save-rate').textContent = monthInc>0 ? saveRate+'%' : '-';
-  if(el('widget-save-bar')) el('widget-save-bar').style.width = Math.min(saveRate,100)+'%';
+
+  // 저축률 표시 + 색상 단계별 피드백
+  if(el('widget-save-rate')) {
+    el('widget-save-rate').textContent = monthInc>0 ? saveRate+'%' : '-';
+    const rateColor = saveRate >= 40 ? '#4ade80' : saveRate >= 20 ? '#fbbf24' : saveRate > 0 ? '#f87171' : '#6b7280';
+    el('widget-save-rate').style.color = rateColor;
+    el('widget-save-rate').style.textShadow = 'none';
+  }
+  if(el('widget-save-bar')) {
+    el('widget-save-bar').style.width = Math.min(saveRate,100)+'%';
+    // 저축률에 따라 바 색상 변화
+    const barColor = saveRate >= 40
+      ? 'linear-gradient(90deg, #4ade80, #22c55e)'
+      : saveRate >= 20
+        ? 'linear-gradient(90deg, #fbbf24, #f59e0b)'
+        : 'linear-gradient(90deg, #f87171, #ef4444)';
+    el('widget-save-bar').style.background = barColor;
+  }
 }
 
 // ── 홈 접기/펼치기
@@ -6043,9 +6268,15 @@ function openLedgerAdd(type) {
   document.getElementById('tx-date').value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
   document.getElementById('tx-amount').value = '';
   document.getElementById('tx-memo').value = '';
+  document.getElementById('tx-amount').dataset.raw = '';
+  document.getElementById('tx-amount-preview').textContent = '';
   setTxType(type || 'expense');
   setTxOwner('common');
-  document.getElementById('ledger-modal').style.display = 'block';
+  // slide-up 애니메이션 재시작
+  const modal = document.getElementById('ledger-modal');
+  modal.style.display = 'block';
+  const inner = modal.querySelector('.modal-slide-up');
+  if (inner) { inner.style.animation = 'none'; void inner.offsetWidth; inner.style.animation = ''; }
   lockScroll();
   setTimeout(() => document.getElementById('tx-amount').focus(), 300);
 }
