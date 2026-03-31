@@ -602,6 +602,33 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
 .skeleton-title { height: 20px; border-radius: 4px; }
 .skeleton-circle{ border-radius: 50%; }
 
+/* ══ 검색 자동완성 ══ */
+.search-autocomplete {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  overflow: hidden;
+  z-index: 500;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  max-height: 220px;
+  overflow-y: auto;
+}
+.ac-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  cursor: pointer;
+  transition: background .12s;
+  border-bottom: 1px solid var(--border);
+}
+.ac-item:last-child { border-bottom: none; }
+.ac-item:active, .ac-item:hover { background: var(--surface2); }
+.ac-highlight { color: var(--blue); font-weight: 700; }
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -676,6 +703,23 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
 
   <!-- 카드 순서 앵커 -->
   <div id="home-cards-anchor">
+
+  <!-- 월간 자산 기록 리마인더 -->
+  <div id="asset-reminder-banner" style="display:none;background:rgba(240,192,64,0.10);border:1px solid rgba(240,192,64,0.30);border-radius:16px;padding:14px 16px;margin-bottom:14px;cursor:pointer" onclick="openModal(null)">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="font-size:24px">📊</div>
+        <div>
+          <div id="asset-reminder-title" style="font-size:13px;font-weight:700;color:var(--gold)">이번달 자산 기록이 없어요</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">탭해서 이번달 자산을 기록해보세요!</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="font-size:18px;color:var(--gold)">›</div>
+        <button onclick="event.stopPropagation();dismissAssetReminder()" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:2px 4px;line-height:1">✕</button>
+      </div>
+    </div>
+  </div>
 
   <!-- 미등록 거래 배너 (항상 상단 고정) -->
   <div id="pending-banner" style="display:none;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.35);border-radius:16px;padding:14px 16px;margin-bottom:14px;cursor:pointer" onclick="openPendingModal()">
@@ -1204,6 +1248,8 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
       style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">🔑 API</button>
     <button id="stab-apt" onclick="setSettingsTab('apt')"
       style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">🏢 부동산</button>
+    <button id="stab-cat" onclick="setSettingsTab('cat')"
+      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">🏷️ 카테고리</button>
     <button id="stab-data" onclick="setSettingsTab('data')"
       style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">💾 데이터</button>
   </div>
@@ -1332,6 +1378,27 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
     </div>
   </div>
 
+  <!-- 🏷️ 카테고리 -->
+  <div id="stab-content-cat" style="display:none">
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title" style="color:var(--muted)">지출 카테고리</div>
+      <p style="font-size:12px;color:var(--muted2);line-height:1.7;margin-bottom:14px">카테고리 이름과 색상을 수정할 수 있어요. 삭제는 기본 카테고리를 제외한 항목만 가능해요.</p>
+      <div id="cat-settings-expense"></div>
+      <button onclick="openAddCatModal('expense')"
+        style="width:100%;margin-top:10px;padding:11px;border-radius:12px;border:1px dashed var(--border2);background:transparent;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer">
+        + 지출 카테고리 추가
+      </button>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--muted)">수입 카테고리</div>
+      <div id="cat-settings-income"></div>
+      <button onclick="openAddCatModal('income')"
+        style="width:100%;margin-top:10px;padding:11px;border-radius:12px;border:1px dashed var(--border2);background:transparent;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer">
+        + 수입 카테고리 추가
+      </button>
+    </div>
+  </div>
+
   <!-- 💾 데이터 -->
   <div id="stab-content-data" style="display:none">
     <div class="card" style="border-color:rgba(167,139,250,.25)">
@@ -1343,12 +1410,25 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
         <button onclick="exportBackup()"
           style="flex:1;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:12px;
           color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;padding:13px;cursor:pointer">
-          📤 내보내기
+          📤 JSON 백업
         </button>
         <button onclick="document.getElementById('import-file').click()"
           style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;
           color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:13px;cursor:pointer">
           📥 불러오기
+        </button>
+      </div>
+      <!-- Excel 내보내기 -->
+      <div style="display:flex;gap:10px;margin-bottom:10px">
+        <button onclick="exportLedgerExcel()"
+          style="flex:1;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.3);border-radius:12px;
+          color:var(--green);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:13px;cursor:pointer">
+          📊 가계부 Excel
+        </button>
+        <button onclick="exportAssetExcel()"
+          style="flex:1;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.3);border-radius:12px;
+          color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:13px;cursor:pointer">
+          🏦 자산 Excel
         </button>
       </div>
       <input type="file" id="import-file" accept=".json" style="display:none" onchange="importBackup(event)">
@@ -1478,15 +1558,19 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
       </div>
 
       <!-- 검색 -->
-      <div style="display:flex;align-items:center;gap:8px;margin-top:10px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:0 12px">
+      <div style="position:relative;margin-top:10px">
+      <div id="search-wrap" style="display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:0 12px">
         <span style="font-size:14px;color:var(--muted)">🔍</span>
         <input type="text" id="ledger-search" placeholder="가맹점·메모 검색"
-          oninput="renderLedger()"
+          oninput="onLedgerSearchInput(this.value)"
+          onfocus="onLedgerSearchInput(this.value)"
           style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:10px 0;outline:none">
         <button id="ledger-search-clear" onclick="clearLedgerSearch()" style="display:none;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0">✕</button>
         <div style="width:1px;height:16px;background:var(--border2)"></div>
         <button id="sort-toggle" onclick="toggleLedgerSort()"
           style="background:none;border:none;color:var(--blue);font-size:15px;cursor:pointer;padding:0;font-weight:900;line-height:1">↓</button>
+      </div>
+      <div id="search-autocomplete" class="search-autocomplete" style="display:none"></div>
       </div>
     </div>
 
@@ -2118,6 +2202,66 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
     </div>
   </div>
 </div>
+
+<!-- ══ 카테고리 추가/편집 모달 ══ -->
+<div id="cat-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+        <div id="cat-modal-title" style="font-size:18px;font-weight:700;color:var(--text)">카테고리 추가</div>
+        <button onclick="closeCatModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer">✕</button>
+      </div>
+
+      <!-- 이모지 + 이름 -->
+      <div style="display:flex;gap:10px;margin-bottom:14px">
+        <div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">이모지</div>
+          <input type="text" id="cat-emoji-input" placeholder="🍕" maxlength="2"
+            style="width:56px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:22px;padding:8px;outline:none;text-align:center">
+        </div>
+        <div style="flex:1">
+          <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">카테고리 이름</div>
+          <input type="text" id="cat-name-input" placeholder="예: 반려동물"
+            style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none">
+        </div>
+      </div>
+
+      <!-- 색상 선택 -->
+      <div style="margin-bottom:18px">
+        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:10px">색상</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px" id="cat-color-presets">
+          <!-- JS로 렌더 -->
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="font-size:11px;color:var(--muted)">직접 입력:</div>
+          <input type="color" id="cat-color-picker" value="#f87171"
+            style="width:44px;height:36px;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);cursor:pointer;padding:2px">
+          <input type="text" id="cat-color-input" placeholder="#f87171" maxlength="7"
+            style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:monospace;font-size:13px;padding:9px 12px;outline:none"
+            oninput="syncColorFromText(this.value)">
+        </div>
+      </div>
+
+      <!-- 미리보기 -->
+      <div style="margin-bottom:18px;padding:12px;background:var(--surface2);border-radius:12px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px">미리보기</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div id="cat-preview-badge" style="width:36px;height:36px;border-radius:10px;background:rgba(248,113,113,0.15);display:flex;align-items:center;justify-content:center;font-size:18px">🍕</div>
+          <div>
+            <div id="cat-preview-name" style="font-size:13px;font-weight:700;color:var(--text)">카테고리명</div>
+            <div id="cat-preview-label" style="font-size:11px;font-weight:600;color:#f87171">🍕 카테고리명</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px">
+        <button id="cat-delete-btn" onclick="deleteCatFromModal()" style="display:none;background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.3);border-radius:12px;color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:14px 16px;cursor:pointer">삭제</button>
+        <button onclick="saveCatFromModal()" style="flex:1;background:#1e1e1e;border:0.5px solid rgba(232,244,255,0.25);border-radius:12px;color:#e8f4ff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;padding:14px;cursor:pointer">저장</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 </div><!-- /app -->
 
@@ -3403,6 +3547,7 @@ function saveRecord() {
   renderMonthCards(); if (currentAssetView === 'item') renderItemView();
   updateHomeFromItems(latest);
   renderMiniChart();
+  checkAssetReminder(); // 저장 후 리마인더 갱신
   closeModal();
   showToast('💾 저장됐어요!');
 }
@@ -3579,7 +3724,7 @@ function initHome() {
   // 대기목록 체크 (앱 열릴 때 + 30초마다)
   checkPendingTxs();
   setInterval(checkPendingTxs, 30000);
-
+  checkAssetReminder();
   // ── 자동 동기화 (30분에 한 번만)
   function autoSync() {
     const lastAuto = load('last-auto-sync', 0);
@@ -3624,6 +3769,365 @@ function exportBackup() {
   a.click();
   URL.revokeObjectURL(url);
   showToast('📤 백업 파일이 저장됐어요!');
+}
+
+// ══ 카테고리 커스터마이징 ══
+
+// 기본 카테고리 ID 목록 (삭제 불가)
+const DEFAULT_CAT_IDS = {
+  expense: ['food','cafe','trans','shop','health','leisure','child','edu','house','etc'],
+  income:  ['salary','bonus','invest','side','etc_in']
+};
+
+// 색상 프리셋
+const CAT_COLOR_PRESETS = [
+  '#f87171','#fb923c','#fbbf24','#4ade80','#34d399',
+  '#60a5fa','#a78bfa','#f472b6','#94a3b8','#ffffff',
+  '#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#c77dff',
+];
+
+let _catEditingType = 'expense'; // 현재 편집 중인 타입
+let _catEditingId = null;        // 편집 중인 카테고리 ID (null = 신규)
+
+function renderCatSettings() {
+  ['expense','income'].forEach(function(type) {
+    const wrap = document.getElementById('cat-settings-' + type);
+    if (!wrap) return;
+    wrap.innerHTML = CATEGORIES[type].map(function(cat, i) {
+      const isDefault = DEFAULT_CAT_IDS[type].includes(cat.id);
+      return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">'
+        + '<div style="width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;background:' + cat.color + '22">' + cat.label.split(' ')[0] + '</div>'
+        + '<div style="flex:1;min-width:0">'
+        + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + cat.label.split(' ').slice(1).join(' ') + '</div>'
+        + '<div style="display:flex;align-items:center;gap:6px;margin-top:3px">'
+        + '<div style="width:10px;height:10px;border-radius:3px;background:' + cat.color + '"></div>'
+        + '<span style="font-size:10px;color:var(--muted)">' + cat.color + '</span>'
+        + (isDefault ? '<span style="font-size:9px;color:var(--muted);background:var(--surface3);padding:1px 5px;border-radius:5px">기본</span>' : '')
+        + '</div></div>'
+        + '<button onclick="openEditCatModal(\'' + type + '\',\'' + cat.id + '\')" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;padding:5px 10px;cursor:pointer">수정</button>'
+        + '</div>';
+    }).join('');
+  });
+}
+
+function openAddCatModal(type) {
+  _catEditingType = type;
+  _catEditingId = null;
+  document.getElementById('cat-modal-title').textContent = (type === 'expense' ? '지출' : '수입') + ' 카테고리 추가';
+  document.getElementById('cat-emoji-input').value = '';
+  document.getElementById('cat-name-input').value = '';
+  document.getElementById('cat-delete-btn').style.display = 'none';
+  renderCatColorPresets('#f87171');
+  syncColorToInputs('#f87171');
+  updateCatPreview();
+  document.getElementById('cat-modal').style.display = 'block';
+  lockScroll();
+
+  // 입력 이벤트 연결
+  document.getElementById('cat-emoji-input').oninput = updateCatPreview;
+  document.getElementById('cat-name-input').oninput = updateCatPreview;
+  document.getElementById('cat-color-picker').oninput = function() {
+    syncColorToInputs(this.value);
+    updateCatPreview();
+  };
+}
+
+function openEditCatModal(type, id) {
+  _catEditingType = type;
+  _catEditingId = id;
+  const cat = CATEGORIES[type].find(function(c) { return c.id === id; });
+  if (!cat) return;
+  const isDefault = DEFAULT_CAT_IDS[type].includes(id);
+
+  document.getElementById('cat-modal-title').textContent = (type === 'expense' ? '지출' : '수입') + ' 카테고리 수정';
+  document.getElementById('cat-emoji-input').value = cat.label.split(' ')[0];
+  document.getElementById('cat-name-input').value = cat.label.split(' ').slice(1).join(' ');
+  document.getElementById('cat-delete-btn').style.display = isDefault ? 'none' : 'block';
+  renderCatColorPresets(cat.color);
+  syncColorToInputs(cat.color);
+  updateCatPreview();
+  document.getElementById('cat-modal').style.display = 'block';
+  lockScroll();
+
+  document.getElementById('cat-emoji-input').oninput = updateCatPreview;
+  document.getElementById('cat-name-input').oninput = updateCatPreview;
+  document.getElementById('cat-color-picker').oninput = function() {
+    syncColorToInputs(this.value);
+    updateCatPreview();
+  };
+}
+
+function closeCatModal() {
+  document.getElementById('cat-modal').style.display = 'none';
+  unlockScroll();
+}
+
+function renderCatColorPresets(selectedColor) {
+  const wrap = document.getElementById('cat-color-presets');
+  if (!wrap) return;
+  wrap.innerHTML = CAT_COLOR_PRESETS.map(function(color) {
+    const isSelected = color.toLowerCase() === selectedColor.toLowerCase();
+    return '<div onclick="selectCatColor(\'' + color + '\')" style="'
+      + 'width:28px;height:28px;border-radius:8px;background:' + color + ';cursor:pointer;'
+      + 'border:' + (isSelected ? '3px solid #fff' : '2px solid transparent') + ';'
+      + 'box-shadow:' + (isSelected ? '0 0 0 2px ' + color : 'none') + ';'
+      + 'transition:transform .1s;flex-shrink:0'
+      + '" onmousedown="this.style.transform=\'scale(0.88)\'" onmouseup="this.style.transform=\'\'"></div>';
+  }).join('');
+}
+
+function selectCatColor(color) {
+  syncColorToInputs(color);
+  renderCatColorPresets(color);
+  updateCatPreview();
+}
+
+function syncColorToInputs(color) {
+  const picker = document.getElementById('cat-color-picker');
+  const textInput = document.getElementById('cat-color-input');
+  if (picker && color.startsWith('#') && color.length === 7) picker.value = color;
+  if (textInput) textInput.value = color;
+}
+
+function syncColorFromText(val) {
+  const color = val.trim();
+  if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
+    const picker = document.getElementById('cat-color-picker');
+    if (picker) picker.value = color;
+    renderCatColorPresets(color);
+    updateCatPreview();
+  }
+}
+
+function updateCatPreview() {
+  const emoji = document.getElementById('cat-emoji-input').value || '❓';
+  const name = document.getElementById('cat-name-input').value || '카테고리명';
+  const color = document.getElementById('cat-color-input').value || '#f87171';
+
+  const badge = document.getElementById('cat-preview-badge');
+  const nameEl = document.getElementById('cat-preview-name');
+  const labelEl = document.getElementById('cat-preview-label');
+  if (badge) { badge.textContent = emoji; badge.style.background = color + '22'; }
+  if (nameEl) nameEl.textContent = name;
+  if (labelEl) { labelEl.textContent = emoji + ' ' + name; labelEl.style.color = color; }
+}
+
+function saveCatFromModal() {
+  const emoji = document.getElementById('cat-emoji-input').value.trim();
+  const name = document.getElementById('cat-name-input').value.trim();
+  const color = document.getElementById('cat-color-input').value.trim();
+
+  if (!emoji) { showToast('❗ 이모지를 입력해주세요'); return; }
+  if (!name) { showToast('❗ 카테고리 이름을 입력해주세요'); return; }
+  if (!color || !/^#[0-9A-Fa-f]{6}$/.test(color)) { showToast('❗ 올바른 색상 코드를 입력해주세요 (#rrggbb)'); return; }
+
+  const label = emoji + ' ' + name;
+
+  if (_catEditingId) {
+    // 수정
+    const idx = CATEGORIES[_catEditingType].findIndex(function(c) { return c.id === _catEditingId; });
+    if (idx >= 0) {
+      CATEGORIES[_catEditingType][idx].label = label;
+      CATEGORIES[_catEditingType][idx].color = color;
+    }
+    showToast('✅ 카테고리가 수정됐어요!');
+  } else {
+    // 추가 - 고유 ID 생성
+    const newId = _catEditingType === 'expense' ? 'custom_' + Date.now() : 'custom_in_' + Date.now();
+    CATEGORIES[_catEditingType].push({ id: newId, label: label, color: color });
+    showToast('✅ 카테고리가 추가됐어요!');
+  }
+
+  // localStorage에 저장
+  store('custom-categories', {
+    expense: CATEGORIES.expense,
+    income: CATEGORIES.income
+  });
+
+  renderCatSettings();
+  closeCatModal();
+}
+
+async function deleteCatFromModal() {
+  if (!_catEditingId) return;
+  if (DEFAULT_CAT_IDS[_catEditingType].includes(_catEditingId)) {
+    showToast('❗ 기본 카테고리는 삭제할 수 없어요'); return;
+  }
+  const ok = await showConfirm('이 카테고리를 삭제할까요?\n해당 카테고리의 기존 거래는 "기타"로 변경돼요.', '삭제');
+  if (!ok) return;
+
+  // 해당 카테고리의 거래를 'etc'로 변경
+  const fallback = _catEditingType === 'expense' ? 'etc' : 'etc_in';
+  ledgerTxs = ledgerTxs.map(function(t) {
+    if (t.category === _catEditingId) return Object.assign({}, t, { category: fallback });
+    return t;
+  });
+  store('ledger-txs', ledgerTxs);
+
+  // 카테고리 삭제
+  CATEGORIES[_catEditingType] = CATEGORIES[_catEditingType].filter(function(c) { return c.id !== _catEditingId; });
+  store('custom-categories', {
+    expense: CATEGORIES.expense,
+    income: CATEGORIES.income
+  });
+
+  renderCatSettings();
+  closeCatModal();
+  showToast('🗑️ 카테고리가 삭제됐어요');
+}
+
+// 앱 시작 시 커스텀 카테고리 복원
+(function loadCustomCategories() {
+  const saved = load('custom-categories', null);
+  if (!saved) return;
+  if (saved.expense && Array.isArray(saved.expense)) CATEGORIES.expense = saved.expense;
+  if (saved.income && Array.isArray(saved.income)) CATEGORIES.income = saved.income;
+})();
+
+// ── Excel 내보내기 ──
+function exportLedgerExcel() {
+  if (!ledgerTxs.length) { showToast('❗ 내보낼 가계부 내역이 없어요'); return; }
+
+  const allCats = [...CATEGORIES.expense, ...CATEGORIES.income];
+
+  // 데이터 변환
+  const rows = ledgerTxs
+    .sort(function(a, b) { return b.date.localeCompare(a.date); })
+    .map(function(t) {
+      const cat = allCats.find(function(c) { return c.id === t.category; }) || { label: '기타' };
+      const ownerLabel = t.owner === 'minsuk' ? '민석' : t.owner === 'siyun' ? '시윤' : '공동';
+      return {
+        '날짜': t.date,
+        '유형': t.type === 'income' ? '수입' : '지출',
+        '금액(원)': Math.round(t.amount * 10000),
+        '카테고리': cat.label.replace(/^[^\s]+ /, ''), // 이모지 제거
+        '소유자': ownerLabel,
+        '메모': t.memo || '',
+      };
+    });
+
+  // 월별 시트 분리
+  const byMonth = {};
+  rows.forEach(function(r) {
+    const month = r['날짜'].substring(0, 7);
+    if (!byMonth[month]) byMonth[month] = [];
+    byMonth[month].push(r);
+  });
+
+  const wb = XLSX.utils.book_new();
+
+  // 전체 시트
+  const wsAll = XLSX.utils.json_to_sheet(rows);
+  // 컬럼 너비 설정
+  wsAll['!cols'] = [
+    { wch: 12 }, // 날짜
+    { wch: 6 },  // 유형
+    { wch: 14 }, // 금액
+    { wch: 12 }, // 카테고리
+    { wch: 6 },  // 소유자
+    { wch: 20 }, // 메모
+  ];
+  XLSX.utils.book_append_sheet(wb, wsAll, '전체');
+
+  // 월별 시트 (최근 6개월)
+  const months = Object.keys(byMonth).sort(function(a,b){ return b.localeCompare(a); }).slice(0, 6);
+  months.forEach(function(month) {
+    const [y, m] = month.split('-');
+    const sheetName = parseInt(y) + '년' + parseInt(m) + '월';
+    const ws = XLSX.utils.json_to_sheet(byMonth[month]);
+    ws['!cols'] = [{ wch:12 },{ wch:6 },{ wch:14 },{ wch:12 },{ wch:6 },{ wch:20 }];
+
+    // 수입/지출 합계 행 추가
+    const income = byMonth[month].filter(function(r){ return r['유형']==='수입'; }).reduce(function(s,r){ return s+r['금액(원)']; }, 0);
+    const expense = byMonth[month].filter(function(r){ return r['유형']==='지출'; }).reduce(function(s,r){ return s+r['금액(원)']; }, 0);
+    XLSX.utils.sheet_add_aoa(ws, [
+      [],
+      ['합계', '수입', income, '', '', ''],
+      ['합계', '지출', expense, '', '', ''],
+      ['합계', '잔액', income - expense, '', '', ''],
+    ], { origin: -1 });
+
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  });
+
+  // 다운로드
+  const date = new Date();
+  const dateStr = date.getFullYear() + String(date.getMonth()+1).padStart(2,'0') + String(date.getDate()).padStart(2,'0');
+  XLSX.writeFile(wb, '가계부_' + dateStr + '.xlsx');
+  showToast('📊 가계부 Excel 저장 완료!', 'success');
+}
+
+function exportAssetExcel() {
+  if (!assetHistory.length) { showToast('❗ 내보낼 자산 기록이 없어요'); return; }
+
+  const wb = XLSX.utils.book_new();
+
+  // ── 시트1: 월별 순자산 추이
+  const summaryRows = assetHistory.map(function(r) {
+    const [y, m] = r.month.split('-');
+    return {
+      '년월': parseInt(y) + '년 ' + parseInt(m) + '월',
+      '총자산(만원)': r.total,
+      '부채(만원)': r.debt,
+      '순자산(만원)': r.net,
+      '총자산(억)': (r.total / 10000).toFixed(2),
+      '부채(억)': (r.debt / 10000).toFixed(2),
+      '순자산(억)': (r.net / 10000).toFixed(2),
+    };
+  });
+  const wsSummary = XLSX.utils.json_to_sheet(summaryRows);
+  wsSummary['!cols'] = [{ wch:12 },{ wch:14 },{ wch:12 },{ wch:14 },{ wch:10 },{ wch:10 },{ wch:10 }];
+  XLSX.utils.book_append_sheet(wb, wsSummary, '월별 순자산');
+
+  // ── 시트2: 항목별 상세
+  const itemRows = [];
+  assetHistory.forEach(function(r) {
+    const [y, m] = r.month.split('-');
+    const monthLabel = parseInt(y) + '년 ' + parseInt(m) + '월';
+    const items = r.items || [];
+    items.forEach(function(item) {
+      itemRows.push({
+        '년월': monthLabel,
+        '카테고리': item.category,
+        '항목명': item.name,
+        '유형': item.type === 'asset' ? '자산' : '부채',
+        '금액(만원)': item.amount,
+        '금액(억)': (item.amount / 10000).toFixed(2),
+        '메모': item.memo || '',
+      });
+    });
+  });
+
+  if (itemRows.length) {
+    const wsItems = XLSX.utils.json_to_sheet(itemRows);
+    wsItems['!cols'] = [{ wch:12 },{ wch:16 },{ wch:16 },{ wch:6 },{ wch:12 },{ wch:10 },{ wch:20 }];
+    XLSX.utils.book_append_sheet(wb, wsItems, '항목별 상세');
+  }
+
+  // ── 시트3: 목표 달성률
+  if (goals.length) {
+    const goalRows = goals.map(function(g) {
+      const current = getGoalCurrent(g);
+      const pct = Math.min(100, Math.round(current / g.target * 100));
+      return {
+        '목표명': g.name,
+        '목표금액(만원)': g.target,
+        '현재금액(만원)': current,
+        '달성률(%)': pct,
+        '목표년월': g.deadline,
+        '상태': pct >= 100 ? '달성 🏆' : pct >= 70 ? '순항 🚀' : pct >= 40 ? '진행 📈' : '노력 💪',
+      };
+    });
+    const wsGoals = XLSX.utils.json_to_sheet(goalRows);
+    wsGoals['!cols'] = [{ wch:20 },{ wch:14 },{ wch:14 },{ wch:10 },{ wch:10 },{ wch:10 }];
+    XLSX.utils.book_append_sheet(wb, wsGoals, '목표 달성률');
+  }
+
+  // 다운로드
+  const date = new Date();
+  const dateStr = date.getFullYear() + String(date.getMonth()+1).padStart(2,'0') + String(date.getDate()).padStart(2,'0');
+  XLSX.writeFile(wb, '자산기록_' + dateStr + '.xlsx');
+  showToast('🏦 자산 Excel 저장 완료!', 'success');
 }
 
 function importBackup(event) {
@@ -4313,7 +4817,7 @@ let currentSettingsTab = 'home';
 
 function setSettingsTab(tab) {
   currentSettingsTab = tab;
-  ['home','api','apt','data'].forEach(t => {
+  ['home','api','apt','cat','data'].forEach(t => {
     const btn = document.getElementById('stab-' + t);
     const con = document.getElementById('stab-content-' + t);
     const isActive = t === tab;
@@ -4324,8 +4828,8 @@ function setSettingsTab(tab) {
     }
     if (con) con.style.display = isActive ? 'block' : 'none';
   });
+  if (tab === 'cat') renderCatSettings();
 }
-
 function saveClaudeApiKey() {
   const key = document.getElementById('claude-api-key-input').value.trim();
   if (!key || !key.startsWith('sk-ant-')) { showToast('❗ 올바른 API 키를 입력해주세요 (sk-ant-로 시작)'); return; }
@@ -6326,7 +6830,98 @@ function renderLedger() {
 function clearLedgerSearch() {
   const el = document.getElementById('ledger-search');
   if (el) { el.value = ''; renderLedger(); }
+  const ac = document.getElementById('search-autocomplete');
+  if (ac) ac.style.display = 'none';
 }
+
+// ── 검색 자동완성 ──
+function onLedgerSearchInput(q) {
+  renderLedger();
+  const ac = document.getElementById('search-autocomplete');
+  if (!ac) return;
+
+  const trimmed = q.trim().toLowerCase();
+  if (!trimmed) { ac.style.display = 'none'; return; }
+
+  // 과거 메모·카테고리에서 유니크 후보 수집
+  const allCats = [...CATEGORIES.expense, ...CATEGORIES.income];
+  const seen = new Set();
+  const candidates = [];
+
+  ledgerTxs.forEach(function(t) {
+    // 메모 후보
+    if (t.memo) {
+      const key = 'memo::' + t.memo;
+      if (!seen.has(key) && t.memo.toLowerCase().includes(trimmed)) {
+        seen.add(key);
+        const cat = allCats.find(function(c) { return c.id === t.category; }) || { label: '💡 기타', color: '#6b7280' };
+        candidates.push({ type: 'memo', text: t.memo, cat: cat, catId: t.category });
+      }
+    }
+    // 카테고리 후보
+    const cat = allCats.find(function(c) { return c.id === t.category; });
+    if (cat) {
+      const key = 'cat::' + t.category;
+      if (!seen.has(key) && cat.label.toLowerCase().includes(trimmed)) {
+        seen.add(key);
+        candidates.push({ type: 'cat', text: cat.label, cat: cat, catId: t.category });
+      }
+    }
+  });
+
+  if (!candidates.length) { ac.style.display = 'none'; return; }
+
+  // 메모 우선, 카테고리 다음 / 최대 8개
+  const sorted = candidates
+    .sort(function(a, b) {
+      // 시작 글자 일치가 우선
+      const aStarts = a.text.toLowerCase().startsWith(trimmed) ? 0 : 1;
+      const bStarts = b.text.toLowerCase().startsWith(trimmed) ? 0 : 1;
+      if (aStarts !== bStarts) return aStarts - bStarts;
+      return a.type === 'memo' ? -1 : 1;
+    })
+    .slice(0, 8);
+
+  ac.innerHTML = sorted.map(function(item) {
+    // 매칭 부분 하이라이트
+    const escaped = item.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const highlighted = item.text.replace(
+      new RegExp('(' + escaped.replace(escaped, trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) + ')', 'gi'),
+      '<span class="ac-highlight">$1</span>'
+    );
+    const emoji = item.cat.label.split(' ')[0];
+    const catName = item.cat.label.split(' ').slice(1).join(' ');
+    return '<div class="ac-item" onmousedown="selectAutocomplete(\'' + item.text.replace(/'/g, "\\'") + '\',\'' + item.catId + '\')">'
+      + '<div style="width:28px;height:28px;border-radius:8px;background:' + item.cat.color + '22;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">' + emoji + '</div>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font-size:13px;font-weight:600">' + highlighted + '</div>'
+      + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + catName + '</div>'
+      + '</div>'
+      + '<div style="font-size:10px;color:var(--muted2)">' + (item.type === 'memo' ? '📝' : '📂') + '</div>'
+      + '</div>';
+  }).join('');
+
+  ac.style.display = 'block';
+}
+
+function selectAutocomplete(text, catId) {
+  const input = document.getElementById('ledger-search');
+  if (input) input.value = text;
+  const ac = document.getElementById('search-autocomplete');
+  if (ac) ac.style.display = 'none';
+  // 카테고리 필터도 자동 선택
+  if (catId) setLedgerCatFilter(catId);
+  renderLedger();
+}
+
+// 자동완성 외부 탭 시 닫기
+document.addEventListener('click', function(e) {
+  const ac = document.getElementById('search-autocomplete');
+  const wrap = document.getElementById('search-wrap');
+  if (ac && wrap && !wrap.contains(e.target) && !ac.contains(e.target)) {
+    ac.style.display = 'none';
+  }
+});
 
 // ── 거래 목록
 function renderLedgerList(txs) {
@@ -7326,6 +7921,62 @@ ${prev ? `
 
 // ── 문자 자동파싱 대기목록 ──
 let pendingTxs = [];
+
+// ── 월간 자산 기록 리마인더 ──
+function checkAssetReminder() {
+  const banner = document.getElementById('asset-reminder-banner');
+  const titleEl = document.getElementById('asset-reminder-title');
+  if (!banner) return;
+
+  const now = new Date();
+  const thisMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  const dayOfMonth = now.getDate();
+
+  // 오늘 이미 닫은 경우 표시 안 함
+  const dismissed = load('asset-reminder-dismissed', '');
+  if (dismissed === thisMonth) { banner.style.display = 'none'; return; }
+
+  // 5일 이후부터만 표시 (월초 며칠은 여유 줌)
+  if (dayOfMonth < 5) { banner.style.display = 'none'; return; }
+
+  // 이번달 기록이 이미 있으면 표시 안 함
+  const hasThisMonth = assetHistory.some(function(r) { return r.month === thisMonth; });
+  if (hasThisMonth) { banner.style.display = 'none'; return; }
+
+  // 지난달 기록도 없으면 (신규 유저) 더 친절한 메시지
+  const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevMonth = prevDate.getFullYear() + '-' + String(prevDate.getMonth()+1).padStart(2,'0');
+  const hasPrevMonth = assetHistory.some(function(r) { return r.month === prevMonth; });
+
+  const [y, m] = thisMonth.split('-');
+  if (!hasPrevMonth && !assetHistory.length) {
+    // 첫 사용자
+    if (titleEl) titleEl.textContent = '첫 자산 기록을 남겨보세요! 🌱';
+  } else {
+    // 기존 사용자 - 며칠 지났는지에 따라 긴박도 표시
+    const urgency = dayOfMonth >= 20 ? '⚠️ ' : '';
+    if (titleEl) titleEl.textContent = urgency + parseInt(y) + '년 ' + parseInt(m) + '월 자산 기록이 없어요';
+  }
+
+  banner.style.display = 'block';
+}
+
+function dismissAssetReminder() {
+  const now = new Date();
+  const thisMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  store('asset-reminder-dismissed', thisMonth);
+  const banner = document.getElementById('asset-reminder-banner');
+  if (banner) {
+    banner.style.transition = 'opacity 0.2s, transform 0.2s';
+    banner.style.opacity = '0';
+    banner.style.transform = 'translateY(-8px)';
+    setTimeout(function() {
+      banner.style.display = 'none';
+      banner.style.opacity = '';
+      banner.style.transform = '';
+    }, 200);
+  }
+}
 
 async function checkPendingTxs() {
   const proxyUrl = load('cloudflare-proxy', '');
@@ -8602,6 +9253,38 @@ window.addEventListener('popstate', function() {
     window.history.pushState(null, '', location.href);
   }
 });
+
+// ── Service Worker 등록 ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').then(function(reg) {
+      console.log('✅ SW 등록 완료:', reg.scope);
+
+      // 새 버전 감지 시 토스트로 안내
+      reg.addEventListener('updatefound', function() {
+        const newWorker = reg.installing;
+        if (!newWorker) return;
+        newWorker.addEventListener('statechange', function() {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            showToast('🔄 새 버전이 준비됐어요. 앱을 다시 열면 업데이트돼요!', 'info');
+          }
+        });
+      });
+    }).catch(function(err) {
+      console.log('SW 등록 실패:', err);
+    });
+  });
+}
+
+// ── 오프라인/온라인 감지 ──
+window.addEventListener('offline', function() {
+  showToast('📡 오프라인 상태예요. 저장된 데이터는 계속 볼 수 있어요', 'default');
+});
+window.addEventListener('online', function() {
+  showToast('✅ 다시 온라인 상태예요!', 'success');
+  syncLoad(true); // 온라인 복귀 시 자동 동기화
+});
+
 
 // 페이지 진입 시 히스토리 상태 추가
 window.history.pushState(null, '', location.href);
