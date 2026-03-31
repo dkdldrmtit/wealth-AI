@@ -4167,26 +4167,79 @@ document.addEventListener('DOMContentLoaded', function() {
     let ptrTriggered = false;
     const THRESHOLD = 72;
 
+    // ─── safe-area-inset-top 정확히 읽기 ───
+    // CSS env()는 JS에서 바로 못 읽으므로, 숨겨진 div로 실제 픽셀값을 추출
+    function getSafeAreaTop() {
+      const probe = document.createElement('div');
+      probe.style.cssText = 'position:fixed;top:env(safe-area-inset-top,0px);left:0;width:1px;height:1px;pointer-events:none;opacity:0';
+      document.body.appendChild(probe);
+      const val = probe.getBoundingClientRect().top;
+      document.body.removeChild(probe);
+      // 다이내믹 아일랜드 iPhone 14 Pro+ 기준 약 59px, 노치 44px, 노치 없음 0px
+      // 최소 0, 측정 실패 시 fallback 54px (노치 iPhone 기본값)
+      return (val && val > 0) ? Math.round(val) : 0;
+    }
+
     // 인디케이터 생성
     const indicator = document.createElement('div');
     indicator.id = 'ptr-indicator';
-    const safeTop = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sat') || '0') || 50;
-    indicator.style.cssText = 'position:fixed;top:' + safeTop + 'px;left:50%;transform:translateX(-50%) translateY(-80px);z-index:999;width:40px;height:40px;border-radius:50%;background:var(--surface2);border:0.5px solid var(--border2);display:flex;align-items:center;justify-content:center;transition:transform .2s ease;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,0.3)';
-    indicator.innerHTML = '<svg id="ptr-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e8f4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .3s"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>';
+
+    // top을 0으로 고정하고, translateY로 safe-area 아래 위치 조정
+    // → CSS env() 값을 신뢰하지 않고 JS로 직접 계산
+    indicator.style.cssText = [
+      'position:fixed',
+      'top:0',           // ← 항상 화면 최상단 기준
+      'left:50%',
+      'z-index:9999',    // ← 다이내믹 아일랜드 위에 올라오도록 최상위
+      'width:44px',
+      'height:44px',
+      'border-radius:22px',
+      'background:var(--surface)',
+      'border:1px solid var(--border2)',
+      'display:flex',
+      'align-items:center',
+      'justify-content:center',
+      'pointer-events:none',
+      'box-shadow:0 4px 16px rgba(0,0,0,0.4)',
+      'transition:transform .22s cubic-bezier(.4,0,.2,1), opacity .2s',
+      'transform:translateX(-50%) translateY(-80px)',  // 초기: 화면 위로 숨김
+      'opacity:0',
+      'will-change:transform'
+    ].join(';');
+
+    indicator.innerHTML = '<svg id="ptr-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e8f4ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .3s"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>';
     document.body.appendChild(indicator);
+
+    // safe-area 높이를 측정해서 인디케이터의 "보이는 기준점" 계산
+    // 다이내믹 아일랜드/노치 아래 + 여유 12px
+    let safeTop = 0;
+    // DOMContentLoaded 이후 측정 (폰트·레이아웃 완료 후)
+    setTimeout(function() {
+      safeTop = getSafeAreaTop();
+    }, 200);
+
+    // 인디케이터를 "safe-area 바로 아래"에 보이게 하는 translateY 값
+    // top:0 기준이므로: safeTop + 여유 12px + 인디케이터 절반높이(22px)
+    function getVisibleY() {
+      return safeTop + 12 + 22; // = safe-area 아래 12px 지점에 중심
+    }
+    function getHideY() {
+      return -(getVisibleY() + 80); // 충분히 위로 숨김
+    }
 
     document.addEventListener('touchstart', function(e) {
       const activePage = document.querySelector('.page.active');
       if (!activePage) return;
-      // window/body/page 모두 확인
-      const scrollTop = window.scrollY || document.documentElement.scrollTop || activePage.scrollTop || 0;
-      if (scrollTop > 5) return; // 살짝 여유 5px
-      // 터치 시작점이 화면 상단 40% 이내일 때만 활성화
+      const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+      if (scrollTop > 5) return;
       const touchY = e.touches[0].clientY;
-      if (touchY > window.innerHeight * 0.4) return;
+      if (touchY > window.innerHeight * 0.5) return;
       ptrStartY = touchY;
       ptrActive = true;
       ptrTriggered = false;
+      // 측정 재시도 (최초 진입 시 safe-area가 0인 경우 방어)
+      const measured = getSafeAreaTop();
+      if (measured > 0) safeTop = measured;
     }, { passive: true });
 
     document.addEventListener('touchmove', function(e) {
@@ -4195,8 +4248,11 @@ document.addEventListener('DOMContentLoaded', function() {
       if (ptrDist < 0) { ptrActive = false; return; }
 
       const progress = Math.min(ptrDist / THRESHOLD, 1);
-      const translateY = Math.min(ptrDist * 0.5, 60);
-      indicator.style.transform = 'translateX(-50%) translateY(' + (translateY - 80) + 'px)';
+      // 손가락 이동에 따라 인디케이터가 safe-area 아래로 내려옴
+      const visY = getVisibleY();
+      const hideY = getHideY();
+      const currentY = hideY + (visY - hideY) * Math.min(progress * 1.3, 1);
+      indicator.style.transform = 'translateX(-50%) translateY(' + currentY + 'px)';
       indicator.style.opacity = Math.min(progress * 2, 1);
 
       // 아이콘 회전
@@ -4205,10 +4261,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
       if (ptrDist >= THRESHOLD && !ptrTriggered) {
         ptrTriggered = true;
-        indicator.style.background = 'rgba(255,255,255,0.2)';
+        haptic('medium');
+        // 충분히 당겨졌을 때 배경 밝아짐
+        indicator.style.background = 'rgba(232,244,255,0.18)';
+        indicator.style.borderColor = 'rgba(232,244,255,0.4)';
       } else if (ptrDist < THRESHOLD) {
         ptrTriggered = false;
-        indicator.style.background = 'var(--surface2)';
+        indicator.style.background = 'var(--surface)';
+        indicator.style.borderColor = 'var(--border2)';
       }
     }, { passive: true });
 
@@ -4217,10 +4277,17 @@ document.addEventListener('DOMContentLoaded', function() {
       ptrActive = false;
 
       if (ptrTriggered) {
-        // 스피너 표시
-        indicator.style.transform = 'translateX(-50%) translateY(16px)';
+        // safe-area 바로 아래에 고정 — 다이내믹 아일랜드에 절대 안 가려짐
+        const visY = getVisibleY();
+        indicator.style.transition = 'transform .25s cubic-bezier(.4,0,.2,1), opacity .2s';
+        indicator.style.transform = 'translateX(-50%) translateY(' + visY + 'px)';
+        indicator.style.opacity = '1';
+
         const icon = document.getElementById('ptr-icon');
-        if (icon) icon.style.animation = 'ptr-spin .8s linear infinite';
+        if (icon) {
+          icon.style.transition = 'none';
+          icon.style.animation = 'ptr-spin .8s linear infinite';
+        }
 
         // 새로고침 실행
         const currentPage = document.querySelector('.page.active');
@@ -4230,32 +4297,34 @@ document.addEventListener('DOMContentLoaded', function() {
           if (pageName === 'home') {
             syncLoad(true);
             initHome();
-            showToast('새로고침 완료');
+            showToast('🔄 새로고침 완료');
           } else if (pageName === 'ledger') {
             renderLedger();
-            showToast('가계부 새로고침');
+            showToast('🔄 가계부 새로고침');
           } else if (pageName === 'stocks') {
             fetchAllPrices();
-            showToast('시세 업데이트 중...');
+            showToast('🔄 시세 업데이트 중...');
           } else if (pageName === 'input') {
             renderMonthCards();
-            showToast('자산 새로고침');
+            showToast('🔄 자산 새로고침');
           } else {
             syncLoad(true);
-            showToast('새로고침 완료');
+            showToast('🔄 새로고침 완료');
           }
 
-          // 인디케이터 숨기기
+          // 완료 후 인디케이터 숨기기
           setTimeout(function() {
-            indicator.style.transform = 'translateX(-50%) translateY(-80px)';
+            indicator.style.transform = 'translateX(-50%) translateY(' + getHideY() + 'px)';
             indicator.style.opacity = '0';
-            indicator.style.background = 'var(--surface2)';
+            indicator.style.background = 'var(--surface)';
+            indicator.style.borderColor = 'var(--border2)';
             if (icon) icon.style.animation = '';
-          }, 600);
+          }, 700);
         }, 500);
+
       } else {
-        // 그냥 숨기기
-        indicator.style.transform = 'translateX(-50%) translateY(-80px)';
+        // 덜 당겼을 때 그냥 숨기기
+        indicator.style.transform = 'translateX(-50%) translateY(' + getHideY() + 'px)';
         indicator.style.opacity = '0';
       }
 
