@@ -3928,7 +3928,9 @@ function openAssetDetail(month) {
       });
 
       const totalAsset = items.filter(function(i){ return i.type==='asset'; }).reduce(function(s,i){ return s+(i.amount||0); }, 0);
-      const totalAll   = items.reduce(function(s,i){ return s+(i.amount||0); }, 0);
+      const totalDebt  = items.filter(function(i){ return i.type==='debt'; }).reduce(function(s,i){ return s+(i.amount||0); }, 0);
+      const totalNet   = totalAsset - totalDebt;
+      const totalAll   = totalAsset; // 비중은 총자산 기준 (부채 제외)
 
       const catOrder = ['부동산','민석 금융자산','시윤 금융자산','기타자산','부채'];
       const sortedGroups = catOrder.filter(function(c){ return groups[c]; }).map(function(c){ return [c, groups[c]]; });
@@ -3943,9 +3945,9 @@ function openAssetDetail(month) {
       sortedGroups.forEach(function(entry) {
         const cat = entry[0], catItems = entry[1];
         const catTotal = catItems.reduce(function(s,i){ return s+(i.amount||0); }, 0);
-        const pct = totalAll > 0 ? catTotal/totalAll*100 : 0;
+        const pct = totalAsset > 0 ? catTotal/totalAsset*100 : 0;
         if (pct < 1) return;
-        html += '<div style="height:100%;width:' + pct.toFixed(1) + '%;background:' + (barColors[cat]||'#6b7280') + ';border-radius:2px"></div>';
+        html += '<div style="height:100%;flex:' + pct.toFixed(1) + ';background:' + (barColors[cat]||'#6b7280') + ';border-radius:3px"></div>';
       });
       html += '</div>';
       // 범례
@@ -3953,7 +3955,7 @@ function openAssetDetail(month) {
       sortedGroups.forEach(function(entry) {
         const cat = entry[0], catItems = entry[1];
         const catTotal = catItems.reduce(function(s,i){ return s+(i.amount||0); }, 0);
-        const pct = totalAll > 0 ? Math.round(catTotal/totalAll*100) : 0;
+        const pct = totalAsset > 0 ? Math.round(catTotal/totalAsset*100) : 0;
         if (pct < 1) return;
         const shortName = cat.replace(' 금융자산','').replace('기타자산','기타');
         html += '<div style="display:flex;align-items:center;gap:4px">';
@@ -3969,7 +3971,7 @@ function openAssetDetail(month) {
         const theme = colorMap[cat] || { color:'var(--muted2)', dot:'#6b7280' };
         const catTotal = catItems.reduce(function(s,i){ return s+(i.amount||0); }, 0);
         const isDebtCat = cat === '부채';
-        const pctOfTotal = totalAll > 0 ? Math.round(catTotal/totalAll*100) : 0;
+        const pctOfTotal = totalAsset > 0 ? Math.round(catTotal/totalAsset*100) : 0;
 
         html += '<div style="margin-bottom:16px">';
 
@@ -3988,7 +3990,9 @@ function openAssetDetail(month) {
         catItems.forEach(function(item, idx) {
           const amt = item.amount || 0;
           const amtStr = amt >= 10000 ? (amt/10000).toFixed(2)+'억' : amt.toLocaleString()+'만';
-          const pctItem = totalAll > 0 ? Math.round(amt/totalAll*100) : 0;
+          const pctItem = isDebtCat
+            ? (totalAsset > 0 ? Math.round(amt/totalAsset*100) : 0)
+            : (totalAsset > 0 ? Math.round(amt/totalAsset*100) : 0);
           const isLast = idx === catItems.length - 1;
 
           html += '<div style="display:flex;align-items:center;padding:11px 14px;' + (!isLast?'border-bottom:1px solid var(--border);':'') + '">';
