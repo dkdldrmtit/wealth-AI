@@ -113,7 +113,7 @@ body::before {
   position: relative;
   -webkit-tap-highlight-color: transparent;
 }
-.nav-item .icon { font-size:20px; line-height:1; }
+.nav-item .icon { width:22px; height:22px; line-height:1; display:block; }
 .nav-item.active { color: #e8f4ff; filter: drop-shadow(0 0 6px rgba(232,244,255,0.7)); }
 /* 활성 탭 상단 글로우 마커 */
 .nav-item.active::before {
@@ -323,49 +323,46 @@ body::before {
 }
 
 @media (prefers-color-scheme: light) {
-  .siri-card-inner {
-    background: #ffffff;
-  }
-  /* 라이트모드 포인트 - 글로우 제거, 진한 쿨 블루 */
+  .siri-card-inner { background: #ffffff; }
   .sum-box.net .val {
-    color: #1a6fa8 !important;
-    text-shadow: 0 0 8px rgba(26,111,168,0.5), 0 0 16px rgba(26,111,168,0.3) !important;
+    color: #155fa0 !important;
+    text-shadow: 0 0 10px rgba(21,95,160,0.4) !important;
   }
-  .sum-box.net::after {
-    background: #1a6fa8 !important;
-    opacity: 1 !important;
-  }
+  .sum-box.net::after { background: #155fa0 !important; opacity: 1 !important; }
   .nav-item.active {
-    color: #1a6fa8 !important;
-    filter: drop-shadow(0 0 4px rgba(26,111,168,0.6)) !important;
+    color: #1d58d8 !important;
+    filter: drop-shadow(0 0 4px rgba(29,88,216,0.5)) !important;
   }
-  .page-header h1 {
-    filter: drop-shadow(0 0 6px rgba(26,111,168,0.15)) !important;
-    color: #1a1d2e !important;
+  .nav-item.active::before {
+    background: linear-gradient(90deg, transparent, #1d58d8, transparent) !important;
+    box-shadow: 0 0 8px rgba(29,88,216,0.5) !important;
   }
-  /* 라이트모드 활성 버튼 */
+  .page-header h1 { filter: none !important; color: #111827 !important; }
   .btn-primary {
-    background: #1a6fa8 !important;
+    background: linear-gradient(135deg, #1d58d8, #155fa0) !important;
     color: #ffffff !important;
     border: none !important;
-    filter: drop-shadow(0 0 4px rgba(26,111,168,0.4));
+    box-shadow: 0 4px 16px rgba(29,88,216,0.25) !important;
+    filter: none !important;
   }
-  /* 라이트모드 활성 필터 칩 */
   .active-chip {
-    background: rgba(26,111,168,0.12) !important;
-    color: #1a6fa8 !important;
-    border: 0.5px solid rgba(26,111,168,0.3) !important;
+    background: rgba(29,88,216,0.10) !important;
+    color: #1d58d8 !important;
+    border: 0.5px solid rgba(29,88,216,0.28) !important;
   }
-  #home-wealth-text { color: #555555 !important; }
-  #home-ai-text { color: #1a6fa8 !important; filter: drop-shadow(0 0 6px rgba(26,111,168,0.7)) drop-shadow(0 0 16px rgba(26,111,168,0.4)) !important; }
-}
-@keyframes vwave {
-  from { height: 4px; opacity: .4; }
-  to   { height: 28px; opacity: 1; }
-}
-@keyframes ptr-spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+  .inp-group input:focus,
+  .ge-group input:focus {
+    border-color: #1d58d8 !important;
+    box-shadow: 0 0 0 3px rgba(29,88,216,0.10) !important;
+  }
+  #home-wealth-text { color: #999999 !important; }
+  #home-ai-text {
+    color: #1d58d8 !important;
+    filter: drop-shadow(0 0 6px rgba(29,88,216,0.6)) drop-shadow(0 0 16px rgba(29,88,216,0.3)) !important;
+  }
+  .chat-send { background: linear-gradient(135deg, #1d58d8, #155fa0) !important; }
+  .goal-pct { color: #155fa0 !important; }
+  ::-webkit-scrollbar-thumb { background: #d0d5e0; }
 }
 
 /* ── 모달 열릴 때 배경 스크롤 방지 ── */
@@ -397,22 +394,22 @@ body[data-theme="dark"] {
 
 /* ── 라이트 강제 모드 ── */
 body[data-theme="light"] {
-  --bg: #f0f2f8;
+  --bg: #f0f4fb;
   --surface: #ffffff;
-  --surface2: #f5f6fa;
-  --surface3: #eceef5;
+  --surface2: #f3f5fb;
+  --surface3: #e8ecf5;
   --border: rgba(0,0,0,0.07);
   --border2: rgba(0,0,0,0.13);
-  --gold: #b8860b;
-  --blue: #2563eb;
-  --teal: #1a6fa8;
-  --red: #dc2626;
-  --green: #16a34a;
-  --purple: #7c3aed;
-  --text: #1a1d2e;
-  --muted: #64748b;
-  --muted2: #475569;
-  --shadow: rgba(0,0,0,0.08);
+  --gold: #a0720a;
+  --blue: #1d58d8;
+  --teal: #155fa0;
+  --red: #c82020;
+  --green: #137a3a;
+  --purple: #6d28d9;
+  --text: #111827;
+  --muted: #5a6275;
+  --muted2: #3d4657;
+  --shadow: rgba(0,0,0,0.10);
 }
 
 /* ═══════════════════════════════════════════
@@ -570,11 +567,18 @@ button:active {
     box-shadow: 0 0 8px rgba(26,111,168,0.6) !important;
   }
 }
-body[data-theme="light"] .nav { background: rgba(255,255,255,0.97) !important; }
+body[data-theme="light"] .nav { background: rgba(255,255,255,0.97) !important; box-shadow: 0 -2px 20px rgba(0,0,0,0.07); }
+body[data-theme="light"] .nav-item.active { color: #1d58d8 !important; filter: drop-shadow(0 0 4px rgba(29,88,216,0.5)) !important; }
 body[data-theme="light"] .nav-item.active::before {
-  background: linear-gradient(90deg, transparent, #1a6fa8, transparent) !important;
-  box-shadow: 0 0 8px rgba(26,111,168,0.6) !important;
+  background: linear-gradient(90deg, transparent, #1d58d8, transparent) !important;
+  box-shadow: 0 0 8px rgba(29,88,216,0.5) !important;
 }
+body[data-theme="light"] .sum-box.net .val { color: #155fa0 !important; text-shadow: 0 0 10px rgba(21,95,160,0.4) !important; }
+body[data-theme="light"] #home-ai-text { color: #1d58d8 !important; filter: drop-shadow(0 0 6px rgba(29,88,216,0.6)) drop-shadow(0 0 16px rgba(29,88,216,0.3)) !important; }
+body[data-theme="light"] .btn-primary { background: linear-gradient(135deg, #1d58d8, #155fa0) !important; color: #ffffff !important; border: none !important; box-shadow: 0 4px 16px rgba(29,88,216,0.25) !important; filter: none !important; }
+body[data-theme="light"] .siri-card-inner { background: #ffffff; }
+body[data-theme="light"] .inp-group input:focus,
+body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !important; box-shadow: 0 0 0 3px rgba(29,88,216,0.10) !important; }
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -1534,15 +1538,29 @@ body[data-theme="light"] .nav-item.active::before {
       </div>
 
       <!-- 금액 -->
-      <div style="background:var(--surface2);border-radius:16px;padding:18px 16px;margin-bottom:16px;text-align:center;position:relative">
-        <div id="tx-type-label" style="font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:8px;color:var(--red)">지출 금액</div>
-        <div style="display:flex;align-items:center;justify-content:center;gap:4px">
-          <input type="text" id="tx-amount" placeholder="0" inputmode="numeric"
-            style="width:180px;background:none;border:none;color:var(--text);font-size:28px;font-weight:900;text-align:center;outline:none;font-family:'Noto Sans KR',sans-serif"
-            oninput="formatAmountInput(this);updateAmountPreview()">
-          <span style="font-size:16px;color:var(--muted);font-weight:600">원</span>
+      <div style="background:var(--surface2);border-radius:16px;padding:18px 16px;margin-bottom:16px;position:relative">
+        <div id="tx-type-label" style="font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:12px;color:var(--red);text-align:center">지출 금액</div>
+        <!-- 금액 디스플레이 -->
+        <div style="text-align:right;background:var(--surface3);border-radius:12px;padding:14px 16px;margin-bottom:4px">
+          <span id="calc-display-num" style="font-size:32px;font-weight:900;color:var(--text)">0</span>
+          <span style="font-size:16px;color:var(--muted);font-weight:600;margin-left:4px">원</span>
         </div>
-        <div id="tx-amount-preview" style="font-size:11px;color:var(--muted);margin-top:5px;height:16px"></div>
+        <div id="tx-amount-preview" style="font-size:11px;color:var(--muted);margin-bottom:12px;height:16px;text-align:right"></div>
+        <input type="hidden" id="tx-amount" value="">
+        <!-- 계산기 키패드 -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+          <button type="button" onclick="calcInput('1')" style="height:56px;background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;color:var(--text);font-size:22px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">1</button>
+          <button type="button" onclick="calcInput('2')" style="height:56px;background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;color:var(--text);font-size:22px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">2</button>
+          <button type="button" onclick="calcInput('3')" style="height:56px;background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;color:var(--text);font-size:22px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">3</button>
+          <button type="button" onclick="calcInput('4')" style="height:56px;background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;color:var(--text);font-size:22px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">4</button>
+          <button type="button" onclick="calcInput('5')" style="height:56px;background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;color:var(--text);font-size:22px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">5</button>
+          <button type="button" onclick="calcInput('6')" style="height:56px;background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;color:var(--text);font-size:22px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">6</button>
+          <button type="button" onclick="calcInput('7')" style="height:56px;background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;color:var(--text);font-size:22px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">7</button>
+          <button type="button" onclick="calcInput('8')" style="height:56px;background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;color:var(--text);font-size:22px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">8</button>
+          <button type="button" onclick="calcInput('9')" style="height:56px;background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;color:var(--text);font-size:22px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">9</button>
+          <button type="button" onclick="calcInput('0')" style="grid-column:span 2;height:56px;background:var(--surface);border:0.5px solid var(--border2);border-radius:14px;color:var(--text);font-size:22px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">0</button>
+          <button type="button" onclick="calcDel()" style="height:56px;background:rgba(248,113,113,0.10);border:0.5px solid rgba(248,113,113,0.22);border-radius:14px;color:var(--red);font-size:20px;cursor:pointer;-webkit-tap-highlight-color:transparent">⌫</button>
+        </div>
       </div>
 
       <!-- 날짜 -->
@@ -2026,15 +2044,45 @@ body[data-theme="light"] .nav-item.active::before {
 <nav class="nav">
   <div style="display:flex;width:100%;max-width:680px">
     <div class="nav-item active" onclick="goPage('home',this)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>홈</div>
+      <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <span>홈</span>
+    </div>
     <div class="nav-item" onclick="goPage('ledger',this)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>가계부</div>
+      <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="3" width="16" height="18" rx="2"/>
+        <line x1="8" y1="8" x2="16" y2="8"/>
+        <line x1="8" y1="12" x2="16" y2="12"/>
+        <line x1="8" y1="16" x2="13" y2="16"/>
+      </svg>
+      <span>가계부</span>
+    </div>
     <div class="nav-item" onclick="goPage('ai',this)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>AI</div>
+      <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        <circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/>
+        <circle cx="12" cy="10" r="1" fill="currentColor" stroke="none"/>
+        <circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/>
+      </svg>
+      <span>AI</span>
+    </div>
     <div class="nav-item" onclick="goPage('input',this)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>자산</div>
+      <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="20" x2="12" y2="10"/>
+        <line x1="18" y1="20" x2="18" y2="4"/>
+        <line x1="6" y1="20" x2="6" y2="16"/>
+      </svg>
+      <span>자산</span>
+    </div>
     <div class="nav-item" onclick="goPage('stocks',this)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>주식</div>
+      <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+        <polyline points="16 7 22 7 22 13"/>
+      </svg>
+      <span>주식</span>
+    </div>
   </div>
 </nav>
 
@@ -6341,6 +6389,7 @@ function renderBudgetBars(txs) {
 
 // ── 거래 입력 모달
 function openLedgerAdd(type) {
+  resetCalcPad();
   const today = new Date();
   document.getElementById('tx-date').value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
   document.getElementById('tx-amount').value = '';
@@ -6355,7 +6404,7 @@ function openLedgerAdd(type) {
   const inner = modal.querySelector('.modal-slide-up');
   if (inner) { inner.style.animation = 'none'; void inner.offsetWidth; inner.style.animation = ''; }
   lockScroll();
-  setTimeout(() => document.getElementById('tx-amount').focus(), 300);
+  // 계산기 키패드 사용으로 포커스 불필요
 }
 // ── 음성 입력 파싱 ──
 let voiceOwner = 'common';
@@ -7593,13 +7642,10 @@ function openTxEdit(id) {
   editingTxId = id;
   setTxType(tx.type);
   setTxOwner(tx.owner);
-  const rawAmt = Math.round(tx.amount * 10000);
-  const txAmtInput = document.getElementById('tx-amount');
-  txAmtInput.value = rawAmt.toLocaleString('ko-KR');
-  txAmtInput.dataset.raw = String(rawAmt);
+  calcRawValue = String(Math.round(tx.amount * 10000));
+  updateCalcDisplay();
   document.getElementById('tx-date').value = tx.date;
   document.getElementById('tx-memo').value = tx.memo || '';
-  updateAmountPreview(); 
   // 카테고리가 해당 타입에 실제로 존재하는지 검증
   const validCat = CATEGORIES[tx.type].find(c => c.id === tx.category);
   selectedCategory = validCat ? tx.category : CATEGORIES[tx.type][0].id;
@@ -7983,6 +8029,40 @@ window.addEventListener('popstate', function() {
 
 // 페이지 진입 시 히스토리 상태 추가
 window.history.pushState(null, '', location.href);
+
+/* ══ 계산기 키패드 ══ */
+let calcRawValue = '';
+function calcInput(d) {
+  if (calcRawValue.length >= 9) return;
+  if (calcRawValue === '' && d === '0') return;
+  calcRawValue += d;
+  updateCalcDisplay();
+}
+function calcDel() {
+  calcRawValue = calcRawValue.slice(0, -1);
+  updateCalcDisplay();
+}
+function updateCalcDisplay() {
+  const num = parseInt(calcRawValue || '0', 10);
+  const dispEl = document.getElementById('calc-display-num');
+  const previewEl = document.getElementById('tx-amount-preview');
+  const hiddenEl = document.getElementById('tx-amount');
+  if (dispEl) dispEl.textContent = num.toLocaleString('ko-KR');
+  if (hiddenEl) hiddenEl.value = calcRawValue || '';
+  if (previewEl) {
+    if (num >= 10000) {
+      const man = Math.floor(num / 10000);
+      const rem = num % 10000;
+      previewEl.textContent = rem > 0 ? man + '만 ' + rem.toLocaleString() + '원' : man + '만원';
+    } else {
+      previewEl.textContent = '';
+    }
+  }
+}
+function resetCalcPad() {
+  calcRawValue = '';
+  updateCalcDisplay();
+}
 
 </script>
 </body>
