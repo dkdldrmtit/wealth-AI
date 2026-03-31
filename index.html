@@ -584,6 +584,24 @@ body[data-theme="light"] .siri-card-inner { background: #ffffff; }
 body[data-theme="light"] .inp-group input:focus,
 body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !important; box-shadow: 0 0 0 3px rgba(29,88,216,0.10) !important; }
 
+/* ══ 스켈레톤 로딩 ══ */
+@keyframes skeleton-shimmer {
+  0%   { background-position: -300px 0; }
+  100% { background-position: 300px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg,
+    var(--surface2) 25%,
+    var(--surface3) 50%,
+    var(--surface2) 75%);
+  background-size: 600px 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+  border-radius: 6px;
+}
+.skeleton-text  { height: 14px; border-radius: 4px; }
+.skeleton-title { height: 20px; border-radius: 4px; }
+.skeleton-circle{ border-radius: 50%; }
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -751,10 +769,29 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
 
   <!-- ⑤ 총자산/부채/순자산 -->
   <div data-card="summary" id="home-card-summary">
-  <div class="summary-row">
-    <div class="sum-box asset" onclick="goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('asset'),50)" style="cursor:pointer"><div class="lbl">총자산</div><div class="val" id="h-total">—</div><div class="unit">억원 ›</div></div>
-    <div class="sum-box debt" onclick="goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('debt'),50)" style="cursor:pointer"><div class="lbl">부채</div><div class="val" id="h-debt">—</div><div class="unit">억원 ›</div></div>
-    <div class="sum-box net" onclick="goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('asset'),50)" style="cursor:pointer"><div class="lbl">순자산</div><div class="val" id="h-net">—</div><div class="unit">억원 ›</div></div>
+  <div style="margin-bottom:14px">
+    <!-- 순자산 대형 표시 -->
+    <div onclick="goPage('input',document.querySelectorAll('.nav-item')[3])" style="cursor:pointer;padding:20px 4px 8px">
+      <div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">순자산</div>
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <div id="h-net-large" style="font-size:52px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-2px;font-variant-numeric:tabular-nums">—</div>
+        <div style="font-size:20px;color:var(--muted);font-weight:400">억</div>
+      </div>
+      <div id="h-net-change-badge" style="margin-top:8px;min-height:22px"></div>
+    </div>
+    <!-- 총자산 / 부채 서브 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
+      <div class="sum-box asset" onclick="goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('asset'),50)" style="cursor:pointer">
+        <div class="lbl">총자산</div>
+        <div class="val" id="h-total">—</div>
+        <div class="unit">억원 ›</div>
+      </div>
+      <div class="sum-box debt" onclick="goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('debt'),50)" style="cursor:pointer">
+        <div class="lbl">부채</div>
+        <div class="val" id="h-debt">—</div>
+        <div class="unit">억원 ›</div>
+      </div>
+    </div>
   </div>
   </div>
 
@@ -2488,9 +2525,30 @@ function updateHome(rec) {
 function updateHomeFromItems(rec) {
   if (!rec) return;
   const el = id => document.getElementById(id);
-  if(el('h-total')) animateNumber(el('h-total'), 0, rec.total/10000, 800, v => v.toFixed(2));
-  if(el('h-debt')) animateNumber(el('h-debt'), 0, rec.debt/10000, 800, v => v.toFixed(2));
-  if(el('h-net')) animateNumber(el('h-net'), 0, rec.net/10000, 800, v => v.toFixed(2));
+  if(el('h-total')) animateNumber(el('h-total'), 0, rec.total/10000, 900, v => v.toFixed(2));
+  if(el('h-debt')) animateNumber(el('h-debt'), 0, rec.debt/10000, 900, v => v.toFixed(2));
+  if(el('h-net')) animateNumber(el('h-net'), 0, rec.net/10000, 900, v => v.toFixed(2));
+
+  // 순자산 대형 표시 카운트업
+  const netLarge = el('h-net-large');
+  if (netLarge) animateNumber(netLarge, 0, rec.net/10000, 1100, v => v.toFixed(2));
+
+  // 전월 대비 배지
+  const changeBadge = el('h-net-change-badge');
+  if (changeBadge) {
+    const prev = assetHistory.length > 1 ? assetHistory[assetHistory.length - 2] : null;
+    if (prev) {
+      const diff = rec.net - prev.net;
+      const sign = diff >= 0 ? '+' : '';
+      const color = diff >= 0 ? 'var(--green)' : 'var(--red)';
+      const bg = diff >= 0 ? 'rgba(74,222,128,0.12)' : 'rgba(248,113,113,0.12)';
+      const arrow = diff >= 0 ? '▲' : '▼';
+      changeBadge.innerHTML = '<span style="display:inline-flex;align-items:center;gap:5px;background:' + bg + ';color:' + color + ';font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px">'
+        + arrow + ' ' + sign + (diff/10000).toFixed(2) + '억 전월 대비</span>';
+    } else {
+      changeBadge.innerHTML = '<span style="font-size:11px;color:var(--muted)">첫 번째 기록</span>';
+    }
+  }
   if(el('d-center')) el('d-center').textContent = (rec.total/10000).toFixed(2)+'억';
 
   if (!rec.items) { updateHome(rec); return; }
@@ -2540,9 +2598,11 @@ function updateHomeFromItems(rec) {
     : '<span style="color:var(--muted)">항목 없음</span>';
 }
 
-function renderMonthCards() {
-  const wrap = document.getElementById('month-cards');
-  if (!wrap) return;
+  // 로딩 중 스켈레톤 (데이터 있을 때만 스켈레톤 → 즉시 렌더)
+  if (!assetHistory.length) {
+    wrap.innerHTML = '<div class="empty-state"><div class="es-icon">📊</div><div class="es-title">아직 자산 기록이 없어요</div><div class="es-sub">위 버튼을 눌러<br>첫 번째 자산 기록을 추가해보세요!</div></div>';
+    return;
+  }
   const rows = [...assetHistory].reverse();
   if (!rows.length) {
     wrap.innerHTML = '<div class="empty-state"><div class="es-icon">📊</div><div class="es-title">아직 자산 기록이 없어요</div><div class="es-sub">위 버튼을 눌러<br>첫 번째 자산 기록을 추가해보세요!</div></div>';
@@ -5180,7 +5240,10 @@ async function loadAiComment(force=false, useWebSearch=false) {
     return;
   }
 
-  el.innerHTML = '<span style="color:var(--muted);font-size:12px">' + (useWebSearch ? '시황 검색 중...' : '자산 분석 중...') + '</span>';
+  el.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px;padding:2px 0">'
+    + '<div class="skeleton skeleton-text" style="width:90%"></div>'
+    + '<div class="skeleton skeleton-text" style="width:70%"></div>'
+    + '</div>';
 
   // 자산 데이터 수집
   const latest = assetHistory.length > 0 ? assetHistory[assetHistory.length-1] : null;
@@ -5825,6 +5888,22 @@ async function fetchAllPrices() {
     return;
   }
   if (btn) btn.textContent = '⏳ 조회중...';
+    // 스켈레톤 로딩 표시
+  const stockListEl = document.getElementById('stock-list');
+  if (stockListEl && stocks.length > 0) {
+    stockListEl.innerHTML = stocks.map(function() {
+      return '<div style="display:flex;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);gap:12px">'
+        + '<div style="flex:1">'
+        + '<div class="skeleton skeleton-text" style="width:60%;margin-bottom:8px"></div>'
+        + '<div class="skeleton skeleton-text" style="width:40%"></div>'
+        + '</div>'
+        + '<div style="text-align:right">'
+        + '<div class="skeleton skeleton-text" style="width:80px;margin-bottom:8px"></div>'
+        + '<div class="skeleton skeleton-text" style="width:60px"></div>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+  }
 
   // 해외 주식 있으면 환율 먼저 조회
   const hasUS = stocks.some(function(s) { return s.market === 'US'; });
@@ -6242,11 +6321,33 @@ function renderLedgerList(txs) {
     const dayNet = dayIncome - dayExpense;
     const [yy,mm,dd] = date.split('-');
     const dayNames = ['일','월','화','수','목','금','토'];
-    const dayName = dayNames[new Date(date).getDay()];
+    const dateObj = new Date(date);
+    const dayName = dayNames[dateObj.getDay()];
+    const isSat = dateObj.getDay() === 6;
+    const isSun = dateObj.getDay() === 0;
+    const dayColor = isSat ? '#60a5fa' : isSun ? '#f87171' : 'var(--muted)';
+
+    // 오늘/어제/그저께 라벨
+    const todayStr2 = new Date().toISOString().slice(0,10);
+    const yesterdayStr = new Date(Date.now()-86400000).toISOString().slice(0,10);
+    const daybeforeStr = new Date(Date.now()-2*86400000).toISOString().slice(0,10);
+    let dateLabel;
+    if (date === todayStr2) dateLabel = '오늘';
+    else if (date === yesterdayStr) dateLabel = '어제';
+    else if (date === daybeforeStr) dateLabel = '그저께';
+    else dateLabel = parseInt(mm) + '.' + parseInt(dd);
+
     return `<div style="margin-bottom:16px">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 4px;margin-bottom:4px">
-        <span style="font-size:12px;font-weight:700;color:var(--muted)">${parseInt(mm)}.${parseInt(dd)} (${dayName})</span>
-        <span style="font-size:11px;font-weight:700;color:${dayNet>=0?'var(--blue)':'var(--red)'}">${dayNet>=0?'+':''}${(dayNet*10000).toLocaleString()}원</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 2px;margin-bottom:6px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:15px;font-weight:800;color:var(--text)">${dateLabel}</span>
+          <span style="font-size:11px;color:${dayColor};font-weight:600">${dayName}요일</span>
+          ${date === todayStr2 ? '<span style="font-size:9px;background:rgba(74,158,255,.15);color:var(--blue);padding:2px 7px;border-radius:8px;font-weight:700">TODAY</span>' : ''}
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:12px;font-weight:700;color:${dayNet>=0?'var(--blue)':'var(--red)'}">${dayNet>=0?'+':''}${(dayNet*10000).toLocaleString()}원</div>
+          ${dayExpense > 0 ? '<div style="font-size:10px;color:var(--muted);margin-top:1px">지출 ' + (dayExpense*10000).toLocaleString() + '원</div>' : ''}
+        </div>
       </div>
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden">
         ${items.map((t,i) => {
