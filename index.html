@@ -1505,6 +1505,35 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
       </div>
     </div>
 
+    <!-- 지출 히트맵 캘린더 -->
+<div class="card" style="margin-bottom:12px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div class="card-title" style="margin-bottom:0">📅 이달 지출 히트맵</div>
+    <div id="heatmap-month-label" style="font-size:11px;color:var(--muted)"></div>
+  </div>
+  <!-- 요일 헤더 -->
+  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px">
+    <div style="text-align:center;font-size:9px;color:var(--muted);font-weight:700">월</div>
+    <div style="text-align:center;font-size:9px;color:var(--muted);font-weight:700">화</div>
+    <div style="text-align:center;font-size:9px;color:var(--muted);font-weight:700">수</div>
+    <div style="text-align:center;font-size:9px;color:var(--muted);font-weight:700">목</div>
+    <div style="text-align:center;font-size:9px;color:var(--muted);font-weight:700">금</div>
+    <div style="text-align:center;font-size:9px;color:var(--blue);font-weight:700">토</div>
+    <div style="text-align:center;font-size:9px;color:var(--red);font-weight:700">일</div>
+  </div>
+  <div id="expense-heatmap" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px"></div>
+  <!-- 범례 -->
+  <div style="display:flex;align-items:center;gap:6px;margin-top:10px;justify-content:flex-end">
+    <span style="font-size:10px;color:var(--muted)">적음</span>
+    <div style="width:12px;height:12px;border-radius:3px;background:rgba(248,113,113,0.12)"></div>
+    <div style="width:12px;height:12px;border-radius:3px;background:rgba(248,113,113,0.35)"></div>
+    <div style="width:12px;height:12px;border-radius:3px;background:rgba(248,113,113,0.6)"></div>
+    <div style="width:12px;height:12px;border-radius:3px;background:rgba(248,113,113,0.85)"></div>
+    <div style="width:12px;height:12px;border-radius:3px;background:#f87171"></div>
+    <span style="font-size:10px;color:var(--muted)">많음</span>
+  </div>
+</div>
+    
     <!-- 월별 추이 차트 -->
     <div class="card" style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -6276,7 +6305,7 @@ function renderLedger() {
     renderCatFilterBtns(ownerFiltered);
     renderLedgerList(filtered);
   }
-  else if (ledgerTab === 'chart') { renderLedgerTrendChart(); renderCategoryChart(monthTxs); renderOwnerCompare(monthTxs); }
+  else if (ledgerTab === 'chart') { renderExpenseHeatmap(); renderLedgerTrendChart(); renderCategoryChart(monthTxs); renderOwnerCompare(monthTxs); }
   else if (ledgerTab === 'budget') { renderBudgetBars(monthTxs); renderRecurringList(); }
 }
 
@@ -6384,6 +6413,114 @@ function renderLedgerList(txs) {
       </div>
     </div>`;
   }).join('');
+}
+
+// ── 지출 히트맵 캘린더 ──
+function renderExpenseHeatmap() {
+  const wrap = document.getElementById('expense-heatmap');
+  const lbl = document.getElementById('heatmap-month-label');
+  if (!wrap) return;
+
+  const [y, m] = ledgerMonth.split('-').map(Number);
+  if (lbl) lbl.textContent = y + '년 ' + m + '월';
+
+  // 이번달 일별 지출 합산
+  const dailyExp = {};
+  ledgerTxs.filter(function(t) {
+    return t.date.startsWith(ledgerMonth) && t.type === 'expense';
+  }).forEach(function(t) {
+    dailyExp[t.date] = (dailyExp[t.date] || 0) + t.amount;
+  });
+
+  // 최대 지출액 (색상 정규화용)
+  const maxExp = Math.max(...Object.values(dailyExp), 0.01);
+
+  // 이번달 1일의 요일 (0=일, 1=월 ... 6=토) → 월요일 시작으로 변환
+  const firstDay = new Date(y, m - 1, 1).getDay(); // 0=일
+  const firstDayMon = firstDay === 0 ? 6 : firstDay - 1; // 월요일 기준
+  const daysInMonth = new Date(y, m, 0).getDate();
+
+  let html = '';
+
+  // 1일 이전 빈 셀
+  for (let i = 0; i < firstDayMon; i++) {
+    html += '<div></div>';
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = y + '-' + String(m).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    const exp = dailyExp[dateStr] || 0;
+    const ratio = exp / maxExp;
+    const isToday = dateStr === today;
+    const dayOfWeek = new Date(y, m - 1, d).getDay();
+    const isSat = dayOfWeek === 6;
+    const isSun = dayOfWeek === 0;
+
+    // 지출 강도에 따른 색상
+    let bg, textColor;
+    if (exp === 0) {
+      bg = 'var(--surface2)';
+      textColor = 'var(--muted)';
+    } else if (ratio < 0.2) {
+      bg = 'rgba(248,113,113,0.15)';
+      textColor = '#f87171';
+    } else if (ratio < 0.4) {
+      bg = 'rgba(248,113,113,0.30)';
+      textColor = '#f87171';
+    } else if (ratio < 0.6) {
+      bg = 'rgba(248,113,113,0.50)';
+      textColor = '#fff';
+    } else if (ratio < 0.8) {
+      bg = 'rgba(248,113,113,0.72)';
+      textColor = '#fff';
+    } else {
+      bg = '#f87171';
+      textColor = '#fff';
+    }
+
+    const border = isToday ? '2px solid #e8f4ff' : '1px solid transparent';
+    const expStr = exp > 0 ? (exp >= 10 ? Math.round(exp) + '만' : Math.round(exp * 10000 / 1000) + 'k') : '';
+    const dayNumColor = exp === 0 ? (isSat ? '#60a5fa' : isSun ? '#f87171' : 'var(--muted)') : textColor;
+
+    html += '<div onclick="showDayDetail(\'' + dateStr + '\')" style="'
+      + 'background:' + bg + ';'
+      + 'border:' + border + ';'
+      + 'border-radius:8px;'
+      + 'padding:4px 2px;'
+      + 'text-align:center;'
+      + 'cursor:' + (exp > 0 ? 'pointer' : 'default') + ';'
+      + 'min-height:36px;'
+      + 'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;'
+      + 'transition:transform .1s'
+      + '" onmousedown="this.style.transform=\'scale(0.92)\'" onmouseup="this.style.transform=\'\'" ontouchstart="this.style.transform=\'scale(0.92)\'" ontouchend="this.style.transform=\'\'">'
+      + '<span style="font-size:10px;font-weight:700;color:' + dayNumColor + '">' + d + '</span>'
+      + (expStr ? '<span style="font-size:8px;font-weight:600;color:' + textColor + ';line-height:1">' + expStr + '</span>' : '')
+      + '</div>';
+  }
+
+  wrap.innerHTML = html;
+}
+
+function showDayDetail(dateStr) {
+  const txs = ledgerTxs.filter(function(t) { return t.date === dateStr; });
+  if (!txs.length) return;
+
+  const expense = txs.filter(function(t) { return t.type === 'expense'; }).reduce(function(s,t) { return s+t.amount; }, 0);
+  const income  = txs.filter(function(t) { return t.type === 'income'; }).reduce(function(s,t) { return s+t.amount; }, 0);
+  const [y,m,d] = dateStr.split('-');
+  const dayNames = ['일','월','화','수','목','금','토'];
+  const dayName = dayNames[new Date(dateStr).getDay()];
+
+  const lines = txs.map(function(t) {
+    const allCats = [...CATEGORIES.expense, ...CATEGORIES.income];
+    const cat = allCats.find(function(c) { return c.id === t.category; }) || { label: '기타' };
+    const sign = t.type === 'income' ? '+' : '-';
+    return sign + (t.amount*10000).toLocaleString() + '원 ' + (t.memo || cat.label);
+  }).join('\n');
+
+  showToast(parseInt(m) + '/' + parseInt(d) + '(' + dayName + ') 지출 ' + Math.round(expense).toLocaleString() + '만원');
 }
 
 // ── 카테고리 차트
