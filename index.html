@@ -3914,79 +3914,103 @@ function openAssetDetail(month) {
       wrap.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:20px">항목 데이터가 없어요</div>';
     } else {
       const colorMap = {
-        '부동산':       { color:'#60a5fa', bg:'rgba(96,165,250,0.08)',  border:'rgba(96,165,250,0.15)'  },
-        '민석 금융자산':{ color:'var(--minsuk)', bg:'rgba(96,165,250,0.05)',  border:'rgba(96,165,250,0.10)'  },
-        '시윤 금융자산':{ color:'var(--siyun)', bg:'rgba(52,211,153,0.05)',  border:'rgba(52,211,153,0.10)'  },
-        '기타자산':     { color:'#f59e0b', bg:'rgba(245,158,11,0.06)',  border:'rgba(245,158,11,0.12)'  },
-        '부채':         { color:'#f87171', bg:'rgba(248,113,113,0.06)', border:'rgba(248,113,113,0.14)' },
+        '부동산':        { color:'#60a5fa', dot:'#60a5fa' },
+        '민석 금융자산': { color:'var(--minsuk)', dot:'#9ca3af' },
+        '시윤 금융자산': { color:'var(--siyun)',  dot:'#9ca3af' },
+        '기타자산':      { color:'#f59e0b', dot:'#f59e0b' },
+        '부채':          { color:'#f87171', dot:'#f87171' },
       };
+
       const groups = {};
       items.forEach(function(item) {
         if (!groups[item.category]) groups[item.category] = [];
         groups[item.category].push(item);
       });
+
+      const totalAsset = items.filter(function(i){ return i.type==='asset'; }).reduce(function(s,i){ return s+(i.amount||0); }, 0);
+      const totalAll   = items.reduce(function(s,i){ return s+(i.amount||0); }, 0);
+
       const catOrder = ['부동산','민석 금융자산','시윤 금융자산','기타자산','부채'];
       const sortedGroups = catOrder.filter(function(c){ return groups[c]; }).map(function(c){ return [c, groups[c]]; });
       Object.entries(groups).forEach(function(e){ if(!catOrder.includes(e[0])) sortedGroups.push(e); });
 
       let html = '';
+
+      // ── 전체 비중 바 (상단 요약) ──
+      html += '<div style="margin-bottom:20px">';
+      html += '<div style="display:flex;height:8px;border-radius:6px;overflow:hidden;gap:1px;margin-bottom:8px">';
+      const barColors = { '부동산':'#60a5fa','민석 금융자산':'#9ca3af','시윤 금융자산':'#6ee7b7','기타자산':'#f59e0b','부채':'#f87171' };
       sortedGroups.forEach(function(entry) {
         const cat = entry[0], catItems = entry[1];
-        const theme = colorMap[cat] || { color:'var(--muted2)', bg:'rgba(255,255,255,0.04)', border:'rgba(255,255,255,0.08)' };
+        const catTotal = catItems.reduce(function(s,i){ return s+(i.amount||0); }, 0);
+        const pct = totalAll > 0 ? catTotal/totalAll*100 : 0;
+        if (pct < 1) return;
+        html += '<div style="height:100%;width:' + pct.toFixed(1) + '%;background:' + (barColors[cat]||'#6b7280') + ';border-radius:2px"></div>';
+      });
+      html += '</div>';
+      // 범례
+      html += '<div style="display:flex;flex-wrap:wrap;gap:8px">';
+      sortedGroups.forEach(function(entry) {
+        const cat = entry[0], catItems = entry[1];
+        const catTotal = catItems.reduce(function(s,i){ return s+(i.amount||0); }, 0);
+        const pct = totalAll > 0 ? Math.round(catTotal/totalAll*100) : 0;
+        if (pct < 1) return;
+        const shortName = cat.replace(' 금융자산','').replace('기타자산','기타');
+        html += '<div style="display:flex;align-items:center;gap:4px">';
+        html += '<div style="width:6px;height:6px;border-radius:50%;background:' + (barColors[cat]||'#6b7280') + '"></div>';
+        html += '<span style="font-size:10px;color:var(--muted2)">' + shortName + ' <span style="font-weight:700;color:var(--text)">' + pct + '%</span></span>';
+        html += '</div>';
+      });
+      html += '</div></div>';
+
+      // ── 카테고리별 항목 (그리드) ──
+      sortedGroups.forEach(function(entry) {
+        const cat = entry[0], catItems = entry[1];
+        const theme = colorMap[cat] || { color:'var(--muted2)', dot:'#6b7280' };
         const catTotal = catItems.reduce(function(s,i){ return s+(i.amount||0); }, 0);
         const isDebtCat = cat === '부채';
+        const pctOfTotal = totalAll > 0 ? Math.round(catTotal/totalAll*100) : 0;
 
-        html += '<div style="margin-bottom:20px">';
+        html += '<div style="margin-bottom:16px">';
 
         // 카테고리 헤더
-        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding:0 2px">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
         html += '<div style="display:flex;align-items:center;gap:6px">';
-        html += '<div style="width:3px;height:14px;border-radius:2px;background:' + theme.color + '"></div>';
-        html += '<span style="font-size:11px;font-weight:700;letter-spacing:0.8px;color:' + theme.color + ';text-transform:uppercase">' + cat + '</span>';
+        html += '<div style="width:3px;height:12px;border-radius:2px;background:' + (barColors[cat]||'#6b7280') + '"></div>';
+        html += '<span style="font-size:11px;font-weight:700;color:' + theme.color + '">' + cat + '</span>';
+        html += '<span style="font-size:10px;color:var(--muted);background:var(--surface3);padding:1px 6px;border-radius:8px">' + pctOfTotal + '%</span>';
         html += '</div>';
         html += '<span style="font-size:13px;font-weight:800;color:' + theme.color + '">' + (catTotal/10000).toFixed(2) + '억</span>';
         html += '</div>';
 
-        // 항목 카드들
+        // 항목 목록 (한 줄씩 컴팩트하게)
+        html += '<div style="background:var(--surface2);border-radius:14px;overflow:hidden">';
         catItems.forEach(function(item, idx) {
           const amt = item.amount || 0;
           const amtStr = amt >= 10000 ? (amt/10000).toFixed(2)+'억' : amt.toLocaleString()+'만';
-          const barPct = catTotal > 0 ? Math.round(amt/catTotal*100) : 0;
+          const pctItem = totalAll > 0 ? Math.round(amt/totalAll*100) : 0;
           const isLast = idx === catItems.length - 1;
 
-          html += '<div style="background:' + theme.bg + ';border:1px solid ' + theme.border + ';border-radius:14px;padding:14px 16px;margin-bottom:' + (isLast?'0':'8px') + '">';
-          html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:' + (barPct>0&&!isDebtCat?'10px':'0') + '">';
-
-          // 왼쪽: 이름 + 메모
+          html += '<div style="display:flex;align-items:center;padding:11px 14px;' + (!isLast?'border-bottom:1px solid var(--border);':'') + '">';
+          // 비중 바 (왼쪽 세로선)
+          html += '<div style="width:3px;height:32px;border-radius:2px;background:' + (barColors[cat]||'#6b7280') + ';opacity:' + (0.2 + (pctItem/100)*0.8).toFixed(2) + ';flex-shrink:0;margin-right:12px"></div>';
+          // 이름
           html += '<div style="flex:1;min-width:0">';
-          html += '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:' + (item.memo?'5px':'0') + '">' + item.name + '</div>';
-          if (item.memo) {
-            html += '<div style="font-size:11px;color:var(--muted2);line-height:1.4">' + item.memo + '</div>';
-          }
+          html += '<div style="font-size:13px;font-weight:600;color:var(--text)">' + item.name + '</div>';
+          if (item.memo) html += '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + item.memo + '</div>';
           html += '</div>';
-
-          // 오른쪽: 금액
-          html += '<div style="text-align:right;flex-shrink:0;margin-left:12px">';
-          html += '<div style="font-size:18px;font-weight:900;color:' + (isDebtCat?'#f87171':theme.color) + ';letter-spacing:-0.5px">' + amtStr + '</div>';
-          if (catItems.length > 1 && barPct > 0) {
-            html += '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + barPct + '%</div>';
-          }
+          // 비중 % + 금액
+          html += '<div style="text-align:right;flex-shrink:0">';
+          html += '<div style="font-size:15px;font-weight:800;color:' + (isDebtCat?'#f87171':theme.color) + '">' + amtStr + '</div>';
+          html += '<div style="font-size:10px;color:var(--muted);margin-top:1px">전체의 ' + pctItem + '%</div>';
           html += '</div>';
-
-          html += '</div>';
-
-          // 비율 바 (부채 제외, 2개 이상일 때만)
-          if (!isDebtCat && catItems.length > 1 && barPct > 0) {
-            html += '<div style="height:3px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden">';
-            html += '<div style="height:100%;width:' + barPct + '%;background:' + theme.color + ';border-radius:2px;transition:width 0.8s ease"></div>';
-            html += '</div>';
-          }
-
           html += '</div>';
         });
+        html += '</div>';
 
         html += '</div>';
       });
+
       wrap.innerHTML = html;
     }
   }
