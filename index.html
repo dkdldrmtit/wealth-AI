@@ -3913,32 +3913,78 @@ function openAssetDetail(month) {
     if (!items.length) {
       wrap.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:20px">항목 데이터가 없어요</div>';
     } else {
-      const colorMap = { '부동산':'var(--blue)', '민석 금융자산':'var(--minsuk)', '시윤 금융자산':'var(--siyun)', '기타자산':'var(--gold)', '부채':'var(--red)' };
+      const colorMap = {
+        '부동산':       { color:'#60a5fa', bg:'rgba(96,165,250,0.08)',  border:'rgba(96,165,250,0.15)'  },
+        '민석 금융자산':{ color:'var(--minsuk)', bg:'rgba(96,165,250,0.05)',  border:'rgba(96,165,250,0.10)'  },
+        '시윤 금융자산':{ color:'var(--siyun)', bg:'rgba(52,211,153,0.05)',  border:'rgba(52,211,153,0.10)'  },
+        '기타자산':     { color:'#f59e0b', bg:'rgba(245,158,11,0.06)',  border:'rgba(245,158,11,0.12)'  },
+        '부채':         { color:'#f87171', bg:'rgba(248,113,113,0.06)', border:'rgba(248,113,113,0.14)' },
+      };
       const groups = {};
       items.forEach(function(item) {
         if (!groups[item.category]) groups[item.category] = [];
         groups[item.category].push(item);
       });
+      const catOrder = ['부동산','민석 금융자산','시윤 금융자산','기타자산','부채'];
+      const sortedGroups = catOrder.filter(function(c){ return groups[c]; }).map(function(c){ return [c, groups[c]]; });
+      Object.entries(groups).forEach(function(e){ if(!catOrder.includes(e[0])) sortedGroups.push(e); });
+
       let html = '';
-      Object.entries(groups).forEach(function(entry) {
+      sortedGroups.forEach(function(entry) {
         const cat = entry[0], catItems = entry[1];
-        const color = colorMap[cat] || 'var(--muted)';
-        const catTotal = catItems.reduce(function(s, i) { return s + (i.amount||0); }, 0);
-        html += '<div style="margin-bottom:16px">';
-        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
-        html += '<div style="font-size:11px;font-weight:700;color:' + color + '">' + catItems[0].emoji + ' ' + cat + '</div>';
-        html += '<div style="font-size:12px;font-weight:700;color:' + color + '">' + (catTotal/10000).toFixed(2) + '억</div>';
+        const theme = colorMap[cat] || { color:'var(--muted2)', bg:'rgba(255,255,255,0.04)', border:'rgba(255,255,255,0.08)' };
+        const catTotal = catItems.reduce(function(s,i){ return s+(i.amount||0); }, 0);
+        const isDebtCat = cat === '부채';
+
+        html += '<div style="margin-bottom:20px">';
+
+        // 카테고리 헤더
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding:0 2px">';
+        html += '<div style="display:flex;align-items:center;gap:6px">';
+        html += '<div style="width:3px;height:14px;border-radius:2px;background:' + theme.color + '"></div>';
+        html += '<span style="font-size:11px;font-weight:700;letter-spacing:0.8px;color:' + theme.color + ';text-transform:uppercase">' + cat + '</span>';
         html += '</div>';
-        catItems.forEach(function(item) {
-          const isDebt = item.type === 'debt';
-          html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--surface2);border-radius:10px;margin-bottom:5px">';
-          html += '<div>';
-          html += '<div style="font-size:13px;font-weight:600">' + item.name + '</div>';
-          if (item.memo) html += '<div style="font-size:11px;color:var(--blue);margin-top:3px;padding:3px 8px;background:rgba(74,158,255,.08);border-radius:6px;display:inline-block">📝 ' + item.memo + '</div>';
+        html += '<span style="font-size:13px;font-weight:800;color:' + theme.color + '">' + (catTotal/10000).toFixed(2) + '억</span>';
+        html += '</div>';
+
+        // 항목 카드들
+        catItems.forEach(function(item, idx) {
+          const amt = item.amount || 0;
+          const amtStr = amt >= 10000 ? (amt/10000).toFixed(2)+'억' : amt.toLocaleString()+'만';
+          const barPct = catTotal > 0 ? Math.round(amt/catTotal*100) : 0;
+          const isLast = idx === catItems.length - 1;
+
+          html += '<div style="background:' + theme.bg + ';border:1px solid ' + theme.border + ';border-radius:14px;padding:14px 16px;margin-bottom:' + (isLast?'0':'8px') + '">';
+          html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:' + (barPct>0&&!isDebtCat?'10px':'0') + '">';
+
+          // 왼쪽: 이름 + 메모
+          html += '<div style="flex:1;min-width:0">';
+          html += '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:' + (item.memo?'5px':'0') + '">' + item.name + '</div>';
+          if (item.memo) {
+            html += '<div style="font-size:11px;color:var(--muted2);line-height:1.4">' + item.memo + '</div>';
+          }
           html += '</div>';
-          html += '<div style="font-size:14px;font-weight:800;color:' + (isDebt ? 'var(--red)' : 'var(--text)') + '">' + (item.amount||0).toLocaleString() + '만</div>';
+
+          // 오른쪽: 금액
+          html += '<div style="text-align:right;flex-shrink:0;margin-left:12px">';
+          html += '<div style="font-size:18px;font-weight:900;color:' + (isDebtCat?'#f87171':theme.color) + ';letter-spacing:-0.5px">' + amtStr + '</div>';
+          if (catItems.length > 1 && barPct > 0) {
+            html += '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + barPct + '%</div>';
+          }
+          html += '</div>';
+
+          html += '</div>';
+
+          // 비율 바 (부채 제외, 2개 이상일 때만)
+          if (!isDebtCat && catItems.length > 1 && barPct > 0) {
+            html += '<div style="height:3px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden">';
+            html += '<div style="height:100%;width:' + barPct + '%;background:' + theme.color + ';border-radius:2px;transition:width 0.8s ease"></div>';
+            html += '</div>';
+          }
+
           html += '</div>';
         });
+
         html += '</div>';
       });
       wrap.innerHTML = html;
