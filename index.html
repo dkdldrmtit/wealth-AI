@@ -4307,8 +4307,14 @@ document.addEventListener('DOMContentLoaded', function() {
           } else if (pageName === 'input') {
             renderMonthCards();
             showToast('🔄 자산 새로고침');
+          } else if (pageName === 'ai') {
+            showToast('🔄 AI 새로고침');
+          } else if (pageName === 'goals') {
+            renderGoals();
+            showToast('🔄 목표 새로고침');
+          } else if (pageName === 'settings') {
+            showToast('🔄 설정 새로고침');
           } else {
-            syncLoad(true);
             showToast('🔄 새로고침 완료');
           }
 
@@ -7768,7 +7774,10 @@ async function syncLoad(silent=false) {
     stocks         = load('stocks', []);
     recurringItems = load('recurring-items', []);
 
-    initHome();
+    // 현재 활성 탭에 따라 필요한 렌더만 실행 (불필요한 탭 전환 방지)
+    const _activeNow = document.querySelector('.page.active');
+    const _activePageName = _activeNow ? _activeNow.id.replace('page-', '') : 'home';
+    if (_activePageName === 'home') initHome();
     renderGoals();
     renderMonthCards();
     if (currentAssetView === 'item') renderItemView();
@@ -7957,8 +7966,17 @@ window.addEventListener('popstate', function() {
       return;
     }
   }
-  // 모달 없으면 홈으로
-  goPage('home', document.querySelectorAll('.nav-item')[0]);
+  // 모달 없으면: 현재 탭이 홈이 아닌 경우 뒤로 이동 (홈으로 강제 이동 X)
+  const activePage = document.querySelector('.page.active');
+  const currentPageName = activePage ? activePage.id.replace('page-', '') : 'home';
+  if (currentPageName === 'home') {
+    // 이미 홈 → 히스토리 상태만 복원
+    window.history.pushState(null, '', location.href);
+  } else {
+    // 다른 탭 → 이전 탭으로 이동 (홈으로 강제 이동 방지)
+    goBack();
+    window.history.pushState(null, '', location.href);
+  }
 });
 
 // 페이지 진입 시 히스토리 상태 추가
