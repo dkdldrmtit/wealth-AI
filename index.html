@@ -406,6 +406,39 @@ body[data-theme="light"] {
 <body>
 
 <div class="toast" id="toast">✅ 저장됐어요!</div>
+
+<!-- ══ 커스텀 Confirm 모달 (iOS confirm() 대체) ══ -->
+<div id="confirm-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:none;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border-radius:20px;padding:24px 20px;max-width:320px;width:calc(100%-40px);margin:20px;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
+    <p id="confirm-msg" style="font-size:15px;color:var(--text);text-align:center;line-height:1.6;margin:0 0 20px"></p>
+    <div style="display:flex;gap:10px">
+      <button id="confirm-cancel-btn" onclick="resolveConfirm(false)" style="flex:1;padding:13px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer">취소</button>
+      <button id="confirm-ok-btn" onclick="resolveConfirm(true)" style="flex:1;padding:13px;border-radius:12px;border:none;background:var(--red);color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 정기지출 추가 모달 (prompt() 대체) ══ -->
+<div id="recurring-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9000;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border-radius:20px;padding:24px 20px;max-width:340px;width:calc(100%-40px);margin:20px;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
+    <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:18px">➕ 정기 지출 추가</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <input id="recur-name-input" type="text" placeholder="이름 (예: 넷플릭스, 관리비)" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:11px 13px;outline:none">
+      <input id="recur-amount-input" type="number" placeholder="금액 (원 단위, 예: 17000)" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:11px 13px;outline:none">
+      <div style="font-size:12px;color:var(--muted)">소유자</div>
+      <div style="display:flex;gap:8px">
+        <button onclick="setRecurOwner('minsuk')" id="recur-owner-minsuk" style="flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer">민석</button>
+        <button onclick="setRecurOwner('siyun')" id="recur-owner-siyun" style="flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer">시윤</button>
+        <button onclick="setRecurOwner('common')" id="recur-owner-common" style="flex:1;padding:9px;border-radius:10px;border:1px solid var(--teal);background:rgba(20,184,166,.15);color:var(--teal);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">공동</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button onclick="closeRecurringModal()" style="flex:1;padding:13px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer">취소</button>
+      <button onclick="saveRecurringFromModal()" style="flex:1;padding:13px;border-radius:12px;border:none;background:var(--teal);color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">추가</button>
+    </div>
+  </div>
+</div>
+
 <div class="app">
 
 <!-- ══ HOME ══ -->
@@ -1903,6 +1936,98 @@ function load(k, d) {
   } catch(e) { return d; }
 }
 
+// ══════════════════════════════════════
+// 🛡️ XSS 방지: HTML 특수문자 이스케이프
+// ══════════════════════════════════════
+function escHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
+// ══════════════════════════════════════
+// 🚫 iOS 호환 커스텀 Confirm 모달
+// ══════════════════════════════════════
+let _confirmResolve = null;
+
+function showConfirm(msg, okLabel) {
+  return new Promise(function(resolve) {
+    _confirmResolve = resolve;
+    const overlay = document.getElementById('confirm-overlay');
+    const msgEl = document.getElementById('confirm-msg');
+    const okBtn = document.getElementById('confirm-ok-btn');
+    if (msgEl) msgEl.textContent = msg;
+    if (okBtn) okBtn.textContent = okLabel || '삭제';
+    if (overlay) { overlay.style.display = 'flex'; }
+  });
+}
+
+function resolveConfirm(result) {
+  const overlay = document.getElementById('confirm-overlay');
+  if (overlay) overlay.style.display = 'none';
+  if (_confirmResolve) {
+    _confirmResolve(result);
+    _confirmResolve = null;
+  }
+}
+
+// ══════════════════════════════════════
+// 📋 정기지출 추가 모달 (prompt() 대체)
+// ══════════════════════════════════════
+let _recurOwner = 'common';
+
+function openRecurringModal() {
+  _recurOwner = 'common';
+  const overlay = document.getElementById('recurring-modal-overlay');
+  if (overlay) overlay.style.display = 'flex';
+  const nameInput = document.getElementById('recur-name-input');
+  const amtInput = document.getElementById('recur-amount-input');
+  if (nameInput) { nameInput.value = ''; nameInput.focus(); }
+  if (amtInput) amtInput.value = '';
+  setRecurOwner('common');
+}
+
+function closeRecurringModal() {
+  const overlay = document.getElementById('recurring-modal-overlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
+function setRecurOwner(owner) {
+  _recurOwner = owner;
+  ['minsuk','siyun','common'].forEach(function(o) {
+    const btn = document.getElementById('recur-owner-' + o);
+    if (!btn) return;
+    if (o === owner) {
+      btn.style.borderColor = 'var(--teal)';
+      btn.style.background = 'rgba(20,184,166,.15)';
+      btn.style.color = 'var(--teal)';
+      btn.style.fontWeight = '700';
+    } else {
+      btn.style.borderColor = 'var(--border)';
+      btn.style.background = 'var(--surface2)';
+      btn.style.color = 'var(--text)';
+      btn.style.fontWeight = '400';
+    }
+  });
+}
+
+function saveRecurringFromModal() {
+  const name = (document.getElementById('recur-name-input').value || '').trim();
+  const amountRaw = parseFloat(document.getElementById('recur-amount-input').value);
+  if (!name) { showToast('❗ 이름을 입력해주세요'); return; }
+  if (!amountRaw || isNaN(amountRaw) || amountRaw <= 0) { showToast('❗ 올바른 금액을 입력해주세요'); return; }
+  const amount = amountRaw / 10000; // 원 → 만원 변환
+  recurringItems.push({ name, amount, category: 'etc', owner: _recurOwner });
+  store('recurring-items', recurringItems);
+  renderRecurringList();
+  closeRecurringModal();
+  showToast('✅ 정기 지출이 추가됐어요!');
+}
+
 // ── Toast ──
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -2876,11 +3001,12 @@ function onMonthChange(val) {
   updatePreview();
 }
 
-function deleteRecord() {
+async function deleteRecord() {
   // editingMonth 없으면 현재 선택된 월 사용
   const targetMonth = editingMonth || document.getElementById('i-month').value;
   if (!targetMonth) { showToast('❗ 삭제할 기록을 찾을 수 없어요'); return; }
-  if (!confirm(targetMonth + ' 기록을 삭제할까요?')) return;
+  const ok = await showConfirm(targetMonth + ' 기록을 삭제할까요?', '삭제');
+  if (!ok) return;
   assetHistory = assetHistory.filter(r => r.month !== targetMonth);
   store('asset-history', assetHistory);
   renderMonthCards(); if (currentAssetView === 'item') renderItemView();
@@ -2920,7 +3046,9 @@ function saveRecord() {
   store('asset-history', assetHistory);
 
   const latest = assetHistory[assetHistory.length - 1];
-  goals = goals.map(g => ({ ...g, current: latest.net }));
+  // 🐛 버그 수정: 모든 목표를 순자산으로 덮어쓰지 않고,
+  // 각 목표 유형(순자산/금융자산/총자산/부채)에 맞는 값으로 계산
+  goals = goals.map(g => ({ ...g, current: getGoalCurrent(g) }));
   store('goals', goals);
   renderGoals();
   renderMonthCards(); if (currentAssetView === 'item') renderItemView();
@@ -3050,9 +3178,10 @@ function saveSchedule() {
   closeScheduleEdit();
 }
 
-function deleteScheduleFromModal() {
+async function deleteScheduleFromModal() {
   if (editingScheduleIdx < 0) return;
-  if (!confirm('이 일정을 삭제할까요?')) return;
+  const ok = await showConfirm('이 일정을 삭제할까요?', '삭제');
+  if (!ok) return;
   schedules.splice(editingScheduleIdx, 1);
   store('schedules', schedules);
   renderSchedules();
@@ -3138,16 +3267,34 @@ function importBackup(event) {
   const file = event.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = function(e) {
+  reader.onload = async function(e) {
     try {
       const backup = JSON.parse(e.target.result);
       if (!backup.data) { showToast('❗ 올바른 백업 파일이 아니에요'); return; }
+
+      // 🔒 복원 전 확인 모달 표시 (기존 데이터 덮어씀 경고)
+      const exportedAt = backup.exportedAt ? backup.exportedAt.slice(0, 16) : '날짜 불명';
+      const ok = await showConfirm(
+        '⚠️ ' + exportedAt + ' 백업으로 복원하면\n현재 데이터가 모두 덮어씌워져요.\n계속할까요?',
+        '복원하기'
+      );
+      if (!ok) {
+        event.target.value = '';
+        return;
+      }
+
       // 모든 데이터 복원
       Object.entries(backup.data).forEach(([key, val]) => {
         if (val !== null && val !== undefined && val !== '') {
           store(key, val);
         }
       });
+      // 메모리 변수 갱신
+      assetHistory = load('asset-history', []);
+      goals = load('goals', []);
+      schedules = load('schedules', []);
+      ledgerTxs = load('ledger-txs', []);
+      recurringItems = load('recurring-items', []);
       // 화면 새로고침
       renderGoals();
       renderMonthCards(); if (currentAssetView === 'item') renderItemView();
@@ -3164,6 +3311,7 @@ function importBackup(event) {
       event.target.value = '';
     } catch(err) {
       showToast('❗ 백업 파일을 읽을 수 없어요');
+      event.target.value = '';
     }
   };
   reader.readAsText(file);
@@ -3293,13 +3441,6 @@ function updateAmountPreview() {
   } else {
     el.textContent = '';
   }
-}
-
-function formatAmountInput(input) {
-  const raw = input.value.replace(/[^0-9]/g, '');
-  const formatted = raw ? parseInt(raw).toLocaleString('ko-KR') : '';
-  input.value = formatted;
-  input.dataset.raw = raw;
 }
 
 // ── 햅틱 피드백 ──
@@ -3554,9 +3695,10 @@ function openModalFromDetail() {
   setTimeout(function() { openModal(month); }, 150);
 }
 
-function deleteRecordDirect() {
+async function deleteRecordDirect() {
   if (!detailMonth) return;
-  if (!confirm(detailMonth + ' 기록을 삭제할까요?')) return;
+  const ok = await showConfirm(detailMonth + ' 기록을 삭제할까요?', '삭제');
+  if (!ok) return;
   assetHistory = assetHistory.filter(r => r.month !== detailMonth);
   store('asset-history', assetHistory);
   renderMonthCards(); if (currentAssetView === 'item') renderItemView();
@@ -3598,16 +3740,8 @@ function renderRecurringList() {
 }
 
 function openRecurringAdd() {
-  const name = prompt('정기 지출 이름 (예: 넷플릭스, 관리비)');
-  if (!name) return;
-  const amountRaw = parseFloat(prompt('금액 (원 단위, 예: 17000)'));
-  if (!amountRaw || amountRaw <= 0) return;
-  const ownerChoice = prompt('누구? minsuk / siyun / common (기본: common)') || 'common';
-  const owner = ['minsuk','siyun','common'].includes(ownerChoice) ? ownerChoice : 'common';
-  recurringItems.push({ name, amount: amountRaw/10000, category: 'etc', owner });
-  store('recurring-items', recurringItems);
-  renderRecurringList();
-  showToast('✅ 정기 지출이 추가됐어요!');
+  // prompt() 대신 커스텀 모달 사용 (iOS 호환)
+  openRecurringModal();
 }
 
 function deleteRecurring(i) {
@@ -4010,11 +4144,17 @@ function addTyping() {
   chatWrap.scrollTop = chatWrap.scrollHeight;
 }
 
+let _chatSending = false; // AI 채팅 중복 요청 방지 플래그
+
 async function sendChat() {
+  if (_chatSending) return; // 이미 요청 중이면 무시
   const input = document.getElementById('chat-input');
   if (!input) return;
   const text = input.value.trim();
   if (!text) return;
+  _chatSending = true;
+  const sendBtn = document.getElementById('chat-send-btn');
+  if (sendBtn) { sendBtn.disabled = true; sendBtn.style.opacity = '0.5'; }
   input.value = '';
   addMsg('user', text);
   const currentSystem = buildSystemPrompt(); // 매번 최신 데이터로 갱신
@@ -4047,6 +4187,10 @@ async function sendChat() {
   } catch(e) {
     document.getElementById('typing-indicator')?.remove();
     addMsg('ai', '연결에 문제가 생겼어요. 잠시 후 다시 시도해주세요 🙏');
+  } finally {
+    _chatSending = false; // 요청 완료 후 플래그 해제
+    const sendBtn = document.getElementById('chat-send-btn');
+    if (sendBtn) { sendBtn.disabled = false; sendBtn.style.opacity = '1'; }
   }
 }
 
@@ -5362,9 +5506,10 @@ function saveStock() {
   closeStockModal();
 }
 
-function deleteStock() {
+async function deleteStock() {
   if (!editingStockId) return;
-  if (!confirm('이 종목을 삭제할까요?')) return;
+  const ok = await showConfirm('이 종목을 삭제할까요?', '삭제');
+  if (!ok) return;
   stocks = stocks.filter(s => s.id !== editingStockId);
   store('stocks', stocks);
   renderStockList();
@@ -6129,7 +6274,11 @@ function confirmVoiceImport() {
 }
 
 // ── AI 월말 지출 리포트 ──
+let _reportGenerating = false; // 월간 리포트 중복 요청 방지 플래그
+
 async function generateMonthlyReport() {
+  if (_reportGenerating) return; // 이미 요청 중이면 무시
+  _reportGenerating = true;
   const btn = document.getElementById('report-gen-btn');
   const content = document.getElementById('ai-report-content');
   btn.textContent = '분석 중...';
@@ -6236,8 +6385,10 @@ ${prev ? `
   } catch(e) {
     content.innerHTML = '<div style="color:var(--red);font-size:12px">❗ 생성 실패: ' + e.message + '</div>';
     btn.textContent = '생성하기';
+  } finally {
+    _reportGenerating = false; // 요청 완료 후 플래그 해제
+    btn.disabled = false;
   }
-  btn.disabled = false;
 }
 
 // ── 문자 자동파싱 대기목록 ──
@@ -6338,7 +6489,8 @@ async function confirmPendingAll() {
 }
 
 async function dismissAllPending() {
-  if (!confirm('대기 중인 거래를 모두 삭제할까요?')) return;
+  const ok = await showConfirm('대기 중인 거래를 모두 삭제할까요?', '모두 삭제');
+  if (!ok) return;
   const proxyUrl = load('cloudflare-proxy', '');
   if (proxyUrl) {
     try {
@@ -6557,18 +6709,22 @@ function parseExcelData(data, type) {
 
 // 가맹점명으로 카테고리 자동 추정
 function guessCategoryFromMerchant(name) {
+  // ✅ 수정: CATEGORIES ID와 일치하도록 반환값 통일
+  // CATEGORIES.expense IDs: food, cafe, trans, shop, health, leisure, child, edu, house, etc
   const n = name.toLowerCase();
-  if (/스타벅스|커피|cafe|카페|투썸|빽다방|이디야|할리스/.test(n)) return 'coffee';
-  if (/마트|이마트|홈플러스|롯데마트|코스트코|편의점|cu|gs25|세븐|미니스톱/.test(n)) return 'grocery';
+  if (/스타벅스|커피|cafe|카페|투썸|빽다방|이디야|할리스/.test(n)) return 'cafe';       // coffee → cafe
+  if (/마트|이마트|홈플러스|롯데마트|코스트코|편의점|cu|gs25|세븐|미니스톱/.test(n)) return 'food'; // grocery → food
   if (/식당|음식|밥|한식|중식|일식|양식|치킨|피자|버거|맥도날드|스타버거|롯데리아|kfc|bbq|bhc|교촌|삼겹|곱창|칼국수|냉면|순대|분식|떡볶이/.test(n)) return 'food';
-  if (/배달의민족|배민|요기요|쿠팡이츠/.test(n)) return 'delivery';
-  if (/지하철|버스|택시|카카오택시|우버|ktx|srt|기차|고속버스/.test(n)) return 'transport';
-  if (/주유|sk에너지|gs칼텍스|현대오일|s-oil|주유소/.test(n)) return 'car';
+  if (/배달의민족|배민|요기요|쿠팡이츠/.test(n)) return 'food';                          // delivery → food
+  if (/지하철|버스|택시|카카오택시|우버|ktx|srt|기차|고속버스/.test(n)) return 'trans'; // transport → trans
+  if (/주유|sk에너지|gs칼텍스|현대오일|s-oil|주유소/.test(n)) return 'trans';           // car → trans
   if (/올리브영|약국|병원|의원|치과|한의원|약/.test(n)) return 'health';
-  if (/쿠팡|11번가|지마켓|옥션|네이버쇼핑|무신사|h&m|zara|유니클로/.test(n)) return 'shopping';
-  if (/넷플릭스|유튜브|spotify|스포티파이|왓챠|웨이브|티빙/.test(n)) return 'subscription';
-  if (/영화|cgv|롯데시네마|메가박스/.test(n)) return 'entertainment';
-  if (/통신|kt|skt|lgu|핸드폰|요금/.test(n)) return 'utility';
+  if (/쿠팡|11번가|지마켓|옥션|네이버쇼핑|무신사|h&m|zara|유니클로/.test(n)) return 'shop'; // shopping → shop
+  if (/넷플릭스|유튜브|spotify|스포티파이|왓챠|웨이브|티빙/.test(n)) return 'leisure';  // subscription → leisure
+  if (/영화|cgv|롯데시네마|메가박스/.test(n)) return 'leisure';                         // entertainment → leisure
+  if (/통신|kt|skt|lgu|핸드폰|요금|관리비|전기|가스|수도/.test(n)) return 'house';    // utility → house
+  if (/학원|교육|책|문구|도서/.test(n)) return 'edu';
+  if (/어린이|유치원|어린이집|기저귀|분유/.test(n)) return 'child';
   return 'etc';
 }
 
@@ -6748,12 +6904,12 @@ async function runHomeMicParser(text) {
 
     if (!parsed.length) throw new Error('인식된 거래가 없어요');
 
-    // 바로 저장
+    // 바로 저장 (AI가 원 단위로 반환하므로 만원 단위로 변환)
     parsed.forEach(function(t) {
       ledgerTxs.push({
         id: 'hm_' + Date.now() + '_' + Math.random(),
         type: t.type || 'expense',
-        amount: t.amount,
+        amount: t.amount / 10000, // 원 → 만원 단위로 통일
         date: todayStr,
         memo: t.memo || text,
         category: t.category || 'etc',
@@ -6765,8 +6921,8 @@ async function runHomeMicParser(text) {
     updateHomeWidget();
 
     closeHomeMic();
-    const amt = parsed[0].amount.toLocaleString();
-    showToast('✅ ' + (parsed[0].memo || text) + ' ' + amt + '원 입력됨!');
+    const amt = (parsed[0].amount / 10000).toLocaleString();
+    showToast('✅ ' + (parsed[0].memo || text) + ' ' + amt + '만원 입력됨!');
 
   } catch(e) {
     document.getElementById('hm-analyzing').style.display = 'none';
@@ -7146,9 +7302,10 @@ function openTxEdit(id) {
   lockScroll();
 }
 
-function deleteTxFromEdit() {
+async function deleteTxFromEdit() {
   if (!editingTxId) return;
-  if (!confirm('이 거래를 삭제할까요?')) return;
+  const ok = await showConfirm('이 거래를 삭제할까요?', '삭제');
+  if (!ok) return;
   ledgerTxs = ledgerTxs.filter(t => t.id !== editingTxId);
   store('ledger-txs', ledgerTxs);
   renderLedger();
@@ -7413,8 +7570,9 @@ function closeSwipe(id) {
   if (_swipeOpened === id) _swipeOpened = null;
 }
 
-function swipeDeleteTx(id) {
-  if (!confirm('이 거래를 삭제할까요?')) {
+async function swipeDeleteTx(id) {
+  const ok = await showConfirm('이 거래를 삭제할까요?', '삭제');
+  if (!ok) {
     closeSwipe(id);
     return;
   }
