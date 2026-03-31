@@ -116,6 +116,10 @@ body::before {
 .nav-item .icon { width:22px; height:22px; line-height:1; display:block; }
 .nav-item.active { color: #e8f4ff; filter: drop-shadow(0 0 6px rgba(232,244,255,0.7)); }
 /* 활성 탭 상단 글로우 마커 */
+* {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
 .nav-item.active::before {
   content: '';
   position: absolute;
@@ -1526,15 +1530,15 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
 
       <!-- 지출/수입 토글 -->
       <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:16px">
-        <button id="type-expense" onclick="setTxType('expense')" style="flex:1;padding:10px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:800;cursor:pointer;background:var(--red);color:#fff;transition:all .2s">💸 지출</button>
-        <button id="type-income" onclick="setTxType('income')" style="flex:1;padding:10px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:800;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">💰 수입</button>
+        <button id="type-expense" onclick="setTxType('expense')" style="flex:1;padding:10px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:var(--surface3);color:var(--text);transition:all .2s">지출</button>
+        <button id="type-income" onclick="setTxType('income')" style="flex:1;padding:10px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">수입</button>
       </div>
 
       <!-- 누구 -->
       <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:16px">
-        <button id="tx-owner-cm" onclick="setTxOwner('common')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">🤝 공동</button>
-        <button id="tx-owner-ms" onclick="setTxOwner('minsuk')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">👨 민석</button>
-        <button id="tx-owner-sy" onclick="setTxOwner('siyun')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">👩 시윤</button>
+        <button id="tx-owner-cm" onclick="setTxOwner('common')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">공동</button>
+        <button id="tx-owner-ms" onclick="setTxOwner('minsuk')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">민석</button>
+        <button id="tx-owner-sy" onclick="setTxOwner('siyun')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">시윤</button>
       </div>
 
       <!-- 금액 -->
@@ -7567,9 +7571,9 @@ function setTxType(type) {
   const expBtn = document.getElementById('type-expense');
   const incBtn = document.getElementById('type-income');
   const lbl = document.getElementById('tx-type-label');
-  if (expBtn) { expBtn.style.background = type==='expense'?'var(--red)':'transparent'; expBtn.style.color = type==='expense'?'#fff':'var(--muted2)'; }
-  if (incBtn) { incBtn.style.background = type==='income'?'var(--blue)':'transparent'; incBtn.style.color = type==='income'?'#fff':'var(--muted2)'; }
-  if (lbl) { lbl.textContent = type==='expense'?'지출 금액 (원)':'수입 금액 (원)'; lbl.style.color = type==='expense'?'var(--red)':'var(--blue)'; }
+  if (expBtn) { expBtn.style.background = type==='expense'?'var(--surface3)':'transparent'; expBtn.style.color = type==='expense'?'var(--text)':'var(--muted2)'; expBtn.style.fontWeight = type==='expense'?'700':'600'; }
+  if (incBtn) { incBtn.style.background = type==='income'?'var(--surface3)':'transparent'; incBtn.style.color = type==='income'?'var(--text)':'var(--muted2)'; incBtn.style.fontWeight = type==='income'?'700':'600'; }
+  if (lbl) { lbl.textContent = type==='expense'?'지출 금액':'수입 금액'; lbl.style.color = type==='expense'?'var(--muted)':'var(--muted)'; }
   selectedCategory = CATEGORIES[type][0].id;
   renderCategoryBtns(type);
 }
@@ -7579,9 +7583,9 @@ function setTxOwner(owner) {
   const msBtn = document.getElementById('tx-owner-ms');
   const syBtn = document.getElementById('tx-owner-sy');
   const cmBtn = document.getElementById('tx-owner-cm');
-  if (msBtn) { msBtn.style.background = owner==='minsuk'?'var(--minsuk)':'transparent'; msBtn.style.color = owner==='minsuk'?'#fff':'var(--muted2)'; }
-  if (syBtn) { syBtn.style.background = owner==='siyun'?'var(--siyun)':'transparent'; syBtn.style.color = owner==='siyun'?'#000':'var(--muted2)'; }
-  if (cmBtn) { cmBtn.style.background = owner==='common'?'var(--purple)':'transparent'; cmBtn.style.color = owner==='common'?'#fff':'var(--muted2)'; }
+  if (msBtn) { msBtn.style.background = owner==='minsuk'?'var(--surface3)':'transparent'; msBtn.style.color = owner==='minsuk'?'var(--text)':'var(--muted2)'; msBtn.style.fontWeight = owner==='minsuk'?'700':'600'; }
+  if (syBtn) { syBtn.style.background = owner==='siyun'?'var(--surface3)':'transparent'; syBtn.style.color = owner==='siyun'?'var(--text)':'var(--muted2)'; syBtn.style.fontWeight = owner==='siyun'?'700':'600'; }
+  if (cmBtn) { cmBtn.style.background = owner==='common'?'var(--surface3)':'transparent'; cmBtn.style.color = owner==='common'?'var(--text)':'var(--muted2)'; cmBtn.style.fontWeight = owner==='common'?'700':'600'; }
 }
 
 function renderCategoryBtns(type) {
