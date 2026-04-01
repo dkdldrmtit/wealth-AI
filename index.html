@@ -1089,8 +1089,8 @@ Copy  <!-- ② -1 부부 재무 대결 -->
     </div>
 
     <!-- 순위 탭 -->
-    <div style="display:flex;background:var(--surface2);border-radius:10px;padding:3px;gap:2px;margin-bottom:10px" id="home-stock-rank-tabs">
-      <button id="hsr-pct" onclick="setHomeStockRankTab('pct')"
+    <div style="display:flex;background:var(--surface2);border-radius:10px;padding:3px;gap:2px;margin-bottom:10px" id="home-stock-rank-tabs"onclick="event.stopPropagation()">
+      <button id="hsr-pct" onclick="setHomeStockRankTab('pct')" 
         style="flex:1;padding:5px 4px;border-radius:7px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s">
         📈 수익률
       </button>
