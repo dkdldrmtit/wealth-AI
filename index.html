@@ -76,7 +76,8 @@
     color-scheme: light;
   }
 }
-* { margin:0; padding:0; box-sizing:border-box; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-touch-callout: none; }
+input, textarea, select { -webkit-touch-callout: default !important; }
 body {
   background: var(--bg);
   color: var(--text);
@@ -122,9 +123,10 @@ body::before {
 }
 /* input/textarea는 롱프레스 허용 (복사/붙여넣기) */
 input, textarea, select {
-  touch-action: auto;
-  -webkit-user-select: text;
-  user-select: text;
+  touch-action: auto !important;
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
 }
 .nav-item.active::before {
   content: '';
