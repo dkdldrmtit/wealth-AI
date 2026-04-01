@@ -137,6 +137,15 @@ body::before {
 .page.active { display:block; }
 @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 
+@keyframes cardSlideUp {
+  from { opacity:0; transform:translateY(24px) scale(0.98); }
+  to   { opacity:1; transform:translateY(0)    scale(1); }
+}
+.card-stagger {
+  opacity: 0;
+  animation: cardSlideUp .5s cubic-bezier(.32,1.1,.6,1) both;
+}
+
 /* HEADER */
 .page-header { margin-bottom:16px; margin-top:8px; }
 #page-home .page-header { margin-top:max(52px, calc(env(safe-area-inset-top, 0px) + 16px)); }
@@ -3696,6 +3705,18 @@ async function deleteScheduleFromModal() {
   showToast('🗑️ 일정을 삭제했어요');
 }
 
+function applyStagger() {
+  const anchor = document.getElementById('home-cards-anchor');
+  if (!anchor) return;
+  const cards = anchor.querySelectorAll('[data-card]');
+  cards.forEach(function(card, i) {
+    card.classList.remove('card-stagger');
+    void card.offsetWidth; // 리플로우 강제 (애니메이션 재시작)
+    card.classList.add('card-stagger');
+    card.style.animationDelay = (i * 0.08) + 's';
+  });
+}
+
 function initHome() {
   const now = new Date();
   const sub = document.getElementById('home-date-sub');
@@ -3725,6 +3746,8 @@ function initHome() {
   checkPendingTxs();
   setInterval(checkPendingTxs, 30000);
   checkAssetReminder();
+  // ── 홈 카드 stagger 애니메이션
+  setTimeout(applyStagger, 100);
   // ── 자동 동기화 (30분에 한 번만)
   function autoSync() {
     const lastAuto = load('last-auto-sync', 0);
