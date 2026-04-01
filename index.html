@@ -5315,25 +5315,35 @@ document.addEventListener('DOMContentLoaded', function() {
         const pageName = currentPage ? currentPage.id.replace('page-', '') : 'home';
 
         setTimeout(function() {
-          if (pageName === 'home') {
+          // 현재 활성 탭 다시 확인 (새로고침 중 바뀔 수 있으므로)
+          const activePageNow = document.querySelector('.page.active');
+          const activePageName = activePageNow ? activePageNow.id.replace('page-', '') : 'home';
+
+          if (activePageName === 'home') {
             syncLoad(true);
             initHome();
             showToast('🔄 새로고침 완료');
-          } else if (pageName === 'ledger') {
+          } else if (activePageName === 'ledger') {
+            syncLoad(true);
             renderLedger();
             showToast('🔄 가계부 새로고침');
-          } else if (pageName === 'stocks') {
+          } else if (activePageName === 'stocks') {
             fetchAllPrices();
             showToast('🔄 시세 업데이트 중...');
-          } else if (pageName === 'input') {
+          } else if (activePageName === 'input') {
+            syncLoad(true);
             renderMonthCards();
+            if (currentAssetView === 'item') renderItemView();
             showToast('🔄 자산 새로고침');
-          } else if (pageName === 'ai') {
-            showToast('🔄 AI 새로고침');
-          } else if (pageName === 'goals') {
+          } else if (activePageName === 'ai') {
+            loadAiComment(true, false);
+            showToast('🔄 AI 코멘트 새로고침');
+          } else if (activePageName === 'goals') {
+            syncLoad(true);
             renderGoals();
             showToast('🔄 목표 새로고침');
-          } else if (pageName === 'settings') {
+          } else if (activePageName === 'settings') {
+            initRealEstate();
             showToast('🔄 설정 새로고침');
           } else {
             showToast('🔄 새로고침 완료');
@@ -5348,7 +5358,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (icon) icon.style.animation = '';
           }, 700);
         }, 500);
-
       } else {
         // 덜 당겼을 때 그냥 숨기기
         indicator.style.transform = 'translateX(-50%) translateY(' + getHideY() + 'px)';
