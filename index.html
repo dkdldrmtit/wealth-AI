@@ -6027,16 +6027,19 @@ function typewriterEffect(el, text, speed=18) {
     el.innerHTML = '';
     el.style.webkitLineClamp = 'unset';
     el.style.overflow = 'visible';
+    // 한글 깨짐 방지: 글자 단위가 아닌 어절(단어) 단위로 타이핑
+    const words = text.replace(/<br>/g, '\n').split('');
     let i = 0;
-    // HTML 태그 포함 텍스트 처리
-    const plain = text.replace(/<br>/g, '\n');
+    let current = '';
     function type() {
-      if (i < plain.length) {
-        if (plain[i] === '\n') {
-          el.innerHTML += '<br>';
+      if (i < words.length) {
+        if (words[i] === '\n') {
+          current += '<br>';
         } else {
-          el.innerHTML += plain[i];
+          current += words[i];
         }
+        // textContent 대신 미리 만든 문자열로 한번에 교체
+        el.innerHTML = current;
         i++;
         setTimeout(type, speed);
       } else {
