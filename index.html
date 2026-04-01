@@ -5375,61 +5375,216 @@ function buildSystemPrompt() {
   const prev = assetHistory.length > 1 ? assetHistory[assetHistory.length-2] : null;
   const now = new Date();
   const thisMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  const currentMonth = now.getMonth() + 1; // 현재 월 (절세 시즌 판단용)
 
-  // 자산 현황
+  // ── 자산 현황
   let assetStr = '없음';
+  let hasRealEstate = false;
+  let hasStocks = false;
+  let hasCash = false;
+  let hasLoan = false;
+  let hasIRP = false;
+  let hasISA = false;
+  let hasSubscription = false;
+  let totalAsset = 0, totalDebt = 0, totalNet = 0;
+  let realEstateAmt = 0, stockAmt = 0, cashAmt = 0, loanAmt = 0;
+  let finAmt = 0;
+
   if (latest) {
     const items = latest.items || getItemsDefault(latest);
-    const itemLines = items.map(i => '  - ' + i.name + ': ' + i.amount.toLocaleString() + '만원 (' + i.category + ')').join('\n');
+    totalAsset = latest.total;
+    totalDebt = latest.debt;
+    totalNet = latest.net;
+
+    // 자산 구성 분석
+    items.forEach(function(item) {
+      const name = (item.name || '').toLowerCase();
+      const amt = item.amount || 0;
+
+      if (item.category === '부동산' && item.type === 'asset') {
+        hasRealEstate = true;
+        realEstateAmt += amt;
+      }
+      if (item.type === 'debt') {
+        hasLoan = true;
+        loanAmt += amt;
+      }
+      if (name.includes('irp') || name.includes('연금')) hasIRP = true;
+      if (name.includes('isa')) hasISA = true;
+      if (name.includes('청약')) hasSubscription = true;
+      if (name.includes('현금') || name.includes('예금') || name.includes('적금')) {
+        hasCash = true;
+        cashAmt += amt;
+      }
+      if (item.category === '민석 금융자산' || item.category === '시윤 금융자산') {
+        finAmt += amt;
+      }
+    });
+
+    // 주식 보유 여부
+    if (stocks && stocks.length > 0) {
+      hasStocks = true;
+      stockAmt = stocks.reduce(function(s, st) {
+        return s + (st.currentPrice || st.avgPrice) * st.qty;
+      }, 0);
+    }
+
     const diff = prev ? latest.net - prev.net : null;
+    const itemLines = items.map(function(i) {
+      return '  - ' + i.name + ': ' + i.amount.toLocaleString() + '만원 (' + i.category + ')';
+    }).join('\n');
+
     assetStr = '기준월: ' + latest.month + '\n'
-      + '순자산: ' + (latest.net/10000).toFixed(2) + '억\n'
-      + '총자산: ' + (latest.total/10000).toFixed(2) + '억\n'
-      + '부채: ' + (latest.debt/10000).toFixed(2) + '억\n'
+      + '순자산: ' + (totalNet/10000).toFixed(2) + '억\n'
+      + '총자산: ' + (totalAsset/10000).toFixed(2) + '억\n'
+      + '부채: ' + (totalDebt/10000).toFixed(2) + '억\n'
+      + '부채비율: ' + (totalAsset > 0 ? Math.round(totalDebt/totalAsset*100) : 0) + '%\n'
+      + '금융자산: ' + (finAmt/10000).toFixed(2) + '억\n'
+      + '부동산: ' + (realEstateAmt/10000).toFixed(2) + '억 (' + (totalAsset > 0 ? Math.round(realEstateAmt/totalAsset*100) : 0) + '%)\n'
       + (diff !== null ? '전월대비: ' + (diff>=0?'+':'') + (diff/10000).toFixed(2) + '억\n' : '')
-      + '항목별:\n' + itemLines;
+      + '보유항목:\n' + itemLines;
   }
 
-  // 가계부 현황
-  const monthTxs = ledgerTxs.filter(t => t.date.startsWith(thisMonth));
-  const income = monthTxs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
-  const expense = monthTxs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  // ── 가계부 현황
+  const monthTxs = ledgerTxs.filter(function(t) { return t.date.startsWith(thisMonth); });
+  const income = monthTxs.filter(function(t) { return t.type==='income'; }).reduce(function(s,t) { return s+t.amount; }, 0);
+  const expense = monthTxs.filter(function(t) { return t.type==='expense'; }).reduce(function(s,t) { return s+t.amount; }, 0);
+  const saveRate = income > 0 ? Math.round((income-expense)/income*100) : 0;
   const bycat = {};
-  monthTxs.filter(t=>t.type==='expense').forEach(t => { bycat[t.category]=(bycat[t.category]||0)+t.amount; });
-  const topCats = Object.entries(bycat).sort((a,b)=>b[1]-a[1]).slice(0,3)
-    .map(e => { const cat = CATEGORIES.expense.find(c=>c.id===e[0]); return (cat?cat.label:e[0]) + ' ' + (e[1]*10000).toLocaleString() + '원'; }).join(', ');
-  const ledgerStr = thisMonth + ' 기준\n수입: ' + Math.round(income).toLocaleString() + '만원\n지출: ' + Math.round(expense).toLocaleString() + '만원\n잔액: ' + Math.round(income-expense).toLocaleString() + '만원\n지출 TOP3: ' + (topCats||'없음');
+  monthTxs.filter(function(t) { return t.type==='expense'; }).forEach(function(t) {
+    bycat[t.category] = (bycat[t.category]||0) + t.amount;
+  });
+  const topCats = Object.entries(bycat).sort(function(a,b) { return b[1]-a[1]; }).slice(0,5)
+    .map(function(e) {
+      const cat = CATEGORIES.expense.find(function(c) { return c.id===e[0]; });
+      return (cat?cat.label:e[0]) + ' ' + Math.round(e[1]*10000).toLocaleString() + '원';
+    }).join(', ');
+  const ledgerStr = thisMonth + ' 기준\n'
+    + '수입: ' + Math.round(income).toLocaleString() + '만원\n'
+    + '지출: ' + Math.round(expense).toLocaleString() + '만원\n'
+    + '저축률: ' + saveRate + '%\n'
+    + '지출 TOP5: ' + (topCats||'없음') + '\n'
+    + '거래건수: ' + monthTxs.length + '건';
 
-  // 목표
-  const goalStr = goals.length ? goals.map(g => {
+  // ── 목표
+  const goalStr = goals.length ? goals.map(function(g) {
     const cur = getGoalCurrent(g);
     const pct = Math.round(Math.min(100, cur/g.target*100));
-    return g.name + ' ' + pct + '% (' + (cur/10000).toFixed(2) + '억/' + (g.target/10000).toFixed(2) + '억)';
+    const months = Math.ceil((new Date(g.deadline) - now) / (1000*60*60*24*30));
+    const monthlyNeeded = months > 0 ? Math.round((g.target - cur) / months) : 0;
+    return g.name + ' ' + pct + '% (' + (cur/10000).toFixed(2) + '억/' + (g.target/10000).toFixed(2) + '억)'
+      + (monthlyNeeded > 0 ? ' → 달성까지 월 ' + monthlyNeeded.toLocaleString() + '만원 필요' : '');
   }).join('\n') : '없음';
 
-  // 다가오는 일정
+  // ── 일정
   const todayD = new Date(); todayD.setHours(0,0,0,0);
   const upcomingStr = schedules
-    .map(s => ({ ...s, diff: Math.ceil((new Date(s.date)-todayD)/86400000) }))
-    .filter(s => s.diff >= 0 && s.diff <= 90)
-    .sort((a,b) => a.diff-b.diff)
+    .map(function(s) { return Object.assign({}, s, { diff: Math.ceil((new Date(s.date)-todayD)/86400000) }); })
+    .filter(function(s) { return s.diff >= 0 && s.diff <= 90; })
+    .sort(function(a,b) { return a.diff-b.diff; })
     .slice(0,5)
-    .map(s => s.name + ' D-' + s.diff + (s.amount ? ' (' + (s.amountType==='in'?'+':'-') + s.amount.toLocaleString() + '만)' : ''))
+    .map(function(s) { return s.name + ' D-' + s.diff + (s.amount ? ' (' + (s.amountType==='in'?'+':'-') + s.amount.toLocaleString() + '만)' : ''); })
     .join('\n') || '없음';
 
-  // 주식
-  const stockStr = stocks.length ? stocks.map(s => {
+  // ── 주식
+  const stockStr = stocks.length ? stocks.map(function(s) {
     const evalAmt = (s.currentPrice||0)*s.qty;
     const pnl = evalAmt - s.avgPrice*s.qty;
-    return s.name + ' ' + s.qty + '주 (평단 ' + (s.market==='KR'?s.avgPrice.toLocaleString()+'원':'$'+s.avgPrice.toFixed(2)) + (s.currentPrice?', 손익 '+(pnl>=0?'+':'')+Math.round(pnl).toLocaleString()+'원':'') + ')';
+    const pct = s.avgPrice > 0 ? ((s.currentPrice||0)-s.avgPrice)/s.avgPrice*100 : 0;
+    return s.name + '(' + s.ticker + '/' + s.market + ') '
+      + s.qty + '주 평단 ' + (s.market==='KR'?s.avgPrice.toLocaleString()+'원':'$'+s.avgPrice.toFixed(2))
+      + (s.currentPrice ? ' 수익률' + pct.toFixed(1) + '%' : '');
   }).join('\n') : '없음';
 
-  return '당신은 민석·시윤 부부의 전담 자산관리 AI 어드바이저입니다. 아래 실제 데이터를 기반으로 구체적이고 실용적인 답변을 해주세요. 한국어로 친근하게 답변하세요.\n반드시 지켜야 할 형식 규칙: ①마크다운 절대 금지 (**, ##, *,``` 등 사용 금지) ②번호 목록은 1. 2. 3. 형식만 사용 ③답변은 5문장 이내로 간결하게\n\n'
-    + '=== 자산 현황 ===\n' + assetStr + '\n\n'
-    + '=== 이달 가계부 ===\n' + ledgerStr + '\n\n'
-    + '=== 목표 달성률 ===\n' + goalStr + '\n\n'
-    + '=== 다가오는 일정 ===\n' + upcomingStr + '\n\n'
-    + '=== 주식 포트폴리오 ===\n' + stockStr;
+  // ── 절세 시즌 판단
+  const isYearEndSeason = currentMonth >= 11 || currentMonth <= 1; // 11~1월
+  const isISASeason = currentMonth >= 3 && currentMonth <= 5; // ISA 가입 권장 시즌
+
+  // ── 자산 구성 특징 분석
+  const realEstatePct = totalAsset > 0 ? Math.round(realEstateAmt/totalAsset*100) : 0;
+  const debtRatio = totalAsset > 0 ? Math.round(totalDebt/totalAsset*100) : 0;
+  const hasHighDebt = debtRatio > 40;
+  const hasHighRealEstate = realEstatePct > 60;
+  const hasLowSaving = saveRate < 20 && income > 0;
+  const hasHighExpense = expense > income * 0.8 && income > 0;
+
+  // ── 맞춤형 컨텍스트 생성
+  let customContext = '\n=== 맞춤 분석 포인트 ===\n';
+
+  if (hasHighRealEstate) {
+    customContext += '⚠️ 부동산 편중 주의: 총자산의 ' + realEstatePct + '%가 부동산. 유동성 리스크 존재.\n';
+  }
+  if (hasHighDebt) {
+    customContext += '⚠️ 부채비율 높음: ' + debtRatio + '%. DSR/LTV 관리 필요.\n';
+  }
+  if (!hasISA) {
+    customContext += '💡 ISA 계좌 미보유: 연 200만원 비과세 혜택 미활용 중.\n';
+  }
+  if (!hasIRP) {
+    customContext += '💡 IRP 미보유 또는 미활용: 연 700만원 세액공제 가능.\n';
+  }
+  if (hasLowSaving) {
+    customContext += '⚠️ 저축률 ' + saveRate + '%: 권장 저축률(30%) 대비 낮음.\n';
+  }
+  if (hasCash && cashAmt > 5000) {
+    customContext += '💡 현금성 자산 ' + (cashAmt/10000).toFixed(1) + '억 보유: 고금리 예금/파킹통장 활용 검토.\n';
+  }
+  if (hasStocks) {
+    customContext += '📈 주식 보유: ' + stocks.map(function(s) { return s.name; }).join(', ') + '\n';
+  }
+  if (hasRealEstate) {
+    customContext += '🏢 부동산 보유: 실거래가 동향 및 보유세 검토 필요.\n';
+  }
+  if (isYearEndSeason) {
+    customContext += '📋 연말정산 시즌: IRP/연금저축 추가납입, 신용카드 사용액 점검 필요.\n';
+  }
+  if (hasHighExpense) {
+    customContext += '⚠️ 지출 과다: 수입의 ' + Math.round(expense/income*100) + '% 지출 중. 절약 필요.\n';
+  }
+
+  return `당신은 10년 경력의 시중은행 PB(프라이빗 뱅커) 출신 AI 자산관리 어드바이저입니다.
+실제 PB센터에서 고객을 상담하듯 전문적이고 실질적인 조언을 해주세요.
+
+[페르소나]
+- 10년 경력 시중은행 PB 출신
+- 부동산, 금융상품, 세금, 대출 전문 지식 보유
+- 고객 자산 데이터를 보면 즉시 문제점과 기회를 파악
+- 단순 나열이 아닌 "지금 당장 해야 할 것"을 알려주는 스타일
+- 친근하지만 전문적인 말투
+
+[반드시 지켜야 할 답변 규칙]
+1. 마크다운 절대 금지 (**, ##, *, \` 등)
+2. 번호 목록은 1. 2. 3. 형식만 사용
+3. 답변은 3~5문장으로 핵심만
+4. 항상 구체적인 수치와 함께 조언
+5. "~하면 어떨까요?" 보다 "~하세요" 직접적 조언
+6. 세금/절세 관련 내용은 적극적으로 언급
+7. 자산 구성에 따라 맞춤형 조언 (부동산 많으면 부동산 관련, 주식 많으면 주식 관련)
+
+[자산 현황]
+${assetStr}
+
+[이달 가계부]
+${ledgerStr}
+
+[목표 달성률]
+${goalStr}
+
+[다가오는 일정]
+${upcomingStr}
+
+[주식 포트폴리오]
+${stockStr}
+${customContext}
+
+[조언 우선순위 가이드]
+- 부채비율 40% 초과 시 → 대출 금리/상환 전략 우선
+- 부동산 60% 초과 시 → 유동성 확보 및 리밸런싱 조언
+- ISA/IRP 미보유 시 → 절세 계좌 개설 적극 권유
+- 현금 5000만원 초과 시 → 파킹통장/예금 금리 비교 안내
+- 저축률 20% 미만 시 → 지출 구조 개선 조언
+- 주식 보유 시 → 보유 종목 관련 시황/리스크 언급
+- 연말(11~1월) → 연말정산 절세 전략 우선 안내`;
 }
 
 let chatHistory = [];
@@ -6127,26 +6282,74 @@ async function loadAiComment(force=false, useWebSearch=false) {
 
   let prompt, systemPrompt, tools;
 
+  // 자산 구성 분석 (맞춤형 코멘트용)
+  const latestForComment = assetHistory.length > 0 ? assetHistory[assetHistory.length-1] : null;
+  const itemsForComment = latestForComment ? (latestForComment.items || getItemsDefault(latestForComment)) : [];
+  const hasStocksComment = stocks && stocks.length > 0;
+  const hasRealEstateComment = itemsForComment.some(function(i) { return i.category === '부동산' && i.type === 'asset'; });
+  const hasLoanComment = itemsForComment.some(function(i) { return i.type === 'debt'; });
+  const hasISAComment = itemsForComment.some(function(i) { return (i.name||'').toLowerCase().includes('isa'); });
+  const hasIRPComment = itemsForComment.some(function(i) { return (i.name||'').toLowerCase().includes('irp') || (i.name||'').includes('연금'); });
+  const debtAmt = itemsForComment.filter(function(i) { return i.type === 'debt'; }).reduce(function(s,i) { return s+i.amount; }, 0);
+  const totalAssetComment = latestForComment ? latestForComment.total : 0;
+  const debtRatioComment = totalAssetComment > 0 ? Math.round(debtAmt/totalAssetComment*100) : 0;
+  const currentMonthNum = todayDate.getMonth() + 1;
+  const isYearEnd = currentMonthNum >= 11 || currentMonthNum <= 1;
+
   if (useWebSearch) {
-    // 🌐 시황 모드 - 웹검색 사용 (유료)
-    const topics = [
-      '코스피/코스닥 지수와 주요 종목 시황' + (stockStr ? '(특히 ' + stockStr + ')' : ''),
-      '원/달러 환율과 금리 동향',
-      '한국 부동산·아파트 시장 동향',
-      '글로벌 증시 및 경제 뉴스',
-    ];
-    const topic = topics[Math.floor(Math.random() * topics.length)];
-    prompt = '오늘(' + todayStr + ') 기준 ' + topic + '을 웹검색으로 찾아 실제 수치 포함해 2줄로 요약.';
-    systemPrompt = '자산관리 AI. 웹검색으로 오늘 실제 데이터 확인 후 답변. 명사형 어미(~상승. ~하락.). 구어체 금지. 마크다운 금지. 이모지 1개만 맨 앞.';
+    // 🌐 시황 모드 - 자산 구성에 따라 맞춤형 시황 검색
+    let searchTopic = '';
+    let searchGuide = '';
+
+    if (hasStocksComment && stocks.length > 0) {
+      const stockNames = stocks.slice(0,3).map(function(s) { return s.name; }).join(', ');
+      searchTopic = '오늘 ' + stockNames + ' 주가 시황과 관련 뉴스, 코스피/나스닥 동향';
+      searchGuide = '보유 종목 시황을 실제 수치와 함께 2~3줄로. 매수/매도 관련 직접 언급 금지.';
+    } else if (hasRealEstateComment) {
+      searchTopic = '오늘 기준 한국 아파트 실거래가 동향, 금리 변화, 전월세 시장 흐름';
+      searchGuide = '부동산 시장 핵심 동향을 수치와 함께 2~3줄로.';
+    } else if (hasLoanComment && debtRatioComment > 30) {
+      searchTopic = '오늘 기준 한국 시중은행 주택담보대출 금리, 신용대출 금리 현황';
+      searchGuide = '최신 대출 금리를 실제 수치와 함께 2~3줄로.';
+    } else if (isYearEnd) {
+      searchTopic = '연말정산 절세 전략 IRP 연금저축 ISA 2024 최신';
+      searchGuide = '연말정산 핵심 절세 팁을 2~3줄로.';
+    } else {
+      searchTopic = '오늘 코스피 코스닥 원달러 환율 기준금리 한국 경제 동향';
+      searchGuide = '주요 경제 지표를 실제 수치와 함께 2~3줄로.';
+    }
+
+    prompt = '오늘(' + todayStr + ') 기준 ' + searchTopic + '을 웹검색으로 찾아 실제 최신 수치 포함해 알려줘.';
+    systemPrompt = '10년 경력 PB 출신 자산관리 AI. 웹검색으로 오늘 실제 데이터 확인 후 답변. '
+      + searchGuide
+      + ' 명사형 어미 사용. 마크다운 금지. 이모지 1개만 맨 앞. 출처/날짜 언급 금지.';
     tools = [{ type: 'web_search_20250305', name: 'web_search' }];
+
   } else {
-    // 자산분석 모드 - 웹검색 없음 (무료)
-    prompt = '민석·시윤 부부 자산 현황:\n'
-      + '- 순자산: ' + netStr + (changeStr ? ' (전월 대비 ' + changeStr + ')' : '') + '\n'
-      + '- 이번달 지출: ' + Math.round(monthExpense).toLocaleString() + '만원\n'
-      + (stockStr ? '- 보유 주식: ' + stockStr + '\n' : '')
-      + '\n위 데이터를 바탕으로 오늘의 자산관리 한마디를 2줄 이내로.';
-    systemPrompt = '자산관리 AI. 주어진 데이터만 활용. 명사형 어미(~권장. ~필요. ~양호.). 구어체 금지. 마크다운 금지. 이모지 1개만 맨 앞.';
+    // 자산분석 모드 - PB 수준 맞춤형 조언
+    const netVal = latestForComment ? (latestForComment.net/10000).toFixed(2) + '억' : '미기록';
+    const changeVal = (latestForComment && assetHistory.length > 1)
+      ? ((latestForComment.net - assetHistory[assetHistory.length-2].net)/10000).toFixed(2) + '억'
+      : null;
+
+    // 자산 구성에 따른 맞춤 포커스
+    let focusGuide = '';
+    if (!hasISAComment) focusGuide += 'ISA 계좌 미보유(연 200만원 비과세 미활용). ';
+    if (!hasIRPComment) focusGuide += 'IRP 미활용(연 700만원 세액공제 가능). ';
+    if (debtRatioComment > 40) focusGuide += '부채비율 ' + debtRatioComment + '%(위험). ';
+    if (isYearEnd) focusGuide += '연말정산 시즌(IRP/연금저축 추가납입 마감임박). ';
+    if (hasStocksComment) focusGuide += '주식 보유(' + stocks.map(function(s){return s.name;}).join(',') + '). ';
+    if (hasRealEstateComment) focusGuide += '부동산 보유(보유세/실거래가 동향 중요). ';
+
+    prompt = 'PB 상담 데이터:\n'
+      + '순자산 ' + netVal + (changeVal ? ' (전월대비 ' + changeVal + ')' : '') + '\n'
+      + '이달 지출 ' + Math.round(monthExpense).toLocaleString() + '만원\n'
+      + '주목 포인트: ' + (focusGuide || '전반적 자산 점검') + '\n\n'
+      + '위 데이터 기반으로 오늘의 PB 조언을 2줄로. 구체적 수치와 액션 포함.';
+
+    systemPrompt = '10년 경력 시중은행 PB 출신 AI. 고객 데이터 보고 즉시 핵심 짚어주는 스타일. '
+      + '단순 나열 금지. "지금 당장 해야 할 것" 위주. 명사형 어미(~필요. ~권장. ~검토.). '
+      + '마크다운 금지. 이모지 1개만 맨 앞. 세금/절세 내용 적극 언급.';
     tools = undefined;
   }
 
