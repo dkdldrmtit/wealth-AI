@@ -1129,7 +1129,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
   <!-- ④ 주요 일정 -->
   <div data-card="schedule" id="home-card-schedule">
-  <div class="card" onclick="openScheduleEdit()" style="border-color:rgba(167,139,250,.2);padding:14px 16px;cursor:pointer">
+  <div class="card" onclick="goPage('ledger',document.querySelectorAll('.nav-item')[1]);setTimeout(()=>setLedgerTab('calendar'),300)" style="border-color:rgba(167,139,250,.2);padding:14px 16px;cursor:pointer">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px">주요 일정</div>
       <button onclick="openScheduleEdit()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;cursor:pointer;">+ 추가</button>
@@ -1867,10 +1867,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
     <!-- 탭 (내역/분석/예산) -->
     <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:16px">
-<button id="ltab-list" onclick="setLedgerTab('list')" style="flex:1;padding:10px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--text);border-bottom:2px solid var(--text);margin-bottom:-2px">내역</button>
-<button id="ltab-chart" onclick="setLedgerTab('chart')" style="flex:1;padding:10px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)">분석</button>
-<button id="ltab-budget" onclick="setLedgerTab('budget')" style="flex:1;padding:10px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)">예산</button>
+    <button id="ltab-list" onclick="setLedgerTab('list')" style="flex:1;padding:10px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--text);border-bottom:2px solid var(--text);margin-bottom:-2px">내역</button>
+    <button id="ltab-chart" onclick="setLedgerTab('chart')" style="flex:1;padding:10px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)">분석</button>
+    <button id="ltab-budget" onclick="setLedgerTab('budget')" style="flex:1;padding:10px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)">예산</button>
+    <button id="ltab-calendar" onclick="setLedgerTab('calendar')" style="flex:1;padding:10px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)">캘린더</button>
     </div>
+
 
     <!-- 거래 추가 / 문자 파싱 / 엑셀 / 음성 버튼 -->
     <div id="ledger-add-btn" style="display:none;flex-direction:row;gap:8px;margin-bottom:14px">
@@ -2038,6 +2040,61 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div id="owner-compare"></div>
     </div>
   </div>
+
+  <!-- 캘린더 탭 -->
+  <div id="ltab-content-calendar" style="display:none;padding:0 16px 120px">
+
+    <!-- 월 네비 -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;margin-top:4px">
+      <button onclick="calPrevMonth()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:20px;width:38px;height:38px;cursor:pointer;flex-shrink:0;line-height:1">‹</button>
+      <div id="cal-month-label" style="flex:1;text-align:center;font-size:17px;font-weight:800;color:var(--text)"></div>
+      <button onclick="calNextMonth()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:20px;width:38px;height:38px;cursor:pointer;flex-shrink:0;line-height:1">›</button>
+    </div>
+
+    <!-- 범례 -->
+    <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:#a78bfa"></div><span style="font-size:10px;color:var(--muted)">일정</span></div>
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:#60a5fa"></div><span style="font-size:10px;color:var(--muted)">정기지출</span></div>
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:#f87171"></div><span style="font-size:10px;color:var(--muted)">지출</span></div>
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:#4ade80"></div><span style="font-size:10px;color:var(--muted)">수입</span></div>
+    </div>
+
+    <!-- 캘린더 그리드 -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:14px">
+      <!-- 요일 헤더 -->
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);background:var(--surface2);border-bottom:1px solid var(--border)">
+        <div style="text-align:center;font-size:10px;font-weight:700;color:var(--muted);padding:10px 0">월</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:var(--muted);padding:10px 0">화</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:var(--muted);padding:10px 0">수</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:var(--muted);padding:10px 0">목</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:var(--muted);padding:10px 0">금</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:#60a5fa;padding:10px 0">토</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:#f87171;padding:10px 0">일</div>
+      </div>
+      <!-- 날짜 그리드 -->
+      <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr)"></div>
+    </div>
+
+    <!-- 선택한 날 상세 -->
+    <div id="cal-detail" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div id="cal-detail-title" style="font-size:14px;font-weight:800;color:var(--text)"></div>
+        <button onclick="openCalDayAdd()" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer">+ 추가</button>
+      </div>
+      <div id="cal-detail-content"></div>
+    </div>
+
+    <!-- 이달 일정/정기지출 요약 -->
+    <div class="card" style="margin-top:4px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="card-title" style="margin-bottom:0;color:var(--muted)">이달 예정 이벤트</div>
+        <button onclick="openScheduleEdit()" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;cursor:pointer">+ 일정 추가</button>
+      </div>
+      <div id="cal-upcoming-list"></div>
+    </div>
+
+  </div>
+
 
   <!-- 예산 탭 -->
   <div id="ltab-content-budget" style="display:none;padding:0 16px 120px">
@@ -8047,7 +8104,7 @@ function ledgerNextMonth() {
 // ── 탭
 function setLedgerTab(tab) {
   ledgerTab = tab;
-  ['list','chart','budget'].forEach(t => {
+  ['list','chart','budget','calendar'].forEach(t => {
     const btn = document.getElementById('ltab-'+t);
     const cont = document.getElementById('ltab-content-'+t);
     const isActive = t === tab;
@@ -8100,6 +8157,283 @@ function toggleLedgerSort() {
   renderLedger();
 }
 
+// ══════════════════════════════════════
+// ── 캘린더 ──
+// ══════════════════════════════════════
+let calMonth = (() => {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+})();
+let calSelectedDate = null;
+
+function calPrevMonth() {
+  const [y, m] = calMonth.split('-').map(Number);
+  const d = new Date(y, m - 2, 1);
+  calMonth = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+  renderCalendar();
+}
+
+function calNextMonth() {
+  const [y, m] = calMonth.split('-').map(Number);
+  const d = new Date(y, m, 1);
+  calMonth = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const [y, m] = calMonth.split('-').map(Number);
+  const lbl = document.getElementById('cal-month-label');
+  if (lbl) lbl.textContent = y + '년 ' + m + '월';
+
+  const daysInMonth = new Date(y, m, 0).getDate();
+  const firstDay = new Date(y, m - 1, 1).getDay();
+  const firstDayMon = firstDay === 0 ? 6 : firstDay - 1;
+  const today = new Date().toISOString().slice(0, 10);
+
+  const dailyData = {};
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = y + '-' + String(m).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    dailyData[dateStr] = { schedules: [], recurring: [], expense: 0, income: 0 };
+  }
+
+  schedules.forEach(function(s) {
+    if (s.date && s.date.startsWith(calMonth)) {
+      if (dailyData[s.date]) dailyData[s.date].schedules.push(s);
+    }
+  });
+
+  recurringItems.forEach(function(r) {
+    const dateStr = y + '-' + String(m).padStart(2,'0') + '-01';
+    if (dailyData[dateStr]) dailyData[dateStr].recurring.push(r);
+  });
+
+  ledgerTxs.forEach(function(t) {
+    if (t.date && t.date.startsWith(calMonth) && dailyData[t.date]) {
+      if (t.type === 'expense') dailyData[t.date].expense += t.amount;
+      else dailyData[t.date].income += t.amount;
+    }
+  });
+
+  const grid = document.getElementById('cal-grid');
+  if (!grid) return;
+
+  let html = '';
+
+  for (let i = 0; i < firstDayMon; i++) {
+    html += '<div style="min-height:64px;border-right:1px solid var(--border);border-bottom:1px solid var(--border)"></div>';
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = y + '-' + String(m).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    const data = dailyData[dateStr];
+    const isToday = dateStr === today;
+    const isSelected = dateStr === calSelectedDate;
+    const dayOfWeek = new Date(y, m - 1, d).getDay();
+    const isSat = dayOfWeek === 6;
+    const isSun = dayOfWeek === 0;
+    const colIdx = (firstDayMon + d - 1) % 7;
+    const isLastCol = colIdx === 6;
+
+    let dayColor = 'var(--text)';
+    if (isSat) dayColor = '#60a5fa';
+    if (isSun) dayColor = '#f87171';
+
+    let bg = 'transparent';
+    if (isSelected) bg = 'rgba(232,244,255,0.08)';
+    if (isToday) bg = 'rgba(232,244,255,0.05)';
+
+    let dots = '';
+    if (data.schedules.length) dots += '<div style="width:5px;height:5px;border-radius:50%;background:#a78bfa;flex-shrink:0"></div>';
+    if (data.recurring.length) dots += '<div style="width:5px;height:5px;border-radius:50%;background:#60a5fa;flex-shrink:0"></div>';
+    if (data.expense > 0) dots += '<div style="width:5px;height:5px;border-radius:50%;background:#f87171;flex-shrink:0"></div>';
+    if (data.income > 0) dots += '<div style="width:5px;height:5px;border-radius:50%;background:#4ade80;flex-shrink:0"></div>';
+
+    let expLabel = '';
+    if (data.expense > 0) {
+      const expStr = data.expense >= 100 ? Math.round(data.expense/100)/10 + '백' : Math.round(data.expense) + '만';
+      expLabel = '<div style="font-size:8px;color:#f87171;font-weight:600;line-height:1.2;margin-top:2px">' + expStr + '</div>';
+    }
+
+    html += '<div onclick="selectCalDate(\'' + dateStr + '\')" style="'
+      + 'min-height:64px;'
+      + 'border-right:' + (isLastCol ? 'none' : '1px solid var(--border)') + ';'
+      + 'border-bottom:1px solid var(--border);'
+      + 'padding:6px 4px;'
+      + 'cursor:pointer;'
+      + 'background:' + bg + ';'
+      + 'transition:background .15s;'
+      + '">'
+      + '<div style="'
+      + 'width:22px;height:22px;border-radius:50%;'
+      + 'display:flex;align-items:center;justify-content:center;'
+      + 'font-size:11px;font-weight:' + (isToday ? '900' : '600') + ';'
+      + 'color:' + (isToday ? '#0a0a0a' : dayColor) + ';'
+      + 'background:' + (isToday ? '#e8f4ff' : 'transparent') + ';'
+      + 'margin:0 auto 3px;'
+      + (isSelected && !isToday ? 'outline:2px solid rgba(232,244,255,0.5);' : '')
+      + '">' + d + '</div>'
+      + '<div style="text-align:center">' + expLabel + '</div>'
+      + '<div style="display:flex;justify-content:center;gap:2px;flex-wrap:wrap;margin-top:2px">' + dots + '</div>'
+      + '</div>';
+  }
+
+  grid.innerHTML = html;
+
+  if (calSelectedDate) {
+    renderCalDayDetail(calSelectedDate);
+  }
+
+  renderCalUpcoming();
+}
+
+function selectCalDate(dateStr) {
+  calSelectedDate = dateStr;
+  renderCalendar();
+  setTimeout(function() {
+    const detail = document.getElementById('cal-detail');
+    if (detail) detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
+}
+
+function renderCalDayDetail(dateStr) {
+  const detail = document.getElementById('cal-detail');
+  const title = document.getElementById('cal-detail-title');
+  const content = document.getElementById('cal-detail-content');
+  if (!detail || !title || !content) return;
+
+  const [y, m, d] = dateStr.split('-');
+  const dayNames = ['일','월','화','수','목','금','토'];
+  const dayName = dayNames[new Date(dateStr).getDay()];
+  title.textContent = parseInt(y) + '년 ' + parseInt(m) + '월 ' + parseInt(d) + '일 (' + dayName + ')';
+
+  let html = '';
+
+  const daySchedules = schedules.filter(function(s) { return s.date === dateStr; });
+  daySchedules.forEach(function(s) {
+    const today2 = new Date(); today2.setHours(0,0,0,0);
+    const diff = Math.ceil((new Date(s.date) - today2) / 86400000);
+    const diffStr = diff === 0 ? '오늘' : diff > 0 ? 'D-' + diff : Math.abs(diff) + '일 전';
+    const diffColor = diff <= 7 && diff >= 0 ? '#f87171' : diff <= 30 && diff >= 0 ? '#fbbf24' : 'var(--muted)';
+    html += '<div onclick="openScheduleEdit(' + schedules.indexOf(s) + ')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:12px;margin-bottom:8px;cursor:pointer">'
+      + '<div style="width:8px;height:8px;border-radius:50%;background:#a78bfa;flex-shrink:0"></div>'
+      + '<div style="flex:1">'
+      + '<div style="font-size:13px;font-weight:700;color:var(--text)">' + escHtml(s.name) + '</div>'
+      + (s.amount ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + (s.amountType==='in'?'+':'-') + s.amount.toLocaleString() + '만원</div>' : '')
+      + '</div>'
+      + '<span style="font-size:11px;font-weight:700;color:' + diffColor + '">' + diffStr + '</span>'
+      + '</div>';
+  });
+
+  if (dateStr.endsWith('-01')) {
+    recurringItems.forEach(function(r) {
+      html += '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.2);border-radius:12px;margin-bottom:8px">'
+        + '<div style="width:8px;height:8px;border-radius:50%;background:#60a5fa;flex-shrink:0"></div>'
+        + '<div style="flex:1">'
+        + '<div style="font-size:13px;font-weight:700;color:var(--text)">🔄 ' + escHtml(r.name) + '</div>'
+        + '<div style="font-size:11px;color:var(--muted);margin-top:2px">정기지출 · ' + (r.owner==='minsuk'?'민석':r.owner==='siyun'?'시윤':'공동') + '</div>'
+        + '</div>'
+        + '<span style="font-size:13px;font-weight:800;color:#f87171">-' + Math.round(r.amount * 10000).toLocaleString() + '원</span>'
+        + '</div>';
+    });
+  }
+
+  const dayTxs = ledgerTxs.filter(function(t) { return t.date === dateStr; });
+  if (dayTxs.length) {
+    const dayExp = dayTxs.filter(function(t){ return t.type==='expense'; }).reduce(function(s,t){ return s+t.amount; }, 0);
+    const dayInc = dayTxs.filter(function(t){ return t.type==='income'; }).reduce(function(s,t){ return s+t.amount; }, 0);
+
+    html += '<div style="background:var(--surface2);border-radius:12px;overflow:hidden;margin-bottom:8px">';
+    html += '<div style="padding:10px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">';
+    html += '<span style="font-size:11px;font-weight:700;color:var(--muted)">가계부 ' + dayTxs.length + '건</span>';
+    html += '<div style="display:flex;gap:8px">';
+    if (dayInc > 0) html += '<span style="font-size:11px;font-weight:700;color:var(--blue)">+' + Math.round(dayInc*10000).toLocaleString() + '원</span>';
+    if (dayExp > 0) html += '<span style="font-size:11px;font-weight:700;color:var(--red)">-' + Math.round(dayExp*10000).toLocaleString() + '원</span>';
+    html += '</div></div>';
+
+    dayTxs.forEach(function(t) {
+      const allCats = [...CATEGORIES.expense, ...CATEGORIES.income];
+      const cat = allCats.find(function(c){ return c.id === t.category; }) || { label:'기타', color:'#6b7280' };
+      html += '<div onclick="openTxEdit(\'' + t.id + '\')" style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer">'
+        + '<div style="width:28px;height:28px;border-radius:8px;background:' + cat.color + '22;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">' + cat.label.split(' ')[0] + '</div>'
+        + '<div style="flex:1;min-width:0">'
+        + '<div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (t.memo || cat.label.split(' ').slice(1).join(' ')) + '</div>'
+        + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + cat.label + ' · ' + (t.owner==='minsuk'?'민석':t.owner==='siyun'?'시윤':'공동') + '</div>'
+        + '</div>'
+        + '<span style="font-size:13px;font-weight:800;color:' + (t.type==='income'?'var(--blue)':'var(--red)') + ';flex-shrink:0">' + (t.type==='income'?'+':'-') + Math.round(t.amount*10000).toLocaleString() + '원</span>'
+        + '</div>';
+    });
+    html += '</div>';
+  }
+
+  if (!html) {
+    html = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">이날은 일정이나 지출이 없어요<br><span style="font-size:11px">+ 추가 버튼으로 등록해보세요</span></div>';
+  }
+
+  content.innerHTML = html;
+  detail.style.display = 'block';
+}
+
+function renderCalUpcoming() {
+  const wrap = document.getElementById('cal-upcoming-list');
+  if (!wrap) return;
+  const [y, m] = calMonth.split('-').map(Number);
+  const today2 = new Date(); today2.setHours(0,0,0,0);
+
+  const items = [];
+
+  schedules.forEach(function(s) {
+    if (s.date && s.date.startsWith(calMonth)) {
+      const diff = Math.ceil((new Date(s.date) - today2) / 86400000);
+      items.push({ type: 'schedule', date: s.date, name: s.name, diff, amount: s.amount, amountType: s.amountType, origIdx: schedules.indexOf(s) });
+    }
+  });
+
+  const firstDate = y + '-' + String(m).padStart(2,'0') + '-01';
+  recurringItems.forEach(function(r) {
+    const diff = Math.ceil((new Date(firstDate) - today2) / 86400000);
+    items.push({ type: 'recurring', date: firstDate, name: r.name, diff, amount: r.amount * 10000, amountType: 'out', owner: r.owner });
+  });
+
+  items.sort(function(a, b) { return a.date.localeCompare(b.date); });
+
+  if (!items.length) {
+    wrap.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:16px 0">이달 예정 이벤트가 없어요</div>';
+    return;
+  }
+
+  wrap.innerHTML = items.map(function(item) {
+    const [iy, im, id2] = item.date.split('-');
+    const isPast = item.diff < 0;
+    const isToday3 = item.diff === 0;
+    const dotColor = item.type === 'schedule' ? '#a78bfa' : '#60a5fa';
+    const diffStr = isToday3 ? '🔥 오늘' : isPast ? Math.abs(item.diff) + '일 전' : 'D-' + item.diff;
+    const diffColor = isToday3 ? '#f87171' : isPast ? 'var(--muted)' : item.diff <= 7 ? '#fbbf24' : 'var(--muted2)';
+    const amtStr = item.amount
+      ? '<span style="font-size:11px;font-weight:700;color:' + (item.amountType==='in'?'var(--blue)':'var(--red)') + ';margin-left:6px">' + (item.amountType==='in'?'+':'-') + Math.round(item.amount).toLocaleString() + '원</span>'
+      : '';
+    const typeIcon = item.type === 'recurring' ? '🔄 ' : '';
+    return '<div onclick="' + (item.type==='schedule' ? 'openScheduleEdit(' + item.origIdx + ')' : 'setLedgerTab(\'budget\')') + '" style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;' + (isPast?'opacity:0.5':'') + '">'
+      + '<div style="width:8px;height:8px;border-radius:50%;background:' + dotColor + ';flex-shrink:0"></div>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + typeIcon + escHtml(item.name) + amtStr + '</div>'
+      + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + parseInt(im) + '월 ' + parseInt(id2) + '일' + (item.owner ? ' · ' + (item.owner==='minsuk'?'민석':item.owner==='siyun'?'시윤':'공동') : '') + '</div>'
+      + '</div>'
+      + '<span style="font-size:11px;font-weight:700;color:' + diffColor + ';flex-shrink:0">' + diffStr + '</span>'
+      + '</div>';
+  }).join('');
+}
+
+function openCalDayAdd() {
+  if (!calSelectedDate) return;
+  openScheduleEdit();
+  setTimeout(function() {
+    const dateInput = document.getElementById('sch-date');
+    if (dateInput) dateInput.value = calSelectedDate;
+  }, 100);
+}
+
+
+
 function renderLedger() {
   const [y,m] = ledgerMonth.split('-');
   const lbl = document.getElementById('ledger-month-label');
@@ -8148,6 +8482,8 @@ function renderLedger() {
   }
   else if (ledgerTab === 'chart') { renderLedgerInsights(); renderExpenseHeatmap(); renderLedgerTrendChart(); renderCategoryChart(monthTxs); renderOwnerCompare(monthTxs); }
   else if (ledgerTab === 'budget') { renderBudgetBars(monthTxs); renderRecurringList(); }
+  else if (ledgerTab === 'calendar') { renderCalendar(); }
+
 }
 
 function clearLedgerSearch() {
