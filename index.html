@@ -6327,30 +6327,62 @@ async function loadAiComment(force=false, useWebSearch=false) {
 
   } else {
     // 자산분석 모드 - PB 수준 맞춤형 조언
-    const netVal = latestForComment ? (latestForComment.net/10000).toFixed(2) + '억' : '미기록';
-    const changeVal = (latestForComment && assetHistory.length > 1)
-      ? ((latestForComment.net - assetHistory[assetHistory.length-2].net)/10000).toFixed(2) + '억'
-      : null;
+  const netVal = latestForComment ? (latestForComment.net/10000).toFixed(2) + '억' : '미기록';
+  const changeVal = (latestForComment && assetHistory.length > 1)
+    ? ((latestForComment.net - assetHistory[assetHistory.length-2].net)/10000).toFixed(2) + '억'
+    : null;
 
-    // 자산 구성에 따른 맞춤 포커스
-    let focusGuide = '';
-    if (!hasISAComment) focusGuide += 'ISA 계좌 미보유(연 200만원 비과세 미활용). ';
-    if (!hasIRPComment) focusGuide += 'IRP 미활용(연 700만원 세액공제 가능). ';
-    if (debtRatioComment > 40) focusGuide += '부채비율 ' + debtRatioComment + '%(위험). ';
-    if (isYearEnd) focusGuide += '연말정산 시즌(IRP/연금저축 추가납입 마감임박). ';
-    if (hasStocksComment) focusGuide += '주식 보유(' + stocks.map(function(s){return s.name;}).join(',') + '). ';
-    if (hasRealEstateComment) focusGuide += '부동산 보유(보유세/실거래가 동향 중요). ';
+  // ── 조언 주제 로테이션 (같은 말 반복 방지)
+  const ALL_TOPICS = [];
+  if (!hasISAComment) ALL_TOPICS.push({ key:'isa', guide:'ISA 계좌 미보유(연 200만원 비과세 미활용). 개설 방법과 혜택 설명.' });
+  if (!hasIRPComment) ALL_TOPICS.push({ key:'irp', guide:'IRP 미활용(연 700만원 세액공제 가능). 납입 전략 설명.' });
+  if (debtRatioComment > 40) ALL_TOPICS.push({ key:'debt', guide:'부채비율 ' + debtRatioComment + '%(위험수준). 상환 전략 조언.' });
+  if (isYearEnd) ALL_TOPICS.push({ key:'yearend', guide:'연말정산 시즌. IRP/연금저축 추가납입 마감임박. 절세 액션 제시.' });
+  if (hasStocksComment) ALL_TOPICS.push({ key:'stocks', guide:'주식 보유(' + stocks.map(function(s){return s.name;}).join(',') + '). 포트폴리오 리스크/비중 점검.' });
+  if (hasRealEstateComment) ALL_TOPICS.push({ key:'realestate', guide:'부동산 보유. 보유세/공시가격/실거래가 동향 언급.' });
+  if (hasStocksComment || hasRealEstateComment) ALL_TOPICS.push({ key:'tax', guide:'양도세/종부세/금융투자소득세 절세 전략.' });
+  ALL_TOPICS.push({ key:'saving', guide:'저축률 ' + saveRate + '%. 월 지출 구조 개선 방법.' });
+  ALL_TOPICS.push({ key:'portfolio', guide:'전체 자산 배분 비율 점검. 리밸런싱 필요 여부.' });
+  ALL_TOPICS.push({ key:'goal', guide:'목표 달성률 기반 월 필요 저축액 역산.' });
 
-    prompt = 'PB 상담 데이터:\n'
-      + '순자산 ' + netVal + (changeVal ? ' (전월대비 ' + changeVal + ')' : '') + '\n'
-      + '이달 지출 ' + Math.round(monthExpense).toLocaleString() + '만원\n'
-      + '주목 포인트: ' + (focusGuide || '전반적 자산 점검') + '\n\n'
-      + '위 데이터 기반으로 오늘의 PB 조언을 2줄로. 구체적 수치와 액션 포함.';
+  // 오늘 이미 한 주제들 불러오기
+  const usedTopicsKey = 'ai-comment-used-topics';
+  const todayDateStr2 = todayDate.getFullYear() + '-' + (todayDate.getMonth()+1) + '-' + todayDate.getDate();
+  let usedTopics = load(usedTopicsKey, { date: '', topics: [] });
 
-    systemPrompt = '10년 경력 시중은행 PB 출신 AI. 고객 데이터 보고 즉시 핵심 짚어주는 스타일. '
-      + '단순 나열 금지. "지금 당장 해야 할 것" 위주. 명사형 어미(~필요. ~권장. ~검토.). '
-      + '마크다운 금지. 이모지 1개만 맨 앞. 세금/절세 내용 적극 언급.';
-    tools = undefined;
+  // 날짜 바뀌면 초기화
+  if (usedTopics.date !== todayDateStr2) {
+    usedTopics = { date: todayDateStr2, topics: [] };
+  }
+
+  // 아직 안 한 주제 필터링
+  let availableTopics = ALL_TOPICS.filter(function(t) {
+    return !usedTopics.topics.includes(t.key);
+  });
+
+  // 모두 다 했으면 초기화 후 다시
+  if (!availableTopics.length) {
+    usedTopics.topics = [];
+    availableTopics = ALL_TOPICS;
+  }
+
+  // 랜덤으로 하나 선택
+  const selectedTopic = availableTopics[Math.floor(Math.random() * availableTopics.length)];
+
+  // 사용한 주제 저장
+  usedTopics.topics.push(selectedTopic.key);
+  store(usedTopicsKey, usedTopics);
+
+  prompt = 'PB 상담 데이터:\n'
+    + '순자산 ' + netVal + (changeVal ? ' (전월대비 ' + changeVal + ')' : '') + '\n'
+    + '이달 지출 ' + Math.round(monthExpense).toLocaleString() + '만원\n'
+    + '오늘 집중 포인트: ' + selectedTopic.guide + '\n\n'
+    + '위 포인트 하나에만 집중해서 PB 조언 2줄로. 구체적 수치와 지금 당장 할 수 있는 액션 포함.';
+
+  systemPrompt = '10년 경력 시중은행 PB 출신 AI. 매번 다른 관점으로 조언하는 스타일. '
+    + '단순 나열 금지. 하나의 주제를 깊게. 명사형 어미(~필요. ~권장. ~검토.). '
+    + '마크다운 금지. 이모지 1개만 맨 앞. 친근하지만 전문적으로.';
+  tools = undefined;
   }
 
   try {
