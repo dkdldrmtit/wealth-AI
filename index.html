@@ -120,6 +120,12 @@ body::before {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
+/* input/textarea는 롱프레스 허용 (복사/붙여넣기) */
+input, textarea, select {
+  touch-action: auto;
+  -webkit-user-select: text;
+  user-select: text;
+}
 .nav-item.active::before {
   content: '';
   position: absolute;
