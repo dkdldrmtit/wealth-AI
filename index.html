@@ -980,7 +980,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
   </div>
 
-Copy  <!-- ② -1 부부 재무 대결 -->
+    <!-- ② -1 부부 재무 대결 -->
   <div data-card="couple" id="home-card-couple">
   <div class="card" style="border-color:rgba(167,139,250,.2);padding:0;overflow:hidden;cursor:pointer" onclick="goPage('ledger',document.querySelectorAll('.nav-item')[1])">
 
@@ -1076,13 +1076,13 @@ Copy  <!-- ② -1 부부 재무 대결 -->
 
     <!-- 민석/시윤 분리 -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-      <div style="background:var(--surface2);border-radius:12px;padding:10px">
-        <div style="font-size:10px;color:var(--minsuk);font-weight:700;margin-bottom:6px">👨 민석</div>
+      <div onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[4]);setTimeout(()=>setStkOwner('minsuk'),300)" style="background:var(--surface2);border-radius:12px;padding:10px;cursor:pointer">
+        <div style="font-size:10px;color:var(--minsuk);font-weight:700;margin-bottom:6px">👨 민석 ›</div>
         <div id="home-stock-ms-val" style="font-size:14px;font-weight:800;color:var(--text)">-</div>
         <div id="home-stock-ms-pnl" style="font-size:11px;font-weight:600;margin-top:2px">-</div>
       </div>
-      <div style="background:var(--surface2);border-radius:12px;padding:10px">
-        <div style="font-size:10px;color:var(--siyun);font-weight:700;margin-bottom:6px">👩 시윤</div>
+      <div onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[4]);setTimeout(()=>setStkOwner('siyun'),300)" style="background:var(--surface2);border-radius:12px;padding:10px;cursor:pointer">
+        <div style="font-size:10px;color:var(--siyun);font-weight:700;margin-bottom:6px">👩 시윤 ›</div>
         <div id="home-stock-sy-val" style="font-size:14px;font-weight:800;color:var(--text)">-</div>
         <div id="home-stock-sy-pnl" style="font-size:11px;font-weight:600;margin-top:2px">-</div>
       </div>
