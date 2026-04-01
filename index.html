@@ -6396,7 +6396,7 @@ function renderStkDonut() {
       ? (seg.ev/10000).toFixed(0)+'만원'
       : Math.round(seg.ev).toLocaleString()+'원';
     const subStr = seg.s.market === 'US'
-      ? '$' + (seg.s.currentPrice * seg.s.qty).toFixed(0) + ' · '
+      ? '$' + (seg.s.currentPrice * seg.s.qty).toFixed(2) + ' · '
       : '';
     return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">'
       + '<div style="width:8px;height:8px;border-radius:2px;background:' + seg.color + ';flex-shrink:0"></div>'
@@ -6431,7 +6431,7 @@ function renderStkPctChart() {
     const color = isUp ? 'var(--red)' : 'var(--blue)';
     const pnl = (s.currentPrice - s.avgPrice) * s.qty;
     const pnlStr = (isUp?'+':'')
-      + (s.market === 'KR' ? Math.round(pnl).toLocaleString() + '원' : '$' + Math.round(pnl).toLocaleString());
+      + (s.market === 'KR' ? Math.round(pnl).toLocaleString() + '원' : '$' + pnl.toFixed(2));
     return '<div style="margin-bottom:12px">'
       + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">'
       + '<span style="font-size:13px;font-weight:600">' + s.name + '</span>'
@@ -6529,7 +6529,7 @@ function renderStockHistory() {
     const color = isBuy ? 'var(--red)' : 'var(--blue)';
     const label = isBuy ? '매수' : '매도';
     const priceStr = t.market === 'KR' ? t.price.toLocaleString() + '원' : '$' + t.price.toFixed(2);
-    const totalStr = t.market === 'KR' ? Math.round(t.price * t.qty).toLocaleString() + '원' : '$' + (t.price * t.qty).toFixed(0);
+    const totalStr = t.market === 'KR' ? Math.round(t.price * t.qty).toLocaleString() + '원' : '$' + (t.price * t.qty).toFixed(2);
     const ownerBadge = currentStkOwner === 'all'
       ? (t.owner === 'minsuk' ? '<span style="font-size:9px;background:rgba(96,165,250,.15);color:var(--minsuk);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">민석</span>'
         : t.owner === 'siyun' ? '<span style="font-size:9px;background:rgba(52,211,153,.15);color:var(--siyun);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">시윤</span>' : '')
@@ -6703,7 +6703,7 @@ function updateStockSummary() {
     el('stock-total-pct', '(' + pct.toFixed(2) + '%)');
     setColor('stock-total-pnl', pnl > 0 ? 'var(--red)' : pnl < 0 ? 'var(--blue)' : 'var(--muted)');
     setColor('stock-total-pct', pnl > 0 ? 'var(--red)' : pnl < 0 ? 'var(--blue)' : 'var(--muted)');
-    el('stock-rate-note', usdKrw ? '$1 = ' + Math.round(usdKrw).toLocaleString() + '원' : '');
+    el('stock-rate-note', usdKrw ? '$1 = ' + usdKrw.toFixed(2) + '원' : '');
   } else {
     el('stock-total-val', '-');
     el('stock-total-pnl', '-');
@@ -6772,7 +6772,7 @@ async function fetchAllPrices() {
   if (btn) btn.textContent = '🔄 시세 갱신';
   const timeEl = document.getElementById('stock-update-time');
   if (timeEl) timeEl.textContent = new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'}) + ' 기준';
-  const rateMsg = usdKrw ? ' · $1=' + Math.round(usdKrw).toLocaleString() + '원' : '';
+  const rateMsg = usdKrw ? ' · $1=' + usdKrw.toFixed(2) + '원' : '';
   showToast(updated > 0 ? ('✅ ' + updated + '개 종목 시세 갱신!' + rateMsg) : '⚠️ 시세 조회 실패. Cloudflare 주소 확인해주세요');
 }
 
@@ -6916,7 +6916,7 @@ function updateTradePreview() {
   const totalAmt = newAvg * newQty;
   document.getElementById('preview-qty').textContent = newQty + '주';
   document.getElementById('preview-avg').textContent = s.market === 'KR' ? Math.round(newAvg).toLocaleString()+'원' : '$'+newAvg.toFixed(2);
-  document.getElementById('preview-total').textContent = s.market === 'KR' ? Math.round(totalAmt).toLocaleString()+'원' : '$'+totalAmt.toFixed(0);
+  document.getElementById('preview-total').textContent = s.market === 'KR' ? Math.round(totalAmt).toLocaleString()+'원' : '$'+totalAmt.toFixed(2);
 }
 
 function saveTrade() {
