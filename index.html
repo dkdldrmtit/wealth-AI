@@ -4997,7 +4997,7 @@ function renderHomeStocksSummary() {
     const sorted = [...activeStocks].sort(function(a, b) {
       const pctA = (a.currentPrice - a.avgPrice) / a.avgPrice * 100;
       const pctB = (b.currentPrice - b.avgPrice) / b.avgPrice * 100;
-      return Math.abs(pctB) - Math.abs(pctA);
+      return pctB - pctA;
     }).slice(0, 3);
 
     const medals = ['🥇', '🥈', '🥉'];
