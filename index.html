@@ -132,6 +132,17 @@ body::before {
 /* 탭 누를 때 튕기는 효과 */
 .nav-item:active { transform: scale(0.88); }
 
+@keyframes navBounce {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(0.82) translateY(2px); }
+  60%  { transform: scale(1.18) translateY(-4px); }
+  80%  { transform: scale(0.95) translateY(1px); }
+  100% { transform: scale(1) translateY(0); }
+}
+.nav-item.bounce {
+  animation: navBounce .45s cubic-bezier(.36,1.4,.6,1) both;
+}
+
 /* PAGE */
 .page { display:none; padding:0px 16px 120px; animation: fadeUp .4s ease both; }
 .page.active { display:block; }
@@ -638,10 +649,77 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
 .ac-item:active, .ac-item:hover { background: var(--surface2); }
 .ac-highlight { color: var(--blue); font-weight: 700; }
 
+/* ══ 스플래시 스크린 ══ */
+@keyframes splashDot {
+  0%,60%,100% { transform:translateY(0); opacity:.3; }
+  30% { transform:translateY(-8px); opacity:1; }
+}
+/* 라이트모드 스플래시 */
+@media (prefers-color-scheme: light) {
+  #splash-screen { background:#f0f2f8 !important; }
+}
+body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
+
+<!-- ══ 스플래시 스크린 ══ -->
+<div id="splash-screen" style="
+  position:fixed;inset:0;
+  background:#0a0a0a;
+  z-index:99999;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:16px;
+  transition:opacity .5s ease, transform .5s ease;
+">
+  <!-- 로고 -->
+  <div id="splash-logo" style="
+    opacity:0;transform:translateY(20px);
+    transition:opacity .6s ease, transform .6s ease;
+    text-align:center;
+  ">
+    <div style="
+      width:80px;height:80px;border-radius:24px;
+      background:linear-gradient(135deg,#1e1e1e,#2a2a2a);
+      border:1px solid rgba(232,244,255,0.2);
+      display:flex;align-items:center;justify-content:center;
+      margin:0 auto 16px;
+      box-shadow:0 0 40px rgba(232,244,255,0.15);
+    ">
+      <span style="font-size:36px">🏦</span>
+    </div>
+    <div style="
+      font-family:-apple-system,'SF Pro Display',sans-serif;
+      font-size:28px;font-weight:200;letter-spacing:3px;
+      display:flex;align-items:baseline;gap:2px;
+    ">
+      <span style="color:#888888">Wealth</span>
+      <span style="
+        color:#e8f4ff;font-weight:600;letter-spacing:1px;
+        filter:drop-shadow(0 0 8px rgba(232,244,255,1)) drop-shadow(0 0 20px rgba(232,244,255,0.5));
+      ">AI</span>
+    </div>
+    <div style="
+      font-size:11px;color:#4a5568;
+      letter-spacing:2px;margin-top:8px;
+      font-weight:500;
+    ">BANKER'S WEALTH MANAGER</div>
+  </div>
+
+  <!-- 로딩 점 -->
+  <div id="splash-dots" style="
+    opacity:0;
+    transition:opacity .4s ease;
+    display:flex;gap:6px;margin-top:8px;
+  ">
+    <div class="splash-dot" style="width:6px;height:6px;border-radius:50%;background:rgba(232,244,255,0.3);animation:splashDot .9s ease infinite"></div>
+    <div class="splash-dot" style="width:6px;height:6px;border-radius:50%;background:rgba(232,244,255,0.3);animation:splashDot .9s ease .2s infinite"></div>
+    <div class="splash-dot" style="width:6px;height:6px;border-radius:50%;background:rgba(232,244,255,0.3);animation:splashDot .9s ease .4s infinite"></div>
+  </div>
+</div>
 
 <div class="toast" id="toast">✅ 저장됐어요!</div>
 
@@ -2331,7 +2409,14 @@ function goPage(name, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
-  if (el && el.classList) el.classList.add('active');
+  if (el && el.classList) {
+    el.classList.add('active');
+    // bounce 효과
+    el.classList.remove('bounce');
+    void el.offsetWidth;
+    el.classList.add('bounce');
+    setTimeout(function() { el.classList.remove('bounce'); }, 450);
+  }
 
   // 홈 FAB - 홈에서만 표시
   const fab = document.getElementById('home-fab-mic');
@@ -4878,6 +4963,31 @@ function toggleAiComment(el) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  // ── 스플래시 스크린
+  const splash = document.getElementById('splash-screen');
+  const splashLogo = document.getElementById('splash-logo');
+  const splashDots = document.getElementById('splash-dots');
+
+  // 로고 페이드인
+  setTimeout(function() {
+    splashLogo.style.opacity = '1';
+    splashLogo.style.transform = 'translateY(0)';
+  }, 100);
+
+  // 로딩 점 표시
+  setTimeout(function() {
+    splashDots.style.opacity = '1';
+  }, 500);
+
+  // 앱 초기화 후 스플래시 제거
+  setTimeout(function() {
+    splash.style.opacity = '0';
+    splash.style.transform = 'scale(1.05)';
+    setTimeout(function() {
+      splash.style.display = 'none';
+    }, 500);
+  }, 1800);
+
   // 테마 초기화
   applyTheme(load('theme-mode', 'system'));
 
