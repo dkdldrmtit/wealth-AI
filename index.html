@@ -142,9 +142,18 @@ body::before {
 }
 
 /* PAGE */
-.page { display:none; padding:0px 16px 120px; animation: fadeUp .4s ease both; }
+.page { display:none; padding:0px 16px 120px; }
 .page.active { display:block; }
-@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+@keyframes fadeUp    { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeLeft  { from{opacity:0;transform:translateX(16px)} to{opacity:1;transform:translateX(0)} }
+@keyframes fadeRight { from{opacity:0;transform:translateX(-16px)} to{opacity:1;transform:translateX(0)} }
+@keyframes fadeScale { from{opacity:0;transform:scale(0.97)}      to{opacity:1;transform:scale(1)} }
+
+.page-anim-up    { animation: fadeUp    .35s cubic-bezier(.4,0,.2,1) both; }
+.page-anim-left  { animation: fadeLeft  .35s cubic-bezier(.4,0,.2,1) both; }
+.page-anim-right { animation: fadeRight .35s cubic-bezier(.4,0,.2,1) both; }
+.page-anim-scale { animation: fadeScale .35s cubic-bezier(.4,0,.2,1) both; }
 
 @keyframes cardSlideUp {
   from { opacity:0; transform:translateY(24px) scale(0.98); }
@@ -454,12 +463,21 @@ body[data-theme="light"] {
   animation: modalFadeIn .25s ease both;
 }
 
-/* ── 2. 카드 탭 피드백 (기존 .card에 추가) ── */
+/* ── 2. 카드 탭 피드백 통일 ── */
 .card {
   transition: transform .12s ease, box-shadow .12s ease;
 }
 .card:active {
   transform: scale(0.985);
+}
+/* 클릭 가능한 모든 요소 press 효과 통일 */
+.card[onclick]:active,
+.sum-box:active,
+.owner-box:active,
+[onclick]:active {
+  transform: scale(0.97);
+  opacity: 0.85;
+  transition: transform .1s ease, opacity .1s ease;
 }
 /* 클릭 가능한 카드 강조 */
 .card[onclick], .card > [onclick] {
@@ -525,25 +543,36 @@ body[data-theme="light"] {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 32px 16px;
-  gap: 10px;
+  padding: 40px 16px;
+  gap: 12px;
 }
 .empty-state .es-icon {
-  font-size: 44px;
-  opacity: 0.5;
+  font-size: 40px;
+  opacity: 0.3;
   line-height: 1;
+  filter: grayscale(0.3);
 }
 .empty-state .es-title {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--muted2);
   text-align: center;
+  letter-spacing: 0.3px;
 }
 .empty-state .es-sub {
   font-size: 12px;
   color: var(--muted);
   text-align: center;
-  line-height: 1.6;
+  line-height: 1.8;
+  max-width: 220px;
+}
+/* 빈 상태 구분선 */
+.empty-state::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--border2);
+  margin-bottom: 4px;
 }
 
 /* ── 7. sum-box 탭 피드백 (기존 :active 강화) ── */
@@ -609,11 +638,11 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
 }
 .skeleton {
   background: linear-gradient(90deg,
-    var(--surface2) 25%,
-    var(--surface3) 50%,
-    var(--surface2) 75%);
+    var(--surface2) 0%,
+    rgba(232,244,255,0.04) 40%,
+    var(--surface2) 80%);
   background-size: 600px 100%;
-  animation: skeleton-shimmer 1.4s ease infinite;
+  animation: skeleton-shimmer 1.8s ease infinite;
   border-radius: 6px;
 }
 .skeleton-text  { height: 14px; border-radius: 4px; }
@@ -787,8 +816,20 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <h1 style="font-family:-apple-system,'SF Pro Display','Inter','Helvetica Neue',sans-serif;font-size:28px;font-weight:300;line-height:1.2;margin-bottom:4px;letter-spacing:2px;display:flex;align-items:baseline;gap:0">
           <span id="home-wealth-text" style="color:#888888;font-weight:200;letter-spacing:2px">Wealth</span><span id="home-ai-text" style="color:#e8f4ff;font-weight:600;letter-spacing:1px;filter:drop-shadow(0 0 8px rgba(232,244,255,1)) drop-shadow(0 0 20px rgba(232,244,255,0.5))">AI</span>
         </h1>
-        <div class="sub" id="home-date-sub" style="font-size:12px;color:var(--muted2);margin-top:2px"></div>
-      </div>
+        <!-- 뱃지 -->
+        <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+          <div style="
+            display:inline-flex;align-items:center;gap:4px;
+            background:rgba(232,244,255,0.06);
+            border:0.5px solid rgba(232,244,255,0.15);
+            border-radius:20px;
+            padding:3px 10px;
+          ">
+            <div style="width:5px;height:5px;border-radius:50%;background:#e8f4ff;opacity:0.6"></div>
+            <span style="font-size:9px;color:rgba(232,244,255,0.5);letter-spacing:1.5px;font-weight:500">DESIGNED BY A BANKER</span>
+          </div>
+        </div>
+        <div class="sub" id="home-date-sub" style="font-size:12px;color:var(--muted2);margin-top:6px"></div>
       <div style="display:flex;flex-direction:row;gap:6px;margin-top:6px">
         <button onclick="goPage('settings',{classList:{add:()=>{},remove:()=>{}}})"
           style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:12px;color:var(--muted2);font-size:16px;width:40px;height:40px;cursor:pointer;">
@@ -1350,17 +1391,17 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
 
   <!-- 설정 탭 내비 -->
-  <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:20px">
+  <div style="display:flex;background:var(--surface2);border-radius:14px;padding:4px;margin-bottom:20px;gap:2px">
     <button id="stab-home" onclick="setSettingsTab('home')"
-      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:rgba(232,244,255,0.12);color:#e8f4ff;border:0.5px solid rgba(232,244,255,0.3)">🏠 홈</button>
+      style="flex:1;padding:9px 4px;border-radius:10px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:700;cursor:pointer;background:rgba(232,244,255,0.12);color:#e8f4ff;border:0.5px solid rgba(232,244,255,0.2);letter-spacing:0.3px">🏠<br>홈</button>
     <button id="stab-api" onclick="setSettingsTab('api')"
-      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">🔑 API</button>
+      style="flex:1;padding:9px 4px;border-radius:10px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);letter-spacing:0.3px">🔑<br>API</button>
     <button id="stab-apt" onclick="setSettingsTab('apt')"
-      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">🏢 부동산</button>
+      style="flex:1;padding:9px 4px;border-radius:10px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);letter-spacing:0.3px">🏢<br>부동산</button>
     <button id="stab-cat" onclick="setSettingsTab('cat')"
-      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">🏷️ 카테고리</button>
+      style="flex:1;padding:9px 4px;border-radius:10px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);letter-spacing:0.3px">🏷️<br>카테고리</button>
     <button id="stab-data" onclick="setSettingsTab('data')"
-      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">💾 데이터</button>
+      style="flex:1;padding:9px 4px;border-radius:10px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);letter-spacing:0.3px">💾<br>데이터</button>
   </div>
 
   <!-- 🏠 홈 설정 -->
@@ -1994,8 +2035,40 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
           <div style="font-size:11px;color:var(--muted2);font-weight:500;letter-spacing:.3px">파싱 완료 — 등록할 항목을 선택하세요</div>
           <div style="display:flex;gap:6px">
-            <button onclick="selectAllExcelItems(true)" style="font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted2);cursor:pointer">전체선택</button>
-            <button onclick="selectAllExcelItems(false)" style="font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted2);cursor:pointer">전체해제</button>
+            <button onclick="loadAiComment(true, false)" style="
+              background:rgba(232,244,255,0.06);
+              border:0.5px solid rgba(232,244,255,0.2);
+              border-radius:20px;
+              color:rgba(232,244,255,0.7);
+              font-family:'Noto Sans KR',sans-serif;
+              font-size:10px;font-weight:600;
+              padding:5px 12px;cursor:pointer;
+              letter-spacing:0.5px;
+              transition:all .2s;
+            "
+            onmouseenter="this.style.background='rgba(232,244,255,0.12)'"
+            onmouseleave="this.style.background='rgba(232,244,255,0.06)'"
+            ontouchstart="this.style.background='rgba(232,244,255,0.12)'"
+            ontouchend="this.style.background='rgba(232,244,255,0.06)'">
+              📊 자산 분석
+            </button>
+            <button onclick="loadAiComment(true, true)" style="
+              background:rgba(74,158,255,0.08);
+              border:0.5px solid rgba(74,158,255,0.25);
+              border-radius:20px;
+              color:rgba(74,158,255,0.8);
+              font-family:'Noto Sans KR',sans-serif;
+              font-size:10px;font-weight:600;
+              padding:5px 12px;cursor:pointer;
+              letter-spacing:0.5px;
+              transition:all .2s;
+            "
+            onmouseenter="this.style.background='rgba(74,158,255,0.15)'"
+            onmouseleave="this.style.background='rgba(74,158,255,0.08)'"
+            ontouchstart="this.style.background='rgba(74,158,255,0.15)'"
+            ontouchend="this.style.background='rgba(74,158,255,0.08)'">
+              🌐 시황
+            </button>
           </div>
         </div>
         <div id="excel-result-list" style="max-height:300px;overflow-y:auto"></div>
@@ -2428,12 +2501,22 @@ function goPage(name, el) {
   if (current !== name) pageHistory.push(name);
   if (pageHistory.length > 10) pageHistory.shift();
 
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  // 탭 순서 정의 (왼쪽→오른쪽)
+  const PAGE_ORDER = ['home','ledger','ai','input','stocks'];
+  const prevIdx = PAGE_ORDER.indexOf(current);
+  const nextIdx = PAGE_ORDER.indexOf(name);
+  const animClass = nextIdx > prevIdx ? 'page-anim-left' : nextIdx < prevIdx ? 'page-anim-right' : 'page-anim-up';
+
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active','page-anim-up','page-anim-left','page-anim-right','page-anim-scale');
+  });
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
+
+  const nextPage = document.getElementById('page-' + name);
+  nextPage.classList.add('active', animClass);
+
   if (el && el.classList) {
     el.classList.add('active');
-    // bounce 효과
     el.classList.remove('bounce');
     void el.offsetWidth;
     el.classList.add('bounce');
@@ -2821,16 +2904,33 @@ function updateHome(rec) {
   }
 }
 
+// 억 단위 포맷 통일 함수 (소수점 2자리)
+function fmtOk(v) {
+  return v.toFixed(2);
+}
+
 function updateHomeFromItems(rec) {
   if (!rec) return;
   const el = id => document.getElementById(id);
-  if(el('h-total')) animateNumber(el('h-total'), 0, rec.total/10000, 900, v => v.toFixed(2));
-  if(el('h-debt')) animateNumber(el('h-debt'), 0, rec.debt/10000, 900, v => v.toFixed(2));
-  if(el('h-net')) animateNumber(el('h-net'), 0, rec.net/10000, 900, v => v.toFixed(2));
+  if(el('h-total')) animateNumber(el('h-total'), 0, rec.total/10000, 900, fmtOk);
+  if(el('h-debt')) animateNumber(el('h-debt'), 0, rec.debt/10000, 900, fmtOk);
+  if(el('h-net')) animateNumber(el('h-net'), 0, rec.net/10000, 900, fmtOk);
 
-  // 순자산 대형 표시 카운트업
+  // 순자산 대형 표시 카운트업 + 글로우 강화
   const netLarge = el('h-net-large');
-  if (netLarge) animateNumber(netLarge, 0, rec.net/10000, 1100, v => v.toFixed(2));
+  if (netLarge) {
+    netLarge.style.transition = 'text-shadow 1.1s ease, color 1.1s ease';
+    netLarge.style.textShadow = 'none';
+    animateNumber(netLarge, 0, rec.net/10000, 1100, v => v.toFixed(2));
+    // 숫자 올라가면서 글로우 점점 강해짐
+    setTimeout(function() {
+      netLarge.style.textShadow = '0 0 20px rgba(232,244,255,0.6), 0 0 40px rgba(232,244,255,0.3), 0 0 80px rgba(232,244,255,0.15)';
+    }, 100);
+    // 완료 후 살짝 줄어들며 안정
+    setTimeout(function() {
+      netLarge.style.textShadow = '0 0 12px rgba(232,244,255,0.4), 0 0 24px rgba(232,244,255,0.2)';
+    }, 1200);
+  }
 
   // 전월 대비 배지
   const changeBadge = el('h-net-change-badge');
