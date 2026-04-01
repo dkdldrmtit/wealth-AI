@@ -1019,7 +1019,7 @@ Copy  <!-- ② -1 부부 재무 대결 -->
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 4px;background:rgba(255,255,255,.03)">
         <div style="font-size:11px;font-weight:900;color:var(--muted);letter-spacing:1px">VS</div>
         <div style="width:1px;height:40px;background:var(--border);margin:6px 0"></div>
-        <div id="couple-score" style="font-size:9px;color:var(--muted);text-align:center;line-height:1.6"></div>
+        <div id="couple-score" style="display:none"></div>
       </div>
 
       <!-- 시윤 -->
@@ -4882,11 +4882,7 @@ function renderCoupleCard() {
     }
   }
 
-  // 점수 표시
-  const scoreEl = elId('couple-score');
-  if (scoreEl && (msScore > 0 || syScore > 0)) {
-    scoreEl.innerHTML = msScore + '<br>:<br>' + syScore;
-  }
+  // 점수 표시 (숨김)
 
   // 하단 총평
   const commentEl = elId('couple-comment');
