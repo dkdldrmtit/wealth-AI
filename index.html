@@ -5790,6 +5790,31 @@ function renderMiniChart() {
 
 
 // ── AI 오늘의 한마디 ──
+function typewriterEffect(el, text, speed=18) {
+  return new Promise(function(resolve) {
+    el.innerHTML = '';
+    el.style.webkitLineClamp = 'unset';
+    el.style.overflow = 'visible';
+    let i = 0;
+    // HTML 태그 포함 텍스트 처리
+    const plain = text.replace(/<br>/g, '\n');
+    function type() {
+      if (i < plain.length) {
+        if (plain[i] === '\n') {
+          el.innerHTML += '<br>';
+        } else {
+          el.innerHTML += plain[i];
+        }
+        i++;
+        setTimeout(type, speed);
+      } else {
+        resolve();
+      }
+    }
+    type();
+  });
+}
+
 async function loadAiComment(force=false, useWebSearch=false) {
   const el = document.getElementById('ai-comment-text');
   if (!el) return;
@@ -5804,7 +5829,7 @@ async function loadAiComment(force=false, useWebSearch=false) {
   const cacheKey = useWebSearch ? 'ai-comment-cache-market' : 'ai-comment-cache';
   const cached = load(cacheKey, null);
   if (!force && cached && cached.date === todayKey && cached.text) {
-    el.innerHTML = cached.text.replace(/\n/g, '<br>');
+    await typewriterEffect(el, cached.text, 14); // 캐시는 조금 더 빠르게
     return;
   }
 
@@ -5870,8 +5895,9 @@ async function loadAiComment(force=false, useWebSearch=false) {
     });
     const data = await res.json();
     const text = (data.content || []).filter(c=>c.type==='text').map(c=>c.text).join('') || '오늘도 꾸준한 자산 관리 화이팅! 💪';
-    el.innerHTML = text.replace(/\n/g, '<br>');
     store(cacheKey, { date: todayKey, text: text });
+    // 타이핑 효과로 표시
+    await typewriterEffect(el, text, 18);
     setTimeout(function() {
       if (el.scrollHeight > el.clientHeight + 4) {
         const hint = document.getElementById('ai-comment-expand');
@@ -5879,7 +5905,7 @@ async function loadAiComment(force=false, useWebSearch=false) {
       }
     }, 100);
   } catch(e) {
-    el.textContent = '오늘도 꾸준한 자산 관리 화이팅! 💪';
+    await typewriterEffect(el, '오늘도 꾸준한 자산 관리 화이팅! 💪', 18);
   }
 }
 
