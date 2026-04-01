@@ -264,7 +264,15 @@ input, textarea, select {
 }
 
 /* CHAT */
-.chat-wrap { display:flex; flex-direction:column; gap:12px; margin-bottom:16px; min-height:80px; max-height:400px; overflow-y:auto; }
+.chat-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  min-height: 80px;
+  max-height: min(400px, calc(100dvh - 320px));
+  overflow-y: auto;
+}
 .msg { max-width:85%; padding:12px 16px; border-radius:18px; font-size:13px; line-height:1.6; animation:fadeUp .3s ease; }
 .msg.user { align-self:flex-end; background:linear-gradient(135deg,var(--blue),#2563eb); color:#fff; border-bottom-right-radius:4px; }
 .msg.ai { align-self:flex-start; background:var(--surface2); border:1px solid var(--border2); color:var(--text); border-bottom-left-radius:4px; }
@@ -1794,6 +1802,9 @@ Copy  <!-- ② -1 부부 재무 대결 -->
       </div>
       <input type="file" id="import-file" accept=".json" style="display:none" onchange="importBackup(event)">
       <div id="backup-status" style="font-size:12px;text-align:center;color:var(--muted);display:none"></div>
+      <div id="last-sync-info" style="padding:10px 12px;background:var(--surface2);border-radius:10px;font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:10px">
+        ☁️ 마지막 동기화: 확인 중...
+      </div>
       <div style="padding:10px 12px;background:var(--surface2);border-radius:10px;font-size:11px;color:var(--muted);line-height:1.7">
         💡 새 파일 받기 전 <strong style="color:var(--text)">내보내기</strong> → 새 파일 열고 <strong style="color:var(--text)">불러오기</strong>
       </div>
@@ -3046,35 +3057,69 @@ function deleteGoal(i) {
 }
 function editGoal(i) {
   const g = goals[i];
-  // 편집 폼에 기존 값 채우기
   document.getElementById('g-name').value = g.name;
   document.getElementById('g-target').value = g.target;
   document.getElementById('g-deadline').value = g.deadline;
-  // 저장 버튼을 수정 모드로 변경
+
   const saveBtn = document.querySelector('#page-goals .btn-primary');
-  if (saveBtn) {
-    saveBtn.textContent = '✅ 목표 수정 완료';
-    saveBtn.onclick = function() {
-      const name = document.getElementById('g-name').value.trim();
-      const target = parseFloat(document.getElementById('g-target').value);
-      const deadline = document.getElementById('g-deadline').value;
-      if (!name || !target) { showToast('❗ 이름과 목표금액을 입력해주세요'); return; }
-      goals[i] = { ...goals[i], name, target, deadline };
-      store('goals', goals);
-      renderGoals();
-      renderMiniChart();
-      showToast('✅ 목표가 수정됐어요!');
-      // 버튼 원래대로
-      saveBtn.textContent = '목표 저장';
-      saveBtn.onclick = addGoal;
-      document.getElementById('g-name').value = '';
-      document.getElementById('g-target').value = '';
+  if (!saveBtn) return;
+
+  // 저장 버튼 → 수정 완료 버튼으로 변경
+  saveBtn.textContent = '✅ 목표 수정 완료';
+  saveBtn.onclick = function() {
+    const name = document.getElementById('g-name').value.trim();
+    const target = parseFloat(document.getElementById('g-target').value);
+    const deadline = document.getElementById('g-deadline').value;
+    if (!name || !target) { showToast('❗ 이름과 목표금액을 입력해주세요'); return; }
+    goals[i] = { ...goals[i], name, target, deadline };
+    store('goals', goals);
+    renderGoals();
+    renderMiniChart();
+    showToast('✅ 목표가 수정됐어요!');
+    resetGoalForm();
+  };
+
+  // 취소 버튼 추가 (이미 있으면 중복 방지)
+  if (!document.getElementById('goal-cancel-btn')) {
+    const cancelBtn = document.createElement('button');
+    cancelBtn.id = 'goal-cancel-btn';
+    cancelBtn.textContent = '취소';
+    cancelBtn.style.cssText = [
+      'width:100%',
+      'margin-top:8px',
+      'padding:13px',
+      'border-radius:12px',
+      'background:var(--surface2)',
+      'border:1px solid var(--border2)',
+      'color:var(--muted2)',
+      "font-family:'Noto Sans KR',sans-serif",
+      'font-size:14px',
+      'font-weight:600',
+      'cursor:pointer'
+    ].join(';');
+    cancelBtn.onclick = function() {
+      showToast('수정이 취소됐어요');
+      resetGoalForm();
     };
+    saveBtn.insertAdjacentElement('afterend', cancelBtn);
   }
-  // 폼으로 스크롤
+
   document.getElementById('g-name').scrollIntoView({ behavior: 'smooth', block: 'center' });
   document.getElementById('g-name').focus();
   showToast('✏️ 목표를 수정해보세요!');
+}
+
+// 목표 폼 초기화 헬퍼 함수 (editGoal 바로 아래에 추가)
+function resetGoalForm() {
+  const saveBtn = document.querySelector('#page-goals .btn-primary');
+  if (saveBtn) {
+    saveBtn.textContent = '🎯 목표 저장';
+    saveBtn.onclick = addGoal;
+  }
+  document.getElementById('g-name').value = '';
+  document.getElementById('g-target').value = '';
+  const cancelBtn = document.getElementById('goal-cancel-btn');
+  if (cancelBtn) cancelBtn.remove();
 }
 // ── History ──
 let assetHistory = load('asset-history', []);
@@ -4127,11 +4172,15 @@ function applyStagger() {
   const anchor = document.getElementById('home-cards-anchor');
   if (!anchor) return;
   const cards = anchor.querySelectorAll('[data-card]');
-  cards.forEach(function(card, i) {
+  let visibleIdx = 0;
+  cards.forEach(function(card) {
     card.classList.remove('card-stagger');
-    void card.offsetWidth; // 리플로우 강제 (애니메이션 재시작)
+    void card.offsetWidth;
+    // 숨김 카드는 애니메이션 스킵, 보이는 카드만 순서대로 delay 적용
+    if (card.style.display === 'none') return;
     card.classList.add('card-stagger');
-    card.style.animationDelay = (i * 0.08) + 's';
+    card.style.animationDelay = (visibleIdx * 0.08) + 's';
+    visibleIdx++;
   });
 }
 
@@ -4799,6 +4848,7 @@ function renderCoupleCard() {
     }
   }
 
+
   // 트로피 & 승자 배지
   const msTrophy = elId('couple-ms-trophy');
   const syTrophy = elId('couple-sy-trophy');
@@ -5380,9 +5430,14 @@ function applyAptFromDetail() {
 }
 
 function openModalFromDetail() {
-  const month = detailMonth; // closeAssetDetail 전에 저장
+  const month = detailMonth;
+  if (!month) return;
+  // detailMonth를 먼저 로컬 변수에 확실히 저장 후 닫기
+  const savedMonth = String(month);
   closeAssetDetail();
-  setTimeout(function() { openModal(month); }, 150);
+  setTimeout(function() {
+    if (savedMonth) openModal(savedMonth);
+  }, 200);
 }
 
 async function deleteRecordDirect() {
@@ -7853,11 +7908,14 @@ function saveTrade() {
   closeTradeModal();
 }
 
-// goPage에 stocks 연동
+// goPage 확장 - stocks 연동 + FAB 이중 보장
 const _origGoPageStocks = goPage;
 goPage = function(name, el) {
   _origGoPageStocks(name, el);
   if (name === 'stocks') initStocks();
+  // FAB 이중 보장 (오버라이드 이후에도 확실히 적용)
+  const fab = document.getElementById('home-fab-mic');
+  if (fab) fab.style.display = name === 'home' ? 'flex' : 'none';
 };
 
 // ══════════════════════════════════════
@@ -10046,6 +10104,16 @@ function saveTx() {
   renderLedger();
   renderHomeLedgerSummary();
   closeLedgerAdd();
+  // 방금 추가한 날짜의 거래로 자동 스크롤
+  setTimeout(function() {
+    const dateGroups = document.querySelectorAll('#ledger-list > div');
+    dateGroups.forEach(function(group) {
+      const dateLabel = group.querySelector('span');
+      if (dateLabel && group.innerHTML.includes(date)) {
+        group.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  }, 300);
 }
 
 let editingTxId = null;
@@ -10251,6 +10319,18 @@ async function syncLoad(silent=false) {
     renderLedger();
 
     const lastSync = data['last-sync'];
+    // 마지막 동기화 시각 UI 업데이트
+    const syncInfoEl = document.getElementById('last-sync-info');
+    if (syncInfoEl) {
+      if (lastSync) {
+        const d = new Date(lastSync.syncedAt);
+        const timeStr = d.getFullYear() + '.' + (d.getMonth()+1) + '.' + d.getDate()
+          + ' ' + d.getHours() + ':' + String(d.getMinutes()).padStart(2,'0');
+        syncInfoEl.innerHTML = '☁️ 마지막 동기화: <strong style="color:var(--text)">' + timeStr + '</strong>';
+      } else {
+        syncInfoEl.innerHTML = '☁️ 마지막 동기화: <strong style="color:var(--muted2)">기록 없음</strong>';
+      }
+    }
     if (!silent) {
       if (lastSync) {
         const d = new Date(lastSync.syncedAt);
