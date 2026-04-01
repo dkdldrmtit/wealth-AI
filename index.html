@@ -996,7 +996,7 @@ Copy  <!-- ② -1 부부 재무 대결 -->
     <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch">
 
       <!-- 민석 -->
-      <div id="couple-ms-side" style="padding:12px 16px 16px;text-align:center;position:relative">
+      <div id="couple-ms-side" onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[4]);setTimeout(()=>setStkOwner('minsuk'),300)" style="padding:12px 16px 16px;text-align:center;position:relative;cursor:pointer">
         <div style="font-size:12px;font-weight:700;color:var(--minsuk);margin-bottom:10px">👨 민석</div>
         <!-- 저축률 -->
         <div style="margin-bottom:8px">
@@ -1023,7 +1023,7 @@ Copy  <!-- ② -1 부부 재무 대결 -->
       </div>
 
       <!-- 시윤 -->
-      <div id="couple-sy-side" style="padding:12px 16px 16px;text-align:center;position:relative">
+      <div id="couple-sy-side" onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[4]);setTimeout(()=>setStkOwner('siyun'),300)" style="padding:12px 16px 16px;text-align:center;position:relative;cursor:pointer">
         <div style="font-size:12px;font-weight:700;color:var(--siyun);margin-bottom:10px">👩 시윤</div>
         <!-- 저축률 -->
         <div style="margin-bottom:8px">
