@@ -6247,53 +6247,46 @@ function typewriterEffect(el, text, speed=18) {
   });
 }
 
-async function loadAiComment(force=false, useWebSearch=false) {
+Copyasync function loadAiComment(force=false, useWebSearch=false) {
   const el = document.getElementById('ai-comment-text');
   if (!el) return;
 
+  // ── 변수 선언
   const todayDate = new Date();
-  const thisMonth2 = todayDate.getFullYear() + '-' + String(todayDate.getMonth()+1).padStart(2,'0');
+  const todayStr = todayDate.getFullYear() + '-' + String(todayDate.getMonth()+1).padStart(2,'0') + '-' + String(todayDate.getDate()).padStart(2,'0');
+  const thisMonth2 = todayStr.substring(0, 7);
+  const currentMonthNum = todayDate.getMonth() + 1;
+  const isYearEnd = currentMonthNum >= 11 || currentMonthNum <= 1;
+
   const monthExpense = ledgerTxs
     .filter(function(t) { return t.date.startsWith(thisMonth2) && t.type === 'expense'; })
     .reduce(function(s,t) { return s + t.amount; }, 0);
-  const saveRate = (function() {
-    const inc = ledgerTxs.filter(function(t) { return t.date.startsWith(thisMonth2) && t.type === 'income'; }).reduce(function(s,t){return s+t.amount;},0);
-    const exp = monthExpense;
-    return inc > 0 ? Math.round((inc-exp)/inc*100) : 0;
-  })();
+  const monthIncome = ledgerTxs
+    .filter(function(t) { return t.date.startsWith(thisMonth2) && t.type === 'income'; })
+    .reduce(function(s,t) { return s + t.amount; }, 0);
+  const saveRate = monthIncome > 0 ? Math.round((monthIncome - monthExpense) / monthIncome * 100) : 0;
 
-  const todayDate = new Date();
+  // ── 캐시 확인
   const hour = Math.floor(todayDate.getHours() / 6);
   const todayKey = useWebSearch
-  ? todayDate.getFullYear() + '-' + (todayDate.getMonth()+1) + '-' + todayDate.getDate() + '-' + hour
-  : todayDate.getFullYear() + '-' + (todayDate.getMonth()+1) + '-' + todayDate.getDate();
+    ? todayDate.getFullYear() + '-' + (todayDate.getMonth()+1) + '-' + todayDate.getDate() + '-' + hour
+    : todayDate.getFullYear() + '-' + (todayDate.getMonth()+1) + '-' + todayDate.getDate();
 
-  // 캐시 확인 (자산분석/시황 각각 별도 캐시)
   const cacheKey = useWebSearch ? 'ai-comment-cache-market' : 'ai-comment-cache';
   const cached = load(cacheKey, null);
+
   if (!force && cached && cached.date === todayKey && cached.text) {
-    await typewriterEffect(el, cached.text, 14); // 캐시는 조금 더 빠르게
+    await typewriterEffect(el, cached.text, 14);
     return;
   }
 
+  // ── 로딩 스켈레톤
   el.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px;padding:2px 0">'
     + '<div class="skeleton skeleton-text" style="width:90%"></div>'
     + '<div class="skeleton skeleton-text" style="width:70%"></div>'
     + '</div>';
 
-  // 자산 데이터 수집
-  const latest = assetHistory.length > 0 ? assetHistory[assetHistory.length-1] : null;
-  const netStr = latest ? (latest.net/10000).toFixed(2)+'억' : '미기록';
-  const thisMonth = todayDate.getFullYear() + '-' + String(todayDate.getMonth()+1).padStart(2,'0');
-  const monthExpense = ledgerTxs.filter(t=>t.date.startsWith(thisMonth)&&t.type==='expense').reduce((s,t)=>s+t.amount,0);
-  const prevMonth = assetHistory.length > 1 ? assetHistory[assetHistory.length-2] : null;
-  const changeStr = (latest && prevMonth) ? ((latest.net-prevMonth.net)/10000).toFixed(2)+'억' : null;
-  const stockStr = stocks.length ? stocks.map(s=>s.name).join(', ') : '';
-  const todayStr = todayDate.getFullYear() + '년 ' + (todayDate.getMonth()+1) + '월 ' + todayDate.getDate() + '일';
-
-  let prompt, systemPrompt, tools;
-
-  // 자산 구성 분석 (맞춤형 코멘트용)
+  // ── 자산 분석용 변수
   const latestForComment = assetHistory.length > 0 ? assetHistory[assetHistory.length-1] : null;
   const itemsForComment = latestForComment ? (latestForComment.items || getItemsDefault(latestForComment)) : [];
   const hasStocksComment = stocks && stocks.length > 0;
@@ -6304,134 +6297,134 @@ async function loadAiComment(force=false, useWebSearch=false) {
   const debtAmt = itemsForComment.filter(function(i) { return i.type === 'debt'; }).reduce(function(s,i) { return s+i.amount; }, 0);
   const totalAssetComment = latestForComment ? latestForComment.total : 0;
   const debtRatioComment = totalAssetComment > 0 ? Math.round(debtAmt/totalAssetComment*100) : 0;
-  const currentMonthNum = todayDate.getMonth() + 1;
-  const isYearEnd = currentMonthNum >= 11 || currentMonthNum <= 1;
+  const netVal = latestForComment ? (latestForComment.net/10000).toFixed(2) + '억' : '미기록';
+  const changeVal = (latestForComment && assetHistory.length > 1)
+    ? ((latestForComment.net - assetHistory[assetHistory.length-2].net)/10000).toFixed(2) + '억'
+    : null;
+
+  let prompt, systemPrompt, tools;
 
   if (useWebSearch) {
-    // 🌐 시황 모드 - 자산 구성에 따라 맞춤형 시황 검색
+    // 🌐 시황 모드
     let searchTopic = '';
     let searchGuide = '';
 
     if (hasStocksComment && stocks.length > 0) {
       const stockNames = stocks.slice(0,3).map(function(s) { return s.name; }).join(', ');
       searchTopic = '오늘 ' + stockNames + ' 주가 시황과 관련 뉴스, 코스피/나스닥 동향';
-      searchGuide = '보유 종목 시황을 실제 수치와 함께 2~3줄로. 매수/매도 관련 직접 언급 금지.';
+      searchGuide = '보유 종목 시황을 실제 수치와 함께 2~3줄로 설명.';
     } else if (hasRealEstateComment) {
       searchTopic = '오늘 기준 한국 아파트 실거래가 동향, 금리 변화, 전월세 시장 흐름';
-      searchGuide = '부동산 시장 핵심 동향을 수치와 함께 2~3줄로.';
+      searchGuide = '부동산 시장 핵심 동향을 수치와 함께 2~3줄로 설명.';
     } else if (hasLoanComment && debtRatioComment > 30) {
       searchTopic = '오늘 기준 한국 시중은행 주택담보대출 금리, 신용대출 금리 현황';
-      searchGuide = '최신 대출 금리를 실제 수치와 함께 2~3줄로.';
+      searchGuide = '최신 대출 금리를 실제 수치와 함께 2~3줄로 설명.';
     } else if (isYearEnd) {
-      searchTopic = '연말정산 절세 전략 IRP 연금저축 ISA 2024 최신';
-      searchGuide = '연말정산 핵심 절세 팁을 2~3줄로.';
+      searchTopic = '연말정산 절세 전략 IRP 연금저축 ISA 최신 정보';
+      searchGuide = '연말정산 핵심 절세 팁을 2~3줄로 설명.';
     } else {
       searchTopic = '오늘 코스피 코스닥 원달러 환율 기준금리 한국 경제 동향';
-      searchGuide = '주요 경제 지표를 실제 수치와 함께 2~3줄로.';
+      searchGuide = '주요 경제 지표를 실제 수치와 함께 2~3줄로 설명.';
     }
 
-    prompt = '오늘(' + todayStr + ') 기준 ' + searchTopic + '을 웹검색으로 찾아 실제 최신 수치 포함해 알려줘.';
-    systemPrompt = '10년 경력 PB 출신 자산관리 AI. 웹검색으로 오늘 실제 데이터 확인 후 답변. '
-      + searchGuide
-      + ' 명사형 어미 사용. 마크다운 금지. 이모지 1개만 맨 앞. 출처/날짜 언급 금지.';
+    prompt = '오늘(' + todayStr + ') 기준 ' + searchTopic + '을 웹검색으로 찾아서 ' + searchGuide;
+    systemPrompt = '10년 경력 PB 출신 자산관리 AI. 웹검색 결과를 바탕으로 실제 수치 포함해서 답변. '
+      + '마크다운 절대 금지. 이모지 1개만 맨 앞. 명사형 어미 사용. 2~3줄로 간결하게.';
     tools = [{ type: 'web_search_20250305', name: 'web_search' }];
 
   } else {
-    // 자산분석 모드 - PB 수준 맞춤형 조언
-  const netVal = latestForComment ? (latestForComment.net/10000).toFixed(2) + '억' : '미기록';
-  const changeVal = (latestForComment && assetHistory.length > 1)
-    ? ((latestForComment.net - assetHistory[assetHistory.length-2].net)/10000).toFixed(2) + '억'
-    : null;
+    // 📊 자산분석 모드 - 주제 로테이션
+    const ALL_TOPICS = [];
+    if (!hasISAComment) ALL_TOPICS.push({ key:'isa', guide:'ISA 계좌 미보유. 연 200만원 비과세 혜택과 개설 방법 설명.' });
+    if (!hasIRPComment) ALL_TOPICS.push({ key:'irp', guide:'IRP 미활용. 연 700만원 세액공제 가능. 납입 전략 설명.' });
+    if (debtRatioComment > 40) ALL_TOPICS.push({ key:'debt', guide:'부채비율 ' + debtRatioComment + '%. 대출 상환 전략과 금리 관리 조언.' });
+    if (isYearEnd) ALL_TOPICS.push({ key:'yearend', guide:'연말정산 시즌. IRP/연금저축 추가납입 마감임박. 절세 액션 제시.' });
+    if (hasStocksComment) ALL_TOPICS.push({ key:'stocks', guide:'주식 보유(' + stocks.map(function(s){return s.name;}).join(',') + '). 포트폴리오 리스크와 비중 점검.' });
+    if (hasRealEstateComment) ALL_TOPICS.push({ key:'realestate', guide:'부동산 보유. 보유세와 실거래가 동향 언급.' });
+    ALL_TOPICS.push({ key:'saving', guide:'저축률 ' + saveRate + '%. 월 지출 구조 개선 방법.' });
+    ALL_TOPICS.push({ key:'portfolio', guide:'전체 자산 배분 비율 점검. 리밸런싱 필요 여부.' });
+    ALL_TOPICS.push({ key:'goal', guide:'목표 달성률 기반 월 필요 저축액 역산.' });
 
-  // ── 조언 주제 로테이션 (같은 말 반복 방지)
-  const ALL_TOPICS = [];
-  if (!hasISAComment) ALL_TOPICS.push({ key:'isa', guide:'ISA 계좌 미보유(연 200만원 비과세 미활용). 개설 방법과 혜택 설명.' });
-  if (!hasIRPComment) ALL_TOPICS.push({ key:'irp', guide:'IRP 미활용(연 700만원 세액공제 가능). 납입 전략 설명.' });
-  if (debtRatioComment > 40) ALL_TOPICS.push({ key:'debt', guide:'부채비율 ' + debtRatioComment + '%(위험수준). 상환 전략 조언.' });
-  if (isYearEnd) ALL_TOPICS.push({ key:'yearend', guide:'연말정산 시즌. IRP/연금저축 추가납입 마감임박. 절세 액션 제시.' });
-  if (hasStocksComment) ALL_TOPICS.push({ key:'stocks', guide:'주식 보유(' + stocks.map(function(s){return s.name;}).join(',') + '). 포트폴리오 리스크/비중 점검.' });
-  if (hasRealEstateComment) ALL_TOPICS.push({ key:'realestate', guide:'부동산 보유. 보유세/공시가격/실거래가 동향 언급.' });
-  if (hasStocksComment || hasRealEstateComment) ALL_TOPICS.push({ key:'tax', guide:'양도세/종부세/금융투자소득세 절세 전략.' });
-  ALL_TOPICS.push({ key:'saving', guide:'저축률 ' + saveRate + '%. 월 지출 구조 개선 방법.' });
-  ALL_TOPICS.push({ key:'portfolio', guide:'전체 자산 배분 비율 점검. 리밸런싱 필요 여부.' });
-  ALL_TOPICS.push({ key:'goal', guide:'목표 달성률 기반 월 필요 저축액 역산.' });
+    // 주제 로테이션
+    const usedTopicsKey = 'ai-comment-used-topics';
+    const todayDateStr2 = todayDate.getFullYear() + '-' + (todayDate.getMonth()+1) + '-' + todayDate.getDate();
+    let usedTopics = load(usedTopicsKey, { date: '', topics: [] });
+    if (usedTopics.date !== todayDateStr2) {
+      usedTopics = { date: todayDateStr2, topics: [] };
+    }
+    let availableTopics = ALL_TOPICS.filter(function(t) {
+      return !usedTopics.topics.includes(t.key);
+    });
+    if (!availableTopics.length) {
+      usedTopics.topics = [];
+      availableTopics = ALL_TOPICS;
+    }
+    const selectedTopic = availableTopics[Math.floor(Math.random() * availableTopics.length)];
+    usedTopics.topics.push(selectedTopic.key);
+    store(usedTopicsKey, usedTopics);
 
-  // 오늘 이미 한 주제들 불러오기
-  const usedTopicsKey = 'ai-comment-used-topics';
-  const todayDateStr2 = todayDate.getFullYear() + '-' + (todayDate.getMonth()+1) + '-' + todayDate.getDate();
-  let usedTopics = load(usedTopicsKey, { date: '', topics: [] });
+    prompt = 'PB 상담 데이터:\n'
+      + '순자산 ' + netVal + (changeVal ? ' (전월대비 ' + changeVal + ')' : '') + '\n'
+      + '이달 지출 ' + Math.round(monthExpense).toLocaleString() + '만원 / 저축률 ' + saveRate + '%\n'
+      + '오늘 집중 포인트: ' + selectedTopic.guide + '\n\n'
+      + '위 포인트 하나에만 집중해서 PB 조언 2줄로. 구체적 수치와 지금 당장 할 수 있는 액션 포함.';
 
-  // 날짜 바뀌면 초기화
-  if (usedTopics.date !== todayDateStr2) {
-    usedTopics = { date: todayDateStr2, topics: [] };
-  }
-
-  // 아직 안 한 주제 필터링
-  let availableTopics = ALL_TOPICS.filter(function(t) {
-    return !usedTopics.topics.includes(t.key);
-  });
-
-  // 모두 다 했으면 초기화 후 다시
-  if (!availableTopics.length) {
-    usedTopics.topics = [];
-    availableTopics = ALL_TOPICS;
-  }
-
-  // 랜덤으로 하나 선택
-  const selectedTopic = availableTopics[Math.floor(Math.random() * availableTopics.length)];
-
-  // 사용한 주제 저장
-  usedTopics.topics.push(selectedTopic.key);
-  store(usedTopicsKey, usedTopics);
-
-  prompt = 'PB 상담 데이터:\n'
-    + '순자산 ' + netVal + (changeVal ? ' (전월대비 ' + changeVal + ')' : '') + '\n'
-    + '이달 지출 ' + Math.round(monthExpense).toLocaleString() + '만원\n'
-    + '오늘 집중 포인트: ' + selectedTopic.guide + '\n\n'
-    + '위 포인트 하나에만 집중해서 PB 조언 2줄로. 구체적 수치와 지금 당장 할 수 있는 액션 포함.';
-
-  systemPrompt = '10년 경력 시중은행 PB 출신 AI. 매번 다른 관점으로 조언하는 스타일. '
-    + '단순 나열 금지. 하나의 주제를 깊게. 명사형 어미(~필요. ~권장. ~검토.). '
-    + '마크다운 금지. 이모지 1개만 맨 앞. 친근하지만 전문적으로.';
-  tools = undefined;
+    systemPrompt = '10년 경력 시중은행 PB 출신 AI. 매번 다른 관점으로 조언하는 스타일. '
+      + '단순 나열 금지. 하나의 주제를 깊게. 명사형 어미(~필요. ~권장. ~검토.). '
+      + '마크다운 금지. 이모지 1개만 맨 앞. 친근하지만 전문적으로.';
+    tools = undefined;
   }
 
   try {
-    const claudeKey2 = load('claude-api-key', '');
+    const savedApiKey = load('claude-api-key', '');
     const aiHeaders = {
       'Content-Type': 'application/json',
       'anthropic-version': '2023-06-01',
       'anthropic-dangerous-direct-browser-access': 'true'
     };
-    if (claudeKey2) aiHeaders['x-api-key'] = claudeKey2;
+    if (savedApiKey) aiHeaders['x-api-key'] = savedApiKey;
 
     const body = {
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 150,
+      max_tokens: 300,
       system: systemPrompt,
       messages: [{ role: 'user', content: prompt }]
     };
     if (tools) body.tools = tools;
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST', headers: aiHeaders, body: JSON.stringify(body)
+      method: 'POST',
+      headers: aiHeaders,
+      body: JSON.stringify(body)
     });
+
     const data = await res.json();
-    const text = (data.content || []).filter(c=>c.type==='text').map(c=>c.text).join('') || '오늘도 꾸준한 자산 관리 화이팅! 💪';
+
+    if (data.error) {
+      throw new Error(data.error.message || '알 수 없는 오류');
+    }
+
+    const text = (data.content || [])
+      .filter(function(c) { return c.type === 'text'; })
+      .map(function(c) { return c.text || ''; })
+      .join('')
+      .trim() || '오늘도 꾸준한 자산 관리 화이팅! 💪';
+
     store(cacheKey, { date: todayKey, text: text });
-    // 타이핑 효과로 표시
     await typewriterEffect(el, text, 18);
+
     setTimeout(function() {
       if (el.scrollHeight > el.clientHeight + 4) {
         const hint = document.getElementById('ai-comment-expand');
         if (hint) hint.style.display = 'block';
       }
     }, 100);
+
   } catch(e) {
+    console.error('AI 코멘트 오류:', e);
     await typewriterEffect(el, '오늘도 꾸준한 자산 관리 화이팅! 💪', 18);
   }
 }
-
 
 
 
