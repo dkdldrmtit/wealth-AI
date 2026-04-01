@@ -816,36 +816,30 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <h1 style="font-family:-apple-system,'SF Pro Display','Inter','Helvetica Neue',sans-serif;font-size:28px;font-weight:300;line-height:1.2;margin-bottom:4px;letter-spacing:2px;display:flex;align-items:baseline;gap:0">
           <span id="home-wealth-text" style="color:#888888;font-weight:200;letter-spacing:2px">Wealth</span><span id="home-ai-text" style="color:#e8f4ff;font-weight:600;letter-spacing:1px;filter:drop-shadow(0 0 8px rgba(232,244,255,1)) drop-shadow(0 0 20px rgba(232,244,255,0.5))">AI</span>
         </h1>
-        <!-- 뱃지 -->
-        <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
-          <div style="
-            display:inline-flex;align-items:center;gap:4px;
-            background:rgba(232,244,255,0.06);
-            border:0.5px solid rgba(232,244,255,0.15);
-            border-radius:20px;
-            padding:2px 8px;
-          ">
-            <div style="width:4px;height:4px;border-radius:50%;background:#e8f4ff;opacity:0.5"></div>
-            <span style="font-size:8px;color:rgba(232,244,255,0.4);letter-spacing:1.5px;font-weight:500">DESIGNED BY A BANKER</span>
-          </div>
-        </div>
-        <div class="sub" id="home-date-sub" style="font-size:12px;color:var(--muted2);margin-top:3px"></div>
-     <div style="display:flex;flex-direction:row;gap:6px;margin-top:0px">
-        <button onclick="goPage('settings',{classList:{add:()=>{},remove:()=>{}}})"
-          style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:12px;color:var(--muted2);font-size:16px;width:40px;height:40px;cursor:pointer;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        <div class="sub" id="home-date-sub" style="font-size:12px;color:var(--muted2);margin-top:2px"></div>
+      </div>
+
+      <!-- 우측 상단 버튼 그룹 -->
+      <div style="display:flex;flex-direction:row;align-items:center;gap:4px;margin-top:2px">
+        <button onclick="syncLoad()"
+          style="background:none;border:none;color:var(--muted);width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s"
+          ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
         </button>
         <button onclick="goPage('goals',{classList:{add:()=>{},remove:()=>{}}})"
-          style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:12px;color:var(--muted2);font-size:16px;width:40px;height:40px;cursor:pointer;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-        </button>
-        <button onclick="syncLoad()"
-          style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:12px;color:var(--muted2);font-size:16px;width:40px;height:40px;cursor:pointer;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          style="background:none;border:none;color:var(--muted);width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s"
+          ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
         </button>
         <button id="theme-toggle-btn" onclick="toggleTheme()"
-          style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:12px;color:var(--muted2);font-size:16px;width:40px;height:40px;cursor:pointer;">
+          style="background:none;border:none;color:var(--muted);width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:15px;transition:color .2s"
+          ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
           🌙
+        </button>
+        <button onclick="goPage('settings',{classList:{add:()=>{},remove:()=>{}}})"
+          style="background:none;border:none;color:var(--muted);width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s"
+          ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
         </button>
       </div>
     </div>
