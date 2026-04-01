@@ -703,6 +703,21 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
 .ac-item:active, .ac-item:hover { background: var(--surface2); }
 .ac-highlight { color: var(--blue); font-weight: 700; }
 
+/* ══ 드래그앤드롭 ══ */
+.stock-drag-item {
+  transition: opacity .2s, transform .2s;
+  cursor: grab;
+}
+.stock-drag-item:active { cursor: grabbing; }
+.stock-drag-item.dragging {
+  opacity: 0.4;
+  transform: scale(0.98);
+}
+.stock-drag-item.drag-over {
+  border-color: rgba(232,244,255,0.4) !important;
+  background: rgba(232,244,255,0.05) !important;
+}
+
 /* ══ 스플래시 스크린 ══ */
 @keyframes splashDot {
   0%,60%,100% { transform:translateY(0); opacity:.3; }
@@ -6941,7 +6956,7 @@ function renderStockList() {
   const domestic = filtered.filter(function(s) { return s.market === 'KR'; });
   const foreign  = filtered.filter(function(s) { return s.market === 'US'; });
 
-  function renderSection(list, title) {
+  function renderSection(list, title, market) {
     if (!list.length) return '';
     const rows = list.map(function(s) {
       const cp = s.currentPrice || 0;
@@ -6968,11 +6983,12 @@ function renderStockList() {
       const ownerBadge = (currentStkOwner === 'all' && s.owner)
         ? '<span style="font-size:9px;background:' + (s.owner==='minsuk'?'rgba(96,165,250,.15)':'rgba(52,211,153,.15)') + ';color:' + (s.owner==='minsuk'?'var(--minsuk)':'var(--siyun)') + ';padding:1px 5px;border-radius:5px;font-weight:700;margin-left:5px">' + (s.owner==='minsuk'?'민석':'시윤') + '</span>' : '';
 
-      return '<div style="display:flex;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);gap:12px">'
-        // 순서 변경 버튼
-        + '<div style="display:flex;flex-direction:column;gap:1px;flex-shrink:0">'
-        + '<button onclick="moveStock(\'' + s.id + '\',\'' + s.market + '\',-1)" style="background:none;border:none;color:var(--muted2);font-size:11px;width:16px;height:16px;cursor:pointer;line-height:1;padding:0">▲</button>'
-        + '<button onclick="moveStock(\'' + s.id + '\',\'' + s.market + '\',1)" style="background:none;border:none;color:var(--muted2);font-size:11px;width:16px;height:16px;cursor:pointer;line-height:1;padding:0">▼</button>'
+      return '<div class="stock-drag-item" data-id="' + s.id + '" data-market="' + s.market + '" draggable="true" style="display:flex;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);gap:12px">'
+        // 드래그 핸들
+        + '<div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;cursor:grab;padding:4px 2px;opacity:0.4">'
+        + '<div style="width:14px;height:2px;border-radius:1px;background:var(--muted)"></div>'
+        + '<div style="width:14px;height:2px;border-radius:1px;background:var(--muted)"></div>'
+        + '<div style="width:14px;height:2px;border-radius:1px;background:var(--muted)"></div>'
         + '</div>'
         // 왼쪽: 종목명 + 현재가
         + '<div onclick="openTradeModal(\'' + s.id + '\')" style="flex:1;min-width:0;cursor:pointer">'
@@ -7001,12 +7017,14 @@ function renderStockList() {
       + '<span>' + title + '</span>'
       + '<span style="font-size:10px">' + list.length + '종목</span>'
       + '</div>'
-      + '<div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:0 14px">'
+      + '<div id="stock-section-' + market + '" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:0 14px">'
       + rows
       + '</div></div>';
   }
 
-  wrap.innerHTML = renderSection(domestic, '국내주식') + renderSection(foreign, '해외주식');
+  wrap.innerHTML = renderSection(domestic, '국내주식', 'KR') + renderSection(foreign, '해외주식', 'US');
+  initStockDragDrop();
+
   updateStockSummary();
 }
 
@@ -7029,7 +7047,128 @@ function moveStock(id, market, dir) {
   renderStockList();
 }
 
+// ── 드래그앤드롭 초기화
+function initStockDragDrop() {
+  let dragSrc = null;
+
+  document.querySelectorAll('.stock-drag-item').forEach(function(item) {
+    item.addEventListener('dragstart', function(e) {
+      dragSrc = this;
+      this.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', this.dataset.id);
+    });
+
+    item.addEventListener('dragend', function() {
+      this.classList.remove('dragging');
+      document.querySelectorAll('.stock-drag-item').forEach(function(el) {
+        el.classList.remove('drag-over');
+      });
+      dragSrc = null;
+    });
+
+    item.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (dragSrc && dragSrc !== this) {
+        // 같은 마켓끼리만 허용
+        if (dragSrc.dataset.market === this.dataset.market) {
+          document.querySelectorAll('.stock-drag-item').forEach(function(el) {
+            el.classList.remove('drag-over');
+          });
+          this.classList.add('drag-over');
+        }
+      }
+    });
+
+    item.addEventListener('drop', function(e) {
+      e.preventDefault();
+      if (!dragSrc || dragSrc === this) return;
+      if (dragSrc.dataset.market !== this.dataset.market) {
+        showToast('❗ 같은 시장 종목끼리만 순서를 바꿀 수 있어요');
+        return;
+      }
+      const srcId = dragSrc.dataset.id;
+      const dstId = this.dataset.id;
+      const srcIdx = stocks.findIndex(function(s) { return s.id === srcId; });
+      const dstIdx = stocks.findIndex(function(s) { return s.id === dstId; });
+      if (srcIdx < 0 || dstIdx < 0) return;
+      // 순서 변경
+      const tmp = stocks[srcIdx];
+      stocks[srcIdx] = stocks[dstIdx];
+      stocks[dstIdx] = tmp;
+      store('stocks', stocks);
+      renderStockList();
+      haptic('light');
+    });
+
+    // 터치 지원 (iOS)
+    let touchStartY = 0;
+    let touchItem = null;
+    let touchClone = null;
+
+    item.addEventListener('touchstart', function(e) {
+      touchItem = this;
+      touchStartY = e.touches[0].clientY;
+      // 클론 생성
+      touchClone = this.cloneNode(true);
+      touchClone.style.cssText = 'position:fixed;left:16px;right:16px;z-index:9999;opacity:0.85;pointer-events:none;background:var(--surface2);border-radius:12px;padding:0 14px;box-shadow:0 8px 32px rgba(0,0,0,0.4)';
+      touchClone.style.top = this.getBoundingClientRect().top + 'px';
+      document.body.appendChild(touchClone);
+      this.style.opacity = '0.3';
+    }, { passive: true });
+
+    item.addEventListener('touchmove', function(e) {
+      if (!touchClone) return;
+      const touch = e.touches[0];
+      touchClone.style.top = (touch.clientY - 30) + 'px';
+      // 아래에 있는 요소 찾기
+      touchClone.style.display = 'none';
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      touchClone.style.display = '';
+      const target = el ? el.closest('.stock-drag-item') : null;
+      document.querySelectorAll('.stock-drag-item').forEach(function(el) {
+        el.classList.remove('drag-over');
+      });
+      if (target && target !== touchItem && target.dataset.market === touchItem.dataset.market) {
+        target.classList.add('drag-over');
+      }
+    }, { passive: true });
+
+    item.addEventListener('touchend', function(e) {
+      if (!touchClone || !touchItem) return;
+      // 클론 제거
+      document.body.removeChild(touchClone);
+      touchClone = null;
+      touchItem.style.opacity = '';
+      document.querySelectorAll('.stock-drag-item').forEach(function(el) {
+        el.classList.remove('drag-over');
+      });
+      // 드롭 위치 찾기
+      const touch = e.changedTouches[0];
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      const target = el ? el.closest('.stock-drag-item') : null;
+      if (target && target !== touchItem && target.dataset.market === touchItem.dataset.market) {
+        const srcId = touchItem.dataset.id;
+        const dstId = target.dataset.id;
+        const srcIdx = stocks.findIndex(function(s) { return s.id === srcId; });
+        const dstIdx = stocks.findIndex(function(s) { return s.id === dstId; });
+        if (srcIdx >= 0 && dstIdx >= 0) {
+          const tmp = stocks[srcIdx];
+          stocks[srcIdx] = stocks[dstIdx];
+          stocks[dstIdx] = tmp;
+          store('stocks', stocks);
+          renderStockList();
+          haptic('light');
+        }
+      }
+      touchItem = null;
+    }, { passive: true });
+  });
+}
+
 // ── 요약 업데이트
+function updateStockSummary() {
 function updateStockSummary() {
   const usdKrw = load('usd-krw-rate', 0);
   let totalEval = 0, totalBuy = 0, hasPrice = false;
