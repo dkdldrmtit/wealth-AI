@@ -737,12 +737,10 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 ">
   <!-- 로고 -->
   <div id="splash-logo" style="
-    opacity:0;transform:translateY(20px);
-    transition:opacity .6s eas  <!-- 로고 -->
-  <div id="splash-logo" style="
     opacity:0;transform:translateY(16px);
     transition:opacity .7s ease, transform .7s ease;
     text-align:center;
+  ">
   ">
     <!-- M&S 상단 라인 -->
     <div style="
@@ -6247,7 +6245,7 @@ function typewriterEffect(el, text, speed=18) {
   });
 }
 
-Copyasync function loadAiComment(force=false, useWebSearch=false) {
+async function loadAiComment(force=false, useWebSearch=false) {
   const el = document.getElementById('ai-comment-text');
   if (!el) return;
 
