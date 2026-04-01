@@ -4157,6 +4157,8 @@ function initHome() {
   updateHomeWidget();
   loadAiComment(false, false); // 자동 호출은 무료 자산분석 모드
   renderHomeApt();
+  renderCoupleCard();
+  renderHomeStocksSummary();
   // 단지명 UI 반영
   const aptS = load('apt-settings', null);
   if (aptS?.name) applyAptNameToUI(aptS.name);
@@ -4699,6 +4701,296 @@ function renderHomeLedgerSummary() {
 
   wrap.innerHTML = html;
   updateHomeWidget();
+  renderCoupleCard();
+}
+
+// ── 부부 재무 대결 카드 ──
+function renderCoupleCard() {
+  const now = new Date();
+  const thisMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+
+  // 민석/시윤 이번달 지출/수입
+  const msTxs = ledgerTxs.filter(function(t) { return t.date.startsWith(thisMonth) && t.owner === 'minsuk'; });
+  const syTxs = ledgerTxs.filter(function(t) { return t.date.startsWith(thisMonth) && t.owner === 'siyun'; });
+
+  const msExp = msTxs.filter(function(t) { return t.type === 'expense'; }).reduce(function(s,t) { return s+t.amount; }, 0);
+  const msInc = msTxs.filter(function(t) { return t.type === 'income'; }).reduce(function(s,t) { return s+t.amount; }, 0);
+  const syExp = syTxs.filter(function(t) { return t.type === 'expense'; }).reduce(function(s,t) { return s+t.amount; }, 0);
+  const syInc = syTxs.filter(function(t) { return t.type === 'income'; }).reduce(function(s,t) { return s+t.amount; }, 0);
+
+  const msSaveRate = msInc > 0 ? Math.round((msInc - msExp) / msInc * 100) : null;
+  const sySaveRate = syInc > 0 ? Math.round((syInc - syExp) / syInc * 100) : null;
+
+  // 주식 수익률
+  const usdKrw = load('usd-krw-rate', 0);
+  function calcStockPct(owner) {
+    const ownerStocks = stocks.filter(function(s) { return s.owner === owner && s.currentPrice > 0; });
+    if (!ownerStocks.length) return null;
+    const totalEval = ownerStocks.reduce(function(s, st) {
+      const rate = st.market === 'US' && usdKrw ? usdKrw : 1;
+      return s + st.currentPrice * st.qty * rate;
+    }, 0);
+    const totalBuy = ownerStocks.reduce(function(s, st) {
+      const rate = st.market === 'US' && usdKrw ? usdKrw : 1;
+      return s + st.avgPrice * st.qty * rate;
+    }, 0);
+    return totalBuy > 0 ? ((totalEval - totalBuy) / totalBuy * 100) : null;
+  }
+  const msStockPct = calcStockPct('minsuk');
+  const syStockPct = calcStockPct('siyun');
+
+  // 점수 계산 (저축률 60점 + 주식수익률 40점)
+  let msScore = 0, syScore = 0;
+
+  if (msSaveRate !== null && sySaveRate !== null) {
+    if (msSaveRate > sySaveRate) msScore += 2;
+    else if (sySaveRate > msSaveRate) syScore += 2;
+    else { msScore += 1; syScore += 1; }
+  }
+  if (msStockPct !== null && syStockPct !== null) {
+    if (msStockPct > syStockPct) msScore += 2;
+    else if (syStockPct > msStockPct) syScore += 2;
+    else { msScore += 1; syScore += 1; }
+  }
+
+  // 저축률 바 (최대 50% 기준)
+  const maxSave = Math.max(msSaveRate || 0, sySaveRate || 0, 50);
+  const msSaveBar = msSaveRate !== null ? Math.min(100, (msSaveRate / maxSave) * 100) : 0;
+  const sySaveBar = sySaveRate !== null ? Math.min(100, (sySaveRate / maxSave) * 100) : 0;
+
+  // UI 업데이트
+  const elId = function(id) { return document.getElementById(id); };
+
+  // 저축률
+  if (elId('couple-ms-save')) {
+    elId('couple-ms-save').textContent = msSaveRate !== null ? msSaveRate + '%' : '-';
+    elId('couple-ms-save').style.color = msSaveRate !== null ? (msSaveRate >= 30 ? 'var(--green)' : msSaveRate >= 10 ? 'var(--gold)' : 'var(--red)') : 'var(--muted)';
+  }
+  if (elId('couple-sy-save')) {
+    elId('couple-sy-save').textContent = sySaveRate !== null ? sySaveRate + '%' : '-';
+    elId('couple-sy-save').style.color = sySaveRate !== null ? (sySaveRate >= 30 ? 'var(--green)' : sySaveRate >= 10 ? 'var(--gold)' : 'var(--red)') : 'var(--muted)';
+  }
+
+  // 바
+  if (elId('couple-ms-bar')) elId('couple-ms-bar').style.width = msSaveBar + '%';
+  if (elId('couple-sy-bar')) elId('couple-sy-bar').style.width = sySaveBar + '%';
+
+  // 지출
+  if (elId('couple-ms-exp')) elId('couple-ms-exp').textContent = msExp > 0 ? Math.round(msExp).toLocaleString() + '만' : '-';
+  if (elId('couple-sy-exp')) elId('couple-sy-exp').textContent = syExp > 0 ? Math.round(syExp).toLocaleString() + '만' : '-';
+
+  // 주식
+  if (elId('couple-ms-stock')) {
+    if (msStockPct !== null) {
+      elId('couple-ms-stock').textContent = (msStockPct >= 0 ? '+' : '') + msStockPct.toFixed(1) + '%';
+      elId('couple-ms-stock').style.color = msStockPct >= 0 ? 'var(--red)' : 'var(--blue)';
+    } else {
+      elId('couple-ms-stock').textContent = '-';
+      elId('couple-ms-stock').style.color = 'var(--muted)';
+    }
+  }
+  if (elId('couple-sy-stock')) {
+    if (syStockPct !== null) {
+      elId('couple-sy-stock').textContent = (syStockPct >= 0 ? '+' : '') + syStockPct.toFixed(1) + '%';
+      elId('couple-sy-stock').style.color = syStockPct >= 0 ? 'var(--red)' : 'var(--blue)';
+    } else {
+      elId('couple-sy-stock').textContent = '-';
+      elId('couple-sy-stock').style.color = 'var(--muted)';
+    }
+  }
+
+  // 트로피 & 승자 배지
+  const msTrophy = elId('couple-ms-trophy');
+  const syTrophy = elId('couple-sy-trophy');
+  const winnerBadge = elId('couple-winner-badge');
+  const msSide = elId('couple-ms-side');
+  const sySide = elId('couple-sy-side');
+
+  if (msTrophy) msTrophy.style.display = 'none';
+  if (syTrophy) syTrophy.style.display = 'none';
+  if (msSide) msSide.style.background = 'transparent';
+  if (sySide) sySide.style.background = 'transparent';
+
+  if (msScore > syScore) {
+    if (msTrophy) msTrophy.style.display = 'block';
+    if (msSide) msSide.style.background = 'rgba(37,99,235,0.06)';
+    if (winnerBadge) {
+      winnerBadge.textContent = '👨 민석 리드 중!';
+      winnerBadge.style.color = 'var(--minsuk)';
+    }
+  } else if (syScore > msScore) {
+    if (syTrophy) syTrophy.style.display = 'block';
+    if (sySide) sySide.style.background = 'rgba(5,150,105,0.06)';
+    if (winnerBadge) {
+      winnerBadge.textContent = '👩 시윤 리드 중!';
+      winnerBadge.style.color = 'var(--siyun)';
+    }
+  } else {
+    if (winnerBadge) {
+      winnerBadge.textContent = '🤝 동점!';
+      winnerBadge.style.color = 'var(--muted)';
+    }
+  }
+
+  // 점수 표시
+  const scoreEl = elId('couple-score');
+  if (scoreEl && (msScore > 0 || syScore > 0)) {
+    scoreEl.innerHTML = msScore + '<br>:<br>' + syScore;
+  }
+
+  // 하단 총평
+  const commentEl = elId('couple-comment');
+  if (commentEl) {
+    const comments = [];
+    if (msSaveRate !== null && sySaveRate !== null) {
+      if (msSaveRate > sySaveRate) {
+        comments.push('민석이 저축률 ' + (msSaveRate - sySaveRate) + '%p 앞서요');
+      } else if (sySaveRate > msSaveRate) {
+        comments.push('시윤이 저축률 ' + (sySaveRate - msSaveRate) + '%p 앞서요');
+      }
+    }
+    if (msStockPct !== null && syStockPct !== null) {
+      if (msStockPct > syStockPct) {
+        comments.push('주식은 민석 +' + (msStockPct - syStockPct).toFixed(1) + '%p 우세');
+      } else if (syStockPct > msStockPct) {
+        comments.push('주식은 시윤 +' + (syStockPct - msStockPct).toFixed(1) + '%p 우세');
+      }
+    }
+    if (comments.length === 0) {
+      commentEl.textContent = '이번달 가계부를 기록하면 대결이 시작돼요 💪';
+    } else {
+      commentEl.textContent = comments.join(' · ');
+    }
+  }
+}
+
+// ── 홈 주식 요약 카드 ──
+function renderHomeStocksSummary() {
+  const usdKrw = load('usd-krw-rate', 0);
+  const totalEl = document.getElementById('home-stock-total');
+  const pnlEl = document.getElementById('home-stock-pnl');
+  const pctEl = document.getElementById('home-stock-pct');
+  const listEl = document.getElementById('home-stock-list');
+  const emptyEl = document.getElementById('home-stock-empty');
+  const updateEl = document.getElementById('home-stock-update');
+
+  if (!totalEl) return;
+
+  const activeStocks = stocks.filter(function(s) { return s.currentPrice > 0; });
+
+  if (!stocks.length) {
+    if (listEl) listEl.style.display = 'none';
+    if (emptyEl) emptyEl.style.display = 'block';
+    if (totalEl) totalEl.textContent = '-';
+    if (pnlEl) pnlEl.textContent = '';
+    if (pctEl) pctEl.textContent = '주식 탭에서 종목을 추가해보세요';
+    return;
+  }
+
+  if (emptyEl) emptyEl.style.display = 'none';
+  if (listEl) listEl.style.display = 'flex';
+
+  // 전체 합산
+  let totalEval = 0, totalBuy = 0;
+  stocks.forEach(function(s) {
+    if (!s.currentPrice) return;
+    const rate = s.market === 'US' && usdKrw ? usdKrw : s.market === 'KR' ? 1 : 0;
+    if (!rate) return;
+    totalEval += s.currentPrice * s.qty * rate;
+    totalBuy += s.avgPrice * s.qty * rate;
+  });
+
+  const totalPnl = totalEval - totalBuy;
+  const totalPct = totalBuy > 0 ? (totalPnl / totalBuy * 100) : 0;
+  const isUp = totalPnl >= 0;
+
+  if (totalEl) totalEl.textContent = Math.round(totalEval).toLocaleString() + '원';
+  if (pnlEl) {
+    pnlEl.textContent = (isUp ? '+' : '') + Math.round(totalPnl).toLocaleString() + '원';
+    pnlEl.style.color = isUp ? 'var(--red)' : 'var(--blue)';
+  }
+  if (pctEl) {
+    pctEl.textContent = (isUp ? '+' : '') + totalPct.toFixed(2) + '%' + (activeStocks.length < stocks.length ? ' · 일부 시세 미갱신' : '');
+    pctEl.style.color = isUp ? 'var(--red)' : 'var(--blue)';
+  }
+
+  // 민석/시윤 분리
+  function calcOwner(owner) {
+    let eval_ = 0, buy_ = 0, hasPrice = false;
+    stocks.filter(function(s) { return s.owner === owner; }).forEach(function(s) {
+      const rate = s.market === 'US' && usdKrw ? usdKrw : s.market === 'KR' ? 1 : 0;
+      if (!rate || !s.currentPrice) return;
+      eval_ += s.currentPrice * s.qty * rate;
+      buy_ += s.avgPrice * s.qty * rate;
+      hasPrice = true;
+    });
+    return { eval: eval_, buy: buy_, pnl: eval_ - buy_, pct: buy_ > 0 ? (eval_ - buy_) / buy_ * 100 : 0, hasPrice };
+  }
+
+  const ms = calcOwner('minsuk');
+  const sy = calcOwner('siyun');
+
+  const msValEl = document.getElementById('home-stock-ms-val');
+  const msPnlEl = document.getElementById('home-stock-ms-pnl');
+  const syValEl = document.getElementById('home-stock-sy-val');
+  const syPnlEl = document.getElementById('home-stock-sy-pnl');
+
+  if (msValEl) msValEl.textContent = ms.hasPrice ? Math.round(ms.eval).toLocaleString() + '원' : '-';
+  if (msPnlEl && ms.hasPrice) {
+    msPnlEl.textContent = (ms.pnl >= 0 ? '+' : '') + ms.pct.toFixed(1) + '%';
+    msPnlEl.style.color = ms.pnl >= 0 ? 'var(--red)' : 'var(--blue)';
+  }
+  if (syValEl) syValEl.textContent = sy.hasPrice ? Math.round(sy.eval).toLocaleString() + '원' : '-';
+  if (syPnlEl && sy.hasPrice) {
+    syPnlEl.textContent = (sy.pnl >= 0 ? '+' : '') + sy.pct.toFixed(1) + '%';
+    syPnlEl.style.color = sy.pnl >= 0 ? 'var(--red)' : 'var(--blue)';
+  }
+
+  // 종목 미니 리스트 (수익률 순 상위 3개)
+  if (listEl) {
+    const sorted = [...activeStocks].sort(function(a, b) {
+      const pctA = (a.currentPrice - a.avgPrice) / a.avgPrice * 100;
+      const pctB = (b.currentPrice - b.avgPrice) / b.avgPrice * 100;
+      return Math.abs(pctB) - Math.abs(pctA);
+    }).slice(0, 3);
+
+    listEl.innerHTML = sorted.map(function(s) {
+      const rate = s.market === 'US' && usdKrw ? usdKrw : 1;
+      const eval_ = s.currentPrice * s.qty * rate;
+      const pnl = (s.currentPrice - s.avgPrice) * s.qty * rate;
+      const pct = (s.currentPrice - s.avgPrice) / s.avgPrice * 100;
+      const isUp2 = pct >= 0;
+      const ownerBadge = '<span style="font-size:9px;color:' + (s.owner === 'minsuk' ? 'var(--minsuk)' : 'var(--siyun)') + ';margin-left:3px">' + (s.owner === 'minsuk' ? '민석' : '시윤') + '</span>';
+      return '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface2);border-radius:10px">'
+        + '<div style="flex:1;min-width:0">'
+        + '<div style="font-size:12px;font-weight:700;display:flex;align-items:center">' + s.name + ownerBadge + '</div>'
+        + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + s.qty + '주</div>'
+        + '</div>'
+        + '<div style="text-align:right">'
+        + '<div style="font-size:13px;font-weight:800;color:' + (isUp2 ? 'var(--red)' : 'var(--blue)') + '">' + (isUp2 ? '+' : '') + pct.toFixed(1) + '%</div>'
+        + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + Math.round(eval_).toLocaleString() + '원</div>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  // 업데이트 시간
+  if (updateEl && activeStocks.length > 0) {
+    const timeEl = document.getElementById('stock-update-time');
+    if (timeEl && timeEl.textContent) {
+      updateEl.textContent = timeEl.textContent;
+    }
+  }
+}
+
+// ── 홈 주식 새로고침 ──
+async function homeRefreshStocks() {
+  const btn = document.getElementById('home-stock-refresh');
+  if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
+  await fetchAllPrices();
+  renderHomeStocksSummary();
+  renderCoupleCard();
+  if (btn) { btn.textContent = '🔄'; btn.disabled = false; }
 }
 
 function updateHomeWidget() {
