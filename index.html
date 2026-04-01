@@ -6252,6 +6252,17 @@ async function loadAiComment(force=false, useWebSearch=false) {
   if (!el) return;
 
   const todayDate = new Date();
+  const thisMonth2 = todayDate.getFullYear() + '-' + String(todayDate.getMonth()+1).padStart(2,'0');
+  const monthExpense = ledgerTxs
+    .filter(function(t) { return t.date.startsWith(thisMonth2) && t.type === 'expense'; })
+    .reduce(function(s,t) { return s + t.amount; }, 0);
+  const saveRate = (function() {
+    const inc = ledgerTxs.filter(function(t) { return t.date.startsWith(thisMonth2) && t.type === 'income'; }).reduce(function(s,t){return s+t.amount;},0);
+    const exp = monthExpense;
+    return inc > 0 ? Math.round((inc-exp)/inc*100) : 0;
+  })();
+
+  const todayDate = new Date();
   const hour = Math.floor(todayDate.getHours() / 6);
   const todayKey = useWebSearch
   ? todayDate.getFullYear() + '-' + (todayDate.getMonth()+1) + '-' + todayDate.getDate() + '-' + hour
