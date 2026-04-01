@@ -470,6 +470,11 @@ body[data-theme="light"] {
 .card:active {
   transform: scale(0.985);
 }
+/* input 포함된 카드는 흔들림 방지 */
+.card:has(input:focus):active,
+.card:has(textarea:focus):active {
+  transform: none !important;
+}
 /* 클릭 가능한 모든 요소 press 효과 통일 */
 .card[onclick]:active,
 .sum-box:active,
@@ -477,6 +482,16 @@ body[data-theme="light"] {
   transform: scale(0.97);
   opacity: 0.85;
   transition: transform .1s ease, opacity .1s ease;
+}
+/* input/textarea 클릭 시 부모 카드 흔들림 방지 */
+.card input:active,
+.card textarea:active,
+.card select:active,
+input:active,
+textarea:active,
+select:active {
+  transform: none !important;
+  opacity: 1 !important;
 }
 /* 클릭 가능한 카드 강조 */
 .card[onclick], .card > [onclick] {
