@@ -77,12 +77,6 @@
   }
 }
 * { margin:0; padding:0; box-sizing:border-box; }
-input, textarea, select {
-  touch-action: auto !important;
-  -webkit-user-select: text !important;
-  user-select: text !important;
-  -webkit-touch-callout: default !important;
-}
 body {
   background: var(--bg);
   color: var(--text);
@@ -741,7 +735,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     transition:opacity .7s ease, transform .7s ease;
     text-align:center;
   ">
-  ">
     <!-- M&S 상단 라인 -->
     <div style="
       font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
@@ -1209,21 +1202,59 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div id="goals-list"></div>
   </div>
   <div class="card">
-    <div class="card-title">+ 목표 추가</div>
-    <div class="goal-edit">
-      <div class="ge-row">
-        <div class="ge-group"><label>목표 이름</label><input type="text" id="g-name" placeholder="예: 순자산 10억"></div>
-        <div class="ge-group"><label>목표 금액 (만원)</label><input type="number" id="g-target" placeholder="100000"></div>
+  <div class="card" style="border-color:rgba(232,244,255,0.15)">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+      <div style="width:36px;height:36px;border-radius:10px;background:rgba(232,244,255,0.08);display:flex;align-items:center;justify-content:center;font-size:18px">🎯</div>
+      <div>
+        <div style="font-size:14px;font-weight:800;color:var(--text)">새 목표 추가</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:1px">재무 목표를 설정하고 달성률을 추적해요</div>
       </div>
-      <div class="ge-row">
-        <div class="ge-group" style="grid-column:1/-1"><label>목표 년월</label><input type="month" id="g-deadline" value="2030-12" style="width:100%"></div>
-      </div>
-      <div style="font-size:11px;color:var(--teal);margin-bottom:10px;padding:8px 10px;background:rgba(255,255,255,.08);border-radius:8px">
-        💡 현재 금액은 기록 탭 최신 데이터에서 <strong>자동 연동</strong>돼요.<br>
-        이름에 "순자산", "금융자산", "총자산" 등을 포함하면 자동 매핑해요.
-      </div>
-      <button class="btn-primary" onclick="addGoal()">목표 저장</button>
     </div>
+
+    <!-- 목표 이름 -->
+    <div style="margin-bottom:12px">
+      <label style="font-size:11px;color:var(--muted);font-weight:700;display:block;margin-bottom:6px;letter-spacing:0.5px">목표 이름</label>
+      <input type="text" id="g-name" placeholder="예: 순자산 10억 달성"
+        style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:13px 14px;outline:none;transition:border-color .2s"
+        onfocus="this.style.borderColor='rgba(232,244,255,0.4)'"
+        onblur="this.style.borderColor='var(--border)'">
+    </div>
+
+    <!-- 목표 금액 + 년월 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div>
+        <label style="font-size:11px;color:var(--muted);font-weight:700;display:block;margin-bottom:6px;letter-spacing:0.5px">목표 금액</label>
+        <div style="position:relative">
+          <input type="number" id="g-target" placeholder="100000"
+            style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:13px 40px 13px 14px;outline:none;transition:border-color .2s"
+            onfocus="this.style.borderColor='rgba(232,244,255,0.4)'"
+            onblur="this.style.borderColor='var(--border)'">
+          <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted)">만원</span>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--muted);font-weight:700;display:block;margin-bottom:6px;letter-spacing:0.5px">목표 년월</label>
+        <input type="month" id="g-deadline" value="2030-12"
+          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:13px 14px;outline:none;transition:border-color .2s"
+          onfocus="this.style.borderColor='rgba(232,244,255,0.4)'"
+          onblur="this.style.borderColor='var(--border)'">
+      </div>
+    </div>
+
+    <!-- 안내 메시지 -->
+    <div style="background:rgba(232,244,255,0.05);border:1px solid rgba(232,244,255,0.12);border-radius:12px;padding:12px 14px;margin-bottom:16px">
+      <div style="display:flex;align-items:flex-start;gap:8px">
+        <span style="font-size:14px;flex-shrink:0">💡</span>
+        <div style="font-size:11px;color:var(--muted2);line-height:1.7">
+          현재 금액은 자산 탭 최신 데이터에서 <strong style="color:var(--text)">자동 연동</strong>돼요.<br>
+          이름에 <strong style="color:var(--text)">"순자산"</strong>, <strong style="color:var(--text)">"금융자산"</strong>, <strong style="color:var(--text)">"총자산"</strong> 포함 시 자동 매핑해요.
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="addGoal()" style="height:50px;font-size:15px">
+      🎯 목표 저장
+    </button>
   </div>
 </div>
 
@@ -1381,21 +1412,44 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
 
       <!-- 항목 추가 버튼 (상단) -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:10px;">
-        <button onclick="addAssetItem('부동산','🏢','asset')"
-          style="padding:7px 2px;background:rgba(96,165,250,.08);border:0.5px dashed rgba(96,165,250,.35);border-radius:8px;color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer">+🏢부동산</button>
-        <button onclick="addAssetItem('기타자산','📦','asset')"
-          style="padding:7px 2px;background:var(--surface2);border:0.5px dashed var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer">+📦기타자산</button>
-        <button onclick="addAssetItem('부채','🔴','debt')"
-          style="padding:7px 2px;background:rgba(248,113,113,.08);border:0.5px dashed rgba(248,113,113,.35);border-radius:8px;color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer">+🔴부채</button>
-        <button onclick="addAssetItem('민석 금융자산','👨','asset')"
-          style="padding:7px 2px;background:rgba(96,165,250,.08);border:0.5px dashed rgba(96,165,250,.35);border-radius:8px;color:var(--minsuk);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer">+👨민석금융</button>
-        <button onclick="addAssetItem('시윤 금융자산','👩','asset')"
-          style="padding:7px 2px;background:rgba(52,211,153,.08);border:0.5px dashed rgba(52,211,153,.35);border-radius:8px;color:var(--siyun);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer">+👩시윤금융</button>
-        <button onclick="sortAssetItems()"
-          style="padding:7px 2px;background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer">↕ 정렬</button>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+        <!-- 자산 버튼들 -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+          <button onclick="addAssetItem('부동산','🏢','asset')"
+            style="padding:12px 4px;background:rgba(96,165,250,.08);border:1px dashed rgba(96,165,250,.35);border-radius:12px;color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">
+            <span style="font-size:20px">🏢</span>
+            <span>부동산</span>
+          </button>
+          <button onclick="addAssetItem('민석 금융자산','👨','asset')"
+            style="padding:12px 4px;background:rgba(96,165,250,.08);border:1px dashed rgba(96,165,250,.35);border-radius:12px;color:var(--minsuk);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">
+            <span style="font-size:20px">👨</span>
+            <span>민석 금융</span>
+          </button>
+          <button onclick="addAssetItem('시윤 금융자산','👩','asset')"
+            style="padding:12px 4px;background:rgba(52,211,153,.08);border:1px dashed rgba(52,211,153,.35);border-radius:12px;color:var(--siyun);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">
+            <span style="font-size:20px">👩</span>
+            <span>시윤 금융</span>
+          </button>
+        </div>
+        <!-- 기타/부채/정렬 버튼들 -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+          <button onclick="addAssetItem('기타자산','📦','asset')"
+            style="padding:10px 4px;background:var(--surface2);border:1px dashed var(--border2);border-radius:12px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">
+            <span style="font-size:18px">📦</span>
+            <span>기타자산</span>
+          </button>
+          <button onclick="addAssetItem('부채','🔴','debt')"
+            style="padding:10px 4px;background:rgba(248,113,113,.08);border:1px dashed rgba(248,113,113,.35);border-radius:12px;color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">
+            <span style="font-size:18px">🔴</span>
+            <span>부채</span>
+          </button>
+          <button onclick="sortAssetItems()"
+            style="padding:10px 4px;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">
+            <span style="font-size:18px">↕️</span>
+            <span>정렬</span>
+          </button>
+        </div>
       </div>
-
       <!-- 항목 리스트 -->
       <div id="asset-items-wrap" style="margin-bottom:12px;"></div>
 
@@ -6852,7 +6906,32 @@ function renderStockList() {
 
   if (!filtered.length) {
     const ownerLabel = currentStkOwner === 'minsuk' ? '민석' : currentStkOwner === 'siyun' ? '시윤' : '';
-    wrap.innerHTML = '<div style="text-align:center;padding:40px 0;color:var(--muted)"><div style="font-size:36px;margin-bottom:10px">📭</div><div style="font-size:14px;font-weight:600">' + (ownerLabel ? ownerLabel + ' 종목이 없어요' : '보유 종목이 없어요') + '</div><div style="font-size:12px;margin-top:4px">아래 버튼으로 추가해보세요</div></div>';
+    wrap.innerHTML = `
+      <div style="text-align:center;padding:40px 16px 20px">
+        <div style="font-size:52px;margin-bottom:16px;opacity:0.6">📈</div>
+        <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:8px">
+          ${ownerLabel ? ownerLabel + '님 종목이 없어요' : '보유 종목이 없어요'}
+        </div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:24px">
+          국내/해외 주식을 추가하면<br>실시간 시세와 수익률을 확인할 수 있어요
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:280px;margin:0 auto">
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center">
+            <div style="font-size:24px;margin-bottom:6px">🇰🇷</div>
+            <div style="font-size:11px;font-weight:700;color:var(--text)">국내주식</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">삼성전자, SK하이닉스 등</div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center">
+            <div style="font-size:24px;margin-bottom:6px">🇺🇸</div>
+            <div style="font-size:11px;font-weight:700;color:var(--text)">해외주식</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">AAPL, TSLA, NVDA 등</div>
+          </div>
+        </div>
+        <button onclick="openStockAdd()"
+          style="margin-top:20px;width:100%;max-width:280px;padding:14px;background:#1e1e1e;border:0.5px solid rgba(232,244,255,0.3);border-radius:14px;color:#e8f4ff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
+          + 첫 종목 추가하기
+        </button>
+      </div>`;
     updateStockSummary();
     return;
   }
