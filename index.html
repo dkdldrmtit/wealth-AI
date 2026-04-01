@@ -1088,6 +1088,22 @@ Copy  <!-- ② -1 부부 재무 대결 -->
       </div>
     </div>
 
+    <!-- 순위 탭 -->
+    <div style="display:flex;background:var(--surface2);border-radius:10px;padding:3px;gap:2px;margin-bottom:10px" id="home-stock-rank-tabs">
+      <button id="hsr-pct" onclick="setHomeStockRankTab('pct')"
+        style="flex:1;padding:5px 4px;border-radius:7px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s">
+        📈 수익률
+      </button>
+      <button id="hsr-eval" onclick="setHomeStockRankTab('eval')"
+        style="flex:1;padding:5px 4px;border-radius:7px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">
+        💰 평가금액
+      </button>
+      <button id="hsr-pnl" onclick="setHomeStockRankTab('pnl')"
+        style="flex:1;padding:5px 4px;border-radius:7px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">
+        💸 손익금액
+      </button>
+    </div>
+
     <!-- 보유 종목 미니 리스트 (최대 3개) -->
     <div id="home-stock-list" style="display:flex;flex-direction:column;gap:6px"></div>
 
@@ -1095,6 +1111,7 @@ Copy  <!-- ② -1 부부 재무 대결 -->
     <div id="home-stock-empty" style="display:none;text-align:center;padding:12px 0;color:var(--muted);font-size:12px">
       주식 탭에서 종목을 추가해보세요 →
     </div>
+
 
   </div>
   </div>
@@ -4910,6 +4927,86 @@ function renderCoupleCard() {
   }
 }
 
+// ── 홈 주식 순위 탭 상태
+let homeStockRankTab = 'pct';
+
+function setHomeStockRankTab(tab) {
+  homeStockRankTab = tab;
+  ['pct','eval','pnl'].forEach(function(t) {
+    const btn = document.getElementById('hsr-' + t);
+    if (!btn) return;
+    const isActive = t === tab;
+    btn.style.background = isActive ? 'var(--surface)' : 'transparent';
+    btn.style.color = isActive ? 'var(--text)' : 'var(--muted2)';
+    btn.style.fontWeight = isActive ? '700' : '600';
+  });
+  renderHomeStockRankList();
+}
+
+function renderHomeStockRankList() {
+  const listEl = document.getElementById('home-stock-list');
+  if (!listEl) return;
+  const usdKrw = load('usd-krw-rate', 0);
+  const activeStocks = stocks.filter(function(s) { return s.currentPrice > 0; });
+  if (!activeStocks.length) return;
+
+  const medals = ['🥇', '🥈', '🥉'];
+
+  const sorted = [...activeStocks].sort(function(a, b) {
+    const rateA = a.market === 'US' && usdKrw ? usdKrw : 1;
+    const rateB = b.market === 'US' && usdKrw ? usdKrw : 1;
+    if (homeStockRankTab === 'pct') {
+      const pctA = (a.currentPrice - a.avgPrice) / a.avgPrice * 100;
+      const pctB = (b.currentPrice - b.avgPrice) / b.avgPrice * 100;
+      return pctB - pctA;
+    } else if (homeStockRankTab === 'eval') {
+      return (b.currentPrice * b.qty * rateB) - (a.currentPrice * a.qty * rateA);
+    } else {
+      const pnlA = (a.currentPrice - a.avgPrice) * a.qty * rateA;
+      const pnlB = (b.currentPrice - b.avgPrice) * b.qty * rateB;
+      return pnlB - pnlA;
+    }
+  }).slice(0, 3);
+
+  listEl.innerHTML = sorted.map(function(s, rank) {
+    const rate = s.market === 'US' && usdKrw ? usdKrw : 1;
+    const eval_ = s.currentPrice * s.qty * rate;
+    const pnl = (s.currentPrice - s.avgPrice) * s.qty * rate;
+    const pct = (s.currentPrice - s.avgPrice) / s.avgPrice * 100;
+    const isUp = pct >= 0;
+    const pctColor = isUp ? 'var(--red)' : 'var(--blue)';
+    const pnlColor = pnl >= 0 ? 'var(--red)' : 'var(--blue)';
+    const ownerBadge = '<span style="font-size:9px;color:' + (s.owner === 'minsuk' ? 'var(--minsuk)' : 'var(--siyun)') + ';margin-left:4px">' + (s.owner === 'minsuk' ? '민석' : '시윤') + '</span>';
+
+    let mainVal, subVal, borderColor;
+    if (homeStockRankTab === 'pct') {
+      mainVal = '<span style="font-size:15px;font-weight:900;color:' + pctColor + '">' + (isUp ? '+' : '') + pct.toFixed(1) + '%</span>';
+      subVal = Math.round(eval_).toLocaleString() + '원';
+      borderColor = pctColor;
+    } else if (homeStockRankTab === 'eval') {
+      mainVal = '<span style="font-size:14px;font-weight:900;color:var(--text)">' + Math.round(eval_).toLocaleString() + '원</span>';
+      subVal = (isUp ? '+' : '') + pct.toFixed(1) + '%';
+      borderColor = 'var(--blue)';
+    } else {
+      mainVal = '<span style="font-size:14px;font-weight:900;color:' + pnlColor + '">' + (pnl >= 0 ? '+' : '') + Math.round(pnl).toLocaleString() + '원</span>';
+      subVal = (isUp ? '+' : '') + pct.toFixed(1) + '%';
+      borderColor = pnlColor;
+    }
+
+    return '<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface2);border-radius:12px;border-left:3px solid ' + borderColor + '">'
+      + '<div style="font-size:18px;flex-shrink:0;line-height:1">' + medals[rank] + '</div>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font-size:12px;font-weight:700;display:flex;align-items:center">' + s.name + ownerBadge + '</div>'
+      + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + s.qty.toLocaleString() + '주</div>'
+      + '</div>'
+      + '<div style="text-align:right;flex-shrink:0">'
+      + mainVal
+      + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + subVal + '</div>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
 // ── 홈 주식 요약 카드 ──
 function renderHomeStocksSummary() {
   const usdKrw = load('usd-krw-rate', 0);
@@ -4927,6 +5024,8 @@ function renderHomeStocksSummary() {
   if (!stocks.length) {
     if (listEl) listEl.style.display = 'none';
     if (emptyEl) emptyEl.style.display = 'block';
+    const tabs = document.getElementById('home-stock-rank-tabs');
+    if (tabs) tabs.style.display = 'none';
     if (totalEl) totalEl.textContent = '-';
     if (pnlEl) pnlEl.textContent = '';
     if (pctEl) pctEl.textContent = '주식 탭에서 종목을 추가해보세요';
@@ -4935,6 +5034,8 @@ function renderHomeStocksSummary() {
 
   if (emptyEl) emptyEl.style.display = 'none';
   if (listEl) listEl.style.display = 'flex';
+  const tabs = document.getElementById('home-stock-rank-tabs');
+  if (tabs) tabs.style.display = activeStocks.length > 0 ? 'flex' : 'none';
 
   // 전체 합산
   let totalEval = 0, totalBuy = 0;
@@ -4992,38 +5093,8 @@ function renderHomeStocksSummary() {
     syPnlEl.style.color = sy.pnl >= 0 ? 'var(--red)' : 'var(--blue)';
   }
 
-  // 종목 미니 리스트 (수익률 순 상위 3개)
-  if (listEl) {
-    const sorted = [...activeStocks].sort(function(a, b) {
-      const pctA = (a.currentPrice - a.avgPrice) / a.avgPrice * 100;
-      const pctB = (b.currentPrice - b.avgPrice) / b.avgPrice * 100;
-      return pctB - pctA;
-    }).slice(0, 3);
-
-    const medals = ['🥇', '🥈', '🥉'];
-    listEl.innerHTML = sorted.map(function(s, rank) {
-      const rate = s.market === 'US' && usdKrw ? usdKrw : 1;
-      const eval_ = s.currentPrice * s.qty * rate;
-      const pct = (s.currentPrice - s.avgPrice) / s.avgPrice * 100;
-      const isUp2 = pct >= 0;
-      const pctColor = isUp2 ? 'var(--red)' : 'var(--blue)';
-      const ownerBadge = '<span style="font-size:9px;color:' + (s.owner === 'minsuk' ? 'var(--minsuk)' : 'var(--siyun)') + ';margin-left:4px">' + (s.owner === 'minsuk' ? '민석' : '시윤') + '</span>';
-      return '<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface2);border-radius:12px;border-left:3px solid ' + pctColor + '">'
-        // 메달 + 순위
-        + '<div style="font-size:18px;flex-shrink:0;line-height:1">' + medals[rank] + '</div>'
-        // 종목 정보
-        + '<div style="flex:1;min-width:0">'
-        + '<div style="font-size:12px;font-weight:700;display:flex;align-items:center">' + s.name + ownerBadge + '</div>'
-        + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + s.qty.toLocaleString() + '주 · ' + Math.round(eval_).toLocaleString() + '원</div>'
-        + '</div>'
-        // 수익률
-        + '<div style="text-align:right;flex-shrink:0">'
-        + '<div style="font-size:15px;font-weight:900;color:' + pctColor + '">' + (isUp2 ? '+' : '') + pct.toFixed(1) + '%</div>'
-        + '<div style="font-size:9px;color:var(--muted);margin-top:2px">수익률 ' + (rank + 1) + '위</div>'
-        + '</div>'
-        + '</div>';
-    }).join('');
-  }
+  // 순위 리스트 렌더
+  renderHomeStockRankList();
 
   // 업데이트 시간
   if (updateEl && activeStocks.length > 0) {
@@ -5033,6 +5104,7 @@ function renderHomeStocksSummary() {
     }
   }
 }
+
 
 // ── 홈 주식 새로고침 ──
 async function homeRefreshStocks() {
