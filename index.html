@@ -1158,16 +1158,24 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div id="h-net-change-badge" style="margin-top:8px;min-height:22px"></div>
     </div>
     <!-- 총자산 / 부채 서브 -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <div class="sum-box asset" onclick="goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('asset'),50)" style="cursor:pointer">
-        <div class="lbl">총자산</div>
-        <div class="val" id="h-total">—</div>
-        <div class="unit">억원 ›</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+      <div class="sum-box asset" onclick="goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('asset'),50)" style="cursor:pointer;padding:10px 12px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div class="lbl" style="margin-bottom:3px">총자산</div>
+            <div class="val" id="h-total" style="font-size:15px">—</div>
+          </div>
+          <div class="unit" style="font-size:10px;color:var(--muted);align-self:flex-end">억원 ›</div>
+        </div>
       </div>
-      <div class="sum-box debt" onclick="goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('debt'),50)" style="cursor:pointer">
-        <div class="lbl">부채</div>
-        <div class="val" id="h-debt">—</div>
-        <div class="unit">억원 ›</div>
+      <div class="sum-box debt" onclick="goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('debt'),50)" style="cursor:pointer;padding:10px 12px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div class="lbl" style="margin-bottom:3px">부채</div>
+            <div class="val" id="h-debt" style="font-size:15px;color:var(--red)">—</div>
+          </div>
+          <div class="unit" style="font-size:10px;color:var(--muted);align-self:flex-end">억원 ›</div>
+        </div>
       </div>
     </div>
   </div>
