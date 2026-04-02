@@ -3792,7 +3792,11 @@ const CATEGORY_COLORS = {
 
 function addAssetItem(category, emoji, type) {
   const id = 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
-  modalAssetItems.push({ id, category, emoji, type, name: '', amount: 0, memo: '' });
+  // 카테고리에 따라 기본 소유자 자동 설정
+  let defaultOwner = 'common';
+  if (category === '민석 금융자산') defaultOwner = 'minsuk';
+  if (category === '시윤 금융자산') defaultOwner = 'siyun';
+  modalAssetItems.push({ id, category, emoji, type, name: '', amount: 0, memo: '', owner: defaultOwner });
   renderAssetItems();
   // 새로 추가된 항목의 이름 input에 포커스
   setTimeout(() => {
@@ -3828,27 +3832,28 @@ function renderAssetItems() {
     const isFirst = idx === 0;
     const isLast = idx === modalAssetItems.length - 1;
 
-    const row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;gap:5px;padding:6px 8px;background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;margin-bottom:5px;';
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'margin-bottom:10px;background:var(--surface2);border:0.5px solid var(--border);border-radius:12px;padding:12px;';
 
-    // 순서 변경 버튼
+    // ── 1행: 순서 + 이름 + 삭제
+    const row1 = document.createElement('div');
+    row1.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:10px';
+
+    // 순서 버튼
     const moveWrap = document.createElement('div');
     moveWrap.style.cssText = 'display:flex;flex-direction:column;gap:1px;flex-shrink:0';
-
     const upBtn = document.createElement('button');
     upBtn.textContent = '▲';
-    upBtn.style.cssText = 'background:none;border:none;color:' + (isFirst ? 'var(--border2)' : 'var(--muted)') + ';font-size:9px;cursor:pointer;padding:0;width:14px;height:12px;line-height:1';
+    upBtn.style.cssText = 'background:none;border:none;color:' + (isFirst?'var(--border2)':'var(--muted)') + ';font-size:9px;cursor:pointer;padding:0;width:14px;height:12px;line-height:1';
     upBtn.disabled = isFirst;
     upBtn.dataset.id = item.id;
     upBtn.addEventListener('click', function() { moveAssetItem(this.dataset.id, -1); });
-
     const downBtn = document.createElement('button');
     downBtn.textContent = '▼';
-    downBtn.style.cssText = 'background:none;border:none;color:' + (isLast ? 'var(--border2)' : 'var(--muted)') + ';font-size:9px;cursor:pointer;padding:0;width:14px;height:12px;line-height:1';
+    downBtn.style.cssText = 'background:none;border:none;color:' + (isLast?'var(--border2)':'var(--muted)') + ';font-size:9px;cursor:pointer;padding:0;width:14px;height:12px;line-height:1';
     downBtn.disabled = isLast;
     downBtn.dataset.id = item.id;
     downBtn.addEventListener('click', function() { moveAssetItem(this.dataset.id, 1); });
-
     moveWrap.appendChild(upBtn);
     moveWrap.appendChild(downBtn);
 
@@ -3862,18 +3867,34 @@ function renderAssetItems() {
     nameInput.id = 'name_' + item.id;
     nameInput.value = item.name || '';
     nameInput.placeholder = '항목명';
-    nameInput.style.cssText = 'flex:1;min-width:0;background:var(--surface3);border:0.5px solid var(--border2);border-radius:7px;color:var(--text);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;padding:5px 7px;outline:none;';
+    nameInput.style.cssText = 'flex:1;min-width:0;background:var(--surface3);border:0.5px solid var(--border2);border-radius:7px;color:var(--text);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;padding:6px 8px;outline:none;';
     nameInput.dataset.id = item.id;
     nameInput.addEventListener('input', function() { updateItemField(this.dataset.id, 'name', this.value); });
+
+    // 삭제 버튼
+    const delBtn = document.createElement('button');
+    delBtn.textContent = '✕';
+    delBtn.style.cssText = 'background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;padding:2px 4px;flex-shrink:0;';
+    delBtn.dataset.id = item.id;
+    delBtn.addEventListener('click', function() { removeAssetItem(this.dataset.id); });
+
+    row1.appendChild(moveWrap);
+    row1.appendChild(badge);
+    row1.appendChild(nameInput);
+    row1.appendChild(delBtn);
+
+    // ── 2행: 금액 + 소유자
+    const row2 = document.createElement('div');
+    row2.style.cssText = 'display:flex;align-items:center;gap:8px';
 
     // 금액 입력
     const amtInput = document.createElement('input');
     amtInput.type = 'number';
     amtInput.id = 'amt_' + item.id;
     amtInput.value = item.amount || '';
-    amtInput.placeholder = '만원';
+    amtInput.placeholder = '금액 (만원)';
     amtInput.setAttribute('inputmode', 'decimal');
-    amtInput.style.cssText = 'width:76px;flex-shrink:0;background:var(--surface3);border:0.5px solid var(--border2);border-radius:7px;color:' + (isDebt ? 'var(--red)' : 'var(--text)') + ';font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:700;padding:5px 6px;outline:none;text-align:right';
+    amtInput.style.cssText = 'flex:1;background:var(--surface3);border:0.5px solid var(--border2);border-radius:7px;color:' + (isDebt?'var(--red)':'var(--text)') + ';font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:700;padding:6px 8px;outline:none;';
     amtInput.dataset.id = item.id;
     amtInput.addEventListener('input', function() {
       updateItemField(this.dataset.id, 'amount', parseFloat(this.value)||0);
@@ -3883,54 +3904,60 @@ function renderAssetItems() {
     // 단위
     const unit = document.createElement('span');
     unit.textContent = '만';
-    unit.style.cssText = 'font-size:10px;color:var(--muted);flex-shrink:0';
+    unit.style.cssText = 'font-size:11px;color:var(--muted);flex-shrink:0';
 
-    // 삭제 버튼
-    const delBtn = document.createElement('button');
-    delBtn.textContent = '✕';
-    delBtn.style.cssText = 'background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;padding:2px 3px;flex-shrink:0;';
-    delBtn.dataset.id = item.id;
-    delBtn.addEventListener('click', function() { removeAssetItem(this.dataset.id); });
+    // 소유자 선택
+    const ownerWrap = document.createElement('div');
+    ownerWrap.style.cssText = 'display:flex;background:var(--surface3);border-radius:7px;padding:2px;gap:1px;flex-shrink:0';
 
-    // 메모 토글 버튼
-    const memoBtn = document.createElement('button');
-    memoBtn.textContent = '📝';
-    memoBtn.title = '메모';
-    memoBtn.style.cssText = 'background:none;border:none;font-size:13px;cursor:pointer;padding:2px 3px;flex-shrink:0;opacity:' + (item.memo ? '1' : '0.4') + ';';
-    memoBtn.dataset.id = item.id;
+    ['common','minsuk','siyun'].forEach(function(o) {
+      const label = o === 'common' ? '공동' : o === 'minsuk' ? '민석' : '시윤';
+      const isActive = (item.owner || 'common') === o;
+      const btn = document.createElement('button');
+      btn.textContent = label;
+      btn.dataset.id = item.id;
+      btn.dataset.owner = o;
+      btn.style.cssText = 'padding:4px 8px;border-radius:5px;border:none;font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:' + (isActive?'700':'500') + ';cursor:pointer;background:' + (isActive?'var(--surface)':'transparent') + ';color:' + (isActive?'var(--text)':'var(--muted2)') + ';transition:all .15s';
+      btn.addEventListener('click', function() {
+        updateItemField(this.dataset.id, 'owner', this.dataset.owner);
+        renderAssetItems();
+      });
+      ownerWrap.appendChild(btn);
+    });
 
-    // 메모 입력 행 (토글)
+    row2.appendChild(amtInput);
+    row2.appendChild(unit);
+    row2.appendChild(ownerWrap);
+
+    // ── 메모 (접기/펼치기)
     const memoRow = document.createElement('div');
-    memoRow.style.cssText = 'display:' + (item.memo ? 'flex' : 'none') + ';align-items:center;gap:5px;margin-top:4px;padding:0 2px;';
+    memoRow.style.cssText = 'display:' + (item.memo ? 'flex' : 'none') + ';align-items:center;gap:5px;margin-top:8px;';
     const memoInput = document.createElement('input');
     memoInput.type = 'text';
-    memoInput.placeholder = '메모 (예: 대출 조건, 만기일 등)';
+    memoInput.placeholder = '메모 (선택)';
     memoInput.value = item.memo || '';
     memoInput.style.cssText = 'flex:1;background:var(--surface3);border:0.5px solid var(--border2);border-radius:7px;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;padding:5px 8px;outline:none;';
     memoInput.dataset.id = item.id;
     memoInput.addEventListener('input', function() { updateItemField(this.dataset.id, 'memo', this.value); });
     memoRow.appendChild(memoInput);
 
+    const memoBtn = document.createElement('button');
+    memoBtn.textContent = item.memo ? '메모 ✓' : '+ 메모';
+    memoBtn.style.cssText = 'background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;padding:0;flex-shrink:0;white-space:nowrap';
+    memoBtn.dataset.id = item.id;
     memoBtn.addEventListener('click', function() {
       const isVisible = memoRow.style.display !== 'none';
       memoRow.style.display = isVisible ? 'none' : 'flex';
-      memoBtn.style.opacity = isVisible ? '0.4' : '1';
+      memoBtn.textContent = isVisible ? '+ 메모' : '메모 ✓';
       if (!isVisible) memoInput.focus();
     });
 
-    // row를 감싸는 wrapper (row + memoRow)
-    const wrapper = document.createElement('div');
-    wrapper.style.cssText = 'margin-bottom:5px;';
+    wrapper.appendChild(row1);
+    wrapper.appendChild(row2);
 
-    row.appendChild(moveWrap);
-    row.appendChild(badge);
-    row.appendChild(nameInput);
-    row.appendChild(amtInput);
-    row.appendChild(unit);
-    row.appendChild(memoBtn);
-    row.appendChild(delBtn);
+    // 메모 버튼을 row2 오른쪽에 추가
+    row2.appendChild(memoBtn);
 
-    wrapper.appendChild(row);
     wrapper.appendChild(memoRow);
     wrap.appendChild(wrapper);
   });
@@ -3952,20 +3979,20 @@ function getItemsDefault(rec) {
   const items = [];
   if (d.apt) {
     const aptName = load('apt-settings', null)?.name || '아파트';
-    items.push({ category:'부동산', emoji:'🏢', type:'asset', name: aptName, amount:d.apt, memo:'' });
+    items.push({ category:'부동산', emoji:'🏢', type:'asset', name: aptName, amount:d.apt, memo:'', owner:'common' });
   }
-  if (d.rental) items.push({ category:'부동산', emoji:'🏢', type:'asset', name:'월세 보증금', amount:d.rental, memo:'' });
-  if (ms.irp) items.push({ category:'민석 금융자산', emoji:'👨', type:'asset', name:'IRP 연금', amount:ms.irp, memo:'' });
-  if (ms.msSub) items.push({ category:'민석 금융자산', emoji:'👨', type:'asset', name:'청약', amount:ms.msSub, memo:'' });
-  if (ms.s1) items.push({ category:'민석 금융자산', emoji:'👨', type:'asset', name:'우리사주', amount:ms.s1, memo:'' });
-  if (ms.toss) items.push({ category:'민석 금융자산', emoji:'👨', type:'asset', name:'토스증권', amount:ms.toss, memo:'' });
-  if (sy.cash) items.push({ category:'시윤 금융자산', emoji:'👩', type:'asset', name:'현금', amount:sy.cash, memo:'' });
-  if (sy.sySub) items.push({ category:'시윤 금융자산', emoji:'👩', type:'asset', name:'청약', amount:sy.sySub, memo:'' });
-  if (sy.jump) items.push({ category:'시윤 금융자산', emoji:'👩', type:'asset', name:'청년도약', amount:sy.jump, memo:'' });
-  if (sy.fund) items.push({ category:'시윤 금융자산', emoji:'👩', type:'asset', name:'신한펀드', amount:sy.fund, memo:'' });
-  if (sy.s2) items.push({ category:'시윤 금융자산', emoji:'👩', type:'asset', name:'주식', amount:sy.s2, memo:'' });
-  if (d.liquid) items.push({ category:'기타자산', emoji:'📦', type:'asset', name:'예정 유동성', amount:d.liquid, memo:'' });
-  if (d.debt) items.push({ category:'부채', emoji:'🔴', type:'debt', name:'전세보증금', amount:d.debt, memo:'' });
+if (d.rental) items.push({ category:'부동산', emoji:'🏢', type:'asset', name:'월세 보증금', amount:d.rental, memo:'', owner:'common' });
+if (ms.irp) items.push({ category:'민석 금융자산', emoji:'👨', type:'asset', name:'IRP 연금', amount:ms.irp, memo:'', owner:'minsuk' });
+if (ms.msSub) items.push({ category:'민석 금융자산', emoji:'👨', type:'asset', name:'청약', amount:ms.msSub, memo:'', owner:'minsuk' });
+if (ms.s1) items.push({ category:'민석 금융자산', emoji:'👨', type:'asset', name:'우리사주', amount:ms.s1, memo:'', owner:'minsuk' });
+if (ms.toss) items.push({ category:'민석 금융자산', emoji:'👨', type:'asset', name:'토스증권', amount:ms.toss, memo:'', owner:'minsuk' });
+if (sy.cash) items.push({ category:'시윤 금융자산', emoji:'👩', type:'asset', name:'현금', amount:sy.cash, memo:'', owner:'siyun' });
+if (sy.sySub) items.push({ category:'시윤 금융자산', emoji:'👩', type:'asset', name:'청약', amount:sy.sySub, memo:'', owner:'siyun' });
+if (sy.jump) items.push({ category:'시윤 금융자산', emoji:'👩', type:'asset', name:'청년도약', amount:sy.jump, memo:'', owner:'siyun' });
+if (sy.fund) items.push({ category:'시윤 금융자산', emoji:'👩', type:'asset', name:'신한펀드', amount:sy.fund, memo:'', owner:'siyun' });
+if (sy.s2) items.push({ category:'시윤 금융자산', emoji:'👩', type:'asset', name:'주식', amount:sy.s2, memo:'', owner:'siyun' });
+if (d.liquid) items.push({ category:'기타자산', emoji:'📦', type:'asset', name:'예정 유동성', amount:d.liquid, memo:'', owner:'common' });
+if (d.debt) items.push({ category:'부채', emoji:'🔴', type:'debt', name:'전세보증금', amount:d.debt, memo:'', owner:'common' });
   return items;
 }
 
