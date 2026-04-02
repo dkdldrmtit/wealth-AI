@@ -973,10 +973,10 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div id="ai-comment-text" style="font-size:13px;color:var(--text);line-height:1.8;letter-spacing:0.1px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer" onclick="toggleAiComment(this)">
         <div style="color:var(--muted);font-size:12px">분석 중...</div>
       </div>
-      <div id="ai-comment-expand" onclick="toggleAiComment(document.getElementById('ai-comment-text'))" style="display:none;position:relative;height:36px;margin-top:-36px;cursor:pointer;opacity:0;transition:opacity 0.4s ease">
-        <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent,#141414);border-radius:0 0 8px 8px"></div>
+      <div id="ai-comment-expand" onclick="toggleAiComment(document.getElementById('ai-comment-text'))" style="display:none;position:relative;height:36px;margin-top:-36px;cursor:pointer;opacity:0;transition:opacity 0.4s ease;pointer-events:none">
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent,var(--surface));border-radius:0 0 8px 8px"></div>
         <div style="position:absolute;bottom:2px;left:0;right:0;text-align:center">
-          <span style="font-size:10px;color:rgba(255,255,255,0.35);font-weight:400;letter-spacing:0.8px">더보기</span>
+          <span style="font-size:10px;color:var(--muted);font-weight:400;letter-spacing:0.8px">더보기</span>
         </div>
       </div>
     </div>
@@ -6951,8 +6951,9 @@ function typewriterEffect(el, text, speed=8) {
           if (el.scrollHeight > el.clientHeight + 4) {
             const hint = document.getElementById('ai-comment-expand');
             if (hint) {
-              hint.style.display = 'flex';
+              hint.style.display = 'block';
               hint.style.opacity = '0';
+              hint.style.pointerEvents = 'auto';
               hint.style.transition = 'opacity 0.4s ease';
               setTimeout(function() { hint.style.opacity = '1'; }, 50);
             }
