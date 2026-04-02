@@ -1208,7 +1208,14 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div class="card" onclick="goPage('input',document.querySelectorAll('.nav-item')[3])" style="cursor:pointer">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div class="card-title" style="margin-bottom:0;color:var(--muted)">순자산 변화 추이</div>
-      <div id="net-change-badge" style="font-size:11px;font-weight:700"></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;gap:8px">
+          <span id="chart-period-3" onclick="setChartPeriod(3)" style="font-size:10px;color:var(--muted);cursor:pointer;font-weight:500;letter-spacing:0.3px">3개월</span>
+          <span id="chart-period-6" onclick="setChartPeriod(6)" style="font-size:10px;color:var(--muted2);cursor:pointer;font-weight:400;letter-spacing:0.3px">6개월</span>
+          <span id="chart-period-12" onclick="setChartPeriod(12)" style="font-size:10px;color:var(--muted2);cursor:pointer;font-weight:400;letter-spacing:0.3px">12개월</span>
+        </div>
+        <div id="net-change-badge" style="font-size:11px;font-weight:700"></div>
+      </div>
     </div>
     <div id="mini-chart-wrap" style="position:relative;height:90px;width:100%;overflow-x:auto;overflow-y:hidden">
       <svg id="mini-chart" height="90" style="display:block"></svg>
@@ -4299,7 +4306,7 @@ function initHome() {
   if (assetHistory.length > 0) {
     updateHomeFromItems(assetHistory[assetHistory.length - 1]);
   }
-  renderMiniChart();
+  setChartPeriod(chartPeriod);
   renderGoalGauge();
   renderSchedules();
   renderHomeLedgerSummary();
@@ -6771,7 +6778,25 @@ function initRealEstate() {
   }
 }
 
+// ── 순자산 차트 기간 필터
+let chartPeriod = 3; // 기본 3개월
 
+function setChartPeriod(months) {
+  chartPeriod = months;
+  // 버튼 스타일 업데이트
+  [3, 6, 12].forEach(function(m) {
+    const btn = document.getElementById('chart-period-' + m);
+    if (!btn) return;
+    if (m === months) {
+      btn.style.color = 'var(--text)';
+      btn.style.fontWeight = '600';
+    } else {
+      btn.style.color = 'var(--muted2)';
+      btn.style.fontWeight = '400';
+    }
+  });
+  renderMiniChart();
+}
 
 // ── 순자산 미니 차트 ──
 function renderMiniChart() {
@@ -6787,8 +6812,8 @@ function renderMiniChart() {
   if (empty) empty.style.display = 'none';
   wrap.style.display = 'block';
 
-  // 전체 데이터 사용 (최대 24개월)
-  const data = assetHistory.slice(-24);
+  // 기간 필터 적용
+  const data = assetHistory.slice(-chartPeriod);
   const nets = data.map(r => r.net);
   const min = Math.min(...nets);
   const max = Math.max(...nets);
