@@ -1137,7 +1137,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div class="card" id="home-ledger-summary" onclick="goPage('ledger',document.querySelectorAll('.nav-item')[1])" style="cursor:pointer">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div class="card-title" style="margin-bottom:0;color:var(--muted)" id="home-ledger-title">이달 가계부</div>
-      <button onclick="goPage('ledger',document.querySelectorAll('.nav-item')[1])" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer">자세히 →</button>
+      <button onclick="goPage('ledger',document.querySelectorAll('.nav-item')[1])" style="background:none;border:none;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;padding:0">자세히 →</button>
     </div>
     <div id="home-ledger-content"><div style="text-align:center;color:var(--muted);font-size:12px;padding:8px 0">가계부 내역이 없어요</div></div>
   </div>
@@ -1148,7 +1148,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div class="card" onclick="goPage('ledger',document.querySelectorAll('.nav-item')[1]);setTimeout(()=>setLedgerTab('calendar'),300)" style="border-color:rgba(167,139,250,.2);padding:14px 16px;cursor:pointer">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px">주요 일정</div>
-      <button onclick="openScheduleEdit()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;cursor:pointer;">+ 추가</button>
+      <button onclick="event.stopPropagation();openScheduleEdit()" style="background:none;border:none;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;padding:0">+ 추가</button>
     </div>
     <div id="schedule-list" style="font-size:12px"></div>
   </div>
@@ -1279,7 +1279,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div class="card" onclick="goPage('settings',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab('apt'),200)" style="cursor:pointer">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px" id="home-apt-card-title">아파트 실거래가</div>
-      <button onclick="fetchAndShowApt()" id="apt-refresh-btn" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer">🔄 새로고침</button>
+      <button onclick="event.stopPropagation();fetchAndShowApt()" id="apt-refresh-btn" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer">🔄 새로고침</button>
     </div>
     <div id="home-apt-content">
       <div style="text-align:center;color:var(--muted);font-size:12px;padding:8px 0">새로고침 버튼을 눌러 최신 시세를 불러오세요</div>
@@ -6872,18 +6872,17 @@ function renderHomeApt() {
     return;
   }
 
-  // 현재 기록된 아파트 금액과 비교 (만원 단위로 통일)
   const histArr = load('asset-history', []);
   const latestRec = histArr.length ? histArr[histArr.length - 1] : null;
   let currentApt = 0;
   if (latestRec && latestRec.items) {
     const aptItem = latestRec.items.find(function(i) { return i.category === '부동산'; });
-    if (aptItem) currentApt = aptItem.amount; // 이미 만원 단위
+    if (aptItem) currentApt = aptItem.amount;
   } else if (latestRec && latestRec.detail) {
-    currentApt = latestRec.detail.apt || 0; // 만원 단위
+    currentApt = latestRec.detail.apt || 0;
   }
 
-  const price = cache.price; // 만원 단위
+  const price = cache.price;
   const diff = currentApt > 0 ? price - currentApt : null;
   const diffHtml = diff !== null
     ? (diff >= 0
@@ -6892,7 +6891,7 @@ function renderHomeApt() {
     : '';
 
   wrap.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px">'
-    + '<div onclick="goPage(\'settings\',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab(\'apt\'),200)" style="cursor:pointer">'
+    + '<div onclick="event.stopPropagation();goPage(\'settings\',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab(\'apt\'),200)" style="cursor:pointer">'
     + '<div style="font-size:26px;font-weight:700;color:var(--text)">' + (price/10000).toFixed(2) + '<span style="font-size:13px;color:var(--muted);font-weight:400">억 ›</span></div>'
     + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + (cache.results && cache.results[0] ? cache.results[0].area + '㎡' : '') + ' · ' + cache.fetchedAt + '</div>'
     + '</div>'
@@ -6902,8 +6901,8 @@ function renderHomeApt() {
     + '</div>'
     + '</div>'
     + '<div style="display:flex;gap:8px">'
-    + '<button onclick="applyAptToAsset(' + price + ')" style="flex:1;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.25);border-radius:10px;color:var(--blue);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:700;padding:9px;cursor:pointer">📥 자산에 반영</button>'
-    + '<button onclick="goPage(\'settings\',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab(\'apt\'),200)" style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:600;padding:9px;cursor:pointer">상세보기 →</button>'
+    + '<button onclick="event.stopPropagation();applyAptToAsset(' + price + ')" style="flex:1;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.25);border-radius:10px;color:var(--blue);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:700;padding:9px;cursor:pointer">📥 자산에 반영</button>'
+    + '<button onclick="event.stopPropagation();goPage(\'settings\',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab(\'apt\'),200)" style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:600;padding:9px;cursor:pointer">상세보기 →</button>'
     + '</div>';
 }
 
