@@ -1593,45 +1593,39 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         </div>
       </div>
 
-      <!-- 항목 추가 버튼 (상단) -->
-      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
-        <!-- 자산 버튼들 -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-          <button onclick="addAssetItem('부동산','🏢','asset')"
-            style="padding:12px 4px;background:rgba(96,165,250,.08);border:1px dashed rgba(96,165,250,.35);border-radius:12px;color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">
-            <span style="font-size:20px">🏢</span>
-            <span>부동산</span>
+      <!-- 항목 추가 -->
+      <div style="margin-bottom:14px">
+
+        <!-- 자산/부채 토글 -->
+        <div style="display:flex;background:var(--surface2);border-radius:10px;padding:3px;gap:2px;margin-bottom:12px">
+          <button id="add-type-asset" onclick="setAddItemType('asset')"
+            style="flex:1;padding:8px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s">
+            자산
           </button>
-          <button onclick="addAssetItem('민석 금융자산','👨','asset')"
-            style="padding:12px 4px;background:rgba(96,165,250,.08);border:1px dashed rgba(96,165,250,.35);border-radius:12px;color:var(--minsuk);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">
-            <span style="font-size:20px">👨</span>
-            <span>민석 금융</span>
-          </button>
-          <button onclick="addAssetItem('시윤 금융자산','👩','asset')"
-            style="padding:12px 4px;background:rgba(52,211,153,.08);border:1px dashed rgba(52,211,153,.35);border-radius:12px;color:var(--siyun);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">
-            <span style="font-size:20px">👩</span>
-            <span>시윤 금융</span>
+          <button id="add-type-debt" onclick="setAddItemType('debt')"
+            style="flex:1;padding:8px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">
+            부채
           </button>
         </div>
-        <!-- 기타/부채/정렬 버튼들 -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-          <button onclick="addAssetItem('기타자산','📦','asset')"
-            style="padding:10px 4px;background:var(--surface2);border:1px dashed var(--border2);border-radius:12px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">
-            <span style="font-size:18px">📦</span>
-            <span>기타자산</span>
-          </button>
-          <button onclick="addAssetItem('부채','🔴','debt')"
-            style="padding:10px 4px;background:rgba(248,113,113,.08);border:1px dashed rgba(248,113,113,.35);border-radius:12px;color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">
-            <span style="font-size:18px">🔴</span>
-            <span>부채</span>
-          </button>
-          <button onclick="sortAssetItems()"
-            style="padding:10px 4px;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">
-            <span style="font-size:18px">↕️</span>
-            <span>정렬</span>
-          </button>
+
+        <!-- 카테고리 칩 -->
+        <div id="add-category-wrap" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
         </div>
+
+        <!-- 항목 추가 버튼 -->
+        <button onclick="openAddItemModal()"
+          style="width:100%;margin-top:4px;padding:11px;border-radius:10px;border:1px dashed var(--border2);background:transparent;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer">
+          + 항목 추가
+        </button>
+
+        <!-- 정렬 버튼 -->
+        <button onclick="sortAssetItems()"
+          style="width:100%;margin-top:6px;padding:9px;border-radius:10px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer">
+          순서 정렬
+        </button>
+
       </div>
+
       <!-- 항목 리스트 -->
       <div id="asset-items-wrap" style="margin-bottom:12px;"></div>
 
@@ -2764,6 +2758,79 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
 </div>
 
+<!-- ══ 자산 항목 추가 모달 ══ -->
+<div id="add-item-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:400;overflow-y:auto">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
+
+      <!-- 헤더 -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div id="add-item-modal-title" style="font-size:16px;font-weight:700;color:var(--text)">항목 추가</div>
+        <button onclick="closeAddItemModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer">✕</button>
+      </div>
+
+      <!-- 카테고리 표시 -->
+      <div style="margin-bottom:16px;padding:10px 14px;background:var(--surface2);border-radius:10px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:2px">카테고리</div>
+        <div id="add-item-category-label" style="font-size:14px;font-weight:700;color:var(--text)"></div>
+      </div>
+
+      <!-- 항목명 -->
+      <div style="margin-bottom:14px">
+        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:8px">항목명</div>
+        <div id="add-item-presets" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
+        <input type="text" id="add-item-name" placeholder="직접 입력"
+          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none">
+      </div>
+
+      <!-- 금액 -->
+      <div style="margin-bottom:14px">
+        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">금액</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="number" id="add-item-amount" placeholder="0" inputmode="decimal"
+            style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none">
+          <span style="font-size:13px;color:var(--muted);flex-shrink:0">만원</span>
+        </div>
+      </div>
+
+      <!-- 소유자 -->
+      <div style="margin-bottom:14px">
+        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">소유자</div>
+        <div style="display:flex;background:var(--surface2);border-radius:10px;padding:3px;gap:2px">
+          <button id="add-owner-common" onclick="setAddItemOwner('common')"
+            style="flex:1;padding:8px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s">
+            공동
+          </button>
+          <button id="add-owner-minsuk" onclick="setAddItemOwner('minsuk')"
+            style="flex:1;padding:8px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">
+            민석
+          </button>
+          <button id="add-owner-siyun" onclick="setAddItemOwner('siyun')"
+            style="flex:1;padding:8px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">
+            시윤
+          </button>
+        </div>
+      </div>
+
+      <!-- 메모 -->
+      <div style="margin-bottom:20px">
+        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">메모 <span style="font-weight:400;color:var(--muted)">(선택)</span></div>
+        <input type="text" id="add-item-memo" placeholder="예: 만기일, 금리 등"
+          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none">
+      </div>
+
+      <!-- 추가 버튼 -->
+      <button onclick="confirmAddItem()"
+        style="width:100%;padding:14px;border-radius:12px;background:var(--text);border:none;color:var(--bg);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
+        추가
+      </button>
+
+    </div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
 
 </div><!-- /app -->
 
@@ -3790,6 +3857,20 @@ const CATEGORY_COLORS = {
   '기타자산': 'var(--gold)', '부채': 'var(--red)'
 };
 
+const ASSET_CATEGORIES = {
+  asset: [
+    { id: 'realestate', label: '부동산',    items: ['아파트', '빌라·주택', '상가·오피스텔', '토지', '기타 부동산'] },
+    { id: 'finance',    label: '금융자산',  items: ['주식·ETF', '펀드', '채권', '가상화폐', '기타 금융자산'] },
+    { id: 'savings',    label: '저축·예금', items: ['예금·적금', 'CMA·파킹통장', '청약저축', '기타 저축'] },
+    { id: 'pension',    label: '연금',      items: ['IRP', '연금저축', '퇴직연금', '국민연금', '기타 연금'] },
+    { id: 'cash',       label: '현금',      items: ['현금', '외화', '기타 현금'] },
+    { id: 'etc',        label: '기타자산',  items: ['자동차', '보증금', '기타'] },
+  ],
+  debt: [
+    { id: 'debt', label: '부채', items: ['주택담보대출', '전세자금대출', '신용대출', '카드론', '기타 부채'] },
+  ]
+};
+
 function addAssetItem(category, emoji, type) {
   const id = 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
   // 카테고리에 따라 기본 소유자 자동 설정
@@ -3803,6 +3884,148 @@ function addAssetItem(category, emoji, type) {
     const el = document.getElementById('name_' + id);
     if (el) el.focus();
   }, 100);
+}
+
+// ── 항목 추가 모달 관련
+let _addItemType = 'asset';
+let _addItemCategory = null;
+let _addItemOwner = 'common';
+
+function setAddItemType(type) {
+  _addItemType = type;
+  _addItemCategory = null;
+  const assetBtn = document.getElementById('add-type-asset');
+  const debtBtn = document.getElementById('add-type-debt');
+  if (assetBtn) {
+    assetBtn.style.background = type === 'asset' ? 'var(--surface)' : 'transparent';
+    assetBtn.style.color = type === 'asset' ? 'var(--text)' : 'var(--muted2)';
+    assetBtn.style.fontWeight = type === 'asset' ? '700' : '600';
+  }
+  if (debtBtn) {
+    debtBtn.style.background = type === 'debt' ? 'var(--surface)' : 'transparent';
+    debtBtn.style.color = type === 'debt' ? 'var(--text)' : 'var(--muted2)';
+    debtBtn.style.fontWeight = type === 'debt' ? '700' : '600';
+  }
+  renderAddCategoryChips();
+}
+
+function renderAddCategoryChips() {
+  const wrap = document.getElementById('add-category-wrap');
+  if (!wrap) return;
+  const cats = ASSET_CATEGORIES[_addItemType] || [];
+  wrap.innerHTML = cats.map(function(cat) {
+    const isActive = _addItemCategory === cat.id;
+    return '<button onclick="selectAddCategory(\'' + cat.id + '\')" style="'
+      + 'padding:6px 14px;border-radius:20px;'
+      + 'border:1px solid ' + (isActive ? 'var(--text)' : 'var(--border2)') + ';'
+      + 'background:' + (isActive ? 'var(--text)' : 'transparent') + ';'
+      + 'color:' + (isActive ? 'var(--bg)' : 'var(--muted2)') + ';'
+      + 'font-family:\'Noto Sans KR\',sans-serif;'
+      + 'font-size:12px;'
+      + 'font-weight:' + (isActive ? '700' : '500') + ';'
+      + 'cursor:pointer;'
+      + 'transition:all .15s'
+      + '">' + cat.label + '</button>';
+  }).join('');
+}
+
+function selectAddCategory(catId) {
+  _addItemCategory = catId;
+  renderAddCategoryChips();
+}
+
+function openAddItemModal() {
+  if (!_addItemCategory) {
+    showToast('❗ 카테고리를 먼저 선택해주세요');
+    return;
+  }
+  const cats = ASSET_CATEGORIES[_addItemType] || [];
+  const cat = cats.find(function(c) { return c.id === _addItemCategory; });
+  if (!cat) return;
+
+  // 모달 초기화
+  const titleEl = document.getElementById('add-item-modal-title');
+  const catLabelEl = document.getElementById('add-item-category-label');
+  const nameEl = document.getElementById('add-item-name');
+  const amountEl = document.getElementById('add-item-amount');
+  const memoEl = document.getElementById('add-item-memo');
+  const presetsWrap = document.getElementById('add-item-presets');
+
+  if (titleEl) titleEl.textContent = cat.label + ' 추가';
+  if (catLabelEl) catLabelEl.textContent = cat.label;
+  if (nameEl) nameEl.value = '';
+  if (amountEl) amountEl.value = '';
+  if (memoEl) memoEl.value = '';
+  setAddItemOwner('common');
+
+  // 빠른 선택 프리셋
+  if (presetsWrap) {
+    presetsWrap.innerHTML = cat.items.map(function(item) {
+      return '<button onclick="selectAddItemPreset(\'' + item + '\')" style="'
+        + 'padding:5px 12px;border-radius:20px;'
+        + 'border:1px solid var(--border2);'
+        + 'background:transparent;'
+        + 'color:var(--muted2);'
+        + 'font-family:\'Noto Sans KR\',sans-serif;'
+        + 'font-size:12px;'
+        + 'font-weight:500;'
+        + 'cursor:pointer'
+        + '">' + item + '</button>';
+    }).join('');
+  }
+
+  document.getElementById('add-item-modal').style.display = 'block';
+}
+
+function closeAddItemModal() {
+  document.getElementById('add-item-modal').style.display = 'none';
+}
+
+function selectAddItemPreset(name) {
+  const nameEl = document.getElementById('add-item-name');
+  if (nameEl) nameEl.value = name;
+}
+
+function setAddItemOwner(owner) {
+  _addItemOwner = owner;
+  ['common', 'minsuk', 'siyun'].forEach(function(o) {
+    const btn = document.getElementById('add-owner-' + o);
+    if (!btn) return;
+    const isActive = o === owner;
+    btn.style.background = isActive ? 'var(--surface)' : 'transparent';
+    btn.style.color = isActive ? 'var(--text)' : 'var(--muted2)';
+    btn.style.fontWeight = isActive ? '700' : '600';
+  });
+}
+
+function confirmAddItem() {
+  const name = (document.getElementById('add-item-name').value || '').trim();
+  const amount = parseFloat(document.getElementById('add-item-amount').value) || 0;
+  const memo = (document.getElementById('add-item-memo').value || '').trim();
+
+  if (!name) { showToast('❗ 항목명을 입력해주세요'); return; }
+  if (!amount) { showToast('❗ 금액을 입력해주세요'); return; }
+
+  const cats = ASSET_CATEGORIES[_addItemType] || [];
+  const cat = cats.find(function(c) { return c.id === _addItemCategory; });
+
+  const id = 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+  modalAssetItems.push({
+    id,
+    category: cat ? cat.label : '기타자산',
+    categoryId: _addItemCategory,
+    emoji: '',
+    type: _addItemType === 'debt' ? 'debt' : 'asset',
+    name,
+    amount,
+    memo,
+    owner: _addItemOwner
+  });
+
+  renderAssetItems();
+  updatePreview();
+  closeAddItemModal();
+  showToast('✅ 항목이 추가됐어요!');
 }
 
 function removeAssetItem(id) {
@@ -4048,6 +4271,8 @@ function openModal(month) {
     setModalTitle(thisMonth);
   }
   renderLoadMonthBtns(document.getElementById('i-month').value);
+  setAddItemType('asset');
+  renderAddCategoryChips();
   renderAssetItems();
   updatePreview();
 }
