@@ -1189,16 +1189,23 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         </div>      </div>
 
       <!-- 부채 비율 바 -->
-      <div style="position:relative;height:5px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden">
-        <!-- 자산 바 (왼쪽, 밝은 파란색) -->
-        <div id="h-asset-bar" style="position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,rgba(232,244,255,0.8),rgba(96,165,250,0.6));border-radius:4px;transition:width .8s ease;width:100%"></div>
-        <!-- 부채 바 (오른쪽, 빨간색) -->
-        <div id="h-debt-bar" style="position:absolute;right:0;top:0;height:100%;background:var(--red);border-radius:4px;opacity:0.75;transition:width .8s ease;width:0%"></div>
-      </div>
-      <!-- 바 레이블 -->
-      <div style="display:flex;justify-content:space-between;margin-top:4px">
-        <span style="font-size:9px;color:rgba(232,244,255,0.5)">자산</span>
-        <span style="font-size:9px;color:rgba(248,113,113,0.6)">부채</span>
+      <div style="position:relative;height:22px;background:rgba(255,255,255,0.07);border-radius:6px;overflow:hidden">
+        <!-- 자산 바 (왼쪽) -->
+        <div id="h-asset-bar" style="position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,rgba(96,165,250,0.35),rgba(232,244,255,0.2));border-radius:6px;transition:width .8s ease;width:100%"></div>
+        <!-- 부채 바 (오른쪽) -->
+        <div id="h-debt-bar" style="position:absolute;right:0;top:0;height:100%;background:rgba(248,113,113,0.35);border-radius:6px;transition:width .8s ease;width:0%"></div>
+        <!-- 자산 비율 텍스트 (왼쪽 안) -->
+        <div style="position:absolute;left:10px;top:50%;transform:translateY(-50%);display:flex;align-items:baseline;gap:3px;z-index:1">
+          <span style="font-size:9px;color:rgba(232,244,255,0.5);font-weight:500">자산</span>
+          <span id="h-asset-ratio" style="font-size:11px;font-weight:700;color:rgba(232,244,255,0.7)">—</span>
+          <span style="font-size:9px;color:rgba(232,244,255,0.4)">%</span>
+        </div>
+        <!-- 부채 비율 텍스트 (오른쪽 안) -->
+        <div style="position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;align-items:baseline;gap:3px;z-index:1">
+          <span style="font-size:9px;color:rgba(248,113,113,0.6);font-weight:500">부채</span>
+          <span id="h-debt-ratio" style="font-size:11px;font-weight:700;color:rgba(248,113,113,0.8)">—</span>
+          <span style="font-size:9px;color:rgba(248,113,113,0.5)">%</span>
+        </div>
       </div>
 
     </div>
@@ -3297,11 +3304,14 @@ function updateHomeFromItems(rec) {
   const debtBar = document.getElementById('h-debt-bar');
   const assetBar = document.getElementById('h-asset-bar');
   const debtRatioEl = document.getElementById('h-debt-ratio');
+  const assetRatioEl = document.getElementById('h-asset-ratio');
   if (rec.total > 0) {
     const debtPct = Math.min(100, Math.round(rec.debt / rec.total * 100));
+    const assetPct = 100 - debtPct;
     if (debtBar) debtBar.style.width = debtPct + '%';
-    if (assetBar) assetBar.style.width = (100 - debtPct) + '%';
+    if (assetBar) assetBar.style.width = assetPct + '%';
     if (debtRatioEl) debtRatioEl.textContent = debtPct;
+    if (assetRatioEl) assetRatioEl.textContent = assetPct;
   }
   
   if(el('d-center')) el('d-center').textContent = (rec.total/10000).toFixed(2)+'억';
