@@ -1821,7 +1821,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <button id="stab-cat" onclick="setSettingsTab('cat')"
       style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">🏷️ 카테고리</button>
     <button id="stab-data" onclick="setSettingsTab('data')"
-      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">💾 데이터</button>  </div>
+      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">💾 데이터</button>  
+    <button id="stab-couple" onclick="setSettingsTab('couple')"
+      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">👫 커플</button>  </div>
 
   <!-- 홈 설정 -->
   <div id="stab-content-home">
@@ -2010,7 +2012,49 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
     </div>
   </div>
+
+<!-- 👫 커플 관리 -->
+  <div id="stab-content-couple" style="display:none">
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title" style="color:var(--muted)">커플 정보</div>
+
+      <!-- 내 정보 -->
+      <div style="padding:12px;background:var(--surface2);border-radius:12px;margin-bottom:12px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">내 계정</div>
+        <div id="couple-my-email" style="font-size:14px;font-weight:600;color:var(--text)">-</div>
+        <div id="couple-my-name" style="font-size:12px;color:var(--muted2);margin-top:2px">-</div>
+      </div>
+
+      <!-- 파트너 정보 -->
+      <div style="padding:12px;background:var(--surface2);border-radius:12px;margin-bottom:12px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">파트너</div>
+        <div id="couple-partner-info" style="font-size:14px;font-weight:600;color:var(--text)">-</div>
+      </div>
+
+      <!-- 초대 코드 -->
+      <div style="padding:14px;background:var(--surface2);border-radius:12px;margin-bottom:12px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px">초대 코드</div>
+        <div id="couple-invite-code-display" style="font-size:24px;font-weight:900;color:#22c55e;letter-spacing:4px;text-align:center;padding:12px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:10px;margin-bottom:10px">-</div>
+        <button onclick="copyInviteCode()"
+          style="width:100%;padding:11px;border-radius:10px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:#22c55e;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
+          📋 초대 코드 복사
+        </button>
+        <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.6">파트너에게 이 코드를 알려주면<br>같은 공간에서 재무를 관리할 수 있어요</div>
+      </div>
+    </div>
+
+    <!-- 로그아웃 -->
+    <div class="card" style="border-color:rgba(239,68,68,0.15)">
+      <div class="card-title" style="color:var(--muted)">계정</div>
+      <button onclick="handleLogout()"
+        style="width:100%;padding:13px;border-radius:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
+        로그아웃
+      </button>
+    </div>
+  </div>
 </div>
+
+
 
 
 <!-- ══ LEDGER (가계부) ══ -->
@@ -3448,15 +3492,18 @@ async function loadAllDataFromSupabase() {
       _supabase.from('app_data').select('data').eq('couple_id', currentCoupleId).eq('key', 'budgets').single()
     ]);
 
-    // 데이터 적용
-    if (assetRes.data) assetHistory = assetRes.data.data || [];
-    if (ledgerRes.data) ledgerTxs = ledgerRes.data.data || [];
-    if (stocksRes.data) stocks = stocksRes.data.data || [];
-    if (goalsRes.data) goals = goalsRes.data.data || [];
-    if (schedulesRes.data) schedules = schedulesRes.data.data || [];
-    if (appDataRes.data) budgets = appDataRes.data.data || budgets;
+    // Supabase 데이터로 덮어쓰기 (없으면 빈 배열로 초기화)
+    assetHistory = (assetRes.data && assetRes.data.data) ? assetRes.data.data : [];
+    ledgerTxs = (ledgerRes.data && ledgerRes.data.data) ? ledgerRes.data.data : [];
+    stocks = (stocksRes.data && stocksRes.data.data) ? stocksRes.data.data : [];
+    goals = (goalsRes.data && goalsRes.data.data) ? goalsRes.data.data : [];
+    schedules = (schedulesRes.data && schedulesRes.data.data) ? schedulesRes.data.data : [];
+    budgets = (appDataRes.data && appDataRes.data.data) ? appDataRes.data.data : {
+      food:50, cafe:15, trans:20, shop:30, health:10,
+      leisure:20, child:0, edu:10, house:0, etc:20
+    };
 
-    // localStorage에도 백업
+    // localStorage도 Supabase 데이터로 덮어쓰기
     store('asset-history', assetHistory);
     store('ledger-txs', ledgerTxs);
     store('stocks', stocks);
@@ -3464,8 +3511,25 @@ async function loadAllDataFromSupabase() {
     store('schedules', schedules);
     store('ledger-budgets', budgets);
 
+    console.log('✅ Supabase 데이터 로드 완료');
+
   } catch(e) {
     console.log('데이터 로드 오류:', e);
+
+    // 오류 시 빈 데이터로 초기화
+    assetHistory = [];
+    ledgerTxs = [];
+    stocks = [];
+    goals = load('goals', [
+      { name: '순자산 7억 달성', target: 70000, current: 55900, deadline: '2027-12' },
+      { name: '순자산 10억 달성', target: 100000, current: 55900, deadline: '2030-06' },
+      { name: '금융자산 2억 달성', target: 20000, current: 12890, deadline: '2028-12' },
+    ]);
+    schedules = [];
+    budgets = {
+      food:50, cafe:15, trans:20, shop:30, health:10,
+      leisure:20, child:0, edu:10, house:0, etc:20
+    };
   }
 
   // 화면 렌더링
@@ -3475,6 +3539,7 @@ async function loadAllDataFromSupabase() {
   initRealEstate();
   applyHomeCardOrder();
 }
+
 
 // Supabase에 데이터 저장
 async function saveToSupabase(table, data) {
@@ -6725,13 +6790,60 @@ function saveHomeCardSettings() {
   showToast('✅ 홈 화면 설정이 저장됐어요!');
 }
 
+// 커플 설정 렌더링
+async function renderCoupleSettings() {
+  if (!currentUser || !currentCoupleId) return;
+
+  // 내 정보
+  const myEmailEl = document.getElementById('couple-my-email');
+  const myNameEl = document.getElementById('couple-my-name');
+  if (myEmailEl) myEmailEl.textContent = currentUser.email || '-';
+  if (myNameEl) myNameEl.textContent = currentProfile?.name || '-';
+
+  // 초대 코드 불러오기
+  const { data: couple } = await _supabase
+    .from('couples')
+    .select('invite_code')
+    .eq('id', currentCoupleId)
+    .single();
+
+  const codeEl = document.getElementById('couple-invite-code-display');
+  if (codeEl && couple) codeEl.textContent = couple.invite_code;
+
+  // 파트너 정보
+  const { data: members } = await _supabase
+    .from('profiles')
+    .select('email, name')
+    .eq('couple_id', currentCoupleId)
+    .neq('id', currentUser.id);
+
+  const partnerEl = document.getElementById('couple-partner-info');
+  if (partnerEl) {
+    if (members && members.length > 0) {
+      partnerEl.textContent = members[0].name || members[0].email;
+      partnerEl.style.color = 'var(--text)';
+    } else {
+      partnerEl.textContent = '아직 파트너가 연결되지 않았어요';
+      partnerEl.style.color = 'var(--muted)';
+    }
+  }
+}
+
+// 초대 코드 복사
+async function copyInviteCode() {
+  const code = document.getElementById('couple-invite-code-display').textContent;
+  if (!code || code === '-') return;
+  await navigator.clipboard.writeText(code);
+  showToast('✅ 초대 코드가 복사됐어요!');
+}
+
 
 // ── 설정 탭
 let currentSettingsTab = 'home';
 
 function setSettingsTab(tab) {
   currentSettingsTab = tab;
-  ['home','api','apt','cat','data'].forEach(t => {
+  ['home','api','apt','cat','data','couple'].forEach(t => {
     const btn = document.getElementById('stab-' + t);
     const con = document.getElementById('stab-content-' + t);
     const isActive = t === tab;
@@ -6743,7 +6855,9 @@ function setSettingsTab(tab) {
     if (con) con.style.display = isActive ? 'block' : 'none';
   });
   if (tab === 'cat') renderCatSettings();
+  if (tab === 'couple') renderCoupleSettings();
 }
+
 function saveClaudeApiKey() {
   const key = document.getElementById('claude-api-key-input').value.trim();
   if (!key || !key.startsWith('sk-ant-')) { showToast('❗ 올바른 API 키를 입력해주세요 (sk-ant-로 시작)'); return; }
