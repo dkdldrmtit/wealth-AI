@@ -966,52 +966,15 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px">AI 코멘트</div>
         <div style="display:flex;gap:6px">
-          <button onclick="loadAiComment(true, false)"
-        <div style="display:flex;gap:6px">
-          <button onclick="loadAiComment(true, false)"
-            style="background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.18);border-radius:20px;color:rgba(255,255,255,0.6);font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:500;padding:4px 12px;cursor:pointer;letter-spacing:0.5px;transition:all .2s"
-            ontouchstart="this.style.background='rgba(255,255,255,0.12)';this.style.color='rgba(255,255,255,0.9)';this.style.borderColor='rgba(255,255,255,0.35)'"
-            ontouchend="this.style.background='rgba(255,255,255,0.05)';this.style.color='rgba(255,255,255,0.6)';this.style.borderColor='rgba(255,255,255,0.18)'">
-            자산분석
-          </button>
-          <button onclick="loadAiComment(true, true)"
-            style="background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.18);border-radius:20px;color:rgba(255,255,255,0.6);font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:500;padding:4px 12px;cursor:pointer;letter-spacing:0.5px;transition:all .2s"
-            ontouchstart="this.style.background='rgba(255,255,255,0.12)';this.style.color='rgba(255,255,255,0.9)';this.style.borderColor='rgba(255,255,255,0.35)'"
-            ontouchend="this.style.background='rgba(255,255,255,0.05)';this.style.color='rgba(255,255,255,0.6)';this.style.borderColor='rgba(255,255,255,0.18)'">
-            시황
-          </button>
+          <button onclick="loadAiComment(true, false)" style="background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.18);border-radius:20px;color:rgba(255,255,255,0.6);font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:500;padding:4px 12px;cursor:pointer;letter-spacing:0.5px">자산분석</button>
+          <button onclick="loadAiComment(true, true)" style="background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.18);border-radius:20px;color:rgba(255,255,255,0.6);font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:500;padding:4px 12px;cursor:pointer;letter-spacing:0.5px">시황</button>
         </div>
-            ontouchstart="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(255,255,255,0.7)';this.style.borderColor='rgba(255,255,255,0.25)'"
-            ontouchend="this.style.background='transparent';this.style.color='rgba(255,255,255,0.35)';this.style.borderColor='rgba(255,255,255,0.12)'">
-            자산분석
-          </button>
-          <button onclick="loadAiComment(true, true)"
-        <div style="display:flex;gap:6px">
-          <button onclick="loadAiComment(true, false)"
-            style="background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.18);border-radius:20px;color:rgba(255,255,255,0.6);font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:500;padding:4px 12px;cursor:pointer;letter-spacing:0.5px;transition:all .2s"
-            ontouchstart="this.style.background='rgba(255,255,255,0.12)';this.style.color='rgba(255,255,255,0.9)';this.style.borderColor='rgba(255,255,255,0.35)'"
-            ontouchend="this.style.background='rgba(255,255,255,0.05)';this.style.color='rgba(255,255,255,0.6)';this.style.borderColor='rgba(255,255,255,0.18)'">
-            자산분석
-          </button>
-          <button onclick="loadAiComment(true, true)"
-            style="background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.18);border-radius:20px;color:rgba(255,255,255,0.6);font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:500;padding:4px 12px;cursor:pointer;letter-spacing:0.5px;transition:all .2s"
-            ontouchstart="this.style.background='rgba(255,255,255,0.12)';this.style.color='rgba(255,255,255,0.9)';this.style.borderColor='rgba(255,255,255,0.35)'"
-            ontouchend="this.style.background='rgba(255,255,255,0.05)';this.style.color='rgba(255,255,255,0.6)';this.style.borderColor='rgba(255,255,255,0.18)'">
-            시황
-          </button>
-        </div>
-            ontouchstart="this.style.background='rgba(255,255,255,0.07)';this.style.color='rgba(255,255,255,0.7)';this.style.borderColor='rgba(255,255,255,0.25)'"
-            ontouchend="this.style.background='transparent';this.style.color='rgba(255,255,255,0.35)';this.style.borderColor='rgba(255,255,255,0.12)'">
-            시황
-          </button>
-        </div>      </div>
+      </div>
       <div id="ai-comment-text" style="font-size:13px;color:var(--text);line-height:1.8;letter-spacing:0.1px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer" onclick="toggleAiComment(this)">
         <div style="color:var(--muted);font-size:12px">분석 중...</div>
       </div>
       <div id="ai-comment-expand" onclick="toggleAiComment(document.getElementById('ai-comment-text'))" style="display:none;position:relative;height:36px;margin-top:-36px;cursor:pointer;opacity:0;transition:opacity 0.4s ease">
-        <!-- 그라데이션 페이드 -->
-        <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent,var(--surface));border-radius:0 0 8px 8px"></div>
-        <!-- 더보기 텍스트 -->
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent,#141414);border-radius:0 0 8px 8px"></div>
         <div style="position:absolute;bottom:2px;left:0;right:0;text-align:center">
           <span style="font-size:10px;color:rgba(255,255,255,0.35);font-weight:400;letter-spacing:0.8px">더보기</span>
         </div>
