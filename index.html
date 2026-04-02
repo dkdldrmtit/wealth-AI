@@ -3242,10 +3242,13 @@ async function handleSignup() {
 
   // 회원가입
   btn.textContent = '가입 중...';
-  const { data, error } = await _supabase.auth.signUp({
+const { data, error } = await _supabase.auth.signUp({
     email,
     password,
-    options: { data: { name } }
+    options: {
+      data: { name },
+      emailRedirectTo: 'https://dkdldrmtit.github.io/wealth-AI/'
+    }
   });
 
   if (error) {
