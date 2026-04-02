@@ -1222,25 +1222,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
   </div>
 
-  <!-- ⑧ 민석/시윤 금융자산 -->
-  <div data-card="owners" id="home-card-owners">
-  <div class="card" onclick="goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>setAssetView('item'),300)" style="cursor:pointer">
-    <div class="card-title">민석 · 시윤 금융자산</div>
-    <div class="owner-split">
-      <div class="owner-box" onclick="goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>{setAssetView('item');setTimeout(()=>{const el=document.getElementById('item-section-민석 금융자산');if(el)el.scrollIntoView({behavior:'smooth'})},200)},300)" style="cursor:pointer">
-        <div class="ob-name" style="color:var(--muted2)">민석 ›</div>
-        <div class="ob-amt" id="h-minsuk-amt" style="color:var(--text)">—</div>
-        <div class="ob-items" id="h-minsuk-items" style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.7"></div>
-      </div>
-      <div class="owner-box" onclick="goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>{setAssetView('item');setTimeout(()=>{const el=document.getElementById('item-section-시윤 금융자산');if(el)el.scrollIntoView({behavior:'smooth'})},200)},300)" style="cursor:pointer">
-        <div class="ob-name" style="color:var(--muted2)">시윤 ›</div>
-        <div class="ob-amt" id="h-siyun-amt" style="color:var(--text)">—</div>
-        <div class="ob-items" id="h-siyun-items" style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.7"></div>
-      </div>
-    </div>
-  </div>
-  </div>
-
   <!-- ⑨ 아파트 실거래가 -->
   <div data-card="apt" id="home-card-apt">
   <div class="card" onclick="goPage('settings',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab('apt'),200)" style="border-color:rgba(96,165,250,.2);cursor:pointer">
@@ -5659,8 +5640,7 @@ const HOME_CARD_DEFAULTS = [
   { id:'goalguage', label:'🎯 순자산 목표 게이지',   visible:true  },
   { id:'summary', label:'📊 총자산/부채/순자산',    visible:true  },
   { id:'chart',   label:'📈 순자산 추이',           visible:true  },
-  { id:'donut',   label:'🥧 자산 구성',             visible:false },
-  { id:'owners',  label:'👨👩 민석/시윤 금융자산',  visible:false },
+  { id:'donut',   label:'🥧 자산 구성',             visible:true },
   { id:'apt',     label:'🏢 아파트 실거래가',       visible:true  },
 ];
 
