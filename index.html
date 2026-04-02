@@ -486,10 +486,10 @@ body[data-theme="light"] {
 
 /* ── 2. 카드 탭 피드백 통일 ── */
 .card {
-  transition: transform .12s ease, box-shadow .12s ease;
+  transition: transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s ease;
 }
 .card:active {
-  transform: scale(0.985);
+  transform: scale(0.997);
 }
 /* input 포함된 카드는 흔들림 방지 */
 .card:has(input:focus):active,
@@ -500,9 +500,9 @@ body[data-theme="light"] {
 .card[onclick]:active,
 .sum-box:active,
 .owner-box:active {
-  transform: scale(0.97);
-  opacity: 0.85;
-  transition: transform .1s ease, opacity .1s ease;
+  transform: scale(0.997);
+  opacity: 0.95;
+  transition: transform .25s cubic-bezier(.4,0,.2,1), opacity .25s ease;
 }
 /* input/textarea 클릭 시 부모 카드 흔들림 방지 */
 .card input:active,
@@ -641,8 +641,8 @@ button:active {
 }
 .btn-primary:active {
   opacity: 1;
-  transform: scale(0.97);
-  filter: brightness(0.9);
+  transform: scale(0.98);
+  filter: brightness(0.95);
 }
 
 /* ── 12. 라이트모드 네비바 개선 ── */
