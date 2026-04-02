@@ -1009,54 +1009,38 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     </div>
 
     <!-- 대결 영역 -->
-    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch">
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:center;padding:16px 0">
 
       <!-- 민석 -->
-      <div id="couple-ms-side" onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[4]);setTimeout(()=>setStkOwner('minsuk'),300)" style="padding:12px 16px 16px;text-align:center;position:relative;cursor:pointer">
-        <div style="font-size:12px;font-weight:600;color:var(--minsuk);margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="width:18px;height:18px;border-radius:50%;background:rgba(59,130,246,0.15);color:var(--blue);font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center">M</span>민석</div>
-        <!-- 저축률 -->
-        <div style="margin-bottom:8px">
-          <div id="couple-ms-save" style="font-size:22px;font-weight:900;color:var(--text)">-</div>
-          <div style="font-size:10px;color:var(--muted);margin-top:2px">이달 지출</div>
+      <div id="couple-ms-side" onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[4]);setTimeout(()=>setStkOwner('minsuk'),300)" style="padding:0 16px;text-align:center;cursor:pointer">
+        <div style="font-size:12px;font-weight:600;color:var(--minsuk);margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:4px">
+          <span style="width:18px;height:18px;border-radius:50%;background:rgba(59,130,246,0.15);color:var(--blue);font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center">M</span>
+          민석
+          <span id="couple-ms-crown" style="display:none;font-size:13px;line-height:1">👑</span>
         </div>
-        <!-- 지출 바 -->
-        <div style="background:rgba(255,255,255,.06);border-radius:6px;height:6px;overflow:hidden;margin-bottom:8px">
-          <div id="couple-ms-bar" style="height:100%;border-radius:6px;background:var(--minsuk);transition:width 1s ease;width:0%"></div>
-        </div>
-        <!-- 지출액 -->
-        <div style="font-size:11px;color:var(--muted)">지출 <span id="couple-ms-exp" style="color:var(--text);font-weight:600">-</span></div>
-        <!-- 주식 수익률 -->
-        <div style="font-size:11px;color:var(--muted);margin-top:4px">주식 <span id="couple-ms-stock" style="font-weight:700">-</span></div>
-        <!-- 트로피 -->
-        <div id="couple-ms-trophy" style="display:none;position:absolute;top:8px;right:8px;font-size:10px;font-weight:700;color:var(--gold);letter-spacing:0.5px">1위</div>
+        <div id="couple-ms-save" style="font-size:22px;font-weight:900;color:var(--text);transition:all .3s ease;line-height:1.1">-</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px;margin-bottom:8px">이달 지출</div>
+        <div style="font-size:11px;color:var(--muted)">주식 <span id="couple-ms-stock" style="font-weight:700">-</span></div>
       </div>
 
-      <!-- 가운데 VS -->
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 4px;background:rgba(255,255,255,.03)">
+      <!-- 가운데 VS + 바 -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 4px;min-width:60px">
         <div style="font-size:11px;font-weight:900;color:var(--muted);letter-spacing:1px">VS</div>
-        <div style="width:1px;height:40px;background:var(--border);margin:6px 0"></div>
-        <div id="couple-score" style="display:none"></div>
+        <div id="couple-bar-wrap" style="width:100%"></div>
       </div>
 
       <!-- 시윤 -->
-      <div id="couple-sy-side" onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[4]);setTimeout(()=>setStkOwner('siyun'),300)" style="padding:12px 16px 16px;text-align:center;position:relative;cursor:pointer">
-        <div style="font-size:12px;font-weight:600;color:var(--siyun);margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="width:18px;height:18px;border-radius:50%;background:rgba(34,197,94,0.15);color:var(--green);font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center">S</span>시윤</div>
-        <!-- 저축률 -->
-        <div style="margin-bottom:8px">
-          <div id="couple-sy-save" style="font-size:22px;font-weight:900;color:var(--text)">-</div>
-          <div style="font-size:10px;color:var(--muted);margin-top:2px">이달 지출</div>
+      <div id="couple-sy-side" onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[4]);setTimeout(()=>setStkOwner('siyun'),300)" style="padding:0 16px;text-align:center;cursor:pointer">
+        <div style="font-size:12px;font-weight:600;color:var(--siyun);margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:4px">
+          <span style="width:18px;height:18px;border-radius:50%;background:rgba(34,197,94,0.15);color:var(--green);font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center">S</span>
+          시윤
+          <span id="couple-sy-crown" style="display:none;font-size:13px;line-height:1">👑</span>
         </div>
-        <!-- 지출 바 -->
-        <div style="background:rgba(255,255,255,.06);border-radius:6px;height:6px;overflow:hidden;margin-bottom:8px">
-          <div id="couple-sy-bar" style="height:100%;border-radius:6px;background:var(--siyun);transition:width 1s ease;width:0%"></div>
-        </div>
-        <!-- 지출액 -->
-        <div style="font-size:11px;color:var(--muted)">지출 <span id="couple-sy-exp" style="color:var(--text);font-weight:600">-</span></div>
-        <!-- 주식 수익률 -->
-        <div style="font-size:11px;color:var(--muted);margin-top:4px">주식 <span id="couple-sy-stock" style="font-weight:700">-</span></div>
-        <!-- 트로피 -->
-        <div id="couple-sy-trophy" style="display:none;position:absolute;top:8px;right:8px;font-size:10px;font-weight:700;color:var(--gold);letter-spacing:0.5px">1위</div>
+        <div id="couple-sy-save" style="font-size:22px;font-weight:900;color:var(--text);transition:all .3s ease;line-height:1.1">-</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px;margin-bottom:8px">이달 지출</div>
+        <div style="font-size:11px;color:var(--muted)">주식 <span id="couple-sy-stock" style="font-weight:700">-</span></div>
       </div>
+
     </div>
 
     <!-- 하단 총평 -->
@@ -1279,7 +1263,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div class="card" onclick="goPage('settings',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab('apt'),200)" style="cursor:pointer">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px" id="home-apt-card-title">아파트 실거래가</div>
-      <button onclick="event.stopPropagation();fetchAndShowApt()" id="apt-refresh-btn" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer">🔄 새로고침</button>
+      <button onclick="event.stopPropagation();fetchAndShowApt()" id="apt-refresh-btn" style="background:none;border:none;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;padding:0">🔄 새로고침</button>
     </div>
     <div id="home-apt-content">
       <div style="text-align:center;color:var(--muted);font-size:12px;padding:8px 0">새로고침 버튼을 눌러 최신 시세를 불러오세요</div>
@@ -5108,20 +5092,14 @@ function renderCoupleCard() {
   const now = new Date();
   const thisMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
 
-  // 민석/시윤 이번달 지출/수입
   const msTxs = ledgerTxs.filter(function(t) { return t.date.startsWith(thisMonth) && t.owner === 'minsuk'; });
   const syTxs = ledgerTxs.filter(function(t) { return t.date.startsWith(thisMonth) && t.owner === 'siyun'; });
 
   const msExp = msTxs.filter(function(t) { return t.type === 'expense'; }).reduce(function(s,t) { return s+t.amount; }, 0);
-  const msInc = msTxs.filter(function(t) { return t.type === 'income'; }).reduce(function(s,t) { return s+t.amount; }, 0);
   const syExp = syTxs.filter(function(t) { return t.type === 'expense'; }).reduce(function(s,t) { return s+t.amount; }, 0);
-  const syInc = syTxs.filter(function(t) { return t.type === 'income'; }).reduce(function(s,t) { return s+t.amount; }, 0);
 
-  const msSaveRate = msInc > 0 ? Math.round((msInc - msExp) / msInc * 100) : null;
-  const sySaveRate = syInc > 0 ? Math.round((syInc - syExp) / syInc * 100) : null;
-
-  // 주식 수익률
   const usdKrw = load('usd-krw-rate', 0);
+
   function calcStockPct(owner) {
     const ownerStocks = stocks.filter(function(s) { return s.owner === owner && s.currentPrice > 0; });
     if (!ownerStocks.length) return null;
@@ -5135,12 +5113,12 @@ function renderCoupleCard() {
     }, 0);
     return totalBuy > 0 ? ((totalEval - totalBuy) / totalBuy * 100) : null;
   }
+
   const msStockPct = calcStockPct('minsuk');
   const syStockPct = calcStockPct('siyun');
 
-  // 점수 계산 (지출 적은 사람이 이김 + 주식수익률)
+  // 점수 계산
   let msScore = 0, syScore = 0;
-
   if (msExp > 0 || syExp > 0) {
     if (msExp < syExp) msScore += 2;
     else if (syExp < msExp) syScore += 2;
@@ -5152,101 +5130,101 @@ function renderCoupleCard() {
     else { msScore += 1; syScore += 1; }
   }
 
-  // 지출 바 (많이 쓴 쪽이 100%)
-  const maxExp = Math.max(msExp, syExp, 1);
-  const msExpBar = msExp > 0 ? Math.min(100, (msExp / maxExp) * 100) : 0;
-  const syExpBar = syExp > 0 ? Math.min(100, (syExp / maxExp) * 100) : 0;
+  const msWin = msScore > syScore;
+  const syWin = syScore > msScore;
 
-  // UI 업데이트
-  const elId = function(id) { return document.getElementById(id); };
-
-  // 지출금액 (큰 숫자 표시)
+  // 금액 포맷 (만원 단위 저장값 → 표시)
   function fmtExp(v) {
     if (!v) return '-';
-    return v >= 10000 ? (v / 10000).toFixed(1) + '만' : Math.round(v).toLocaleString() + '원';
-  }
-  if (elId('couple-ms-save')) {
-    elId('couple-ms-save').textContent = msExp > 0 ? fmtExp(msExp) : '-';
-    elId('couple-ms-save').style.color = (msExp > 0 && syExp > 0)
-      ? (msExp <= syExp ? 'var(--green)' : 'var(--red)') : 'var(--text)';
-  }
-  if (elId('couple-sy-save')) {
-    elId('couple-sy-save').textContent = syExp > 0 ? fmtExp(syExp) : '-';
-    elId('couple-sy-save').style.color = (msExp > 0 && syExp > 0)
-      ? (syExp <= msExp ? 'var(--green)' : 'var(--red)') : 'var(--text)';
+    const won = Math.round(v * 10000);
+    if (won >= 10000) return (won / 10000).toFixed(0) + '만원';
+    return won.toLocaleString() + '원';
   }
 
-  // 바
-  if (elId('couple-ms-bar')) elId('couple-ms-bar').style.width = msExpBar + '%';
-  if (elId('couple-sy-bar')) elId('couple-sy-bar').style.width = syExpBar + '%';
+  // 승자 크게 선명하게, 패자 흐리게
+  const msSaveEl = document.getElementById('couple-ms-save');
+  const sySaveEl = document.getElementById('couple-sy-save');
 
-  // 지출
-  if (elId('couple-ms-exp')) elId('couple-ms-exp').textContent = msExp > 0 ? Math.round(msExp).toLocaleString() + '만' : '-';
-  if (elId('couple-sy-exp')) elId('couple-sy-exp').textContent = syExp > 0 ? Math.round(syExp).toLocaleString() + '만' : '-';
+  if (msSaveEl) {
+    msSaveEl.textContent = msExp > 0 ? fmtExp(msExp) : '-';
+    msSaveEl.style.fontSize = msWin ? '26px' : syWin ? '18px' : '22px';
+    msSaveEl.style.opacity = syWin ? '0.3' : '1';
+  }
+  if (sySaveEl) {
+    sySaveEl.textContent = syExp > 0 ? fmtExp(syExp) : '-';
+    sySaveEl.style.fontSize = syWin ? '26px' : msWin ? '18px' : '22px';
+    sySaveEl.style.opacity = msWin ? '0.3' : '1';
+  }
 
-  // 주식
-  if (elId('couple-ms-stock')) {
+  // 크라운
+  const msCrown = document.getElementById('couple-ms-crown');
+  const syCrown = document.getElementById('couple-sy-crown');
+  if (msCrown) msCrown.style.display = msWin ? 'inline' : 'none';
+  if (syCrown) syCrown.style.display = syWin ? 'inline' : 'none';
+
+  // 가운데서 반대 방향으로 뻗는 바
+  const maxExp = Math.max(msExp, syExp, 0.001);
+  const msBarPct = Math.min(100, Math.round(msExp / maxExp * 100));
+  const syBarPct = Math.min(100, Math.round(syExp / maxExp * 100));
+
+  const barWrap = document.getElementById('couple-bar-wrap');
+  if (barWrap) {
+    barWrap.innerHTML =
+      '<div style="display:flex;height:6px;border-radius:4px;overflow:hidden;background:rgba(255,255,255,0.06)">'
+      + '  <div style="flex:1;display:flex;justify-content:flex-end">'
+      + '    <div style="height:100%;width:' + msBarPct + '%;background:var(--minsuk);border-radius:3px 0 0 3px;transition:width 1s ease;opacity:' + (syWin ? '0.3' : '1') + '"></div>'
+      + '  </div>'
+      + '  <div style="width:1px;background:var(--border2);flex-shrink:0"></div>'
+      + '  <div style="flex:1;display:flex;justify-content:flex-start">'
+      + '    <div style="height:100%;width:' + syBarPct + '%;background:var(--siyun);border-radius:0 3px 3px 0;transition:width 1s ease;opacity:' + (msWin ? '0.3' : '1') + '"></div>'
+      + '  </div>'
+      + '</div>';
+  }
+
+  // 주식 수익률
+  const msStockEl = document.getElementById('couple-ms-stock');
+  const syStockEl = document.getElementById('couple-sy-stock');
+  if (msStockEl) {
     if (msStockPct !== null) {
-      elId('couple-ms-stock').textContent = (msStockPct >= 0 ? '+' : '') + msStockPct.toFixed(1) + '%';
-      elId('couple-ms-stock').style.color = msStockPct >= 0 ? 'var(--red)' : 'var(--blue)';
+      msStockEl.textContent = (msStockPct >= 0 ? '+' : '') + msStockPct.toFixed(1) + '%';
+      msStockEl.style.color = msStockPct >= 0 ? 'var(--red)' : 'var(--blue)';
     } else {
-      elId('couple-ms-stock').textContent = '-';
-      elId('couple-ms-stock').style.color = 'var(--muted)';
+      msStockEl.textContent = '-';
+      msStockEl.style.color = 'var(--muted)';
     }
   }
-  if (elId('couple-sy-stock')) {
+  if (syStockEl) {
     if (syStockPct !== null) {
-      elId('couple-sy-stock').textContent = (syStockPct >= 0 ? '+' : '') + syStockPct.toFixed(1) + '%';
-      elId('couple-sy-stock').style.color = syStockPct >= 0 ? 'var(--red)' : 'var(--blue)';
+      syStockEl.textContent = (syStockPct >= 0 ? '+' : '') + syStockPct.toFixed(1) + '%';
+      syStockEl.style.color = syStockPct >= 0 ? 'var(--red)' : 'var(--blue)';
     } else {
-      elId('couple-sy-stock').textContent = '-';
-      elId('couple-sy-stock').style.color = 'var(--muted)';
+      syStockEl.textContent = '-';
+      syStockEl.style.color = 'var(--muted)';
     }
   }
 
-
-  // 트로피 & 승자 배지
-  const msTrophy = elId('couple-ms-trophy');
-  const syTrophy = elId('couple-sy-trophy');
-  const winnerBadge = elId('couple-winner-badge');
-  const msSide = elId('couple-ms-side');
-  const sySide = elId('couple-sy-side');
-
-  if (msTrophy) msTrophy.style.display = 'none';
-  if (syTrophy) syTrophy.style.display = 'none';
-  if (msSide) msSide.style.background = 'transparent';
-  if (sySide) sySide.style.background = 'transparent';
-
-  if (msScore > syScore) {
-    if (msTrophy) msTrophy.style.display = 'block';
-    if (msSide) msSide.style.background = 'rgba(59,130,246,0.05)';
-    if (winnerBadge) {
+  // 헤더 승자 배지
+  const winnerBadge = document.getElementById('couple-winner-badge');
+  if (winnerBadge) {
+    if (msWin) {
       winnerBadge.textContent = '민석 리드 중!';
       winnerBadge.style.color = 'var(--minsuk)';
-    }
-  } else if (syScore > msScore) {
-    if (syTrophy) syTrophy.style.display = 'block';
-    if (sySide) sySide.style.background = 'rgba(34,197,94,0.05)';
-    if (winnerBadge) {
+    } else if (syWin) {
       winnerBadge.textContent = '시윤 리드 중!';
       winnerBadge.style.color = 'var(--siyun)';
-    }
-  } else {
-    if (winnerBadge) {
+    } else {
       winnerBadge.textContent = '동점';
       winnerBadge.style.color = 'var(--muted)';
     }
   }
 
-  // 점수 표시 (숨김)
-
   // 하단 총평
-  const commentEl = elId('couple-comment');
+  const commentEl = document.getElementById('couple-comment');
   if (commentEl) {
     const comments = [];
     if (msExp > 0 && syExp > 0) {
       const diff = Math.abs(msExp - syExp);
-      const diffFmt = diff >= 10000 ? (diff / 10000).toFixed(1) + '만원' : Math.round(diff).toLocaleString() + '원';
+      const diffFmt = diff >= 1 ? diff.toFixed(1) + '만원' : Math.round(diff * 10000).toLocaleString() + '원';
       if (msExp < syExp) {
         comments.push('민석이 지출 ' + diffFmt + ' 덜 썼어요');
       } else if (syExp < msExp) {
@@ -6886,8 +6864,8 @@ function renderHomeApt() {
   const diff = currentApt > 0 ? price - currentApt : null;
   const diffHtml = diff !== null
     ? (diff >= 0
-        ? '<span style="color:var(--teal);font-weight:600">▲ +' + (diff/10000).toFixed(2) + '억</span>'
-        : '<span style="color:var(--red);font-weight:700">▼ ' + (Math.abs(diff)/10000).toFixed(2) + '억</span>')
+        ? '<span style="color:var(--red);font-weight:600">▲ +' + (diff/10000).toFixed(2) + '억</span>'
+        : '<span style="color:var(--blue);font-weight:700">▼ ' + (Math.abs(diff)/10000).toFixed(2) + '억</span>')
     : '';
 
   wrap.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px">'
