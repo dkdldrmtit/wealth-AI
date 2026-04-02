@@ -6879,7 +6879,7 @@ function renderMiniChart() {
     const showLabel = isLast || isFirst || isHighest || isLowest || data.length <= 6;
 
     // 점 (탭하면 해당 월 상세 이동)
-    svgHtml += '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="' + (isLast?4:3) + '" fill="' + (isLast?'#ffffff':(isHighest?'#4ade80':(isLowest?'#f87171':'#ffffff'))) + '"'
+      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + labelY + '" text-anchor="middle" fill="' + (isLast?'var(--text)':(isHighest?'#4ade80':(isLowest?'#f87171':'var(--muted2)'))) + '" font-size="9" font-weight="700" font-family="Noto Sans KR">' + (p.r.net/10000).toFixed(1) + '억</text>';
       + ' style="cursor:pointer" onclick="goPage(\'input\',document.querySelectorAll(\'.nav-item\')[3]);setTimeout(function(){openAssetDetail(\'' + p.r.month + '\')},300)"/>';
     if (showLabel) {
       const above = p.y > pad.t + 15;
