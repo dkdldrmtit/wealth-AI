@@ -737,6 +737,15 @@ body[data-theme="light"] .ge-group input:focus { border-color: #1d58d8 !importan
 }
 body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
+@keyframes vwave {
+  0%   { height: 4px; }
+  100% { height: 24px; }
+}
+@keyframes ptr-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -1161,7 +1170,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
     </div>
 
-    </div>
    <!-- 총자산 / 부채 C안 -->
     <div style="margin-top:10px;cursor:pointer" onclick="goPage('input',document.querySelectorAll('.nav-item')[3])">
 
@@ -1199,6 +1207,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
 
     </div>
+    
     </div>
   </div>
   </div>
@@ -1351,8 +1360,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
     </div>
   </div>
-
-  </div><!-- /home-cards-anchor (placeholder, 모달 이후) -->
 
 </div>
 
@@ -3372,42 +3379,17 @@ function renderMonthCards() {
   wrap.innerHTML = rows.map((r, i) => {
     const prev = rows[i+1];
     const diff = prev ? r.net - prev.net : null;
-    const diffBadge = diff === null
-      ? `<span style="font-size:10px;color:var(--muted)">최초 기록</span>`
-      : diff >= 0
-        ? `<span style="background:rgba(74,222,128,.12);color:var(--green);font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px">▲ +${(diff/10000).toFixed(2)}억</span>`
-        : `<span style="background:rgba(248,113,113,.12);color:var(--red);font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px">▼ ${(diff/10000).toFixed(2)}억</span>`;
     const [y, m] = r.month.split('-');
     const isLatest = i === 0;
-    let detailHtml = '';
-    if (r.detail) {
-      const ms = r.detail.minsuk, sy = r.detail.siyun;
-      const minsukTotal = ms.irp+ms.msSub+ms.s1+ms.toss;
-      const siyunTotal = sy.cash+sy.sySub+sy.jump+sy.fund+sy.s2;
-      const fin = minsukTotal + siyunTotal;
-      detailHtml = `
-        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div style="background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.15);border-radius:12px;padding:10px">
-            <div style="font-size:10px;color:var(--minsuk);font-weight:700;margin-bottom:6px">👨 민석 ${minsukTotal.toLocaleString()}만</div>
-            <div style="font-size:10px;color:var(--muted);line-height:1.9">IRP ${ms.irp.toLocaleString()}<br>청약 ${ms.msSub.toLocaleString()}<br>우리사주 ${ms.s1.toLocaleString()}<br>토스 ${ms.toss.toLocaleString()}</div>
-          </div>
-          <div style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.15);border-radius:12px;padding:10px">
-            <div style="font-size:10px;color:var(--siyun);font-weight:700;margin-bottom:6px">👩 시윤 ${siyunTotal.toLocaleString()}만</div>
-            <div style="font-size:10px;color:var(--muted);line-height:1.9">현금 ${sy.cash.toLocaleString()}<br>청약 ${sy.sySub.toLocaleString()}<br>청년도약 ${sy.jump.toLocaleString()}<br>펀드 ${sy.fund.toLocaleString()}<br>주식 ${sy.s2.toLocaleString()}</div>
-          </div>
-        </div>
-        <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div style="background:var(--surface2);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center">
-            <span style="font-size:10px;color:var(--muted)">🏢 아파트</span>
-            <span style="font-size:12px;font-weight:700">${(r.detail.apt/10000).toFixed(2)}억</span>
-          </div>
-          <div style="background:var(--surface2);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center">
-            <span style="font-size:10px;color:var(--muted)">💰 금융</span>
-            <span style="font-size:12px;font-weight:700">${(fin/10000).toFixed(2)}억</span>
-          </div>
-        </div>`;
-    }
-    // 항목별 전월 대비 변화 계산
+
+    // 전월대비
+    const diffHtml = diff === null
+      ? '<span style="font-size:11px;color:var(--muted)">첫 기록</span>'
+      : diff >= 0
+        ? '<span style="font-size:12px;font-weight:600;color:var(--text)">▲ +' + (diff/10000).toFixed(2) + '억</span>'
+        : '<span style="font-size:12px;font-weight:600;color:var(--red)">▼ ' + (diff/10000).toFixed(2) + '억</span>';
+
+    // 항목 변화 (심플하게 텍스트만)
     let itemChangesHtml = '';
     if (prev && r.items && prev.items) {
       const changes = [];
@@ -3415,58 +3397,61 @@ function renderMonthCards() {
         const prevItem = prev.items.find(p => p.name === item.name && p.category === item.category);
         if (prevItem && prevItem.amount !== item.amount) {
           const d = item.amount - prevItem.amount;
-          changes.push({ name: item.name, diff: d, emoji: item.emoji });
+          changes.push({ name: item.name, diff: d });
         } else if (!prevItem && item.amount > 0) {
-          changes.push({ name: item.name, diff: item.amount, emoji: item.emoji, isNew: true });
+          changes.push({ name: item.name, diff: item.amount, isNew: true });
         }
       });
       if (changes.length) {
-        itemChangesHtml = '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:5px">';
+        itemChangesHtml = '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">';
         changes.slice(0,4).forEach(function(c) {
-          const color = c.diff > 0 ? 'var(--green)' : 'var(--red)';
-          itemChangesHtml += '<span style="font-size:10px;background:var(--surface2);border-radius:8px;padding:3px 8px;color:' + color + ';font-weight:600">';
-          itemChangesHtml += c.emoji + ' ' + c.name + ' ' + (c.diff > 0 ? '+' : '') + (c.diff/10000).toFixed(1) + '억';
-          itemChangesHtml += '</span>';
+          const color = c.diff > 0 ? 'var(--muted2)' : 'var(--red)';
+          itemChangesHtml += '<span style="font-size:11px;color:' + color + '">'
+            + c.name + ' ' + (c.diff > 0 ? '+' : '') + (c.diff/10000).toFixed(1) + '억'
+            + '</span>';
         });
-        if (changes.length > 4) itemChangesHtml += '<span style="font-size:10px;color:var(--muted);padding:3px 5px">+' + (changes.length-4) + '개</span>';
+        if (changes.length > 4) itemChangesHtml += '<span style="font-size:11px;color:var(--muted)">+' + (changes.length-4) + '개</span>';
         itemChangesHtml += '</div>';
       }
     }
 
     return `<div class="card" onclick="openAssetDetail('${r.month}')"
-      style="border-color:${isLatest ? 'rgba(240,192,64,.25)' : 'rgba(255,255,255,.06)'};cursor:pointer;transition:transform .1s"
-      onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform=''" ontouchstart="this.style.transform='scale(0.98)'" ontouchend="this.style.transform=''">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+      style="cursor:pointer;border-color:${isLatest ? 'rgba(255,255,255,0.12)' : 'var(--border)'};">
+
+      <!-- 상단: 년월 + 전월대비 -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:13px;font-weight:600;color:var(--text)">${y}년 ${parseInt(m)}월</span>
+          ${isLatest ? '<span style="font-size:10px;color:var(--muted);background:var(--surface2);padding:2px 8px;border-radius:8px">최신</span>' : ''}
+        </div>
+        ${diffHtml}
+      </div>
+
+      <!-- 순자산 크게 -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:9px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:4px">순자산</div>
+        <div style="font-size:28px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-1px">${(r.net/10000).toFixed(2)}<span style="font-size:14px;font-weight:400;color:var(--muted);margin-left:3px">억</span></div>
+      </div>
+
+      <!-- 총자산 / 부채 작게 -->
+      <div style="display:flex;gap:16px">
         <div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-            <div style="font-size:12px;color:#e8f4ff;font-weight:700;letter-spacing:1px">${y}년 ${parseInt(m)}월</div>
-            ${isLatest ? '<span style="background:rgba(232,244,255,0.1);color:#e8f4ff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px">최신</span>' : ''}
-          </div>
-          <div style="font-size:22px;font-weight:900;color:var(--teal)">${(r.net/10000).toFixed(2)}<span style="font-size:12px;color:var(--muted);font-weight:400">억 순자산</span></div>
+          <div style="font-size:9px;color:var(--muted);margin-bottom:2px">총자산</div>
+          <div style="font-size:13px;font-weight:600;color:var(--muted2)">${(r.total/10000).toFixed(2)}억</div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-          ${diffBadge}
-          <span style="font-size:12px;color:var(--muted)">›</span>
+        <div>
+          <div style="font-size:9px;color:var(--muted);margin-bottom:2px">부채</div>
+          <div style="font-size:13px;font-weight:600;color:var(--muted2)">${(r.debt/10000).toFixed(2)}억</div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-        <div style="background:var(--surface2);border-radius:10px;padding:10px;text-align:center">
-          <div style="font-size:9px;color:var(--muted);margin-bottom:3px">총자산</div>
-          <div style="font-size:13px;font-weight:700;color:var(--text)">${(r.total/10000).toFixed(2)}억</div>
-        </div>
-        <div style="background:var(--surface2);border-radius:10px;padding:10px;text-align:center">
-          <div style="font-size:9px;color:var(--muted);margin-bottom:3px">부채</div>
-          <div style="font-size:13px;font-weight:800;color:var(--red)">${(r.debt/10000).toFixed(2)}억</div>
-        </div>
-        <div style="background:var(--surface2);border-radius:10px;padding:10px;text-align:center">
-          <div style="font-size:9px;color:var(--muted);margin-bottom:3px">순자산</div>
-          <div style="font-size:13px;font-weight:800;color:var(--teal)">${(r.net/10000).toFixed(2)}억</div>
-        </div>
-      </div>
+
+      <!-- 항목 변화 -->
       ${itemChangesHtml}
+
     </div>`;
   }).join('');
 }
+
 
 // ── 자산별 보기 ──
 let currentAssetView = 'month';
@@ -7562,6 +7547,7 @@ function renderStockHistory() {
 }
 
 function initStocks() {
+  setStkTab(currentStkTab || 'list');
   renderStockList();
   const proxyKey = load('cloudflare-proxy', '');
   const notice = document.getElementById('stock-proxy-notice');
@@ -8485,7 +8471,7 @@ function renderCalUpcoming() {
       ? '<span style="font-size:11px;font-weight:700;color:' + (item.amountType==='in'?'var(--blue)':'var(--red)') + ';margin-left:6px">' + (item.amountType==='in'?'+':'-') + Math.round(item.amount).toLocaleString() + '원</span>'
       : '';
     const typeIcon = item.type === 'recurring' ? '🔄 ' : '';
-    return '<div onclick="' + (item.type==='schedule' ? 'openScheduleEdit(' + item.origIdx + ')' : 'setLedgerTab(\'budget\')') + '" style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;' + (isPast?'opacity:0.5':'') + '">'
+    return '<div onclick="' + (item.type==='schedule' ? 'openScheduleEdit(' + item.origIdx + ')' : 'setLedgerTab(\'budget\')') + '" style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;opacity:' + (isPast ? '0.5' : '1') + '">'
       + '<div style="width:8px;height:8px;border-radius:50%;background:' + dotColor + ';flex-shrink:0"></div>'
       + '<div style="flex:1;min-width:0">'
       + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + typeIcon + escHtml(item.name) + amtStr + '</div>'
@@ -10091,7 +10077,7 @@ function confirmExcelImport() {
       date: t.date,
       memo: t.memo,
       category: t.category,
-      owner: t.owner,
+      owner: t.owner === 'joint' ? 'common' : t.owner,
     });
   });
 
