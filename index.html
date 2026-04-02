@@ -1821,9 +1821,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <button id="stab-cat" onclick="setSettingsTab('cat')"
       style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">🏷️ 카테고리</button>
     <button id="stab-data" onclick="setSettingsTab('data')"
-      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">💾 데이터</button>  
-    <button id="stab-couple" onclick="setSettingsTab('couple')"
-      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">👫 커플</button>  </div>
+      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">💾 데이터·커플</button>
+  </div>
 
   <!-- 홈 설정 -->
   <div id="stab-content-home">
@@ -1832,6 +1831,19 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <p style="font-size:12px;color:var(--muted2);line-height:1.7;margin-bottom:14px">↑↓ 순서 변경 · 👁 표시/숨김</p>
       <div id="home-card-settings-list"></div>
       <button onclick="saveHomeCardSettings()" class="btn-primary" style="margin-top:14px">저장</button>
+    </div>
+
+    <!-- 계정 -->
+    <div class="card" style="border-color:rgba(239,68,68,0.15)">
+      <div class="card-title" style="color:var(--muted)">계정</div>
+      <div id="settings-my-info" style="padding:12px;background:var(--surface2);border-radius:12px;margin-bottom:12px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">로그인된 계정</div>
+        <div id="settings-my-email" style="font-size:14px;font-weight:600;color:var(--text)">-</div>
+      </div>
+      <button onclick="handleLogout()"
+        style="width:100%;padding:13px;border-radius:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
+        로그아웃
+      </button>
     </div>
   </div>
 
@@ -2013,46 +2025,44 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     </div>
   </div>
 
-<!-- 👫 커플 관리 -->
-  <div id="stab-content-couple" style="display:none">
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-title" style="color:var(--muted)">커플 정보</div>
+      <!-- 커플 관리 섹션 (데이터 탭에 통합) -->
+      <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+        <div class="card-title" style="color:var(--muted);margin-bottom:14px">👫 커플 · 계정</div>
 
-      <!-- 내 정보 -->
-      <div style="padding:12px;background:var(--surface2);border-radius:12px;margin-bottom:12px">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">내 계정</div>
-        <div id="couple-my-email" style="font-size:14px;font-weight:600;color:var(--text)">-</div>
-        <div id="couple-my-name" style="font-size:12px;color:var(--muted2);margin-top:2px">-</div>
-      </div>
+        <!-- 내 정보 -->
+        <div style="padding:12px;background:var(--surface2);border-radius:12px;margin-bottom:12px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px">내 계정</div>
+          <div id="couple-my-email" style="font-size:14px;font-weight:600;color:var(--text)">-</div>
+          <div id="couple-my-name" style="font-size:12px;color:var(--muted2);margin-top:2px">-</div>
+        </div>
 
-      <!-- 파트너 정보 -->
-      <div style="padding:12px;background:var(--surface2);border-radius:12px;margin-bottom:12px">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">파트너</div>
-        <div id="couple-partner-info" style="font-size:14px;font-weight:600;color:var(--text)">-</div>
-      </div>
+        <!-- 파트너 정보 -->
+        <div style="padding:12px;background:var(--surface2);border-radius:12px;margin-bottom:12px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px">파트너</div>
+          <div id="couple-partner-info" style="font-size:14px;font-weight:600;color:var(--text)">-</div>
+        </div>
 
-      <!-- 초대 코드 -->
-      <div style="padding:14px;background:var(--surface2);border-radius:12px;margin-bottom:12px">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:8px">초대 코드</div>
-        <div id="couple-invite-code-display" style="font-size:24px;font-weight:900;color:#22c55e;letter-spacing:4px;text-align:center;padding:12px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:10px;margin-bottom:10px">-</div>
-        <button onclick="copyInviteCode()"
-          style="width:100%;padding:11px;border-radius:10px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:#22c55e;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
-          📋 초대 코드 복사
+        <!-- 초대 코드 -->
+        <div style="padding:14px;background:var(--surface2);border-radius:12px;margin-bottom:12px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px">초대 코드</div>
+          <div id="couple-invite-code-display" style="font-size:24px;font-weight:900;color:#22c55e;letter-spacing:4px;text-align:center;padding:12px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:10px;margin-bottom:10px">-</div>
+          <button onclick="copyInviteCode()"
+            style="width:100%;padding:11px;border-radius:10px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:#22c55e;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
+            📋 초대 코드 복사
+          </button>
+          <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.6">파트너에게 이 코드를 알려주면<br>같은 공간에서 재무를 관리할 수 있어요</div>
+        </div>
+
+        <!-- 로그아웃 -->
+        <button onclick="handleLogout()"
+          style="width:100%;padding:13px;border-radius:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
+          로그아웃
         </button>
-        <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.6">파트너에게 이 코드를 알려주면<br>같은 공간에서 재무를 관리할 수 있어요</div>
       </div>
-    </div>
-
-    <!-- 로그아웃 -->
-    <div class="card" style="border-color:rgba(239,68,68,0.15)">
-      <div class="card-title" style="color:var(--muted)">계정</div>
-      <button onclick="handleLogout()"
-        style="width:100%;padding:13px;border-radius:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
-        로그아웃
-      </button>
     </div>
   </div>
-</div>
+
+
 
 
 
@@ -6797,8 +6807,10 @@ async function renderCoupleSettings() {
   // 내 정보
   const myEmailEl = document.getElementById('couple-my-email');
   const myNameEl = document.getElementById('couple-my-name');
+  const settingsEmailEl = document.getElementById('settings-my-email');
   if (myEmailEl) myEmailEl.textContent = currentUser.email || '-';
   if (myNameEl) myNameEl.textContent = currentProfile?.name || '-';
+  if (settingsEmailEl) settingsEmailEl.textContent = currentUser.email || '-';
 
   // 초대 코드 불러오기
   const { data: couple } = await _supabase
@@ -6829,6 +6841,7 @@ async function renderCoupleSettings() {
   }
 }
 
+
 // 초대 코드 복사
 async function copyInviteCode() {
   const code = document.getElementById('couple-invite-code-display').textContent;
@@ -6843,7 +6856,20 @@ let currentSettingsTab = 'home';
 
 function setSettingsTab(tab) {
   currentSettingsTab = tab;
-  ['home','api','apt','cat','data','couple'].forEach(t => {
+  ['home','api','apt','cat','data'].forEach(t => {
+    const btn = document.getElementById('stab-' + t);
+    const con = document.getElementById('stab-content-' + t);
+    const isActive = t === tab;
+    if (btn) {
+      btn.style.background = isActive ? 'rgba(59,130,246,0.10)' : 'transparent';
+      btn.style.color = isActive ? '#3b82f6' : 'var(--muted2)';
+      btn.style.fontWeight = isActive ? '700' : '600';
+    }
+    if (con) con.style.display = isActive ? 'block' : 'none';
+  });
+  if (tab === 'cat') renderCatSettings();
+  if (tab === 'data') renderCoupleSettings();
+}
     const btn = document.getElementById('stab-' + t);
     const con = document.getElementById('stab-content-' + t);
     const isActive = t === tab;
