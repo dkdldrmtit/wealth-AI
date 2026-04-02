@@ -1157,26 +1157,26 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
       <div id="h-net-change-badge" style="margin-top:8px;min-height:22px"></div>
     </div>
-    <!-- 총자산 / 부채 서브 -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
-      <div class="sum-box asset" onclick="goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('asset'),50)" style="cursor:pointer;padding:10px 12px">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <div>
-            <div class="lbl" style="margin-bottom:3px">총자산</div>
-            <div class="val" id="h-total" style="font-size:15px">—</div>
-          </div>
-          <div class="unit" style="font-size:10px;color:var(--muted);align-self:flex-end">억원 ›</div>
-        </div>
+    <!-- 총자산 / 부채 배지 -->
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <div onclick="goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('asset'),50)"
+        style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.12);border-radius:20px;padding:6px 14px;cursor:pointer;transition:background .15s"
+        ontouchstart="this.style.background='rgba(255,255,255,0.1)'" ontouchend="this.style.background='rgba(255,255,255,0.05)'">
+        <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.4)"></div>
+        <span style="font-size:10px;color:var(--muted);font-weight:500">총자산</span>
+        <span id="h-total" style="font-size:13px;font-weight:800;color:var(--text)">—</span>
+        <span style="font-size:10px;color:var(--muted)">억</span>
       </div>
-      <div class="sum-box debt" onclick="goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('debt'),50)" style="cursor:pointer;padding:10px 12px">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <div>
-            <div class="lbl" style="margin-bottom:3px">부채</div>
-            <div class="val" id="h-debt" style="font-size:15px;color:var(--red)">—</div>
-          </div>
-          <div class="unit" style="font-size:10px;color:var(--muted);align-self:flex-end">억원 ›</div>
-        </div>
+      <div onclick="goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('debt'),50)"
+        style="display:flex;align-items:center;gap:6px;background:rgba(248,113,113,0.06);border:0.5px solid rgba(248,113,113,0.2);border-radius:20px;padding:6px 14px;cursor:pointer;transition:background .15s"
+        ontouchstart="this.style.background='rgba(248,113,113,0.12)'" ontouchend="this.style.background='rgba(248,113,113,0.06)'">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--red);opacity:0.7"></div>
+        <span style="font-size:10px;color:var(--muted);font-weight:500">부채</span>
+        <span id="h-debt" style="font-size:13px;font-weight:800;color:var(--red)">—</span>
+        <span style="font-size:10px;color:var(--muted)">억</span>
       </div>
+    </div>
+
     </div>
   </div>
   </div>
