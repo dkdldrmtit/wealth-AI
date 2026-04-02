@@ -3485,7 +3485,6 @@ async function loadAllDataFromSupabase() {
   if (!currentCoupleId) return;
 
   try {
-    // 병렬로 전부 불러오기
     const [
       assetRes,
       ledgerRes,
@@ -3502,47 +3501,106 @@ async function loadAllDataFromSupabase() {
       _supabase.from('app_data').select('data').eq('couple_id', currentCoupleId).eq('key', 'budgets').single()
     ]);
 
-    // Supabase 데이터로 덮어쓰기 (없으면 빈 배열로 초기화)
-    assetHistory = (assetRes.data && assetRes.data.data) ? assetRes.data.data : [];
-    ledgerTxs = (ledgerRes.data && ledgerRes.data.data) ? ledgerRes.data.data : [];
-    stocks = (stocksRes.data && stocksRes.data.data) ? stocksRes.data.data : [];
-    goals = (goalsRes.data && goalsRes.data.data) ? goalsRes.data.data : [];
-    schedules = (schedulesRes.data && schedulesRes.data.data) ? schedulesRes.data.data : [];
-    budgets = (appDataRes.data && appDataRes.data.data) ? appDataRes.data.data : {
-      food:50, cafe:15, trans:20, shop:30, health:10,
-      leisure:20, child:0, edu:10, house:0, etc:20
-    };
+    const hasSupabaseData =
+      (assetRes.data && assetRes.data.data && assetRes.data.data.length > 0) ||
+      (ledgerRes.data && ledgerRes.data.data && ledgerRes.data.data.length > 0) ||
+      (stocksRes.data && stocksRes.data.data && stocksRes.data.data.length > 0);
 
-    // localStorage도 Supabase 데이터로 덮어쓰기
-    store('asset-history', assetHistory);
-    store('ledger-txs', ledgerTxs);
-    store('stocks', stocks);
-    store('goals', goals);
-    store('schedules', schedules);
-    store('ledger-budgets', budgets);
+    if (hasSupabaseData) {
+      assetHistory   = (assetRes.data && assetRes.data.data)         ? assetRes.data.data    : [];
+      ledgerTxs      = (ledgerRes.data && ledgerRes.data.data)       ? ledgerRes.data.data   : [];
+      stocks         = (stocksRes.data && stocksRes.data.data)       ? stocksRes.data.data   : [];
+      goals          = (goalsRes.data && goalsRes.data.data)         ? goalsRes.data.data    : [];
+      schedules      = (schedulesRes.data && schedulesRes.data.data) ? schedulesRes.data.data : [];
+      budgets        = (appDataRes.data && appDataRes.data.data)     ? appDataRes.data.data  : {
+        food:50, cafe:15, trans:20, shop:30, health:10,
+        leisure:20, child:0, edu:10, house:0, etc:20
+      };
 
-    console.log('✅ Supabase 데이터 로드 완료');
+      store('asset-history', assetHistory);
+      store('ledger-txs', ledgerTxs);
+      store('stocks', stocks);
+      store('goals', goals);
+      store('schedules', schedules);
+      store('ledger-budgets', budgets);
+
+      console.log('✅ Supabase 데이터 로드 완료');
+
+    } else {
+      // Supabase에 데이터 없으면 Cloudflare에서 시도
+      console.log('⚠️ Supabase 데이터 없음 → Cloudflare 시도');
+      const proxyUrl = load('cloudflare-proxy', '');
+      if (proxyUrl) {
+        try {
+          const res = await fetch(proxyUrl + '/sync-get', {
+            signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 8000); return c.signal; })()
+          });
+          if (res.ok) {
+            const json = await res.json();
+            if (json.ok && json.data) {
+              const d = json.data;
+              const keys = ['asset-history','goals','schedules','ledger-txs','ledger-budgets','stocks','recurring-items'];
+              let hasCloudData = false;
+              keys.forEach(function(key) {
+                if (d[key] && (Array.isArray(d[key]) ? d[key].length > 0 : Object.keys(d[key]).length > 0)) {
+                  store(key, d[key]);
+                  hasCloudData = true;
+                }
+              });
+              if (hasCloudData) {
+                assetHistory   = load('asset-history', []);
+                ledgerTxs      = load('ledger-txs', []);
+                stocks         = load('stocks', []);
+                goals          = load('goals', []);
+                schedules      = load('schedules', []);
+                budgets        = load('ledger-budgets', {});
+                recurringItems = load('recurring-items', []);
+
+                await Promise.all([
+                  saveToSupabase('asset_history', assetHistory),
+                  saveToSupabase('ledger_txs', ledgerTxs),
+                  saveToSupabase('stocks', stocks),
+                  saveToSupabase('goals', goals),
+                  saveToSupabase('schedules', schedules),
+                  saveAppDataToSupabase('budgets', budgets),
+                ]);
+                console.log('✅ Cloudflare → Supabase 마이그레이션 완료');
+                showToast('✅ 기존 데이터를 불러왔어요!');
+              }
+            }
+          }
+        } catch(e) {
+          console.log('Cloudflare 데이터 로드 실패:', e);
+          assetHistory   = load('asset-history', []);
+          ledgerTxs      = load('ledger-txs', []);
+          stocks         = load('stocks', []);
+          goals          = load('goals', []);
+          schedules      = load('schedules', []);
+          budgets        = load('ledger-budgets', {});
+          recurringItems = load('recurring-items', []);
+        }
+      } else {
+        assetHistory   = load('asset-history', []);
+        ledgerTxs      = load('ledger-txs', []);
+        stocks         = load('stocks', []);
+        goals          = load('goals', []);
+        schedules      = load('schedules', []);
+        budgets        = load('ledger-budgets', {});
+        recurringItems = load('recurring-items', []);
+      }
+    }
 
   } catch(e) {
     console.log('데이터 로드 오류:', e);
-
-    // 오류 시 빈 데이터로 초기화
-    assetHistory = [];
-    ledgerTxs = [];
-    stocks = [];
-    goals = load('goals', [
-      { name: '순자산 7억 달성', target: 70000, current: 55900, deadline: '2027-12' },
-      { name: '순자산 10억 달성', target: 100000, current: 55900, deadline: '2030-06' },
-      { name: '금융자산 2억 달성', target: 20000, current: 12890, deadline: '2028-12' },
-    ]);
-    schedules = [];
-    budgets = {
-      food:50, cafe:15, trans:20, shop:30, health:10,
-      leisure:20, child:0, edu:10, house:0, etc:20
-    };
+    assetHistory   = load('asset-history', []);
+    ledgerTxs      = load('ledger-txs', []);
+    stocks         = load('stocks', []);
+    goals          = load('goals', []);
+    schedules      = load('schedules', []);
+    budgets        = load('ledger-budgets', {});
+    recurringItems = load('recurring-items', []);
   }
 
-  // 화면 렌더링
   renderGoals();
   renderMonthCards();
   initHome();
@@ -5677,7 +5735,6 @@ function importBackup(event) {
       const backup = JSON.parse(e.target.result);
       if (!backup.data) { showToast('❗ 올바른 백업 파일이 아니에요'); return; }
 
-      // 🔒 복원 전 확인 모달 표시 (기존 데이터 덮어씀 경고)
       const exportedAt = backup.exportedAt ? backup.exportedAt.slice(0, 16) : '날짜 불명';
       const ok = await showConfirm(
         '⚠️ ' + exportedAt + ' 백업으로 복원하면\n현재 데이터가 모두 덮어씌워져요.\n계속할까요?',
@@ -5694,25 +5751,61 @@ function importBackup(event) {
           store(key, val);
         }
       });
+
       // 메모리 변수 갱신
-      assetHistory = load('asset-history', []);
-      goals = load('goals', []);
-      schedules = load('schedules', []);
-      ledgerTxs = load('ledger-txs', []);
+      assetHistory   = load('asset-history', []);
+      goals          = load('goals', []);
+      schedules      = load('schedules', []);
+      ledgerTxs      = load('ledger-txs', []);
       recurringItems = load('recurring-items', []);
-      // 화면 새로고침
-      renderGoals();
-      renderMonthCards(); if (currentAssetView === 'item') renderItemView();
-      initHome();
-      initRealEstate();
+      stocks         = load('stocks', []);
+      budgets        = load('ledger-budgets', {});
+
+      // Supabase에 업로드
       const status = document.getElementById('backup-status');
       if (status) {
         status.style.display = 'block';
-        status.style.color = 'var(--teal)';
-        status.textContent = '✅ ' + (backup.exportedAt || '') + ' 백업 복원 완료!';
+        status.style.color = 'var(--muted)';
+        status.textContent = '☁️ 클라우드에 업로드 중...';
       }
-      showToast('✅ 데이터가 복원됐어요!');
-      // 파일 입력 초기화
+
+      if (currentCoupleId) {
+        try {
+          await Promise.all([
+            saveToSupabase('asset_history', assetHistory),
+            saveToSupabase('ledger_txs', ledgerTxs),
+            saveToSupabase('stocks', stocks),
+            saveToSupabase('goals', goals),
+            saveToSupabase('schedules', schedules),
+            saveAppDataToSupabase('budgets', budgets),
+            saveAppDataToSupabase('recurring_items', recurringItems),
+          ]);
+          if (status) {
+            status.style.color = 'var(--green)';
+            status.textContent = '✅ 복원 완료! 클라우드 업로드도 됐어요 ☁️';
+          }
+          showToast('✅ 복원 완료! 다른 단말에서도 바로 쓸 수 있어요');
+        } catch(err) {
+          if (status) {
+            status.style.color = 'var(--red)';
+            status.textContent = '⚠️ 로컬 복원은 됐지만 클라우드 업로드 실패';
+          }
+          showToast('⚠️ 로컬 복원 완료. 클라우드 업로드는 실패했어요');
+        }
+      } else {
+        if (status) {
+          status.style.color = 'var(--green)';
+          status.textContent = '✅ ' + (backup.exportedAt || '') + ' 백업 복원 완료!';
+        }
+        showToast('✅ 데이터가 복원됐어요!');
+      }
+
+      syncSave();
+      renderGoals();
+      renderMonthCards();
+      if (currentAssetView === 'item') renderItemView();
+      initHome();
+      initRealEstate();
       event.target.value = '';
     } catch(err) {
       showToast('❗ 백업 파일을 읽을 수 없어요');
