@@ -6870,19 +6870,6 @@ function setSettingsTab(tab) {
   if (tab === 'cat') renderCatSettings();
   if (tab === 'data') renderCoupleSettings();
 }
-    const btn = document.getElementById('stab-' + t);
-    const con = document.getElementById('stab-content-' + t);
-    const isActive = t === tab;
-    if (btn) {
-      btn.style.background = isActive ? 'rgba(59,130,246,0.10)' : 'transparent';
-      btn.style.color = isActive ? '#3b82f6' : 'var(--muted2)';
-      btn.style.fontWeight = isActive ? '700' : '600';
-    }
-    if (con) con.style.display = isActive ? 'block' : 'none';
-  });
-  if (tab === 'cat') renderCatSettings();
-  if (tab === 'couple') renderCoupleSettings();
-}
 
 function saveClaudeApiKey() {
   const key = document.getElementById('claude-api-key-input').value.trim();
