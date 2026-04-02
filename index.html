@@ -3293,13 +3293,15 @@ function updateHomeFromItems(rec) {
     }
   }
 
-  // 부채 비율 바 업데이트
+  // 부채 비율 바 + 비율 텍스트 업데이트
   const debtBar = document.getElementById('h-debt-bar');
   const assetBar = document.getElementById('h-asset-bar');
-  if (debtBar && rec.total > 0) {
+  const debtRatioEl = document.getElementById('h-debt-ratio');
+  if (rec.total > 0) {
     const debtPct = Math.min(100, Math.round(rec.debt / rec.total * 100));
-    debtBar.style.width = debtPct + '%';
-    assetBar.style.width = (100 - debtPct) + '%';
+    if (debtBar) debtBar.style.width = debtPct + '%';
+    if (assetBar) assetBar.style.width = (100 - debtPct) + '%';
+    if (debtRatioEl) debtRatioEl.textContent = debtPct;
   }
   
   if(el('d-center')) el('d-center').textContent = (rec.total/10000).toFixed(2)+'억';
