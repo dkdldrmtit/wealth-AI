@@ -3622,6 +3622,7 @@ async function saveToSupabase(table, data) {
     }, { onConflict: 'couple_id' });
 
   if (error) console.log('저장 오류:', table, error);
+  else console.log('✅ Supabase 저장:', table);
 }
 
 // app_data 테이블에 key-value 저장
@@ -12038,19 +12039,18 @@ async function syncLoad(silent=false) {
   store = function(k, v) {
     _origStore(k, v);
     if (SYNC_KEYS.includes(k)) {
+      // Supabase는 즉시 저장 (딜레이 없이)
+      if (currentCoupleId) {
+        if (TABLE_MAP[k]) {
+          saveToSupabase(TABLE_MAP[k], v);
+        } else if (APP_DATA_KEYS[k]) {
+          saveAppDataToSupabase(APP_DATA_KEYS[k], v);
+        }
+      }
+      // Cloudflare는 기존대로 3초 딜레이 (부하 방지)
       clearTimeout(window._syncTimer);
       window._syncTimer = setTimeout(function() {
-        // Cloudflare 동기화 (기존)
         syncSave();
-
-        // Supabase 동기화 (신규)
-        if (currentCoupleId) {
-          if (TABLE_MAP[k]) {
-            saveToSupabase(TABLE_MAP[k], v);
-          } else if (APP_DATA_KEYS[k]) {
-            saveAppDataToSupabase(APP_DATA_KEYS[k], v);
-          }
-        }
       }, 3000);
     }
   };
