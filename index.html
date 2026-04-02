@@ -1157,23 +1157,36 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
 
     </div>
-    <!-- 총자산 / 부채 인라인 -->
-    <div style="display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap">
-      <div onclick="goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('asset'),50)"
-        style="display:flex;align-items:center;gap:4px;cursor:pointer">
-        <span style="font-size:11px;color:var(--muted);font-weight:500">총자산</span>
-        <span id="h-total" style="font-size:13px;font-weight:800;color:var(--muted2)">—</span>
-        <span style="font-size:11px;color:var(--muted)">억</span>
+    <!-- 총자산 / 부채 / 순자산 C안 -->
+    <div style="margin-top:10px" onclick="goPage('input',document.querySelectorAll('.nav-item')[3])" style="cursor:pointer">
+
+      <!-- 부채 비율 바 -->
+      <div style="position:relative;height:4px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;margin-bottom:10px;cursor:pointer">
+        <div id="h-debt-bar" style="position:absolute;right:0;top:0;height:100%;background:var(--red);border-radius:4px;opacity:0.6;transition:width .8s ease;width:0%"></div>
+        <div id="h-asset-bar" style="position:absolute;left:0;top:0;height:100%;background:rgba(232,244,255,0.3);border-radius:4px;transition:width .8s ease;width:100%"></div>
       </div>
-      <span style="font-size:11px;color:var(--border2)">·</span>
-      <div onclick="goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('debt'),50)"
-        style="display:flex;align-items:center;gap:4px;cursor:pointer">
-        <span style="font-size:11px;color:var(--muted);font-weight:500">부채</span>
-        <span id="h-debt" style="font-size:13px;font-weight:800;color:var(--red)">—</span>
-        <span style="font-size:11px;color:var(--muted)">억</span>
+
+      <!-- 3등분 수치 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0">
+        <div onclick="event.stopPropagation();goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('asset'),50)" style="cursor:pointer">
+          <div style="font-size:9px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:3px">총자산</div>
+          <div style="display:flex;align-items:baseline;gap:2px">
+            <span id="h-total" style="font-size:14px;font-weight:800;color:var(--text)">—</span>
+            <span style="font-size:9px;color:var(--muted)">억</span>
+          </div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:9px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:3px">부채</div>
+          <div onclick="event.stopPropagation();goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('debt'),50)" style="display:flex;align-items:baseline;gap:2px;justify-content:center;cursor:pointer">
+            <span id="h-debt" style="font-size:14px;font-weight:800;color:var(--red)">—</span>
+            <span style="font-size:9px;color:var(--muted)">억</span>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:9px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:3px">전월대비</div>
+          <div id="h-net-change-badge" style="min-height:auto;text-align:right"></div>
+        </div>
       </div>
-      <span style="font-size:11px;color:var(--border2)">·</span>
-      <div id="h-net-change-badge" style="min-height:auto"></div>
     </div>
 
     </div>
@@ -3266,6 +3279,16 @@ function updateHomeFromItems(rec) {
       changeBadge.innerHTML = '<span style="font-size:11px;color:var(--muted)">첫 번째 기록</span>';
     }
   }
+
+  // 부채 비율 바 업데이트
+  const debtBar = document.getElementById('h-debt-bar');
+  const assetBar = document.getElementById('h-asset-bar');
+  if (debtBar && rec.total > 0) {
+    const debtPct = Math.min(100, Math.round(rec.debt / rec.total * 100));
+    debtBar.style.width = debtPct + '%';
+    assetBar.style.width = (100 - debtPct) + '%';
+  }
+  
   if(el('d-center')) el('d-center').textContent = (rec.total/10000).toFixed(2)+'억';
 
   if (!rec.items) { updateHome(rec); return; }
