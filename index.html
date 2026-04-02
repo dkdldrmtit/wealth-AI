@@ -6878,13 +6878,10 @@ function renderMiniChart() {
     const [yr, mo] = p.r.month.split('-');
     const showLabel = isLast || isFirst || isHighest || isLowest || data.length <= 6;
 
-    // 점 (탭하면 해당 월 상세 이동)
-      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + labelY + '" text-anchor="middle" fill="' + (isLast?'var(--text)':(isHighest?'#4ade80':(isLowest?'#f87171':'var(--muted2)'))) + '" font-size="9" font-weight="700" font-family="Noto Sans KR">' + (p.r.net/10000).toFixed(1) + '억</text>';
-      + ' style="cursor:pointer" onclick="goPage(\'input\',document.querySelectorAll(\'.nav-item\')[3]);setTimeout(function(){openAssetDetail(\'' + p.r.month + '\')},300)"/>';
     if (showLabel) {
       const above = p.y > pad.t + 15;
       const labelY = above ? p.y - 7 : p.y + 14;
-      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + labelY + '" text-anchor="middle" fill="' + (isLast?'#ffffff':(isHighest?'#4ade80':(isLowest?'#f87171':'#9ca3af'))) + '" font-size="9" font-weight="700" font-family="Noto Sans KR">' + (p.r.net/10000).toFixed(1) + '억</text>';
+      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + labelY + '" text-anchor="middle" fill="' + (isLast?'var(--text)':(isHighest?'#4ade80':(isLowest?'#f87171':'var(--muted2)'))) + '" font-size="9" font-weight="700" font-family="Noto Sans KR">' + (p.r.net/10000).toFixed(1) + '억</text>';
     }
 
     // 월 레이블 (하단)
