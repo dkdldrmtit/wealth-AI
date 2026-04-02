@@ -755,6 +755,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 </head>
 <body>
 
@@ -834,6 +836,178 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div class="splash-dot" style="width:6px;height:6px;border-radius:50%;background:rgba(59,130,246,0.25);animation:splashDot .9s ease .4s infinite"></div>
   </div>
 </div>
+
+
+<!-- ══ 로그인/회원가입 모달 ══ -->
+<div id="auth-screen" style="display:none;position:fixed;inset:0;background:#080808;z-index:99998;overflow-y:auto">
+
+  <!-- 상단 로고 -->
+  <div style="text-align:center;padding:max(80px, calc(env(safe-area-inset-top, 0px) + 60px)) 32px 40px">
+    <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:11px;font-weight:400;letter-spacing:6px;color:rgba(255,255,255,0.25);margin-bottom:16px;text-transform:uppercase">M & S</div>
+    <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:38px;font-weight:100;letter-spacing:8px;color:#f0f0f0;line-height:1;filter:drop-shadow(0 0 30px rgba(59,130,246,0.2))">WEALTH</div>
+    <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:12px;font-weight:300;letter-spacing:12px;margin-top:8px;background:linear-gradient(90deg,rgba(59,130,246,0.35),#3b82f6,rgba(59,130,246,0.35));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">A I</div>
+    <div style="width:40px;height:0.5px;background:linear-gradient(90deg,transparent,rgba(59,130,246,0.25),transparent);margin:20px auto 0"></div>
+  </div>
+
+  <!-- 폼 영역 -->
+  <div style="max-width:400px;margin:0 auto;padding:0 24px">
+
+    <!-- 탭 -->
+    <div style="display:flex;background:#111111;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:4px;margin-bottom:28px;gap:3px">
+      <button id="auth-tab-login" onclick="setAuthTab('login')"
+        style="flex:1;padding:11px;border-radius:11px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.15);color:#3b82f6;border:0.5px solid rgba(59,130,246,0.25);transition:all .2s">
+        로그인
+      </button>
+      <button id="auth-tab-signup" onclick="setAuthTab('signup')"
+        style="flex:1;padding:11px;border-radius:11px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#505050;transition:all .2s">
+        회원가입
+      </button>
+    </div>
+
+    <!-- 로그인 폼 -->
+    <div id="auth-login-form">
+
+      <div style="margin-bottom:14px">
+        <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">이메일</div>
+        <input type="email" id="login-email" placeholder="이메일을 입력하세요"
+          style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
+          onfocus="this.style.borderColor='rgba(59,130,246,0.4)'"
+          onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+      </div>
+
+      <div style="margin-bottom:28px">
+        <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">비밀번호</div>
+        <input type="password" id="login-password" placeholder="비밀번호를 입력하세요"
+          style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
+          onfocus="this.style.borderColor='rgba(59,130,246,0.4)'"
+          onblur="this.style.borderColor='rgba(255,255,255,0.08)'"
+          onkeydown="if(event.key==='Enter') handleLogin()">
+      </div>
+
+      <button onclick="handleLogin()" id="login-btn"
+        style="width:100%;padding:15px;border-radius:14px;background:#111111;border:0.5px solid rgba(59,130,246,0.3);color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:0.5px">
+        로그인
+      </button>
+
+      <div style="text-align:center;margin-top:16px">
+        <button onclick="handleForgotPassword()"
+          style="background:none;border:none;color:#404040;font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer;letter-spacing:0.3px">
+          비밀번호를 잊으셨나요?
+        </button>
+      </div>
+
+      <div id="login-error" style="display:none;margin-top:14px;padding:12px 16px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:12px;font-size:12px;color:#ef4444;text-align:center;line-height:1.6"></div>
+    </div>
+
+    <!-- 회원가입 폼 -->
+    <div id="auth-signup-form" style="display:none">
+
+      <div style="margin-bottom:14px">
+        <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">이름</div>
+        <input type="text" id="signup-name" placeholder="이름을 입력하세요"
+          style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
+          onfocus="this.style.borderColor='rgba(59,130,246,0.4)'"
+          onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+      </div>
+
+      <div style="margin-bottom:14px">
+        <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">이메일</div>
+        <input type="email" id="signup-email" placeholder="이메일을 입력하세요"
+          style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
+          onfocus="this.style.borderColor='rgba(59,130,246,0.4)'"
+          onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+      </div>
+
+      <div style="margin-bottom:14px">
+        <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">비밀번호 <span style="color:#303030;font-weight:400">(8자 이상, 영문+숫자)</span></div>
+        <input type="password" id="signup-password" placeholder="비밀번호를 입력하세요"
+          style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
+          onfocus="this.style.borderColor='rgba(59,130,246,0.4)'"
+          onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+      </div>
+
+      <div style="margin-bottom:28px">
+        <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">베타 초대 코드</div>
+        <input type="text" id="signup-beta-code" placeholder="초대 코드를 입력하세요"
+          style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s;text-transform:uppercase;letter-spacing:1px"
+          onfocus="this.style.borderColor='rgba(59,130,246,0.4)'"
+          onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+      </div>
+
+      <button onclick="handleSignup()" id="signup-btn"
+        style="width:100%;padding:15px;border-radius:14px;background:#111111;border:0.5px solid rgba(59,130,246,0.3);color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:0.5px">
+        회원가입
+      </button>
+
+      <div id="signup-error" style="display:none;margin-top:14px;padding:12px 16px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:12px;font-size:12px;color:#ef4444;text-align:center;line-height:1.6"></div>
+      <div id="signup-success" style="display:none;margin-top:14px;padding:12px 16px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:12px;font-size:12px;color:#22c55e;text-align:center;line-height:1.6"></div>
+    </div>
+
+    <!-- 하단 여백 -->
+    <div style="height:60px"></div>
+  </div>
+</div>
+
+<!-- ══ 커플 연결 모달 ══ -->
+<div id="couple-setup-screen" style="display:none;position:fixed;inset:0;background:#080808;z-index:99997;overflow-y:auto">
+  <div style="max-width:400px;margin:0 auto;padding:max(60px, calc(env(safe-area-inset-top, 0px) + 40px)) 24px 60px">
+
+    <!-- 헤더 -->
+    <div style="text-align:center;margin-bottom:40px">
+      <div style="font-size:11px;color:rgba(255,255,255,0.2);letter-spacing:4px;text-transform:uppercase;margin-bottom:20px">COUPLE SETUP</div>
+      <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:300;color:#f0f0f0;letter-spacing:1px;margin-bottom:10px">파트너 연결</div>
+      <div style="width:40px;height:0.5px;background:linear-gradient(90deg,transparent,rgba(59,130,246,0.3),transparent);margin:0 auto 16px"></div>
+      <div style="font-size:13px;color:#404040;line-height:1.8">배우자나 파트너와 함께<br>재무 데이터를 공유하세요</div>
+    </div>
+
+    <!-- 새 커플 시작 -->
+    <div style="background:#111111;border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:22px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(59,130,246,0.08);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🆕</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#f0f0f0">새로 시작하기</div>
+          <div style="font-size:11px;color:#404040;margin-top:2px">커플 공간 만들고 파트너 초대</div>
+        </div>
+      </div>
+      <button onclick="handleCreateCouple()" id="create-couple-btn"
+        style="width:100%;padding:13px;border-radius:12px;background:#111111;border:0.5px solid rgba(59,130,246,0.25);color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s">
+        커플 공간 만들기
+      </button>
+    </div>
+
+    <!-- 초대 코드로 참여 -->
+    <div style="background:#111111;border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:22px;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(34,197,94,0.08);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🔗</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#f0f0f0">초대 코드로 참여</div>
+          <div style="font-size:11px;color:#404040;margin-top:2px">파트너에게 받은 코드 입력</div>
+        </div>
+      </div>
+      <input type="text" id="couple-invite-input" placeholder="초대 코드 입력"
+        style="width:100%;background:#181818;border:1px solid rgba(255,255,255,0.08);border-radius:12px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:13px 14px;outline:none;margin-bottom:10px;text-transform:lowercase;letter-spacing:1px;transition:border-color .2s"
+        onfocus="this.style.borderColor='rgba(34,197,94,0.4)'"
+        onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+      <button onclick="handleJoinCouple()" id="join-couple-btn"
+        style="width:100%;padding:13px;border-radius:12px;background:#111111;border:0.5px solid rgba(34,197,94,0.25);color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s">
+        참여하기
+      </button>
+    </div>
+
+    <div id="couple-setup-error" style="display:none;margin-top:8px;padding:12px 16px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:12px;font-size:12px;color:#ef4444;text-align:center;line-height:1.6"></div>
+    <div id="couple-setup-success" style="display:none;margin-top:8px;padding:12px 16px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:12px;font-size:12px;color:#22c55e;text-align:center;line-height:1.6"></div>
+
+    <!-- 로그아웃 -->
+    <div style="text-align:center;margin-top:28px">
+      <button onclick="handleLogout()"
+        style="background:none;border:none;color:#303030;font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer;letter-spacing:0.3px">
+        로그아웃
+      </button>
+    </div>
+  </div>
+</div>
+
+
 
 <div class="toast" id="toast">✅ 저장됐어요!</div>
 
@@ -2871,6 +3045,466 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 </nav>
 
 <script>
+
+// ══════════════════════════════════════
+// ── Supabase 초기화 ──
+// ══════════════════════════════════════
+const SUPABASE_URL = 'https://pjxdfhozjuteckbtavmw.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_aPUdJabOmrwe3nwD161Cjw_3_kr1Eno';
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// 현재 로그인된 유저 정보
+let currentUser = null;
+let currentProfile = null;
+let currentCoupleId = null;
+
+// ══════════════════════════════════════
+// ── 인증 관련 함수 ──
+// ══════════════════════════════════════
+
+// 앱 시작 시 로그인 상태 확인
+async function initAuth() {
+  const { data: { session } } = await _supabase.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    await loadProfile();
+  } else {
+    showAuthScreen();
+  }
+}
+
+// 프로필 + 커플 정보 불러오기
+async function loadProfile() {
+  const { data, error } = await _supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', currentUser.id)
+    .single();
+
+  if (error || !data) {
+    showAuthScreen();
+    return;
+  }
+
+  currentProfile = data;
+  currentCoupleId = data.couple_id;
+
+  if (!currentCoupleId) {
+    // 커플 연결 안 된 경우
+    showCoupleSetupScreen();
+  } else {
+    // 정상 진입
+    hideAuthScreens();
+    await loadAllDataFromSupabase();
+  }
+}
+
+// 로그인 화면 표시
+function showAuthScreen() {
+  document.getElementById('auth-screen').style.display = 'block';
+  document.getElementById('couple-setup-screen').style.display = 'none';
+}
+
+// 커플 설정 화면 표시
+function showCoupleSetupScreen() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('couple-setup-screen').style.display = 'block';
+}
+
+// 인증 화면 숨기기
+function hideAuthScreens() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('couple-setup-screen').style.display = 'none';
+}
+
+// 탭 전환
+function setAuthTab(tab) {
+  const loginForm = document.getElementById('auth-login-form');
+  const signupForm = document.getElementById('auth-signup-form');
+  const loginTab = document.getElementById('auth-tab-login');
+  const signupTab = document.getElementById('auth-tab-signup');
+
+  if (tab === 'login') {
+    loginForm.style.display = 'block';
+    signupForm.style.display = 'none';
+    loginTab.style.background = 'rgba(59,130,246,0.15)';
+    loginTab.style.color = '#3b82f6';
+    loginTab.style.border = '0.5px solid rgba(59,130,246,0.25)';
+    signupTab.style.background = 'transparent';
+    signupTab.style.color = '#505050';
+    signupTab.style.border = 'none';
+  } else {
+    loginForm.style.display = 'none';
+    signupForm.style.display = 'block';
+    signupTab.style.background = 'rgba(59,130,246,0.15)';
+    signupTab.style.color = '#3b82f6';
+    signupTab.style.border = '0.5px solid rgba(59,130,246,0.25)';
+    loginTab.style.background = 'transparent';
+    loginTab.style.color = '#505050';
+    loginTab.style.border = 'none';
+  }
+}
+
+// 로그인 처리
+async function handleLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errorEl = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+
+  if (!email || !password) {
+    errorEl.style.display = 'block';
+    errorEl.textContent = '❗ 이메일과 비밀번호를 입력해주세요';
+    return;
+  }
+
+  btn.textContent = '로그인 중...';
+  btn.disabled = true;
+  errorEl.style.display = 'none';
+
+  const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    errorEl.style.display = 'block';
+    if (error.message.includes('Invalid login')) {
+      errorEl.textContent = '❗ 이메일 또는 비밀번호가 틀렸어요';
+    } else if (error.message.includes('Email not confirmed')) {
+      errorEl.textContent = '❗ 이메일 인증을 완료해주세요. 메일함을 확인하세요';
+    } else {
+      errorEl.textContent = '❗ ' + error.message;
+    }
+    btn.textContent = '로그인';
+    btn.disabled = false;
+    return;
+  }
+
+  currentUser = data.user;
+  btn.textContent = '로그인';
+  btn.disabled = false;
+  await loadProfile();
+}
+
+// 회원가입 처리
+async function handleSignup() {
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+  const betaCode = document.getElementById('signup-beta-code').value.trim().toUpperCase();
+  const errorEl = document.getElementById('signup-error');
+  const successEl = document.getElementById('signup-success');
+  const btn = document.getElementById('signup-btn');
+
+  errorEl.style.display = 'none';
+  successEl.style.display = 'none';
+
+  // 유효성 검사
+  if (!name || !email || !password || !betaCode) {
+    errorEl.style.display = 'block';
+    errorEl.textContent = '❗ 모든 항목을 입력해주세요';
+    return;
+  }
+  if (password.length < 8) {
+    errorEl.style.display = 'block';
+    errorEl.textContent = '❗ 비밀번호는 8자 이상이어야 해요';
+    return;
+  }
+  if (!/(?=.*[a-zA-Z])(?=.*[0-9])/.test(password)) {
+    errorEl.style.display = 'block';
+    errorEl.textContent = '❗ 비밀번호는 영문과 숫자를 포함해야 해요';
+    return;
+  }
+
+  btn.textContent = '확인 중...';
+  btn.disabled = true;
+
+  // 베타 코드 확인
+  const { data: codeData, error: codeError } = await _supabase
+    .from('beta_codes')
+    .select('*')
+    .eq('code', betaCode)
+    .single();
+
+  if (codeError || !codeData) {
+    errorEl.style.display = 'block';
+    errorEl.textContent = '❗ 유효하지 않은 초대 코드예요';
+    btn.textContent = '회원가입';
+    btn.disabled = false;
+    return;
+  }
+
+  if (codeData.used_by) {
+    errorEl.style.display = 'block';
+    errorEl.textContent = '❗ 이미 사용된 초대 코드예요';
+    btn.textContent = '회원가입';
+    btn.disabled = false;
+    return;
+  }
+
+  // 회원가입
+  btn.textContent = '가입 중...';
+  const { data, error } = await _supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { name } }
+  });
+
+  if (error) {
+    errorEl.style.display = 'block';
+    if (error.message.includes('already registered')) {
+      errorEl.textContent = '❗ 이미 가입된 이메일이에요';
+    } else {
+      errorEl.textContent = '❗ ' + error.message;
+    }
+    btn.textContent = '회원가입';
+    btn.disabled = false;
+    return;
+  }
+
+  // 베타 코드 사용 처리
+  await _supabase
+    .from('beta_codes')
+    .update({ used_by: data.user.id, used_at: new Date().toISOString() })
+    .eq('code', betaCode);
+
+  // 프로필 이름 업데이트
+  await _supabase
+    .from('profiles')
+    .update({ name, beta_code: betaCode, is_beta: true })
+    .eq('id', data.user.id);
+
+  successEl.style.display = 'block';
+  successEl.textContent = '✅ 가입 완료! 이메일을 확인해서 인증을 완료해주세요 📧';
+  btn.textContent = '회원가입';
+  btn.disabled = false;
+}
+
+// 비밀번호 찾기
+async function handleForgotPassword() {
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) {
+    const errorEl = document.getElementById('login-error');
+    errorEl.style.display = 'block';
+    errorEl.textContent = '❗ 위에 이메일을 먼저 입력해주세요';
+    return;
+  }
+  const { error } = await _supabase.auth.resetPasswordForEmail(email);
+  if (!error) {
+    showToast('📧 비밀번호 재설정 메일을 보냈어요!');
+  }
+}
+
+// 로그아웃
+async function handleLogout() {
+  await _supabase.auth.signOut();
+  currentUser = null;
+  currentProfile = null;
+  currentCoupleId = null;
+  showAuthScreen();
+}
+
+// 커플 생성
+async function handleCreateCouple() {
+  const btn = document.getElementById('create-couple-btn');
+  const errorEl = document.getElementById('couple-setup-error');
+  const successEl = document.getElementById('couple-setup-success');
+
+  btn.textContent = '생성 중...';
+  btn.disabled = true;
+  errorEl.style.display = 'none';
+  successEl.style.display = 'none';
+
+  // 커플 생성
+  const { data: couple, error: coupleError } = await _supabase
+    .from('couples')
+    .insert({})
+    .select()
+    .single();
+
+  if (coupleError) {
+    errorEl.style.display = 'block';
+    errorEl.textContent = '❗ 오류가 발생했어요. 다시 시도해주세요';
+    btn.textContent = '커플 공간 만들기';
+    btn.disabled = false;
+    return;
+  }
+
+  // 프로필에 couple_id 연결
+  await _supabase
+    .from('profiles')
+    .update({ couple_id: couple.id, role: 'partner1' })
+    .eq('id', currentUser.id);
+
+  currentCoupleId = couple.id;
+
+  successEl.style.display = 'block';
+  successEl.innerHTML = '✅ 커플 공간이 만들어졌어요!<br><br>'
+    + '<div style="font-size:11px;color:#505050;margin-bottom:6px">파트너 초대 코드</div>'
+    + '<div style="font-size:20px;font-weight:900;color:#22c55e;letter-spacing:3px">' + couple.invite_code + '</div>'
+    + '<div style="font-size:11px;color:#404040;margin-top:6px">파트너에게 이 코드를 알려주세요</div>';
+
+  btn.textContent = '커플 공간 만들기';
+  btn.disabled = false;
+
+  // 3초 후 앱으로 이동
+  setTimeout(async function() {
+    hideAuthScreens();
+    await loadAllDataFromSupabase();
+  }, 3000);
+}
+
+// 초대 코드로 커플 참여
+async function handleJoinCouple() {
+  const inviteCode = document.getElementById('couple-invite-input').value.trim().toLowerCase();
+  const btn = document.getElementById('join-couple-btn');
+  const errorEl = document.getElementById('couple-setup-error');
+  const successEl = document.getElementById('couple-setup-success');
+
+  if (!inviteCode) {
+    errorEl.style.display = 'block';
+    errorEl.textContent = '❗ 초대 코드를 입력해주세요';
+    return;
+  }
+
+  btn.textContent = '확인 중...';
+  btn.disabled = true;
+  errorEl.style.display = 'none';
+  successEl.style.display = 'none';
+
+  // 초대 코드로 커플 찾기
+  const { data: couple, error: coupleError } = await _supabase
+    .from('couples')
+    .select('*')
+    .eq('invite_code', inviteCode)
+    .single();
+
+  if (coupleError || !couple) {
+    errorEl.style.display = 'block';
+    errorEl.textContent = '❗ 유효하지 않은 초대 코드예요';
+    btn.textContent = '참여하기';
+    btn.disabled = false;
+    return;
+  }
+
+  // 이미 2명인지 확인
+  const { data: members } = await _supabase
+    .from('profiles')
+    .select('id')
+    .eq('couple_id', couple.id);
+
+  if (members && members.length >= 2) {
+    errorEl.style.display = 'block';
+    errorEl.textContent = '❗ 이미 가득 찬 커플 공간이에요';
+    btn.textContent = '참여하기';
+    btn.disabled = false;
+    return;
+  }
+
+  // 프로필에 couple_id 연결
+  await _supabase
+    .from('profiles')
+    .update({ couple_id: couple.id, role: 'partner2' })
+    .eq('id', currentUser.id);
+
+  currentCoupleId = couple.id;
+
+  successEl.style.display = 'block';
+  successEl.textContent = '✅ 파트너와 연결됐어요! 잠시 후 앱으로 이동해요 🎉';
+
+  btn.textContent = '참여하기';
+  btn.disabled = false;
+
+  setTimeout(async function() {
+    hideAuthScreens();
+    await loadAllDataFromSupabase();
+  }, 2000);
+}
+
+// ══════════════════════════════════════
+// ── Supabase 데이터 동기화 ──
+// ══════════════════════════════════════
+
+// Supabase에서 전체 데이터 불러오기
+async function loadAllDataFromSupabase() {
+  if (!currentCoupleId) return;
+
+  try {
+    // 병렬로 전부 불러오기
+    const [
+      assetRes,
+      ledgerRes,
+      stocksRes,
+      goalsRes,
+      schedulesRes,
+      appDataRes
+    ] = await Promise.all([
+      _supabase.from('asset_history').select('data').eq('couple_id', currentCoupleId).single(),
+      _supabase.from('ledger_txs').select('data').eq('couple_id', currentCoupleId).single(),
+      _supabase.from('stocks').select('data').eq('couple_id', currentCoupleId).single(),
+      _supabase.from('goals').select('data').eq('couple_id', currentCoupleId).single(),
+      _supabase.from('schedules').select('data').eq('couple_id', currentCoupleId).single(),
+      _supabase.from('app_data').select('data').eq('couple_id', currentCoupleId).eq('key', 'budgets').single()
+    ]);
+
+    // 데이터 적용
+    if (assetRes.data) assetHistory = assetRes.data.data || [];
+    if (ledgerRes.data) ledgerTxs = ledgerRes.data.data || [];
+    if (stocksRes.data) stocks = stocksRes.data.data || [];
+    if (goalsRes.data) goals = goalsRes.data.data || [];
+    if (schedulesRes.data) schedules = schedulesRes.data.data || [];
+    if (appDataRes.data) budgets = appDataRes.data.data || budgets;
+
+    // localStorage에도 백업
+    store('asset-history', assetHistory);
+    store('ledger-txs', ledgerTxs);
+    store('stocks', stocks);
+    store('goals', goals);
+    store('schedules', schedules);
+    store('ledger-budgets', budgets);
+
+  } catch(e) {
+    console.log('데이터 로드 오류:', e);
+  }
+
+  // 화면 렌더링
+  renderGoals();
+  renderMonthCards();
+  initHome();
+  initRealEstate();
+  applyHomeCardOrder();
+}
+
+// Supabase에 데이터 저장
+async function saveToSupabase(table, data) {
+  if (!currentCoupleId) return;
+
+  const { error } = await _supabase
+    .from(table)
+    .upsert({
+      couple_id: currentCoupleId,
+      data: data,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'couple_id' });
+
+  if (error) console.log('저장 오류:', table, error);
+}
+
+// app_data 테이블에 key-value 저장
+async function saveAppDataToSupabase(key, data) {
+  if (!currentCoupleId) return;
+
+  const { error } = await _supabase
+    .from('app_data')
+    .upsert({
+      couple_id: currentCoupleId,
+      key: key,
+      data: data,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'couple_id, key' });
+
+  if (error) console.log('저장 오류:', key, error);
+}
+
+
 // ── Nav ──
 let pageHistory = ['home'];
 
@@ -6181,11 +6815,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const fab = document.getElementById('home-fab-mic');
   if (fab) fab.style.display = 'flex';
 
-  renderGoals();
-  renderMonthCards(); if (currentAssetView === 'item') renderItemView();
-  initHome();
-  initRealEstate();
-  applyHomeCardOrder();
+  // Supabase 인증 확인 후 앱 시작
+  initAuth();
 
   // 창 크기 변경 시 차트 다시 그리기
   window.addEventListener('resize', function() {
@@ -11164,13 +11795,40 @@ async function syncLoad(silent=false) {
     'asset-history', 'goals', 'schedules',
     'ledger-txs', 'ledger-budgets', 'stocks', 'recurring-items'
   ];
+
+  // Supabase 테이블 매핑
+  const TABLE_MAP = {
+    'asset-history': 'asset_history',
+    'ledger-txs': 'ledger_txs',
+    'stocks': 'stocks',
+    'goals': 'goals',
+    'schedules': 'schedules',
+    'recurring-items': null, // app_data에 저장
+    'ledger-budgets': null,  // app_data에 저장
+  };
+
+  const APP_DATA_KEYS = {
+    'recurring-items': 'recurring_items',
+    'ledger-budgets': 'budgets',
+  };
+
   store = function(k, v) {
     _origStore(k, v);
     if (SYNC_KEYS.includes(k)) {
       clearTimeout(window._syncTimer);
       window._syncTimer = setTimeout(function() {
+        // Cloudflare 동기화 (기존)
         syncSave();
-      }, 3000); // 3초 디바운스
+
+        // Supabase 동기화 (신규)
+        if (currentCoupleId) {
+          if (TABLE_MAP[k]) {
+            saveToSupabase(TABLE_MAP[k], v);
+          } else if (APP_DATA_KEYS[k]) {
+            saveAppDataToSupabase(APP_DATA_KEYS[k], v);
+          }
+        }
+      }, 3000);
     }
   };
 })();
