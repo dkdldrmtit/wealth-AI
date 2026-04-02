@@ -966,14 +966,24 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px">AI 코멘트</div>
         <div style="display:flex;gap:6px">
-          <button onclick="loadAiComment(true, false)" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;cursor:pointer;">자산 분석</button>
-          <button onclick="loadAiComment(true, true)" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;cursor:pointer;">🌐 시황</button>
+          <button onclick="loadAiComment(true, false)"
+            style="background:transparent;border:0.5px solid rgba(232,244,255,0.2);border-radius:20px;color:rgba(232,244,255,0.55);font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:500;padding:4px 12px;cursor:pointer;letter-spacing:0.3px;transition:all .2s"
+            ontouchstart="this.style.background='rgba(232,244,255,0.08)';this.style.color='rgba(232,244,255,0.9)'"
+            ontouchend="this.style.background='transparent';this.style.color='rgba(232,244,255,0.55)'">
+            📊 자산분석
+          </button>
+          <button onclick="loadAiComment(true, true)"
+            style="background:transparent;border:0.5px solid rgba(74,158,255,0.25);border-radius:20px;color:rgba(74,158,255,0.6);font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:500;padding:4px 12px;cursor:pointer;letter-spacing:0.3px;transition:all .2s"
+            ontouchstart="this.style.background='rgba(74,158,255,0.1)';this.style.color='rgba(74,158,255,0.95)'"
+            ontouchend="this.style.background='transparent';this.style.color='rgba(74,158,255,0.6)'">
+            🌐 시황
+          </button>
         </div>
       </div>
       <div id="ai-comment-text" style="font-size:13px;color:var(--text);line-height:1.8;letter-spacing:0.1px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer" onclick="toggleAiComment(this)">
         <div style="color:var(--muted);font-size:12px">분석 중...</div>
       </div>
-      <div id="ai-comment-expand" style="display:none;align-items:center;justify-content:center;gap:6px;margin-top:8px;opacity:0">
+      <div id="ai-comment-expand" onclick="toggleAiComment(document.getElementById('ai-comment-text'))" style="display:none;align-items:center;justify-content:center;gap:6px;margin-top:8px;opacity:0;cursor:pointer">
         <div style="height:1px;flex:1;background:linear-gradient(90deg,transparent,var(--border2))"></div>
         <span style="font-size:10px;color:var(--muted);font-weight:500;letter-spacing:0.5px">더 보기</span>
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--muted)"><polyline points="6 9 12 15 18 9"/></svg>
