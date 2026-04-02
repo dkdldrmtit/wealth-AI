@@ -5419,148 +5419,242 @@ function openAssetDetail(month) {
   const prev = idx > 0 ? assetHistory[idx-1] : null;
   const diff = prev ? rec.net - prev.net : null;
 
-  // 헤더
-  const lbl = document.getElementById('detail-month-label');
-  const netEl = document.getElementById('detail-net');
-  const totalEl = document.getElementById('detail-total');
-  const debtEl = document.getElementById('detail-debt');
-  const diffEl = document.getElementById('detail-diff');
+  const items = rec.items || getItemsDefault(rec);
+  const totalAsset = items.filter(i=>i.type==='asset').reduce((s,i)=>s+(i.amount||0),0);
+  const totalDebt = items.filter(i=>i.type==='debt').reduce((s,i)=>s+(i.amount||0),0);
+  const debtRatio = totalAsset > 0 ? Math.round(totalDebt/totalAsset*100) : 0;
 
-  if (lbl) lbl.textContent = y + '년 ' + parseInt(m) + '월';
-  if (netEl) netEl.innerHTML = (rec.net/10000).toFixed(2) + '<span style="font-size:13px;color:var(--muted);font-weight:400">억 순자산</span>';
-  if (totalEl) totalEl.textContent = (rec.total/10000).toFixed(2) + '억';
-  if (debtEl) debtEl.textContent = (rec.debt/10000).toFixed(2) + '억';
-  if (diffEl) {
-    if (diff === null) {
-      diffEl.textContent = '최초';
-      diffEl.style.color = 'var(--muted)';
-    } else {
-      diffEl.textContent = (diff >= 0 ? '+' : '') + (diff/10000).toFixed(2) + '억';
-      diffEl.style.color = diff >= 0 ? 'var(--green)' : 'var(--red)';
-    }
-  }
+  // 전월대비
+  const diffHtml = diff === null
+    ? '<span style="font-size:12px;color:var(--muted)">첫 기록</span>'
+    : diff >= 0
+      ? '<span style="font-size:12px;font-weight:600;color:var(--text)">▲ +' + (diff/10000).toFixed(2) + '억</span>'
+      : '<span style="font-size:12px;font-weight:600;color:var(--red)">▼ ' + (diff/10000).toFixed(2) + '억</span>';
 
-  // 항목 상세
-  const wrap = document.getElementById('detail-items-wrap');
-  if (wrap) {
-    const items = rec.items || getItemsDefault(rec);
-    if (!items.length) {
-      wrap.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:20px">항목 데이터가 없어요</div>';
-    } else {
-      const colorMap = {
-        '부동산':        { color:'#60a5fa', dot:'#60a5fa' },
-        '민석 금융자산': { color:'var(--minsuk)', dot:'#9ca3af' },
-        '시윤 금융자산': { color:'var(--siyun)',  dot:'#9ca3af' },
-        '기타자산':      { color:'#f59e0b', dot:'#f59e0b' },
-        '부채':          { color:'#f87171', dot:'#f87171' },
-      };
+  // 모달 HTML
+  const modalEl = document.getElementById('asset-detail-modal');
+  modalEl.innerHTML = `
+    <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
+      <div style="background:var(--surface);border-radius:24px;overflow:hidden">
 
-      const groups = {};
-      items.forEach(function(item) {
-        if (!groups[item.category]) groups[item.category] = [];
-        groups[item.category].push(item);
-      });
+        <!-- 헤더 -->
+        <div style="padding:24px 20px 20px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+            <div style="font-size:13px;font-weight:500;color:var(--muted)">${y}년 ${parseInt(m)}월</div>
+            <button onclick="closeAssetDetail()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0;line-height:1">✕</button>
+          </div>
 
-      const totalAsset = items.filter(function(i){ return i.type==='asset'; }).reduce(function(s,i){ return s+(i.amount||0); }, 0);
-      const totalDebt  = items.filter(function(i){ return i.type==='debt'; }).reduce(function(s,i){ return s+(i.amount||0); }, 0);
-      const totalNet   = totalAsset - totalDebt;
-      const totalAll   = totalAsset; // 비중은 총자산 기준 (부채 제외)
+          <!-- 순자산 크게 -->
+          <div style="margin-bottom:4px">
+            <div style="font-size:38px;font-weight:900;color:var(--text);letter-spacing:-1px;line-height:1">${(rec.net/10000).toFixed(2)}<span style="font-size:18px;font-weight:400;color:var(--muted);margin-left:4px">억</span></div>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px">순자산 ${diffHtml}</div>
+          </div>
+        </div>
 
-      const catOrder = ['부동산','민석 금융자산','시윤 금융자산','기타자산','부채'];
-      const sortedGroups = catOrder.filter(function(c){ return groups[c]; }).map(function(c){ return [c, groups[c]]; });
-      Object.entries(groups).forEach(function(e){ if(!catOrder.includes(e[0])) sortedGroups.push(e); });
+        <!-- 총자산 / 부채 -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin:0 0 1px">
+          <div style="background:var(--surface);padding:14px 20px">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">총자산</div>
+            <div style="font-size:18px;font-weight:700;color:var(--text)">${(totalAsset/10000).toFixed(2)}<span style="font-size:11px;font-weight:400;color:var(--muted);margin-left:2px">억</span></div>
+          </div>
+          <div style="background:var(--surface);padding:14px 20px">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">부채 <span style="color:var(--red);font-weight:600">${debtRatio}%</span></div>
+            <div style="font-size:18px;font-weight:700;color:var(--red)">${(totalDebt/10000).toFixed(2)}<span style="font-size:11px;font-weight:400;color:var(--muted);margin-left:2px">억</span></div>
+          </div>
+        </div>
 
-      let html = '';
+        <!-- 자산별 / 사용자별 탭 -->
+        <div style="padding:0 20px;margin-top:20px">
+          <div style="display:flex;background:var(--surface2);border-radius:10px;padding:3px;gap:2px;margin-bottom:20px" id="detail-tab-wrap">
+            <button id="detail-tab-category" onclick="switchDetailTab('category')"
+              style="flex:1;padding:7px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s">
+              자산별
+            </button>
+            <button id="detail-tab-owner" onclick="switchDetailTab('owner')"
+              style="flex:1;padding:7px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">
+              사용자별
+            </button>
+          </div>
 
-      // ── 전체 비중 바 (상단 요약) ──
-      html += '<div style="margin-bottom:20px">';
-      html += '<div style="display:flex;height:8px;border-radius:6px;overflow:hidden;gap:1px;margin-bottom:8px">';
-      const barColors = { '부동산':'#60a5fa','민석 금융자산':'#9ca3af','시윤 금융자산':'#6ee7b7','기타자산':'#f59e0b','부채':'#f87171' };
-      sortedGroups.forEach(function(entry) {
-        const cat = entry[0], catItems = entry[1];
-        const catTotal = catItems.reduce(function(s,i){ return s+(i.amount||0); }, 0);
-        const pct = totalAsset > 0 ? catTotal/totalAsset*100 : 0;
-        if (pct < 1) return;
-        html += '<div style="height:100%;flex:' + pct.toFixed(1) + ';background:' + (barColors[cat]||'#6b7280') + ';border-radius:3px"></div>';
-      });
-      html += '</div>';
-      // 범례
-      html += '<div style="display:flex;flex-wrap:wrap;gap:8px">';
-      sortedGroups.forEach(function(entry) {
-        const cat = entry[0], catItems = entry[1];
-        const catTotal = catItems.reduce(function(s,i){ return s+(i.amount||0); }, 0);
-        const pct = totalAsset > 0 ? Math.round(catTotal/totalAsset*100) : 0;
-        if (pct < 1) return;
-        const shortName = cat.replace(' 금융자산','').replace('기타자산','기타');
-        html += '<div style="display:flex;align-items:center;gap:4px">';
-        html += '<div style="width:6px;height:6px;border-radius:50%;background:' + (barColors[cat]||'#6b7280') + '"></div>';
-        html += '<span style="font-size:10px;color:var(--muted2)">' + shortName + ' <span style="font-weight:700;color:var(--text)">' + pct + '%</span></span>';
-        html += '</div>';
-      });
-      html += '</div></div>';
+          <!-- 자산별 뷰 -->
+          <div id="detail-view-category">
+            ${renderDetailByCategory(items, totalAsset, prev)}
+          </div>
 
-      // ── 카테고리별 항목 (그리드) ──
-      sortedGroups.forEach(function(entry) {
-        const cat = entry[0], catItems = entry[1];
-        const theme = colorMap[cat] || { color:'var(--muted2)', dot:'#6b7280' };
-        const catTotal = catItems.reduce(function(s,i){ return s+(i.amount||0); }, 0);
-        const isDebtCat = cat === '부채';
-        const pctOfTotal = totalAsset > 0 ? Math.round(catTotal/totalAsset*100) : 0;
+          <!-- 사용자별 뷰 -->
+          <div id="detail-view-owner" style="display:none">
+            ${renderDetailByOwner(items, totalAsset, prev)}
+          </div>
+        </div>
 
-        html += '<div style="margin-bottom:16px">';
+        <!-- 하단 버튼 -->
+        <div style="padding:20px;display:flex;gap:10px;margin-top:8px">
+          ${load('realestate-cache',null) ? '<button onclick="applyAptFromDetail()" style="flex:1;padding:13px;border-radius:12px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:600;cursor:pointer">실거래가 반영</button>' : ''}
+          <button onclick="openModalFromDetail()" style="flex:1;padding:13px;border-radius:12px;background:var(--text);border:none;color:var(--bg);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">편집하기</button>
+          <button onclick="deleteRecordDirect()" style="padding:13px 16px;border-radius:12px;background:none;border:1px solid var(--border2);color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer">삭제</button>
+        </div>
 
-        // 카테고리 헤더
-        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
-        html += '<div style="display:flex;align-items:center;gap:6px">';
-        html += '<div style="width:3px;height:12px;border-radius:2px;background:' + (barColors[cat]||'#6b7280') + '"></div>';
-        html += '<span style="font-size:11px;font-weight:700;color:' + theme.color + '">' + cat + '</span>';
-        html += '<span style="font-size:10px;color:var(--muted);background:var(--surface3);padding:1px 6px;border-radius:8px">' + pctOfTotal + '%</span>';
-        html += '</div>';
-        html += '<span style="font-size:13px;font-weight:800;color:' + theme.color + '">' + (catTotal/10000).toFixed(2) + '억</span>';
-        html += '</div>';
+      </div>
+    </div>
+  `;
 
-        // 항목 목록 (한 줄씩 컴팩트하게)
-        html += '<div style="background:var(--surface2);border-radius:14px;overflow:hidden">';
-        catItems.forEach(function(item, idx) {
-          const amt = item.amount || 0;
-          const amtStr = amt >= 10000 ? (amt/10000).toFixed(2)+'억' : amt.toLocaleString()+'만';
-          const pctItem = isDebtCat
-            ? (totalAsset > 0 ? Math.round(amt/totalAsset*100) : 0)
-            : (totalAsset > 0 ? Math.round(amt/totalAsset*100) : 0);
-          const isLast = idx === catItems.length - 1;
-
-          html += '<div style="display:flex;align-items:center;padding:11px 14px;' + (!isLast?'border-bottom:1px solid var(--border);':'') + '">';
-          // 비중 바 (왼쪽 세로선)
-          html += '<div style="width:3px;height:32px;border-radius:2px;background:' + (barColors[cat]||'#6b7280') + ';opacity:' + (0.2 + (pctItem/100)*0.8).toFixed(2) + ';flex-shrink:0;margin-right:12px"></div>';
-          // 이름
-          html += '<div style="flex:1;min-width:0">';
-          html += '<div style="font-size:13px;font-weight:600;color:var(--text)">' + item.name + '</div>';
-          if (item.memo) html += '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + item.memo + '</div>';
-          html += '</div>';
-          // 비중 % + 금액
-          html += '<div style="text-align:right;flex-shrink:0">';
-          html += '<div style="font-size:15px;font-weight:800;color:' + (isDebtCat?'#f87171':theme.color) + '">' + amtStr + '</div>';
-          html += '<div style="font-size:10px;color:var(--muted);margin-top:1px">전체의 ' + pctItem + '%</div>';
-          html += '</div>';
-          html += '</div>';
-        });
-        html += '</div>';
-
-        html += '</div>';
-      });
-
-      wrap.innerHTML = html;
-    }
-  }
-
-  document.getElementById('asset-detail-modal').style.display = 'block';
+  modalEl.style.display = 'block';
   lockScroll();
 
-  // 최신 달 + 실거래가 캐시 있으면 반영 버튼 표시
-  const isLatest = month === assetHistory[assetHistory.length-1]?.month;
-  const cache = load('realestate-cache', null);
-  const syncBtn = document.getElementById('detail-apt-sync');
-  if (syncBtn) syncBtn.style.display = (isLatest && cache) ? 'block' : 'none';
+  detailMonth = month;
+}
+
+// ── 자산별 렌더
+function renderDetailByCategory(items, totalAsset, prev) {
+  const catOrder = ['부동산', '민석 금융자산', '시윤 금융자산', '기타자산'];
+  const debtItems = items.filter(i => i.type === 'debt');
+  const assetItems = items.filter(i => i.type === 'asset');
+
+  // 카테고리 그룹핑 - 금융자산으로 통합
+  const groups = {};
+  assetItems.forEach(function(item) {
+    let cat = item.category;
+    // 민석/시윤 금융자산 → 금융자산으로 통합
+    if (cat === '민석 금융자산' || cat === '시윤 금융자산') cat = '금융자산';
+    if (!groups[cat]) groups[cat] = [];
+    groups[cat].push(item);
+  });
+
+  let html = '';
+
+  // 자산 카테고리들
+  const displayOrder = ['부동산', '금융자산', '기타자산'];
+  displayOrder.forEach(function(cat) {
+    const catItems = groups[cat];
+    if (!catItems || !catItems.length) return;
+    const catTotal = catItems.reduce((s,i)=>s+(i.amount||0),0);
+    const catPct = totalAsset > 0 ? Math.round(catTotal/totalAsset*100) : 0;
+
+    html += `
+      <div style="margin-bottom:24px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-size:12px;font-weight:700;color:var(--muted)">${cat}</span>
+          <span style="font-size:12px;color:var(--muted)">${catPct}%</span>
+        </div>
+        ${catItems.map(item => renderDetailItem(item, totalAsset, prev)).join('')}
+      </div>`;
+  });
+
+  // 부채
+  if (debtItems.length) {
+    const debtTotal = debtItems.reduce((s,i)=>s+(i.amount||0),0);
+    const debtPct = totalAsset > 0 ? Math.round(debtTotal/totalAsset*100) : 0;
+    html += `
+      <div style="margin-bottom:24px;padding-top:16px;border-top:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-size:12px;font-weight:700;color:var(--red)">부채</span>
+          <span style="font-size:12px;color:var(--red)">${debtPct}%</span>
+        </div>
+        ${debtItems.map(item => renderDetailItem(item, totalAsset, prev, true)).join('')}
+      </div>`;
+  }
+
+  return html;
+}
+
+// ── 사용자별 렌더
+function renderDetailByOwner(items, totalAsset, prev) {
+  const owners = ['minsuk', 'siyun', 'common'];
+  const ownerLabels = { minsuk: '민석', siyun: '시윤', common: '공동' };
+  let html = '';
+
+  owners.forEach(function(owner) {
+    const ownerItems = items.filter(i => i.type === 'asset' && (i.owner === owner || (!i.owner && owner === 'common')));
+    if (!ownerItems.length) return;
+    const ownerTotal = ownerItems.reduce((s,i)=>s+(i.amount||0),0);
+    const ownerPct = totalAsset > 0 ? Math.round(ownerTotal/totalAsset*100) : 0;
+
+    html += `
+      <div style="margin-bottom:24px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-size:12px;font-weight:700;color:var(--muted)">${ownerLabels[owner]}</span>
+          <span style="font-size:12px;color:var(--muted)">${(ownerTotal/10000).toFixed(2)}억 · ${ownerPct}%</span>
+        </div>
+        ${ownerItems.map(item => renderDetailItem(item, totalAsset, prev)).join('')}
+      </div>`;
+  });
+
+  // 부채
+  const debtItems = items.filter(i => i.type === 'debt');
+  if (debtItems.length) {
+    const debtTotal = debtItems.reduce((s,i)=>s+(i.amount||0),0);
+    html += `
+      <div style="margin-bottom:24px;padding-top:16px;border-top:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-size:12px;font-weight:700;color:var(--red)">부채</span>
+          <span style="font-size:12px;color:var(--red)">${(debtTotal/10000).toFixed(2)}억</span>
+        </div>
+        ${debtItems.map(item => renderDetailItem(item, totalAsset, prev, true)).join('')}
+      </div>`;
+  }
+
+  return html;
+}
+
+// ── 항목 하나 렌더
+function renderDetailItem(item, totalAsset, prev, isDebt) {
+  const amt = item.amount || 0;
+  const amtStr = amt >= 10000 ? (amt/10000).toFixed(2)+'억' : amt.toLocaleString()+'만';
+  const pct = totalAsset > 0 ? Math.round(amt/totalAsset*100) : 0;
+  const color = isDebt ? 'var(--red)' : 'var(--text)';
+
+  // 전월 대비
+  let diffHtml = '';
+  if (prev && prev.items) {
+    const prevItem = prev.items.find(p => p.name === item.name && p.category === item.category);
+    if (prevItem) {
+      const d = amt - prevItem.amount;
+      if (d !== 0) {
+        diffHtml = '<span style="font-size:11px;color:' + (d>0?'var(--muted2)':'var(--red)') + ';margin-left:6px">'
+          + (d>0?'+':'') + (d/10000).toFixed(1) + '억</span>';
+      }
+    }
+  }
+
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:500;color:${color}">${item.name}</div>
+        ${item.memo ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + item.memo + '</div>' : ''}
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:15px;font-weight:700;color:${color}">${amtStr}${diffHtml}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:1px">전체의 ${pct}%</div>
+      </div>
+    </div>`;
+}
+
+// ── 탭 전환
+function switchDetailTab(tab) {
+  const catBtn = document.getElementById('detail-tab-category');
+  const ownerBtn = document.getElementById('detail-tab-owner');
+  const catView = document.getElementById('detail-view-category');
+  const ownerView = document.getElementById('detail-view-owner');
+
+  if (tab === 'category') {
+    catBtn.style.background = 'var(--surface)';
+    catBtn.style.color = 'var(--text)';
+    catBtn.style.fontWeight = '700';
+    ownerBtn.style.background = 'transparent';
+    ownerBtn.style.color = 'var(--muted2)';
+    ownerBtn.style.fontWeight = '600';
+    catView.style.display = 'block';
+    ownerView.style.display = 'none';
+  } else {
+    ownerBtn.style.background = 'var(--surface)';
+    ownerBtn.style.color = 'var(--text)';
+    ownerBtn.style.fontWeight = '700';
+    catBtn.style.background = 'transparent';
+    catBtn.style.color = 'var(--muted2)';
+    catBtn.style.fontWeight = '600';
+    catView.style.display = 'none';
+    ownerView.style.display = 'block';
+  }
 }
 
 function closeAssetDetail() {
