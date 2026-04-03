@@ -1801,8 +1801,40 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <button onclick="saveHomeCardSettings()" class="btn-primary" style="margin-top:14px">저장</button>
     </div>
 
-    <!-- 계정 -->
-    <div class="card" style="border-color:rgba(239,68,68,0.15)">
+    <!-- 파트너 이름 설정 -->
+    <div class="card" style="margin-bottom:14px;border-color:rgba(59,130,246,0.15)">
+      <div class="card-title" style="color:var(--muted)">이름 설정</div>
+      <p style="font-size:12px;color:var(--muted2);line-height:1.7;margin-bottom:14px">
+        가계부·자산에 표시되는 이름을 바꿀 수 있어요.<br>
+        혼자 쓰신다면 파트너 이름은 비워도 돼요.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
+        <div>
+          <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:5px">공동 라벨</label>
+          <input type="text" id="pname-common" placeholder="공동"
+            style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none">
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:5px">나 (파트너1)</label>
+          <input type="text" id="pname-p1" placeholder="나"
+            style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none">
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:5px">파트너 (파트너2) <span style="color:var(--muted);font-weight:400">- 혼자 쓰면 비워두세요</span></label>
+          <input type="text" id="pname-p2" placeholder="파트너"
+            style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none">
+        </div>
+      </div>
+      <!-- 빠른 선택 프리셋 -->
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">
+        <button onclick="applyNamePreset('couple')" style="padding:6px 12px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;cursor:pointer">👫 남편/아내</button>
+        <button onclick="applyNamePreset('solo')" style="padding:6px 12px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;cursor:pointer">🙋 혼자 사용</button>
+        <button onclick="applyNamePreset('custom')" style="padding:6px 12px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;cursor:pointer">✏️ 직접 입력</button>
+      </div>
+      <button onclick="savePartnerNamesFromUI()" class="btn-primary">저장</button>
+      <div id="pname-status" style="display:none;margin-top:8px;font-size:12px;text-align:center"></div>
+    </div>
+
       <div class="card-title" style="color:var(--muted)">계정</div>
       <div id="settings-my-info" style="padding:12px;background:var(--surface2);border-radius:12px;margin-bottom:12px">
         <div style="font-size:11px;color:var(--muted);margin-bottom:4px">로그인된 계정</div>
@@ -3079,6 +3111,19 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
 let currentProfile = null;
 let currentCoupleId = null;
+
+// 파트너 이름 전역 관리
+let PARTNER_NAMES = load('partner-names', {
+  partner1: '나',
+  partner2: '파트너',
+  common: '공동'
+});
+
+function getP1Name() { return PARTNER_NAMES.partner1 || '나'; }
+function getP2Name() { return PARTNER_NAMES.partner2 || '파트너'; }
+function getCommonName() { return PARTNER_NAMES.common || '공동'; }
+function savePartnerNames() { store('partner-names', PARTNER_NAMES); }
+
 
 // ══════════════════════════════════════
 // ── 인증 관련 함수 ──
@@ -5254,6 +5299,7 @@ function initHome() {
   // 단지명 UI 반영
   const aptS = load('apt-settings', null);
   if (aptS?.name) applyAptNameToUI(aptS.name);
+  applyPartnerNamesToUI();
   // 대기목록 체크 (앱 열릴 때 + 30초마다)
   checkPendingTxs();
   setInterval(checkPendingTxs, 30000);
@@ -6872,7 +6918,88 @@ function setSettingsTab(tab) {
   });
   if (tab === 'cat') renderCatSettings();
   if (tab === 'data') renderCoupleSettings();
+  if (tab === 'home') loadPartnerNamesUI();
+
 }
+
+// ── 파트너 이름 설정 UI ──
+function loadPartnerNamesUI() {
+  const p1 = document.getElementById('pname-p1');
+  const p2 = document.getElementById('pname-p2');
+  const cm = document.getElementById('pname-common');
+  if (p1) p1.value = PARTNER_NAMES.partner1 || '';
+  if (p2) p2.value = PARTNER_NAMES.partner2 || '';
+  if (cm) cm.value = PARTNER_NAMES.common || '';
+}
+
+function applyNamePreset(type) {
+  const p1 = document.getElementById('pname-p1');
+  const p2 = document.getElementById('pname-p2');
+  const cm = document.getElementById('pname-common');
+  if (type === 'couple') {
+    if (p1) p1.value = '남편';
+    if (p2) p2.value = '아내';
+    if (cm) cm.value = '공동';
+  } else if (type === 'solo') {
+    if (p1) p1.value = '나';
+    if (p2) p2.value = '';
+    if (cm) cm.value = '공동';
+  } else {
+    if (p1) p1.focus();
+  }
+}
+
+function savePartnerNamesFromUI() {
+  const p1 = (document.getElementById('pname-p1').value || '').trim();
+  const p2 = (document.getElementById('pname-p2').value || '').trim();
+  const cm = (document.getElementById('pname-common').value || '').trim();
+  if (!p1) { showToast('❗ 파트너1 이름을 입력해주세요'); return; }
+  PARTNER_NAMES = {
+    partner1: p1 || '나',
+    partner2: p2 || '',
+    common: cm || '공동'
+  };
+  savePartnerNames();
+  // 앱 전체 이름 갱신
+  applyPartnerNamesToUI();
+  const status = document.getElementById('pname-status');
+  if (status) { status.style.display = 'block'; status.style.color = 'var(--green)'; status.textContent = '✅ 저장됐어요!'; }
+  showToast('✅ 이름이 저장됐어요!');
+}
+
+function applyPartnerNamesToUI() {
+  const p1 = getP1Name();
+  const p2 = getP2Name();
+  const cm = getCommonName();
+
+  // 가계부 탭 소유자 버튼
+  const ownerMinsuk = document.getElementById('owner-minsuk');
+  const ownerSiyun = document.getElementById('owner-siyun');
+  const ownerCommon = document.getElementById('owner-common');
+  if (ownerMinsuk) ownerMinsuk.textContent = '👤 ' + p1;
+  if (ownerSiyun) ownerSiyun.textContent = (p2 ? '👤 ' + p2 : '');
+  if (ownerSiyun) ownerSiyun.style.display = p2 ? '' : 'none';
+  if (ownerCommon) ownerCommon.textContent = cm;
+
+  // 거래 입력 모달 소유자 버튼
+  const txMs = document.getElementById('tx-owner-ms');
+  const txSy = document.getElementById('tx-owner-sy');
+  const txCm = document.getElementById('tx-owner-cm');
+  if (txMs) txMs.textContent = p1;
+  if (txSy) { txSy.textContent = p2; txSy.style.display = p2 ? '' : 'none'; }
+  if (txCm) txCm.textContent = cm;
+
+  // 주식 탭 소유자 버튼
+  const stkMs = document.getElementById('stk-owner-minsuk');
+  const stkSy = document.getElementById('stk-owner-siyun');
+  if (stkMs) stkMs.textContent = '👤 ' + p1;
+  if (stkSy) { stkSy.textContent = p2 ? '👤 ' + p2 : ''; stkSy.style.display = p2 ? '' : 'none'; }
+
+  // 홈 부부 대결 카드
+  renderCoupleCard();
+  renderHomeLedgerSummary();
+}
+
 
 function saveClaudeApiKey() {
   const key = document.getElementById('claude-api-key-input').value.trim();
