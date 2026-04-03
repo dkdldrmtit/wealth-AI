@@ -1140,7 +1140,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <!-- 금액 표시 -->
       <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px">
         <div>
-          <div style="font-size:10px;color:var(--muted);font-weight:500;margin-bottom:4px">이번달 지출</div>
           <div style="display:flex;align-items:baseline;gap:4px">
             <span id="widget-month-exp" style="font-size:22px;font-weight:900;color:var(--text)">0</span>
             <span style="font-size:12px;color:var(--muted);font-weight:400">만원</span>
@@ -6451,17 +6450,17 @@ function updateHomeWidget() {
     statusText = '';
     pctColor = 'var(--muted)';
   } else if(pct <= 60) {
-    barColor = 'linear-gradient(90deg,rgba(34,197,94,0.7),rgba(22,163,74,0.6))';
-    pctColor = '#22c55e';
+    barColor = 'rgba(34,197,94,0.25)';
+    pctColor = 'var(--muted2)';
   } else if(pct <= 80) {
-    barColor = 'linear-gradient(90deg,rgba(251,191,36,0.7),rgba(245,158,11,0.6))';
-    pctColor = '#fbbf24';
+    barColor = 'rgba(251,191,36,0.3)';
+    pctColor = 'var(--muted2)';
   } else if(pct <= 100) {
-    barColor = 'linear-gradient(90deg,rgba(249,115,22,0.7),rgba(234,88,12,0.6))';
-    pctColor = '#f97316';
+    barColor = 'rgba(249,115,22,0.35)';
+    pctColor = 'var(--muted2)';
   } else {
-    barColor = 'linear-gradient(90deg,rgba(239,68,68,0.7),rgba(220,38,38,0.6))';
-    pctColor = '#ef4444';
+    barColor = 'rgba(239,68,68,0.35)';
+    pctColor = 'var(--muted2)';
   }
 
   // 바 업데이트
@@ -6473,15 +6472,14 @@ function updateHomeWidget() {
   // 이번달 지출 금액을 바 안에 표시
   if(el('widget-status-text')) {
     el('widget-status-text').textContent = '이번달 ' + Math.round(monthExp).toLocaleString() + '만원';
-    el('widget-status-text').style.color = '#fff';
-    el('widget-status-text').style.textShadow = '0 1px 4px rgba(0,0,0,0.3)';
+    el('widget-status-text').style.color = 'var(--muted2)';
+    el('widget-status-text').style.textShadow = 'none';
   }
 
-  // % 표시 - 항상 흰색
   if(el('widget-exp-pct')) {
     el('widget-exp-pct').textContent = totalBudget > 0 ? pct + '%' : '';
-    el('widget-exp-pct').style.color = '#fff';
-    el('widget-exp-pct').style.textShadow = '0 1px 4px rgba(0,0,0,0.5)';
+    el('widget-exp-pct').style.color = 'var(--muted2)';
+    el('widget-exp-pct').style.textShadow = 'none';
   }
 
 }
