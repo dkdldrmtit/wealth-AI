@@ -6756,12 +6756,23 @@ function openAssetDetail(month) {
 function normalizeCatId(cat) {
   if (!cat) return 'cash';
   const map = {
-    '부동산': 'realestate', '금융자산': 'stocks',
+    '부동산': 'realestate',
+    '금융자산': 'stocks',
     '민석 금융자산': 'stocks', '시윤 금융자산': 'stocks',
-    '기타자산': 'cash', '부채': 'mortgage',
-    '저축·예금': 'savings', '연금': 'pension', '보증금': 'deposit', '현금': 'cash',
-    // 구버전 부채 2분류 → 새 4분류
-    'housing-debt': 'mortgage', 'credit-debt': 'credit-loan'
+    '주식·ETF': 'stocks',
+    '기타자산': 'cash',
+    '부채': 'mortgage',
+    '저축·예금': 'savings',
+    '연금': 'pension',
+    '보증금': 'deposit',
+    '현금': 'cash',
+    'housing-debt': 'mortgage', 'credit-debt': 'credit-loan',
+    // CATEGORY_LABELS 역매핑 (한글 라벨 → ID)
+    '주택담보대출': 'mortgage',
+    '전세자금대출': 'jeonse-loan',
+    '신용대출': 'credit-loan',
+    '기타대출': 'other-debt',
+    '현금·기타': 'cash',
   };
   return map[cat] || cat;
 }
@@ -6778,6 +6789,8 @@ function renderDetailByCategory(items, totalAsset, prev) {
   var groups = {};
   assetItems.forEach(function(item) {
     var cid = normalizeCatId(item.category);
+    // assetOrder에 없는 카테고리는 cash로 fallback
+    if (!assetOrder.includes(cid)) cid = 'cash';
     if (!groups[cid]) groups[cid] = [];
     groups[cid].push(item);
   });
