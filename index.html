@@ -2798,7 +2798,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <!-- 주식 → 자산 반영 버튼 -->
     <div style="margin-top:14px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:16px">
       <div style="font-size:12px;color:var(--muted);margin-bottom:8px">💼 주식 평가금액을 자산에 반영</div>
-      <div style="font-size:11px;color:var(--muted2);margin-bottom:10px;line-height:1.6">시세 갱신 후 민석·시윤 금융자산 항목에 자동으로 반영돼요.</div>
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:10px;line-height:1.6">시세 갱신 후 자산 내역의 주식·ETF 항목에 자동으로 반영돼요.</div>
       <button onclick="applyStocksToAsset()"
         style="width:100%;padding:12px;background:rgba(74,158,255,.12);border:1px solid rgba(74,158,255,.25);
         border-radius:12px;color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
@@ -3548,14 +3548,16 @@ async function loadAllDataFromSupabase() {
       stocksRes,
       goalsRes,
       schedulesRes,
-      appDataRes
+      appDataRes,
+      molitKeyRes
     ] = await Promise.all([
       _supabase.from('asset_history').select('data').eq(keyField, keyValue).single(),
       _supabase.from('ledger_txs').select('data').eq(keyField, keyValue).single(),
       _supabase.from('stocks').select('data').eq(keyField, keyValue).single(),
       _supabase.from('goals').select('data').eq(keyField, keyValue).single(),
       _supabase.from('schedules').select('data').eq(keyField, keyValue).single(),
-      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'budgets').single()
+      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'budgets').single(),
+      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'molit-api-key').single()
     ]);
 
     const hasSupabaseData =
@@ -3580,6 +3582,11 @@ async function loadAllDataFromSupabase() {
       store('goals', goals);
       store('schedules', schedules);
       store('ledger-budgets', budgets);
+
+      // 공용 molit API 키 — Supabase에 있으면 로컬에 덮어쓰기
+      if (molitKeyRes.data && molitKeyRes.data.data) {
+        store('molit-api-key', molitKeyRes.data.data);
+      }
 
       console.log('✅ Supabase 데이터 로드 완료');
 
@@ -3614,11 +3621,85 @@ async function loadAllDataFromSupabase() {
     recurringItems = load('recurring-items', []);
   }
 
+  migrateAssetCategories();
   renderGoals();
   renderMonthCards();
   initHome();
   initRealEstate();
   applyHomeCardOrder();
+}
+
+// ── 기존 자산 카테고리 → 새 구조로 마이그레이션 (1회)
+function migrateAssetCategories() {
+  // v3: housing-debt/credit-debt → 4개 부채 카테고리
+  if (!load('asset-categories-migrated-v3', false) && assetHistory && assetHistory.length) {
+    var v3changed = false;
+    assetHistory.forEach(function(rec) {
+      if (!rec.items) return;
+      rec.items.forEach(function(item) {
+        var c = item.category;
+        var n = (item.name || '').toLowerCase();
+        if (c === 'housing-debt') {
+          if (n.includes('전세') || n.includes('버팀목')) { item.category = 'jeonse-loan'; }
+          else { item.category = 'mortgage'; }
+          v3changed = true;
+        } else if (c === 'credit-debt') {
+          if (n.includes('신용') || n.includes('마이너스') || n.includes('카드')) { item.category = 'credit-loan'; }
+          else { item.category = 'other-debt'; }
+          v3changed = true;
+        }
+      });
+    });
+    if (v3changed) { store('asset-history', assetHistory); }
+    store('asset-categories-migrated-v3', true);
+  }
+
+  if (load('asset-categories-migrated-v2', false)) return;
+  if (!assetHistory || !assetHistory.length) { store('asset-categories-migrated-v2', true); return; }
+
+  var changed = false;
+  assetHistory.forEach(function(rec) {
+    if (!rec.items) return;
+    rec.items.forEach(function(item) {
+      var c = item.category;
+      var n = (item.name || '').toLowerCase();
+
+      // 구버전 금융자산 분류
+      if (c === '민석 금융자산' || c === '시윤 금융자산' || c === '금융자산') {
+        if (n.includes('주식') || n.includes('etf') || n.includes('사주') || n.includes('toss') || n.includes('토스') || n.includes('펀드') || n.includes('코인')) {
+          item.category = 'stocks';
+        } else if (n.includes('irp') || n.includes('연금') || n.includes('퇴직')) {
+          item.category = 'pension';
+        } else if (n.includes('청약') || n.includes('예금') || n.includes('적금') || n.includes('cma') || n.includes('도약')) {
+          item.category = 'savings';
+        } else {
+          item.category = 'cash';
+        }
+        changed = true;
+      }
+      // 부동산 → 보증금 분리
+      else if (c === '부동산') {
+        if (n.includes('보증금')) { item.category = 'deposit'; changed = true; }
+        else { item.category = 'realestate'; changed = true; }
+      }
+      // 기타자산
+      else if (c === '기타자산') { item.category = 'cash'; changed = true; }
+      // 부채
+      else if (c === '부채') {
+        if (n.includes('담보')) { item.category = 'mortgage'; }
+        else if (n.includes('전세') || n.includes('버팀목')) { item.category = 'jeonse-loan'; }
+        else if (n.includes('신용') || n.includes('마이너스') || n.includes('카드')) { item.category = 'credit-loan'; }
+        else { item.category = 'other-debt'; }
+        changed = true;
+      }
+    });
+  });
+
+  if (changed) {
+    store('asset-history', assetHistory);
+    console.log('✅ 자산 카테고리 마이그레이션 완료');
+  }
+  store('asset-categories-migrated-v2', true);
 }
 
 
@@ -4205,9 +4286,9 @@ function updateHomeFromItems(rec) {
   // 자산구성 카드 갱신 (새 토스 스타일)
   renderDonutCard();
 
-  // 민석/시윤 항목 (금융자산 중 이름에 민석/시윤 포함)
-  const msItems = rec.items.filter(i=>i.category==='민석 금융자산');
-  const syItems = rec.items.filter(i=>i.category==='시윤 금융자산');
+  // 민석/시윤 항목 (owner 기준으로 조회, 구버전 카테고리명도 호환)
+  const msItems = rec.items.filter(i=>i.type==='asset' && (i.owner==='minsuk' || i.category==='민석 금융자산'));
+  const syItems = rec.items.filter(i=>i.type==='asset' && (i.owner==='siyun'  || i.category==='시윤 금융자산'));
   const msTotal = msItems.reduce((s,i)=>s+i.amount,0);
   const syTotal = syItems.reduce((s,i)=>s+i.amount,0);
   if(el('h-minsuk-amt')) el('h-minsuk-amt').textContent = msTotal > 0 ? msTotal.toLocaleString()+'만' : '—';
@@ -4316,7 +4397,7 @@ function scrollToAssetSection(section) {
   // section: 'asset' | 'debt'
   setAssetView('item');
   setTimeout(function() {
-    const targetId = section === 'debt' ? '부채' : '부동산';
+    const targetId = section === 'debt' ? 'mortgage' : 'realestate';
     const el = document.getElementById('item-section-' + targetId);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 120);
@@ -4370,21 +4451,24 @@ function renderItemView() {
   });
 
   const colorMap = {
-    '부동산': 'var(--blue)',
-    '민석 금융자산': 'var(--minsuk)',
-    '시윤 금융자산': 'var(--siyun)',
-    '기타자산': 'var(--gold)',
-    '부채': 'var(--red)'
+    'realestate': 'var(--blue)', 'stocks': 'var(--gold)', 'savings': 'var(--green)',
+    'pension': '#a78bfa', 'deposit': '#fb923c', 'cash': 'var(--muted2)',
+    'housing-debt': 'var(--red)', 'credit-debt': 'var(--red)',
+    '부동산': 'var(--blue)', '금융자산': 'var(--gold)',
+    '민석 금융자산': 'var(--gold)', '시윤 금융자산': 'var(--gold)',
+    '기타자산': 'var(--muted2)', '부채': 'var(--red)'
   };
   const colorHex = {
-    '부동산': '#3b82f6',
-    '민석 금융자산': '#60a5fa',
-    '시윤 금융자산': '#34d399',
-    '기타자산': '#888888',
-    '부채': '#ef4444'
+    'realestate': '#3b82f6', 'stocks': '#f59e0b', 'savings': '#22c55e',
+    'pension': '#a78bfa', 'deposit': '#fb923c', 'cash': '#9ca3af',
+    'housing-debt': '#ef4444', 'credit-debt': '#ef4444',
+    '부동산': '#3b82f6', '금융자산': '#f59e0b',
+    '민석 금융자산': '#f59e0b', '시윤 금융자산': '#f59e0b',
+    '기타자산': '#9ca3af', '부채': '#ef4444'
   };
 
-  const catOrder = ['부동산', '민석 금융자산', '시윤 금융자산', '기타자산', '부채'];
+  const catOrder = ['realestate', 'stocks', 'savings', 'pension', 'deposit', 'cash', 'housing-debt', 'credit-debt',
+    '부동산', '민석 금융자산', '시윤 금융자산', '기타자산', '부채'];
   const byCategory = {};
   itemKeys.forEach(function(ik) {
     if (!byCategory[ik.category]) byCategory[ik.category] = [];
@@ -4479,7 +4563,7 @@ function renderItemView() {
 
     html += '<div id="item-section-' + cat + '" style="margin-bottom:14px">';
     html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;padding:0 2px">'
-      + '<div style="font-size:11px;font-weight:700;letter-spacing:1px;color:' + color + '">' + items[0].emoji + ' ' + cat + '</div>'
+      + '<div style="font-size:11px;font-weight:700;letter-spacing:1px;color:' + color + '">' + (CATEGORY_LABELS[cat] || cat) + '</div>'
       + (catTotalStr ? '<div style="font-size:11px;font-weight:700;color:' + color + ';opacity:.85">' + catTotalStr + '</div>' : '')
       + '</div>';
 
@@ -4642,21 +4726,46 @@ function updatePreview() {
 let modalAssetItems = []; // [{id, category, emoji, type, name, amount, memo}]
 
 const CATEGORY_COLORS = {
-  '부동산': 'var(--blue)', '금융자산': 'var(--teal)',
-  '기타자산': 'var(--gold)', '부채': 'var(--red)'
+  'realestate':   'var(--blue)',
+  'stocks':       'var(--gold)',
+  'savings':      'var(--green)',
+  'pension':      '#a78bfa',
+  'deposit':      '#fb923c',
+  'cash':         'var(--muted2)',
+  'mortgage':     'var(--red)',
+  'jeonse-loan':  'var(--red)',
+  'credit-loan':  'var(--red)',
+  'other-debt':   'var(--red)',
+  // 구버전 호환
+  'housing-debt': 'var(--red)', 'credit-debt': 'var(--red)',
+  '부동산': 'var(--blue)', '금융자산': 'var(--gold)',
+  '기타자산': 'var(--muted2)', '부채': 'var(--red)',
+  '민석 금융자산': 'var(--gold)', '시윤 금융자산': 'var(--gold)'
+};
+
+const CATEGORY_LABELS = {
+  'realestate': '부동산', 'stocks': '주식·ETF', 'savings': '저축·예금',
+  'pension': '연금', 'deposit': '보증금', 'cash': '현금·기타',
+  'mortgage': '주택담보대출', 'jeonse-loan': '전세자금대출',
+  'credit-loan': '신용대출', 'other-debt': '기타대출',
+  // 구버전 호환
+  'housing-debt': '주택 부채', 'credit-debt': '신용 부채'
 };
 
 const ASSET_CATEGORIES = {
   asset: [
     { id: 'realestate', label: '부동산',    items: ['아파트', '빌라·주택', '상가·오피스텔', '토지', '기타 부동산'] },
-    { id: 'finance',    label: '금융자산',  items: ['주식·ETF', '펀드', '채권', '가상화폐', '기타 금융자산'] },
+    { id: 'stocks',     label: '주식·ETF',  items: ['국내주식', '해외주식', 'ETF', '코인', '기타'] },
     { id: 'savings',    label: '저축·예금', items: ['예금·적금', 'CMA·파킹통장', '청약저축', '기타 저축'] },
     { id: 'pension',    label: '연금',      items: ['IRP', '연금저축', '퇴직연금', '국민연금', '기타 연금'] },
-    { id: 'cash',       label: '현금',      items: ['현금', '외화', '기타 현금'] },
-    { id: 'etc',        label: '기타자산',  items: ['자동차', '보증금', '기타'] },
+    { id: 'deposit',    label: '보증금',    items: ['전세 보증금', '월세 보증금', '기타 보증금'] },
+    { id: 'cash',       label: '현금·기타', items: ['현금', '외화', '자동차', '기타'] },
   ],
   debt: [
-    { id: 'debt', label: '부채', items: ['주택담보대출', '전세자금대출', '신용대출', '카드론', '기타 부채'] },
+    { id: 'mortgage',    label: '주택담보대출', items: ['주택담보대출', '기타 담보대출'] },
+    { id: 'jeonse-loan', label: '전세자금대출', items: ['전세자금대출', '버팀목전세대출'] },
+    { id: 'credit-loan', label: '신용대출',     items: ['신용대출', '마이너스통장', '카드론'] },
+    { id: 'other-debt',  label: '기타대출',     items: ['기타 대출'] },
   ]
 };
 
@@ -4664,8 +4773,6 @@ function addAssetItem(category, emoji, type) {
   const id = 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
   // 카테고리에 따라 기본 소유자 자동 설정
   let defaultOwner = 'common';
-  if (category === '민석 금융자산') defaultOwner = 'minsuk';
-  if (category === '시윤 금융자산') defaultOwner = 'siyun';
   modalAssetItems.push({ id, category, emoji, type, name: '', amount: 0, memo: '', owner: defaultOwner });
   renderAssetItems();
   // 새로 추가된 항목의 이름 input에 포커스
@@ -4834,8 +4941,13 @@ function renderAssetItems() {
 
   wrap.innerHTML = '';
   const colorMap = {
-    '부동산':'#60a5fa','민석 금융자산':'#9ca3af','시윤 금융자산':'#9ca3af',
-    '기타자산':'#888888','부채':'#ef4444'
+    'realestate':'#3b82f6','stocks':'#f59e0b','savings':'#22c55e',
+    'pension':'#a78bfa','deposit':'#fb923c','cash':'#9ca3af',
+    'housing-debt':'#ef4444','credit-debt':'#ef4444',
+    // 구버전 호환
+    '부동산':'#3b82f6','금융자산':'#f59e0b',
+    '민석 금융자산':'#f59e0b','시윤 금융자산':'#f59e0b',
+    '기타자산':'#9ca3af','부채':'#ef4444'
   };
 
   modalAssetItems.forEach(function(item, idx) {
@@ -4895,32 +5007,36 @@ function renderAssetItems() {
     row1.appendChild(nameInput);
     row1.appendChild(delBtn);
 
-    // ── 2행: 금액 + 소유자
+    // ── 2행: 금액
     const row2 = document.createElement('div');
-    row2.style.cssText = 'display:flex;align-items:center;gap:8px';
+    row2.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:8px';
 
-    // 금액 입력
     const amtInput = document.createElement('input');
     amtInput.type = 'number';
     amtInput.id = 'amt_' + item.id;
     amtInput.value = item.amount || '';
-    amtInput.placeholder = '금액 (만원)';
+    amtInput.placeholder = '금액';
     amtInput.setAttribute('inputmode', 'decimal');
-    amtInput.style.cssText = 'flex:1;background:var(--surface3);border:0.5px solid var(--border2);border-radius:7px;color:' + (isDebt?'var(--red)':'var(--text)') + ';font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:700;padding:6px 8px;outline:none;';
+    amtInput.style.cssText = 'flex:1;min-width:0;background:var(--surface3);border:0.5px solid var(--border2);border-radius:7px;color:' + (isDebt?'var(--red)':'var(--text)') + ';font-family:\'Noto Sans KR\',sans-serif;font-size:14px;font-weight:700;padding:7px 10px;outline:none;';
     amtInput.dataset.id = item.id;
     amtInput.addEventListener('input', function() {
       updateItemField(this.dataset.id, 'amount', parseFloat(this.value)||0);
       updatePreview();
     });
 
-    // 단위
     const unit = document.createElement('span');
-    unit.textContent = '만';
-    unit.style.cssText = 'font-size:11px;color:var(--muted);flex-shrink:0';
+    unit.textContent = '만원';
+    unit.style.cssText = 'font-size:12px;color:var(--muted);flex-shrink:0';
 
-    // 소유자 선택
+    row2.appendChild(amtInput);
+    row2.appendChild(unit);
+
+    // ── 3행: 소유자 + 메모 토글
+    const row3 = document.createElement('div');
+    row3.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-top:8px';
+
     const ownerWrap = document.createElement('div');
-    ownerWrap.style.cssText = 'display:flex;background:var(--surface3);border-radius:7px;padding:2px;gap:1px;flex-shrink:0';
+    ownerWrap.style.cssText = 'display:flex;background:var(--surface3);border-radius:7px;padding:2px;gap:1px';
 
     ['common','minsuk','siyun'].forEach(function(o) {
       const label = o === 'common' ? '공동' : o === 'minsuk' ? '민석' : '시윤';
@@ -4929,7 +5045,7 @@ function renderAssetItems() {
       btn.textContent = label;
       btn.dataset.id = item.id;
       btn.dataset.owner = o;
-      btn.style.cssText = 'padding:4px 8px;border-radius:5px;border:none;font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:' + (isActive?'700':'500') + ';cursor:pointer;background:' + (isActive?'var(--surface)':'transparent') + ';color:' + (isActive?'var(--text)':'var(--muted2)') + ';transition:all .15s';
+      btn.style.cssText = 'padding:4px 10px;border-radius:5px;border:none;font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:' + (isActive?'700':'500') + ';cursor:pointer;background:' + (isActive?'var(--surface)':'transparent') + ';color:' + (isActive?'var(--text)':'var(--muted2)') + ';transition:all .15s';
       btn.addEventListener('click', function() {
         updateItemField(this.dataset.id, 'owner', this.dataset.owner);
         renderAssetItems();
@@ -4937,25 +5053,22 @@ function renderAssetItems() {
       ownerWrap.appendChild(btn);
     });
 
-    row2.appendChild(amtInput);
-    row2.appendChild(unit);
-    row2.appendChild(ownerWrap);
+    const memoBtn = document.createElement('button');
+    memoBtn.style.cssText = 'background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;padding:0;flex-shrink:0';
 
-    // ── 메모 (접기/펼치기)
+    // ── 메모 입력행
     const memoRow = document.createElement('div');
     memoRow.style.cssText = 'display:' + (item.memo ? 'flex' : 'none') + ';align-items:center;gap:5px;margin-top:8px;';
     const memoInput = document.createElement('input');
     memoInput.type = 'text';
-    memoInput.placeholder = '메모 (선택)';
+    memoInput.placeholder = '메모';
     memoInput.value = item.memo || '';
     memoInput.style.cssText = 'flex:1;background:var(--surface3);border:0.5px solid var(--border2);border-radius:7px;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;padding:5px 8px;outline:none;';
     memoInput.dataset.id = item.id;
     memoInput.addEventListener('input', function() { updateItemField(this.dataset.id, 'memo', this.value); });
     memoRow.appendChild(memoInput);
 
-    const memoBtn = document.createElement('button');
     memoBtn.textContent = item.memo ? '메모 ✓' : '+ 메모';
-    memoBtn.style.cssText = 'background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;padding:0;flex-shrink:0;white-space:nowrap';
     memoBtn.dataset.id = item.id;
     memoBtn.addEventListener('click', function() {
       const isVisible = memoRow.style.display !== 'none';
@@ -4964,12 +5077,12 @@ function renderAssetItems() {
       if (!isVisible) memoInput.focus();
     });
 
+    row3.appendChild(ownerWrap);
+    row3.appendChild(memoBtn);
+
     wrapper.appendChild(row1);
     wrapper.appendChild(row2);
-
-    // 메모 버튼을 row2 오른쪽에 추가
-    row2.appendChild(memoBtn);
-
+    wrapper.appendChild(row3);
     wrapper.appendChild(memoRow);
     wrap.appendChild(wrapper);
   });
@@ -4991,20 +5104,20 @@ function getItemsDefault(rec) {
   const items = [];
   if (d.apt) {
     const aptName = load('apt-settings', null)?.name || '아파트';
-    items.push({ category:'부동산', emoji:'🏢', type:'asset', name: aptName, amount:d.apt, memo:'', owner:'common' });
+    items.push({ category:'realestate', emoji:'🏢', type:'asset', name: aptName, amount:d.apt, memo:'', owner:'common' });
   }
-if (d.rental) items.push({ category:'부동산', emoji:'🏢', type:'asset', name:'월세 보증금', amount:d.rental, memo:'', owner:'common' });
-if (ms.irp) items.push({ category:'민석 금융자산', emoji:'👨', type:'asset', name:'IRP 연금', amount:ms.irp, memo:'', owner:'minsuk' });
-if (ms.msSub) items.push({ category:'민석 금융자산', emoji:'👨', type:'asset', name:'청약', amount:ms.msSub, memo:'', owner:'minsuk' });
-if (ms.s1) items.push({ category:'민석 금융자산', emoji:'👨', type:'asset', name:'우리사주', amount:ms.s1, memo:'', owner:'minsuk' });
-if (ms.toss) items.push({ category:'민석 금융자산', emoji:'👨', type:'asset', name:'토스증권', amount:ms.toss, memo:'', owner:'minsuk' });
-if (sy.cash) items.push({ category:'시윤 금융자산', emoji:'👩', type:'asset', name:'현금', amount:sy.cash, memo:'', owner:'siyun' });
-if (sy.sySub) items.push({ category:'시윤 금융자산', emoji:'👩', type:'asset', name:'청약', amount:sy.sySub, memo:'', owner:'siyun' });
-if (sy.jump) items.push({ category:'시윤 금융자산', emoji:'👩', type:'asset', name:'청년도약', amount:sy.jump, memo:'', owner:'siyun' });
-if (sy.fund) items.push({ category:'시윤 금융자산', emoji:'👩', type:'asset', name:'신한펀드', amount:sy.fund, memo:'', owner:'siyun' });
-if (sy.s2) items.push({ category:'시윤 금융자산', emoji:'👩', type:'asset', name:'주식', amount:sy.s2, memo:'', owner:'siyun' });
-if (d.liquid) items.push({ category:'기타자산', emoji:'📦', type:'asset', name:'예정 유동성', amount:d.liquid, memo:'', owner:'common' });
-if (d.debt) items.push({ category:'부채', emoji:'🔴', type:'debt', name:'전세보증금', amount:d.debt, memo:'', owner:'common' });
+if (d.rental) items.push({ category:'deposit', emoji:'🔑', type:'asset', name:'월세 보증금', amount:d.rental, memo:'', owner:'common' });
+if (ms.irp) items.push({ category:'pension', emoji:'💛', type:'asset', name:'IRP 연금', amount:ms.irp, memo:'', owner:'minsuk' });
+if (ms.msSub) items.push({ category:'savings', emoji:'💰', type:'asset', name:'청약', amount:ms.msSub, memo:'', owner:'minsuk' });
+if (ms.s1) items.push({ category:'stocks', emoji:'📈', type:'asset', name:'우리사주', amount:ms.s1, memo:'', owner:'minsuk' });
+if (ms.toss) items.push({ category:'stocks', emoji:'📈', type:'asset', name:'토스증권', amount:ms.toss, memo:'', owner:'minsuk' });
+if (sy.cash) items.push({ category:'cash', emoji:'💵', type:'asset', name:'현금', amount:sy.cash, memo:'', owner:'siyun' });
+if (sy.sySub) items.push({ category:'savings', emoji:'💰', type:'asset', name:'청약', amount:sy.sySub, memo:'', owner:'siyun' });
+if (sy.jump) items.push({ category:'savings', emoji:'💰', type:'asset', name:'청년도약', amount:sy.jump, memo:'', owner:'siyun' });
+if (sy.fund) items.push({ category:'stocks', emoji:'📈', type:'asset', name:'신한펀드', amount:sy.fund, memo:'', owner:'siyun' });
+if (sy.s2) items.push({ category:'stocks', emoji:'📈', type:'asset', name:'주식', amount:sy.s2, memo:'', owner:'siyun' });
+if (d.liquid) items.push({ category:'cash', emoji:'💵', type:'asset', name:'예정 유동성', amount:d.liquid, memo:'', owner:'common' });
+if (d.debt) items.push({ category:'housing-debt', emoji:'🔴', type:'debt', name:'전세보증금', amount:d.debt, memo:'', owner:'common' });
   return items;
 }
 
@@ -5134,7 +5247,7 @@ function saveRecord() {
 
   const rec = {
     month, total, debt, net,
-    items: modalAssetItems.map(i => ({ category:i.category, emoji:i.emoji, type:i.type, name:i.name, amount:i.amount||0, memo:i.memo||'' }))
+    items: modalAssetItems.map(i => ({ category:i.category, emoji:i.emoji, type:i.type, name:i.name, amount:i.amount||0, memo:i.memo||'', owner:i.owner||'common' }))
   };
 
   const idx = assetHistory.findIndex(r => r.month === month);
@@ -5989,12 +6102,12 @@ function renderCoupleCard() {
 
   var badgeStyle  = 'width:18px;height:18px;border-radius:50%;background:var(--surface3);color:var(--muted2);font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0';
 
-  // 바: 승자=파란색 계열, 패자=회색
+  // 바: 승자=파란색, 패자=중립 회색 (다크/라이트 모두 보이게 rgba 사용)
   var lBarBg = lWins
     ? 'linear-gradient(to right, var(--blue), rgba(59,130,246,0.5))'
-    : 'var(--surface3)';
+    : 'rgba(128,128,128,0.18)';
   var rBarBg = lWins
-    ? 'var(--surface3)'
+    ? 'rgba(128,128,128,0.18)'
     : 'linear-gradient(to right, var(--blue), rgba(59,130,246,0.5))';
 
   battleArea.innerHTML =
@@ -6549,54 +6662,81 @@ function openAssetDetail(month) {
   detailMonth = month;
 }
 
+// ── 카테고리 ID 정규화 (구버전 문자열 → 새 id)
+function normalizeCatId(cat) {
+  if (!cat) return 'cash';
+  const map = {
+    '부동산': 'realestate', '금융자산': 'stocks',
+    '민석 금융자산': 'stocks', '시윤 금융자산': 'stocks',
+    '기타자산': 'cash', '부채': 'mortgage',
+    '저축·예금': 'savings', '연금': 'pension', '보증금': 'deposit', '현금': 'cash',
+    // 구버전 부채 2분류 → 새 4분류
+    'housing-debt': 'mortgage', 'credit-debt': 'credit-loan'
+  };
+  return map[cat] || cat;
+}
+
 // ── 자산별 렌더
 function renderDetailByCategory(items, totalAsset, prev) {
-  const catOrder = ['부동산', '민석 금융자산', '시윤 금융자산', '기타자산'];
-  const debtItems = items.filter(i => i.type === 'debt');
-  const assetItems = items.filter(i => i.type === 'asset');
+  const assetItems = items.filter(function(i) { return i.type === 'asset'; });
+  const debtItems  = items.filter(function(i) { return i.type === 'debt'; });
 
-  // 카테고리 그룹핑 - 금융자산으로 통합
-  const groups = {};
+  const assetOrder = ['realestate', 'stocks', 'savings', 'pension', 'deposit', 'cash'];
+  const debtOrder  = ['mortgage', 'jeonse-loan', 'credit-loan', 'other-debt'];
+
+  // 그룹핑 (카테고리 ID 정규화)
+  var groups = {};
   assetItems.forEach(function(item) {
-    let cat = item.category;
-    // 민석/시윤 금융자산 → 금융자산으로 통합
-    if (cat === '민석 금융자산' || cat === '시윤 금융자산') cat = '금융자산';
-    if (!groups[cat]) groups[cat] = [];
-    groups[cat].push(item);
+    var cid = normalizeCatId(item.category);
+    if (!groups[cid]) groups[cid] = [];
+    groups[cid].push(item);
+  });
+  var debtGroups = {};
+  debtItems.forEach(function(item) {
+    var cid = normalizeCatId(item.category);
+    if (!debtOrder.includes(cid)) cid = 'other-debt';
+    if (!debtGroups[cid]) debtGroups[cid] = [];
+    debtGroups[cid].push(item);
   });
 
-  let html = '';
+  var html = '';
 
-  // 자산 카테고리들
-  const displayOrder = ['부동산', '금융자산', '기타자산'];
-  displayOrder.forEach(function(cat) {
-    const catItems = groups[cat];
+  assetOrder.forEach(function(cid) {
+    var catItems = groups[cid];
     if (!catItems || !catItems.length) return;
-    const catTotal = catItems.reduce((s,i)=>s+(i.amount||0),0);
-    const catPct = totalAsset > 0 ? Math.round(catTotal/totalAsset*100) : 0;
-
-    html += `
-      <div style="margin-bottom:24px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <span style="font-size:12px;font-weight:700;color:var(--muted)">${cat}</span>
-          <span style="font-size:12px;color:var(--muted)">${catPct}%</span>
-        </div>
-        ${catItems.map(item => renderDetailItem(item, totalAsset, prev)).join('')}
-      </div>`;
+    var label = CATEGORY_LABELS[cid] || cid;
+    var color = CATEGORY_COLORS[cid] || 'var(--muted)';
+    var catTotal = catItems.reduce(function(s,i){return s+(i.amount||0);},0);
+    var catPct = totalAsset > 0 ? Math.round(catTotal/totalAsset*100) : 0;
+    html += '<div style="margin-bottom:24px">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
+      + '<div style="display:flex;align-items:center;gap:6px">'
+      + '<div style="width:3px;height:12px;border-radius:2px;background:' + color + '"></div>'
+      + '<span style="font-size:12px;font-weight:700;color:var(--muted2)">' + label + '</span>'
+      + '</div>'
+      + '<span style="font-size:12px;color:var(--muted)">' + catPct + '%</span>'
+      + '</div>'
+      + catItems.map(function(item){return renderDetailItem(item, totalAsset, prev, false, cid, true);}).join('')
+      + '</div>';
   });
 
-  // 부채
-  if (debtItems.length) {
-    const debtTotal = debtItems.reduce((s,i)=>s+(i.amount||0),0);
-    const debtPct = totalAsset > 0 ? Math.round(debtTotal/totalAsset*100) : 0;
-    html += `
-      <div style="margin-bottom:24px;padding-top:16px;border-top:1px solid var(--border)">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <span style="font-size:12px;font-weight:700;color:var(--red)">부채</span>
-          <span style="font-size:12px;color:var(--red)">${debtPct}%</span>
-        </div>
-        ${debtItems.map(item => renderDetailItem(item, totalAsset, prev, true)).join('')}
-      </div>`;
+  // 부채 — 4개 카테고리 각각 라벨 표시
+  var hasDebt = debtOrder.some(function(cid){return debtGroups[cid] && debtGroups[cid].length;});
+  if (hasDebt) {
+    html += '<div style="margin-bottom:8px;padding-top:16px;border-top:1px solid var(--border)">';
+    debtOrder.forEach(function(cid) {
+      var catItems = debtGroups[cid];
+      if (!catItems || !catItems.length) return;
+      var label = CATEGORY_LABELS[cid] || cid;
+      html += '<div style="margin-bottom:18px">'
+        + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">'
+        + '<div style="width:3px;height:12px;border-radius:2px;background:var(--red)"></div>'
+        + '<span style="font-size:12px;font-weight:700;color:var(--red)">' + label + '</span>'
+        + '</div>'
+        + catItems.map(function(item){return renderDetailItem(item, totalAsset, prev, true, cid, true);}).join('')
+        + '</div>';
+    });
+    html += '</div>';
   }
 
   return html;
@@ -6620,7 +6760,7 @@ function renderDetailByOwner(items, totalAsset, prev) {
           <span style="font-size:12px;font-weight:700;color:var(--muted)">${ownerLabels[owner]}</span>
           <span style="font-size:12px;color:var(--muted)">${(ownerTotal/10000).toFixed(2)}억 · ${ownerPct}%</span>
         </div>
-        ${ownerItems.map(item => renderDetailItem(item, totalAsset, prev)).join('')}
+        ${ownerItems.map(function(item){ return renderDetailItem(item, totalAsset, prev, false, normalizeCatId(item.category), false); }).join('')}
       </div>`;
   });
 
@@ -6634,7 +6774,7 @@ function renderDetailByOwner(items, totalAsset, prev) {
           <span style="font-size:12px;font-weight:700;color:var(--red)">부채</span>
           <span style="font-size:12px;color:var(--red)">${(debtTotal/10000).toFixed(2)}억</span>
         </div>
-        ${debtItems.map(item => renderDetailItem(item, totalAsset, prev, true)).join('')}
+        ${debtItems.map(function(item){ return renderDetailItem(item, totalAsset, prev, true, normalizeCatId(item.category), false); }).join('')}
       </div>`;
   }
 
@@ -6642,36 +6782,55 @@ function renderDetailByOwner(items, totalAsset, prev) {
 }
 
 // ── 항목 하나 렌더
-function renderDetailItem(item, totalAsset, prev, isDebt) {
-  const amt = item.amount || 0;
-  const amtStr = amt >= 10000 ? (amt/10000).toFixed(2)+'억' : amt.toLocaleString()+'만';
-  const pct = totalAsset > 0 ? Math.round(amt/totalAsset*100) : 0;
-  const color = isDebt ? 'var(--red)' : 'var(--text)';
+function renderDetailItem(item, totalAsset, prev, isDebt, cid, showOwner) {
+  var amt = item.amount || 0;
+  var amtStr = amt >= 10000 ? (amt/10000).toFixed(2)+'억' : amt.toLocaleString()+'만';
+  var pct = totalAsset > 0 ? Math.round(amt/totalAsset*100) : 0;
+  var color = isDebt ? 'var(--red)' : 'var(--text)';
+  var catId = cid || normalizeCatId(item.category);
+
+  // 주식 자동연동 배지
+  var badgeHtml = '';
+  if (catId === 'stocks') {
+    var ownerStocks = stocks.filter(function(s){ return s.owner === item.owner && s.currentPrice > 0; });
+    if (ownerStocks.length > 0) {
+      badgeHtml = '<span style="font-size:9px;font-weight:600;color:var(--gold);background:rgba(245,158,11,0.12);border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle">자동</span>';
+    } else if (item.amount > 0) {
+      badgeHtml = '<span style="font-size:9px;font-weight:600;color:var(--muted);background:rgba(128,128,128,0.12);border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle">수동</span>';
+    }
+  }
+
+  // 소유자 표시
+  var ownerHtml = '';
+  if (showOwner) {
+    var ownerLabel = { minsuk: '민석', siyun: '시윤', common: '공동' }[item.owner] || '공동';
+    ownerHtml = '<span style="font-size:10px;color:var(--muted);margin-left:5px;vertical-align:middle">' + ownerLabel + '</span>';
+  }
 
   // 전월 대비
-  let diffHtml = '';
+  var diffHtml = '';
   if (prev && prev.items) {
-    const prevItem = prev.items.find(p => p.name === item.name && p.category === item.category);
+    var prevItem = prev.items.find(function(p){ return p.name === item.name; });
     if (prevItem) {
-      const d = amt - prevItem.amount;
+      var d = amt - (prevItem.amount || 0);
       if (d !== 0) {
-        diffHtml = '<span style="font-size:11px;color:' + (d>0?'var(--muted2)':'var(--red)') + ';margin-left:6px">'
-          + (d>0?'+':'') + (d/10000).toFixed(1) + '억</span>';
+        var dStr = Math.abs(d) >= 10000 ? (Math.abs(d)/10000).toFixed(1)+'억' : Math.abs(d).toLocaleString()+'만';
+        diffHtml = '<span style="font-size:10px;color:' + (d>0?'var(--muted2)':'var(--red)') + ';margin-left:5px">'
+          + (d>0?'+':'-') + dStr + '</span>';
       }
     }
   }
 
-  return `
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
-      <div style="flex:1;min-width:0">
-        <div style="font-size:14px;font-weight:500;color:${color}">${item.name}</div>
-        ${item.memo ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + item.memo + '</div>' : ''}
-      </div>
-      <div style="text-align:right;flex-shrink:0">
-        <div style="font-size:15px;font-weight:700;color:${color}">${amtStr}${diffHtml}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:1px">전체의 ${pct}%</div>
-      </div>
-    </div>`;
+  return '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border)">'
+    + '<div style="flex:1;min-width:0">'
+    + '<div style="font-size:13px;font-weight:500;color:' + color + '">' + item.name + badgeHtml + ownerHtml + '</div>'
+    + (item.memo ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + item.memo + '</div>' : '')
+    + '</div>'
+    + '<div style="text-align:right;flex-shrink:0">'
+    + '<div style="font-size:15px;font-weight:700;color:' + color + '">' + amtStr + diffHtml + '</div>'
+    + '<div style="font-size:11px;color:var(--muted);margin-top:1px">전체의 ' + pct + '%</div>'
+    + '</div>'
+    + '</div>';
 }
 
 // ── 탭 전환
@@ -7694,10 +7853,11 @@ function saveApiKey() {
   const key = document.getElementById('api-key-input').value.trim();
   if (!key) { showToast('❗ API 키를 입력해주세요'); return; }
   store('molit-api-key', key);
+  saveAppDataToSupabase('molit-api-key', key);
   const status = document.getElementById('api-key-status');
   status.style.display = 'block';
   status.style.color = 'var(--teal)';
-  status.textContent = '✅ API 키가 저장됐어요! 홈에서 조회해보세요.';
+  status.textContent = '✅ API 키가 저장됐어요! 파트너 기기에도 자동 적용돼요.';
   showToast('🔑 API 키 저장 완료!');
 }
 
@@ -7839,17 +7999,28 @@ function renderDonutCard() {
     catMap[i.category] += i.amount;
   });
 
-  // 색상 매핑 (낮은 채도 토스 스타일)
+  // 색상 매핑
   const CAT_COLORS = {
+    'realestate':   '#60a5fa',
+    'stocks':       '#fbbf24',
+    'savings':      '#34d399',
+    'pension':      '#a78bfa',
+    'deposit':      '#fb923c',
+    'cash':         '#94a3b8',
+    'housing-debt': '#ef4444',
+    'credit-debt':  '#f87171',
+    // 구버전 호환
     '부동산':       '#60a5fa',
-    '금융자산':     '#34d399',
-    '민석 금융자산':'#34d399',
+    '금융자산':     '#fbbf24',
+    '민석 금융자산':'#fbbf24',
     '시윤 금융자산':'#a78bfa',
     '저축·예금':    '#34d399',
-    '연금':         '#fbbf24',
+    '연금':         '#a78bfa',
     '현금':         '#94a3b8',
     '기타자산':     '#6b7280',
   };
+  // 카테고리 표시명
+  const CAT_LABELS_DONUT = Object.assign({ '부동산':'부동산','금융자산':'주식·금융','민석 금융자산':'주식·금융','시윤 금융자산':'주식·금융','기타자산':'기타' }, CATEGORY_LABELS);
 
   const sorted = Object.entries(catMap).sort(function(a,b) { return b[1]-a[1]; });
 
@@ -7880,7 +8051,7 @@ function renderDonutCard() {
         + '<div style="display:flex;align-items:center;gap:10px">'
         + '<div style="width:3px;height:16px;border-radius:2px;background:' + color + ';flex-shrink:0"></div>'
         + '<div>'
-        + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + e[0] + '</div>'
+        + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + (CAT_LABELS_DONUT[e[0]] || e[0]) + '</div>'
         + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + pct + '%</div>'
         + '</div></div>'
         + '<div style="font-size:15px;font-weight:800;color:var(--text)">' + amtStr + '</div>'
@@ -8684,28 +8855,30 @@ function applyStocksToAsset() {
 
   let updated = 0;
 
-  // 민석 금융자산 중 "주식" 항목 찾아서 업데이트 (없으면 추가)
+  // 민석 주식 항목 찾아서 업데이트 (없으면 추가)
   if (msEval > 0) {
-    let msItem = latest.items.find(function(i) {
-      return i.category === '민석 금융자산' && i.name.includes('주식');
+    var msItem = latest.items.find(function(i) {
+      return (i.category === 'stocks' || i.category === '민석 금융자산') && i.owner === 'minsuk' && i.name.includes('주식');
     });
     if (msItem) {
       msItem.amount = msEval;
+      msItem.category = 'stocks';
     } else {
-      latest.items.push({ category: '민석 금융자산', emoji: '📈', type: 'asset', name: '주식', amount: msEval, memo: '' });
+      latest.items.push({ category: 'stocks', emoji: '📈', type: 'asset', name: '주식', amount: msEval, memo: '', owner: 'minsuk' });
     }
     updated++;
   }
 
-  // 시윤 금융자산 중 "주식" 항목
+  // 시윤 주식 항목
   if (syEval > 0) {
-    let syItem = latest.items.find(function(i) {
-      return i.category === '시윤 금융자산' && i.name.includes('주식');
+    var syItem = latest.items.find(function(i) {
+      return (i.category === 'stocks' || i.category === '시윤 금융자산') && i.owner === 'siyun' && i.name.includes('주식');
     });
     if (syItem) {
       syItem.amount = syEval;
+      syItem.category = 'stocks';
     } else {
-      latest.items.push({ category: '시윤 금융자산', emoji: '📈', type: 'asset', name: '주식', amount: syEval, memo: '' });
+      latest.items.push({ category: 'stocks', emoji: '📈', type: 'asset', name: '주식', amount: syEval, memo: '', owner: 'siyun' });
     }
     updated++;
   }
