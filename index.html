@@ -1372,33 +1372,68 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
   </div>
 
-  <!-- ⑦ 자산 구성 도넛 -->
+  <!-- ⑦ 자산 구성 토스 스타일 -->
   <div data-card="donut" id="home-card-donut">
-  <div class="card" onclick="goPage('input',document.querySelectorAll('.nav-item')[3])" style="cursor:pointer">
-    <div class="card-title">자산 구성</div>
-    <div class="donut-wrap">
-      <svg id="donut-svg" width="110" height="110" viewBox="0 0 110 110" style="flex-shrink:0">
-        <circle cx="55" cy="55" r="42" fill="none" stroke="#222222" stroke-width="20"/>
-        <circle id="d-apt" cx="55" cy="55" r="42" fill="none" stroke="#60a5fa" stroke-width="20" stroke-dasharray="194.8 264" stroke-dashoffset="66" transform="rotate(-90 55 55)"/>
-        <circle id="d-rental" cx="55" cy="55" r="42" fill="none" stroke="#888888" stroke-width="20" stroke-dasharray="6.3 264" stroke-dashoffset="-128.8" transform="rotate(-90 55 55)"/>
-        <circle id="d-fin" cx="55" cy="55" r="42" fill="none" stroke="#3b82f6" stroke-width="20" stroke-dasharray="34.6 264" stroke-dashoffset="-135.1" transform="rotate(-90 55 55)"/>
-        <circle id="d-liq" cx="55" cy="55" r="42" fill="none" stroke="#f59e0b" stroke-width="20" stroke-dasharray="28.3 264" stroke-dashoffset="-169.7" transform="rotate(-90 55 55)"/>
-        <text id="d-center" x="55" y="51" text-anchor="middle" fill="#e8eaf0" font-size="11" font-weight="900" font-family="Noto Sans KR">—</text>
-        <text x="55" y="64" text-anchor="middle" fill="#6b7280" font-size="8" font-family="Noto Sans KR">총자산</text>
-      </svg>
-      <div class="donut-legend">
-        <div class="dl-item"><div class="dl-left"><div class="dl-dot" style="background:#60a5fa"></div><div class="dl-name" id="dl-apt-name">아파트</div></div><div class="dl-val" id="dl-apt">—</div></div>
-        <div class="dl-item"><div class="dl-left"><div class="dl-dot" style="background:#888888"></div><div class="dl-name">월세보증금</div></div><div class="dl-val" id="dl-rental">—</div></div>
-        <div class="dl-item"><div class="dl-left"><div class="dl-dot" style="background:#3b82f6"></div><div class="dl-name">금융자산</div></div><div class="dl-val" id="dl-fin">—</div></div>
-        <div class="dl-item"><div class="dl-left"><div class="dl-dot" style="background:#f59e0b"></div><div class="dl-name">예정유동성</div></div><div class="dl-val" id="dl-liq">—</div></div>
-        <div class="dl-item" style="border-top:1px solid rgba(255,255,255,.06);padding-top:8px;margin-top:2px">
-          <div class="dl-left"><div class="dl-dot" style="background:#ef4444"></div><div class="dl-name">전세보증금</div></div>
-          <div class="dl-val" id="dl-debt" style="color:var(--red)">—</div>
-        </div>
+  <div class="card" style="cursor:pointer" onclick="goPage('input',document.querySelectorAll('.nav-item')[3])">
+
+    <!-- 헤더 + 소유자 탭 -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.8px;text-transform:uppercase">자산 구성</div>
+      <div onclick="event.stopPropagation()" style="display:flex;background:var(--surface2);border-radius:20px;padding:3px;gap:2px">
+        <button id="donut-tab-all" onclick="setDonutTab('all')"
+          style="padding:4px 10px;border-radius:16px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:700;cursor:pointer;background:var(--text);color:var(--bg);transition:all .2s">
+          전체
+        </button>
+        <button id="donut-tab-p1" onclick="setDonutTab('p1')"
+          style="padding:4px 10px;border-radius:16px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">
+          나
+        </button>
+        <button id="donut-tab-p2" onclick="setDonutTab('p2')"
+          style="padding:4px 10px;border-radius:16px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">
+          파트너
+        </button>
       </div>
     </div>
+
+    <!-- 총자산 큰 숫자 -->
+    <div style="margin-bottom:20px">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px" id="donut-total-label">총자산</div>
+      <div style="display:flex;align-items:baseline;gap:4px">
+        <div id="donut-total-val" style="font-size:28px;font-weight:900;color:var(--text)">—</div>
+        <div style="font-size:14px;color:var(--muted);font-weight:400">억</div>
+        <div id="donut-net-badge" style="margin-left:8px;font-size:11px;font-weight:700"></div>
+      </div>
+    </div>
+
+    <!-- 비율 바 (토스 스타일 stacked bar) -->
+    <div style="margin-bottom:20px">
+      <div id="donut-stacked-bar" style="display:flex;height:8px;border-radius:6px;overflow:hidden;gap:1px;margin-bottom:12px"></div>
+      <!-- 범례 -->
+      <div id="donut-legend-list" style="display:flex;flex-direction:column;gap:0"></div>
+    </div>
+
+    <!-- 부채 -->
+    <div style="padding-top:14px;border-top:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:3px;height:14px;border-radius:2px;background:var(--red)"></div>
+          <span style="font-size:13px;color:var(--muted2)">부채</span>
+        </div>
+        <div id="donut-debt-val" style="font-size:14px;font-weight:700;color:var(--red)">—</div>
+      </div>
+      <!-- 부채 비율 바 -->
+      <div style="background:rgba(255,255,255,0.06);border-radius:4px;height:4px;overflow:hidden">
+        <div id="donut-debt-bar" style="height:100%;background:var(--red);border-radius:4px;width:0%;transition:width .8s ease"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:5px">
+        <span style="font-size:10px;color:var(--muted)">부채비율</span>
+        <span id="donut-debt-ratio" style="font-size:10px;font-weight:700;color:var(--red)">—%</span>
+      </div>
+    </div>
+
   </div>
   </div>
+
 
   <!-- ⑨ 아파트 실거래가 -->
   <div data-card="apt" id="home-card-apt">
@@ -2060,6 +2095,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         </button>
       </div>
     </div>
+  </div>
+</div>
   </div>
 
 
@@ -4133,35 +4170,8 @@ function updateHomeFromItems(rec) {
 
   if (!rec.items) { updateHome(rec); return; }
 
-  // 도넛 차트 - 카테고리별 합산
-  const C = 264;
-  const catTotals = {};
-  rec.items.filter(i=>i.type==='asset').forEach(i => {
-    catTotals[i.category] = (catTotals[i.category]||0) + i.amount;
-  });
-  const total = rec.total || 1;
-  const colors = {'부동산':'#60a5fa','금융자산':'#3b82f6','기타자산':'#f59e0b','부채':'#ef4444'};
-  let offset = 66;
-  const cats = Object.entries(catTotals);
-  ['d-apt','d-rental','d-fin','d-liq'].forEach((id,i) => {
-    const el2 = document.getElementById(id);
-    if (!el2) return;
-    if (cats[i]) {
-      const dash = (cats[i][1]/total)*C;
-      el2.setAttribute('stroke-dasharray', dash+' '+C);
-      el2.setAttribute('stroke-dashoffset', offset);
-      el2.setAttribute('stroke', colors[cats[i][0]]||'#6b7280');
-      offset = -(((cats[i][1]/total)*C) - offset);
-    } else {
-      el2.setAttribute('stroke-dasharray', '0 '+C);
-    }
-  });
-
-  // 레전드
-  if(el('dl-apt')) el('dl-apt').textContent = ((catTotals['부동산']||0)/10000).toFixed(2)+'억';
-  if(el('dl-fin')) el('dl-fin').textContent = ((catTotals['금융자산']||0)/10000).toFixed(2)+'억';
-  if(el('dl-liq')) el('dl-liq').textContent = ((catTotals['기타자산']||0)/10000).toFixed(2)+'억';
-  if(el('dl-debt')) el('dl-debt').textContent = '-'+(rec.debt/10000).toFixed(2)+'억';
+  // 자산구성 카드 갱신 (새 토스 스타일)
+  renderDonutCard();
 
   // 민석/시윤 항목 (금융자산 중 이름에 민석/시윤 포함)
   const msItems = rec.items.filter(i=>i.category==='민석 금융자산');
@@ -4176,6 +4186,8 @@ function updateHomeFromItems(rec) {
   if(el('h-siyun-items'))  el('h-siyun-items').innerHTML  = syItems.length
     ? syItems.map(i => i.name + ' ' + i.amount.toLocaleString()).join('<br>')
     : '<span style="color:var(--muted)">항목 없음</span>';
+  // 자산구성 카드 갱신
+  renderDonutCard();
   // 목표 게이지 갱신
   renderGoalGauge();
 }
@@ -5296,10 +5308,13 @@ function initHome() {
   renderHomeApt();
   renderCoupleCard();
   renderHomeStocksSummary();
+
   // 단지명 UI 반영
   const aptS = load('apt-settings', null);
   if (aptS?.name) applyAptNameToUI(aptS.name);
   applyPartnerNamesToUI();
+  setDonutTab('all');  
+
   // 대기목록 체크 (앱 열릴 때 + 30초마다)
   checkPendingTxs();
   setInterval(checkPendingTxs, 30000);
@@ -7727,6 +7742,147 @@ async function fetchRealEstate() {
   store('realestate-cache', { price: latestPrice, fetchedAt: latest.year + '.' + latest.month + '.' + latest.day + ' 거래', aptName: aptSettings.name, results: results.slice(0,5) });
   renderHomeApt();
 }
+
+// ══ 자산구성 카드 (토스 스타일) ══
+let donutTab = 'all'; // 'all' | 'p1' | 'p2'
+
+function setDonutTab(tab) {
+  donutTab = tab;
+  const tabs = { all: '전체', p1: getP1Name(), p2: getP2Name() };
+  ['all','p1','p2'].forEach(function(t) {
+    const btn = document.getElementById('donut-tab-' + t);
+    if (!btn) return;
+    const isActive = t === tab;
+    btn.style.background = isActive ? 'var(--text)' : 'transparent';
+    btn.style.color = isActive ? 'var(--bg)' : 'var(--muted2)';
+    btn.style.fontWeight = isActive ? '700' : '600';
+    btn.textContent = tabs[t];
+  });
+
+  // p2 탭 숨기기 (파트너 없으면)
+  const p2Btn = document.getElementById('donut-tab-p2');
+  if (p2Btn) p2Btn.style.display = getP2Name() ? '' : 'none';
+
+  renderDonutCard();
+}
+
+function renderDonutCard() {
+  const latest = assetHistory.length > 0 ? assetHistory[assetHistory.length - 1] : null;
+  if (!latest || !latest.items) {
+    const totalEl = document.getElementById('donut-total-val');
+    if (totalEl) totalEl.textContent = '—';
+    return;
+  }
+
+  // 소유자 필터
+  let items = latest.items;
+  if (donutTab === 'p1') {
+    items = latest.items.filter(function(i) { return i.owner === 'minsuk'; });
+  } else if (donutTab === 'p2') {
+    items = latest.items.filter(function(i) { return i.owner === 'siyun'; });
+  }
+
+  const assetItems = items.filter(function(i) { return i.type === 'asset'; });
+  const debtItems  = items.filter(function(i) { return i.type === 'debt'; });
+  const totalAsset = assetItems.reduce(function(s,i) { return s + i.amount; }, 0);
+  const totalDebt  = debtItems.reduce(function(s,i) { return s + i.amount; }, 0);
+  const net = totalAsset - totalDebt;
+
+  // 총자산 표시
+  const totalEl = document.getElementById('donut-total-val');
+  const labelEl = document.getElementById('donut-total-label');
+  const netBadge = document.getElementById('donut-net-badge');
+  if (totalEl) totalEl.textContent = totalAsset >= 10000 ? (totalAsset/10000).toFixed(2) : totalAsset.toLocaleString() + '만';
+  if (labelEl) labelEl.textContent = donutTab === 'all' ? '총자산' : (donutTab === 'p1' ? getP1Name() + ' 자산' : getP2Name() + ' 자산');
+  if (netBadge) {
+    const netStr = net >= 10000 ? (net/10000).toFixed(2) + '억' : net.toLocaleString() + '만';
+    netBadge.textContent = '순자산 ' + netStr;
+    netBadge.style.color = 'var(--muted)';
+  }
+
+  // 카테고리별 합산
+  const catMap = {};
+  assetItems.forEach(function(i) {
+    if (!catMap[i.category]) catMap[i.category] = 0;
+    catMap[i.category] += i.amount;
+  });
+
+  // 색상 매핑 (낮은 채도 토스 스타일)
+  const CAT_COLORS = {
+    '부동산':       '#60a5fa',
+    '금융자산':     '#34d399',
+    '민석 금융자산':'#34d399',
+    '시윤 금융자산':'#a78bfa',
+    '저축·예금':    '#34d399',
+    '연금':         '#fbbf24',
+    '현금':         '#94a3b8',
+    '기타자산':     '#6b7280',
+  };
+
+  const sorted = Object.entries(catMap).sort(function(a,b) { return b[1]-a[1]; });
+
+  // 스택 바
+  const bar = document.getElementById('donut-stacked-bar');
+  if (bar && totalAsset > 0) {
+    bar.innerHTML = sorted.map(function(e) {
+      const pct = Math.max(1, Math.round(e[1] / totalAsset * 100));
+      const color = CAT_COLORS[e[0]] || '#6b7280';
+      return '<div style="height:100%;width:' + pct + '%;background:' + color + ';transition:width .8s ease;border-radius:2px"></div>';
+    }).join('');
+  }
+
+  // 범례 리스트 (토스 스타일)
+  const legend = document.getElementById('donut-legend-list');
+  if (legend && totalAsset > 0) {
+    legend.innerHTML = sorted.map(function(e) {
+      const pct = Math.round(e[1] / totalAsset * 100);
+      const color = CAT_COLORS[e[0]] || '#6b7280';
+      const amtStr = e[1] >= 10000 ? (e[1]/10000).toFixed(2) + '억' : e[1].toLocaleString() + '만';
+
+      // 해당 카테고리 하위 항목들
+      const subItems = assetItems.filter(function(i) { return i.category === e[0]; });
+
+      return '<div style="padding:12px 0;border-bottom:1px solid var(--border)">'
+        // 카테고리 헤더
+        + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:' + (subItems.length > 1 ? '8' : '0') + 'px">'
+        + '<div style="display:flex;align-items:center;gap:10px">'
+        + '<div style="width:3px;height:16px;border-radius:2px;background:' + color + ';flex-shrink:0"></div>'
+        + '<div>'
+        + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + e[0] + '</div>'
+        + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + pct + '%</div>'
+        + '</div></div>'
+        + '<div style="font-size:15px;font-weight:800;color:var(--text)">' + amtStr + '</div>'
+        + '</div>'
+        // 하위 항목들 (2개 이상일 때만)
+        + (subItems.length > 1 ? subItems.map(function(item) {
+            const itemAmt = item.amount >= 10000 ? (item.amount/10000).toFixed(2) + '억' : item.amount.toLocaleString() + '만';
+            const itemPct = Math.round(item.amount / totalAsset * 100);
+            return '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0 4px 13px">'
+              + '<div style="display:flex;align-items:center;gap:6px">'
+              + '<div style="width:4px;height:4px;border-radius:50%;background:' + color + ';opacity:0.5"></div>'
+              + '<span style="font-size:12px;color:var(--muted2)">' + item.name + '</span>'
+              + '</div>'
+              + '<div style="display:flex;align-items:baseline;gap:6px">'
+              + '<span style="font-size:11px;color:var(--muted)">' + itemPct + '%</span>'
+              + '<span style="font-size:12px;font-weight:600;color:var(--text)">' + itemAmt + '</span>'
+              + '</div></div>';
+          }).join('') : '')
+        + '</div>';
+    }).join('');
+  }
+
+  // 부채
+  const debtVal = document.getElementById('donut-debt-val');
+  const debtBar = document.getElementById('donut-debt-bar');
+  const debtRatioEl = document.getElementById('donut-debt-ratio');
+  const debtStr = totalDebt >= 10000 ? (totalDebt/10000).toFixed(2) + '억' : totalDebt > 0 ? totalDebt.toLocaleString() + '만' : '없음';
+  if (debtVal) { debtVal.textContent = totalDebt > 0 ? debtStr : '없음'; debtVal.style.color = totalDebt > 0 ? 'var(--red)' : 'var(--muted)'; }
+  const debtRatio = totalAsset > 0 ? Math.round(totalDebt / totalAsset * 100) : 0;
+  if (debtBar) debtBar.style.width = Math.min(debtRatio, 100) + '%';
+  if (debtRatioEl) { debtRatioEl.textContent = debtRatio + '%'; debtRatioEl.style.color = debtRatio > 40 ? 'var(--red)' : 'var(--muted)'; }
+}
+
+
 
 // ── 홈 아파트 시세 카드 ──
 function renderHomeApt() {
