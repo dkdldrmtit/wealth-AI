@@ -6795,15 +6795,25 @@ function saveHomeCardSettings() {
 
 // 커플 설정 렌더링
 async function renderCoupleSettings() {
-  if (!currentUser || !currentCoupleId) return;
+  if (!currentUser) return;
 
   // 내 정보
   const myEmailEl = document.getElementById('couple-my-email');
   const myNameEl = document.getElementById('couple-my-name');
   const settingsEmailEl = document.getElementById('settings-my-email');
   if (myEmailEl) myEmailEl.textContent = currentUser.email || '-';
-  if (myNameEl) myNameEl.textContent = currentProfile?.name || '-';
+  if (myNameEl) myNameEl.textContent = (currentProfile && currentProfile.name) ? currentProfile.name : '-';
   if (settingsEmailEl) settingsEmailEl.textContent = currentUser.email || '-';
+
+  // 커플 없는 경우 초대 코드 숨기기
+  if (!currentCoupleId) {
+    const codeEl = document.getElementById('couple-invite-code-display');
+    const partnerEl = document.getElementById('couple-partner-info');
+    if (codeEl) codeEl.textContent = '커플 연결 후 사용 가능';
+    if (partnerEl) partnerEl.textContent = '커플 미연결';
+    return;
+  }
+
 
   // 초대 코드 불러오기
   const { data: couple } = await _supabase
