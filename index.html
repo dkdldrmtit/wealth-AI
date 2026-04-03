@@ -1158,12 +1158,13 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div id="widget-exp-bar" style="position:absolute;left:0;top:0;height:100%;border-radius:8px;width:0%;transition:width 1s cubic-bezier(.4,0,.2,1)"></div>
         <!-- 왼쪽: 상태 텍스트 -->
         <div style="position:absolute;left:12px;top:50%;transform:translateY(-50%);z-index:1">
-          <span id="widget-status-text" style="font-size:11px;font-weight:700;color:#fff"></span>
+          <span id="widget-status-text" style="font-size:11px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.4)"></span>
         </div>
         <!-- 오른쪽: % -->
         <div style="position:absolute;right:12px;top:50%;transform:translateY(-50%);z-index:1">
-          <span id="widget-exp-pct" style="font-size:12px;font-weight:900;color:#fff"></span>
+          <span id="widget-exp-pct" style="font-size:12px;font-weight:900;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.4)"></span>
         </div>
+
       </div>
 
     </div>
@@ -6476,17 +6477,20 @@ function updateHomeWidget() {
     el('widget-exp-bar').style.background = barColor;
   }
 
-  // 상태 텍스트
+  // 상태 텍스트 - 항상 흰색 (바 안에 있으므로)
   if(el('widget-status-text')) {
     el('widget-status-text').textContent = statusText;
-    el('widget-status-text').style.color = pctColor;
+    el('widget-status-text').style.color = '#fff';
+    el('widget-status-text').style.textShadow = '0 1px 4px rgba(0,0,0,0.5)';
   }
 
-  // % 표시
+  // % 표시 - 항상 흰색
   if(el('widget-exp-pct')) {
     el('widget-exp-pct').textContent = totalBudget > 0 ? pct + '%' : '';
-    el('widget-exp-pct').style.color = pctColor;
+    el('widget-exp-pct').style.color = '#fff';
+    el('widget-exp-pct').style.textShadow = '0 1px 4px rgba(0,0,0,0.5)';
   }
+
 }
 
 
