@@ -1776,9 +1776,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           </button>
         </div>
 
-        <!-- 카테고리 칩 -->
-        <div id="add-category-wrap" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
-        </div>
 
         <!-- 항목 추가 버튼 -->
         <button onclick="openAddItemModal()"
@@ -5210,7 +5207,6 @@ function openModal(month) {
   }
   renderLoadMonthBtns(document.getElementById('i-month').value);
   setAddItemType('asset');
-  renderAddCategoryChips();
   renderAssetItems();
   updatePreview();
 }
