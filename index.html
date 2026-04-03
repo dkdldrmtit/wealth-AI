@@ -4930,28 +4930,69 @@ function renderAddItemPresets() {
     const now = new Date();
     const timeStr = (now.getMonth()+1) + '/' + now.getDate() + ' ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
 
+    // 민석/시윤 각각 국내/해외 계산
+    function calcOwnerMarket(owner, market) {
+      return stocks
+        .filter(function(s) { return s.owner === owner && s.market === market && s.currentPrice > 0; })
+        .reduce(function(sum, s) {
+          const evalAmt = s.currentPrice * s.qty;
+          return sum + (s.market === 'US' ? (usdKrw ? evalAmt * usdKrw : 0) : evalAmt);
+        }, 0);
+    }
+
+    const msKr = Math.round(calcOwnerMarket('minsuk', 'KR') / 10000);
+    const msUs = Math.round(calcOwnerMarket('minsuk', 'US') / 10000);
+    const syKr = Math.round(calcOwnerMarket('siyun', 'KR') / 10000);
+    const syUs = Math.round(calcOwnerMarket('siyun', 'US') / 10000);
+
+    const p1Name = getP1Name();
+    const p2Name = getP2Name();
+
+    function stockCard(owner, market, amt, ownerLabel, flag) {
+      if (amt <= 0) return '';
+      return '<button onclick="linkStockToItem(\'' + market + '\',\'' + owner + '\')" style="'
+        + 'flex:1;padding:10px 12px;border-radius:12px;'
+        + 'border:1px solid rgba(59,130,246,0.25);'
+        + 'background:rgba(59,130,246,0.05);'
+        + 'font-family:\'Noto Sans KR\',sans-serif;cursor:pointer;text-align:left;'
+        + 'transition:all .15s">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+        + '<span style="font-size:10px;color:var(--muted)">' + flag + ' ' + ownerLabel + '</span>'
+        + '<span style="font-size:9px;font-weight:700;color:var(--blue);background:rgba(59,130,246,0.1);padding:1px 6px;border-radius:8px">불러오기</span>'
+        + '</div>'
+        + '<div style="font-size:16px;font-weight:900;color:var(--text)">' + amt.toLocaleString() + '만원</div>'
+        + '</button>';
+    }
+
+    const hasAny = msKr > 0 || msUs > 0 || syKr > 0 || syUs > 0;
+
     presetsWrap.innerHTML =
       '<div style="width:100%;margin-bottom:8px">'
-      + '<div style="font-size:11px;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px">'
+      + '<div style="font-size:11px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px">'
       + '<span>🔗 주식 탭에서 불러오기</span>'
-      + (krAmt > 0 || usAmt > 0 ? '<span style="font-size:10px;color:var(--muted2)">· ' + timeStr + ' 기준</span>' : '')
+      + (hasAny ? '<span style="font-size:10px;color:var(--muted2)">· ' + timeStr + ' 기준</span>' : '')
       + '</div>'
-      + '<div style="display:flex;gap:8px">'
-      + (krAmt > 0
-        ? '<button onclick="linkStockToItem(\'KR\')" style="flex:1;padding:10px;border-radius:12px;border:1px solid rgba(59,130,246,0.3);background:rgba(59,130,246,0.06);color:var(--blue);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:700;cursor:pointer;text-align:left">'
-          + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">🇰🇷 국내주식·ETF</div>'
-          + '<div style="font-size:15px;font-weight:900;color:var(--text)">' + krAmt.toLocaleString() + '만원</div>'
-          + '</button>'
-        : '<div style="flex:1;padding:10px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);font-size:11px;color:var(--muted);text-align:center;display:flex;align-items:center;justify-content:center">🇰🇷 국내 없음</div>')
-      + (usAmt > 0
-        ? '<button onclick="linkStockToItem(\'US\')" style="flex:1;padding:10px;border-radius:12px;border:1px solid rgba(59,130,246,0.3);background:rgba(59,130,246,0.06);color:var(--blue);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:700;cursor:pointer;text-align:left">'
-          + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">🇺🇸 해외주식·ETF</div>'
-          + '<div style="font-size:15px;font-weight:900;color:var(--text)">' + usAmt.toLocaleString() + '만원</div>'
-          + '</button>'
-        : '<div style="flex:1;padding:10px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);font-size:11px;color:var(--muted);text-align:center;display:flex;align-items:center;justify-content:center">🇺🇸 해외 없음</div>')
-      + '</div>'
-      + (krAmt === 0 && usAmt === 0
-        ? '<div style="font-size:11px;color:var(--muted);margin-top:8px;padding:10px;background:var(--surface2);border-radius:10px">⚠️ 주식 탭에서 시세 갱신 후 다시 시도해주세요</div>'
+      + (!hasAny
+        ? '<div style="font-size:11px;color:var(--muted);padding:12px;background:var(--surface2);border-radius:10px;text-align:center">⚠️ 주식 탭에서 시세 갱신 후 다시 시도해주세요</div>'
+        : ''
+      )
+      // 국내주식 행
+      + (msKr > 0 || syKr > 0
+        ? '<div style="margin-bottom:8px">'
+          + '<div style="font-size:10px;color:var(--muted2);font-weight:600;margin-bottom:5px">🇰🇷 국내주식·ETF</div>'
+          + '<div style="display:flex;gap:8px">'
+          + stockCard('minsuk', 'KR', msKr, p1Name, '👤')
+          + stockCard('siyun',  'KR', syKr, p2Name, '👤')
+          + '</div></div>'
+        : '')
+      // 해외주식 행
+      + (msUs > 0 || syUs > 0
+        ? '<div style="margin-bottom:8px">'
+          + '<div style="font-size:10px;color:var(--muted2);font-weight:600;margin-bottom:5px">🇺🇸 해외주식·ETF</div>'
+          + '<div style="display:flex;gap:8px">'
+          + stockCard('minsuk', 'US', msUs, p1Name, '👤')
+          + stockCard('siyun',  'US', syUs, p2Name, '👤')
+          + '</div></div>'
         : '')
       + '</div>'
       + '<div style="width:100%;height:1px;background:var(--border);margin:10px 0"></div>'
@@ -4960,6 +5001,7 @@ function renderAddItemPresets() {
           return '<button onclick="selectAddItemPreset(\'' + item + '\')" style="padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:500;cursor:pointer">' + item + '</button>';
         }).join('');
     return;
+
   }
 
   presetsWrap.innerHTML = cat.items.map(function(item) {
@@ -4967,8 +5009,8 @@ function renderAddItemPresets() {
   }).join('');
 }
 
-function linkStockToItem(market) {
-  const owner = _addItemOwner || 'common';
+function linkStockToItem(market, owner) {
+  owner = owner || _addItemOwner || 'common';
   const usdKrw = load('usd-krw-rate', 0);
   const now = new Date();
   const timeStr = (now.getMonth()+1) + '/' + now.getDate() + ' '
@@ -4996,12 +5038,42 @@ function linkStockToItem(market) {
   // stockLink 임시 저장 (confirmAddItem에서 사용)
   window._pendingStockLink = { market, timeStr };
 
+  // 소유자 자동 설정 + 버튼 잠금
+  setAddItemOwner(owner);
+  ['common','minsuk','siyun'].forEach(function(o) {
+    const btn = document.getElementById('add-owner-' + o);
+    if (!btn) return;
+    btn.disabled = true;
+    btn.style.opacity = o === owner ? '1' : '0.3';
+    btn.style.cursor = 'not-allowed';
+  });
+  // 잠금 안내 표시
+  const ownerWrap = document.querySelector('#add-item-modal [id^="add-owner-common"]')?.closest('div[style*="border-radius"]');
+  if (ownerWrap) {
+    const lockNote = document.createElement('div');
+    lockNote.id = 'owner-lock-note';
+    lockNote.style.cssText = 'font-size:10px;color:var(--blue);margin-top:4px;text-align:center';
+    lockNote.textContent = '🔗 주식 연동으로 자동 설정됨';
+    const existing = document.getElementById('owner-lock-note');
+    if (existing) existing.remove();
+    ownerWrap.parentElement.appendChild(lockNote);
+  }
+
   showToast('✅ ' + (market === 'KR' ? '국내' : '해외') + ' ' + evalMan.toLocaleString() + '만원 불러왔어요!');
+
 }
 
 
 function closeAddItemModal() {
   document.getElementById('add-item-modal').style.display = 'none';
+  // 소유자 버튼 잠금 해제
+  ['common','minsuk','siyun'].forEach(function(o) {
+    const btn = document.getElementById('add-owner-' + o);
+    if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = ''; }
+  });
+  const lockNote = document.getElementById('owner-lock-note');
+  if (lockNote) lockNote.remove();
+  window._pendingStockLink = null;
 }
 
 function selectAddItemPreset(name) {
