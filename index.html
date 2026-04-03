@@ -3624,21 +3624,36 @@ async function loadAllDataFromSupabase() {
 async function saveToSupabase(table, data) {
   if (!currentUser) return;
 
-  // 커플 있으면 couple_id 기준, 없으면 user_id 기준으로 저장
   const keyField = currentCoupleId ? 'couple_id' : 'user_id';
   const keyValue = currentCoupleId ? currentCoupleId : currentUser.id;
 
-  const { error } = await _supabase
+  // 기존 행이 있는지 먼저 확인
+  const { data: existing } = await _supabase
     .from(table)
-    .upsert({
-      [keyField]: keyValue,
-      data: data,
-      updated_at: new Date().toISOString()
-    }, { onConflict: keyField });
+    .select('id')
+    .eq(keyField, keyValue)
+    .single();
+
+  let error;
+  if (existing) {
+    // 있으면 update
+    const { error: updateError } = await _supabase
+      .from(table)
+      .update({ data: data, updated_at: new Date().toISOString() })
+      .eq(keyField, keyValue);
+    error = updateError;
+  } else {
+    // 없으면 insert
+    const { error: insertError } = await _supabase
+      .from(table)
+      .insert({ [keyField]: keyValue, data: data, updated_at: new Date().toISOString() });
+    error = insertError;
+  }
 
   if (error) console.log('저장 오류:', table, error);
   else console.log('✅ Supabase 저장:', table);
 }
+
 
 // app_data 테이블에 key-value 저장
 async function saveAppDataToSupabase(key, data) {
@@ -3646,19 +3661,34 @@ async function saveAppDataToSupabase(key, data) {
 
   const keyField = currentCoupleId ? 'couple_id' : 'user_id';
   const keyValue = currentCoupleId ? currentCoupleId : currentUser.id;
-  const conflictKey = currentCoupleId ? 'couple_id, key' : 'user_id, key';
 
-  const { error } = await _supabase
+  // 기존 행이 있는지 먼저 확인
+  const { data: existing } = await _supabase
     .from('app_data')
-    .upsert({
-      [keyField]: keyValue,
-      key: key,
-      data: data,
-      updated_at: new Date().toISOString()
-    }, { onConflict: conflictKey });
+    .select('id')
+    .eq(keyField, keyValue)
+    .eq('key', key)
+    .single();
+
+  let error;
+  if (existing) {
+    const { error: updateError } = await _supabase
+      .from('app_data')
+      .update({ data: data, updated_at: new Date().toISOString() })
+      .eq(keyField, keyValue)
+      .eq('key', key);
+    error = updateError;
+  } else {
+    const { error: insertError } = await _supabase
+      .from('app_data')
+      .insert({ [keyField]: keyValue, key: key, data: data, updated_at: new Date().toISOString() });
+    error = insertError;
+  }
 
   if (error) console.log('저장 오류:', key, error);
+  else console.log('✅ Supabase 저장:', key);
 }
+
 
 
 
