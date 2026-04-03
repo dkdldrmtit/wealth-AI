@@ -4906,19 +4906,99 @@ function renderAddItemPresets() {
   const cats = ASSET_CATEGORIES[_addItemType] || [];
   const cat = cats.find(function(c) { return c.id === _addItemCategory; });
   if (!cat) { presetsWrap.innerHTML = ''; return; }
-  // 항목명 초기화
   if (nameEl) nameEl.value = '';
+
+  // 주식·ETF 카테고리면 주식 탭 불러오기 버튼 표시
+  if (_addItemCategory === 'stocks') {
+    const owner = _addItemOwner || 'common';
+    const usdKrw = load('usd-krw-rate', 0);
+
+    function calcMarket(market) {
+      return stocks
+        .filter(function(s) {
+          const ownerMatch = owner === 'common' ? true : s.owner === owner;
+          return ownerMatch && s.market === market && s.currentPrice > 0;
+        })
+        .reduce(function(sum, s) {
+          const evalAmt = s.currentPrice * s.qty;
+          return sum + (s.market === 'US' ? (usdKrw ? evalAmt * usdKrw : 0) : evalAmt);
+        }, 0);
+    }
+
+    const krAmt = Math.round(calcMarket('KR') / 10000);
+    const usAmt = Math.round(calcMarket('US') / 10000);
+    const now = new Date();
+    const timeStr = (now.getMonth()+1) + '/' + now.getDate() + ' ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+
+    presetsWrap.innerHTML =
+      '<div style="width:100%;margin-bottom:8px">'
+      + '<div style="font-size:11px;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px">'
+      + '<span>🔗 주식 탭에서 불러오기</span>'
+      + (krAmt > 0 || usAmt > 0 ? '<span style="font-size:10px;color:var(--muted2)">· ' + timeStr + ' 기준</span>' : '')
+      + '</div>'
+      + '<div style="display:flex;gap:8px">'
+      + (krAmt > 0
+        ? '<button onclick="linkStockToItem(\'KR\')" style="flex:1;padding:10px;border-radius:12px;border:1px solid rgba(59,130,246,0.3);background:rgba(59,130,246,0.06);color:var(--blue);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:700;cursor:pointer;text-align:left">'
+          + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">🇰🇷 국내주식·ETF</div>'
+          + '<div style="font-size:15px;font-weight:900;color:var(--text)">' + krAmt.toLocaleString() + '만원</div>'
+          + '</button>'
+        : '<div style="flex:1;padding:10px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);font-size:11px;color:var(--muted);text-align:center;display:flex;align-items:center;justify-content:center">🇰🇷 국내 없음</div>')
+      + (usAmt > 0
+        ? '<button onclick="linkStockToItem(\'US\')" style="flex:1;padding:10px;border-radius:12px;border:1px solid rgba(59,130,246,0.3);background:rgba(59,130,246,0.06);color:var(--blue);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:700;cursor:pointer;text-align:left">'
+          + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">🇺🇸 해외주식·ETF</div>'
+          + '<div style="font-size:15px;font-weight:900;color:var(--text)">' + usAmt.toLocaleString() + '만원</div>'
+          + '</button>'
+        : '<div style="flex:1;padding:10px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);font-size:11px;color:var(--muted);text-align:center;display:flex;align-items:center;justify-content:center">🇺🇸 해외 없음</div>')
+      + '</div>'
+      + (krAmt === 0 && usAmt === 0
+        ? '<div style="font-size:11px;color:var(--muted);margin-top:8px;padding:10px;background:var(--surface2);border-radius:10px">⚠️ 주식 탭에서 시세 갱신 후 다시 시도해주세요</div>'
+        : '')
+      + '</div>'
+      + '<div style="width:100%;height:1px;background:var(--border);margin:10px 0"></div>'
+      + '<div style="font-size:11px;color:var(--muted);margin-bottom:6px">직접 입력</div>'
+      + cat.items.map(function(item) {
+          return '<button onclick="selectAddItemPreset(\'' + item + '\')" style="padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:500;cursor:pointer">' + item + '</button>';
+        }).join('');
+    return;
+  }
+
   presetsWrap.innerHTML = cat.items.map(function(item) {
-    return '<button onclick="selectAddItemPreset(\'' + item + '\')" style="'
-      + 'padding:5px 12px;border-radius:20px;'
-      + 'border:1px solid var(--border2);'
-      + 'background:transparent;'
-      + 'color:var(--muted2);'
-      + 'font-family:\'Noto Sans KR\',sans-serif;'
-      + 'font-size:12px;font-weight:500;cursor:pointer'
-      + '">' + item + '</button>';
+    return '<button onclick="selectAddItemPreset(\'' + item + '\')" style="padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:500;cursor:pointer">' + item + '</button>';
   }).join('');
 }
+
+function linkStockToItem(market) {
+  const owner = _addItemOwner || 'common';
+  const usdKrw = load('usd-krw-rate', 0);
+  const now = new Date();
+  const timeStr = (now.getMonth()+1) + '/' + now.getDate() + ' '
+    + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+
+  const evalKrw = stocks
+    .filter(function(s) {
+      const ownerMatch = owner === 'common' ? true : s.owner === owner;
+      return ownerMatch && s.market === market && s.currentPrice > 0;
+    })
+    .reduce(function(sum, s) {
+      const evalAmt = s.currentPrice * s.qty;
+      return sum + (s.market === 'US' ? (usdKrw ? evalAmt * usdKrw : 0) : evalAmt);
+    }, 0);
+
+  const evalMan = Math.round(evalKrw / 10000);
+  if (!evalMan) { showToast('❗ 시세 갱신 후 다시 시도해주세요'); return; }
+
+  // 항목명 자동 설정
+  const nameEl = document.getElementById('add-item-name');
+  const amountEl = document.getElementById('add-item-amount');
+  if (nameEl) nameEl.value = market === 'KR' ? '국내주식·ETF' : '해외주식·ETF';
+  if (amountEl) amountEl.value = evalMan;
+
+  // stockLink 임시 저장 (confirmAddItem에서 사용)
+  window._pendingStockLink = { market, timeStr };
+
+  showToast('✅ ' + (market === 'KR' ? '국내' : '해외') + ' ' + evalMan.toLocaleString() + '만원 불러왔어요!');
+}
+
 
 function closeAddItemModal() {
   document.getElementById('add-item-modal').style.display = 'none';
@@ -4953,6 +5033,7 @@ function confirmAddItem() {
   const cat = cats.find(function(c) { return c.id === _addItemCategory; });
 
   const id = 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+  const stockLink = window._pendingStockLink || null;
   modalAssetItems.push({
     id,
     category: cat ? cat.label : '기타자산',
@@ -4962,8 +5043,12 @@ function confirmAddItem() {
     name,
     amount,
     memo,
-    owner: _addItemOwner
+    owner: _addItemOwner,
+    stockLink: stockLink ? stockLink.market : null,
+    stockLinkTime: stockLink ? stockLink.timeStr : null,
   });
+  window._pendingStockLink = null;
+
 
   renderAssetItems();
   updatePreview();
@@ -6935,13 +7020,12 @@ function renderDetailItem(item, totalAsset, prev, isDebt, cid, showOwner) {
 
   // 주식 자동연동 배지
   var badgeHtml = '';
-  if (catId === 'stocks') {
-    var ownerStocks = stocks.filter(function(s){ return s.owner === item.owner && s.currentPrice > 0; });
-    if (ownerStocks.length > 0) {
-      badgeHtml = '<span style="font-size:9px;font-weight:600;color:var(--gold);background:rgba(245,158,11,0.12);border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle">자동</span>';
-    } else if (item.amount > 0) {
-      badgeHtml = '<span style="font-size:9px;font-weight:600;color:var(--muted);background:rgba(128,128,128,0.12);border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle">수동</span>';
-    }
+  var refreshBtnHtml = '';
+  if (item.stockLink) {
+    const marketLabel = item.stockLink === 'KR' ? '🇰🇷 국내' : '🇺🇸 해외';
+    const timeLabel = item.stockLinkTime ? ' · ' + item.stockLinkTime : '';
+    badgeHtml = '<span style="font-size:9px;font-weight:600;color:var(--blue);background:rgba(59,130,246,0.10);border:1px solid rgba(59,130,246,0.2);border-radius:4px;padding:1px 6px;margin-left:5px;vertical-align:middle">🔗 ' + marketLabel + timeLabel + '</span>';
+    refreshBtnHtml = '<button onclick="refreshStockItem(\'' + item.name + '\',\'' + (item.owner||'common') + '\',\'' + item.stockLink + '\')" style="margin-left:6px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:6px;color:var(--blue);font-size:11px;font-weight:700;padding:2px 8px;cursor:pointer;vertical-align:middle">🔄</button>';
   }
 
   // 소유자 표시
@@ -6967,7 +7051,7 @@ function renderDetailItem(item, totalAsset, prev, isDebt, cid, showOwner) {
 
   return '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border)">'
     + '<div style="flex:1;min-width:0">'
-    + '<div style="font-size:13px;font-weight:500;color:' + color + '">' + item.name + badgeHtml + ownerHtml + '</div>'
+    + '<div style="font-size:13px;font-weight:500;color:' + color + '">' + item.name + badgeHtml + refreshBtnHtml + ownerHtml + '</div>'
     + (item.memo ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + item.memo + '</div>' : '')
     + '</div>'
     + '<div style="text-align:right;flex-shrink:0">'
@@ -6976,6 +7060,60 @@ function renderDetailItem(item, totalAsset, prev, isDebt, cid, showOwner) {
     + '</div>'
     + '</div>';
 }
+
+function refreshStockItem(itemName, owner, market) {
+  const usdKrw = load('usd-krw-rate', 0);
+  const now = new Date();
+  const timeStr = (now.getMonth()+1) + '/' + now.getDate() + ' '
+    + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+
+  const evalKrw = stocks
+    .filter(function(s) {
+      const ownerMatch = owner === 'common' ? true : s.owner === owner;
+      return ownerMatch && s.market === market && s.currentPrice > 0;
+    })
+    .reduce(function(sum, s) {
+      const evalAmt = s.currentPrice * s.qty;
+      return sum + (s.market === 'US' ? (usdKrw ? evalAmt * usdKrw : 0) : evalAmt);
+    }, 0);
+
+  const evalMan = Math.round(evalKrw / 10000);
+  if (!evalMan) {
+    showToast('❗ 주식 탭에서 시세 갱신 먼저 해주세요');
+    return;
+  }
+
+  // 자산 기록에서 해당 항목 업데이트
+  if (!assetHistory.length) return;
+  const latest = assetHistory[assetHistory.length - 1];
+  if (!latest.items) return;
+
+  const targetItem = latest.items.find(function(i) {
+    return i.name === itemName && (i.owner || 'common') === owner && i.stockLink === market;
+  });
+
+  if (!targetItem) { showToast('❗ 항목을 찾을 수 없어요'); return; }
+
+  const oldAmt = targetItem.amount;
+  targetItem.amount = evalMan;
+  targetItem.stockLinkTime = timeStr;
+
+  // 총자산/순자산 재계산
+  latest.total = latest.items.filter(function(i){return i.type==='asset';}).reduce(function(s,i){return s+i.amount;},0);
+  latest.debt  = latest.items.filter(function(i){return i.type==='debt';}).reduce(function(s,i){return s+i.amount;},0);
+  latest.net   = latest.total - latest.debt;
+
+  store('asset-history', assetHistory);
+  updateHomeFromItems(latest);
+
+  const diff = evalMan - oldAmt;
+  const diffStr = (diff >= 0 ? '+' : '') + (diff/10000).toFixed(2) + '억';
+  showToast('✅ ' + (market==='KR'?'국내':'해외') + ' 주식 업데이트! ' + diffStr + ' · 편집하기로 저장하세요');
+
+  // 상세 모달 새로고침
+  if (detailMonth) openAssetDetail(detailMonth);
+}
+
 
 // ── 탭 전환
 function switchDetailTab(tab) {
@@ -10400,6 +10538,8 @@ function renderLedgerList(txs) {
     : b.date.localeCompare(a.date));
   const groups = {};
   sorted.forEach(t => { if (!groups[t.date]) groups[t.date] = []; groups[t.date].push(t); });
+  // 같은 날짜 안에서는 최신 입력 순으로 (배열 역순)
+  Object.keys(groups).forEach(date => { groups[date].reverse(); });
 
   wrap.innerHTML = Object.entries(groups).map(([date, items]) => {
     const dayIncome = items.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
