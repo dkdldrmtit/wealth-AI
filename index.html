@@ -1119,7 +1119,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <!-- ① 오늘 지출 위젯 -->
   <div data-card="widget" id="home-card-widget">
   <div id="home-widget" onclick="goPage('ledger',document.querySelectorAll('.nav-item')[1]);setTimeout(()=>setLedgerTab('list'),300)"
-    style="background:var(--surface);border:0.5px solid var(--border2);border-radius:20px;padding:20px;margin-bottom:14px;cursor:pointer;position:relative;overflow:hidden">
+    style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:20px;margin-bottom:14px;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 1px 8px var(--shadow)">
 
     <!-- 상단: 오늘 지출 -->
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
@@ -1136,7 +1136,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     </div>
 
     <!-- 이번달 지출 현황 -->
-    <div style="background:var(--surface2);border-radius:14px;padding:14px">
+    <div style="background:var(--surface2);border-radius:14px;padding:14px;border:1px solid var(--border)">
       <!-- 금액 표시 -->
       <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px">
         <div>
@@ -1153,7 +1153,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
 
       <!-- 진행률 바 -->
-      <div style="background:rgba(255,255,255,.06);border-radius:6px;height:6px;overflow:hidden;margin-bottom:8px">
+      <div style="background:var(--surface3);border-radius:6px;height:6px;overflow:hidden;margin-bottom:8px">
         <div id="widget-exp-bar" style="height:100%;border-radius:6px;width:0%;transition:width 1s cubic-bezier(.4,0,.2,1)"></div>
       </div>
 
