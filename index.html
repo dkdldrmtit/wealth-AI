@@ -3112,10 +3112,11 @@ async function loadProfile() {
   currentCoupleId = data.couple_id;
 
   if (!currentCoupleId) {
-    // 커플 연결 안 된 경우
-    showCoupleSetupScreen();
+    // 커플 연결 없어도 혼자 사용 가능 → 바로 앱 진입
+    hideAuthScreens();
+    await loadAllDataFromSupabase();
   } else {
-    // 정상 진입
+    // 커플 연결된 경우도 동일하게 진입
     hideAuthScreens();
     await loadAllDataFromSupabase();
   }
@@ -3450,7 +3451,11 @@ async function handleJoinCouple() {
 
 // Supabase에서 전체 데이터 불러오기
 async function loadAllDataFromSupabase() {
-  if (!currentCoupleId) return;
+  if (!currentUser) return;
+
+  // 커플 있으면 couple_id 기준, 없으면 user_id 기준으로 조회
+  const keyField = currentCoupleId ? 'couple_id' : 'user_id';
+  const keyValue = currentCoupleId ? currentCoupleId : currentUser.id;
 
   try {
     const [
@@ -3461,12 +3466,12 @@ async function loadAllDataFromSupabase() {
       schedulesRes,
       appDataRes
     ] = await Promise.all([
-      _supabase.from('asset_history').select('data').eq('couple_id', currentCoupleId).single(),
-      _supabase.from('ledger_txs').select('data').eq('couple_id', currentCoupleId).single(),
-      _supabase.from('stocks').select('data').eq('couple_id', currentCoupleId).single(),
-      _supabase.from('goals').select('data').eq('couple_id', currentCoupleId).single(),
-      _supabase.from('schedules').select('data').eq('couple_id', currentCoupleId).single(),
-      _supabase.from('app_data').select('data').eq('couple_id', currentCoupleId).eq('key', 'budgets').single()
+      _supabase.from('asset_history').select('data').eq(keyField, keyValue).single(),
+      _supabase.from('ledger_txs').select('data').eq(keyField, keyValue).single(),
+      _supabase.from('stocks').select('data').eq(keyField, keyValue).single(),
+      _supabase.from('goals').select('data').eq(keyField, keyValue).single(),
+      _supabase.from('schedules').select('data').eq(keyField, keyValue).single(),
+      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'budgets').single()
     ]);
 
     const hasSupabaseData =
@@ -3535,15 +3540,19 @@ async function loadAllDataFromSupabase() {
 
 // Supabase에 데이터 저장
 async function saveToSupabase(table, data) {
-  if (!currentCoupleId) return;
+  if (!currentUser) return;
+
+  // 커플 있으면 couple_id 기준, 없으면 user_id 기준으로 저장
+  const keyField = currentCoupleId ? 'couple_id' : 'user_id';
+  const keyValue = currentCoupleId ? currentCoupleId : currentUser.id;
 
   const { error } = await _supabase
     .from(table)
     .upsert({
-      couple_id: currentCoupleId,
+      [keyField]: keyValue,
       data: data,
       updated_at: new Date().toISOString()
-    }, { onConflict: 'couple_id' });
+    }, { onConflict: keyField });
 
   if (error) console.log('저장 오류:', table, error);
   else console.log('✅ Supabase 저장:', table);
@@ -3551,19 +3560,24 @@ async function saveToSupabase(table, data) {
 
 // app_data 테이블에 key-value 저장
 async function saveAppDataToSupabase(key, data) {
-  if (!currentCoupleId) return;
+  if (!currentUser) return;
+
+  const keyField = currentCoupleId ? 'couple_id' : 'user_id';
+  const keyValue = currentCoupleId ? currentCoupleId : currentUser.id;
+  const conflictKey = currentCoupleId ? 'couple_id, key' : 'user_id, key';
 
   const { error } = await _supabase
     .from('app_data')
     .upsert({
-      couple_id: currentCoupleId,
+      [keyField]: keyValue,
       key: key,
       data: data,
       updated_at: new Date().toISOString()
-    }, { onConflict: 'couple_id, key' });
+    }, { onConflict: conflictKey });
 
   if (error) console.log('저장 오류:', key, error);
 }
+
 
 
 // ── Nav ──
