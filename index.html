@@ -5127,11 +5127,52 @@ function renderAssetItems() {
     row3.appendChild(ownerWrap);
     row3.appendChild(memoBtn);
 
+    // ── 주식 연동 행 (category가 stocks 계열일 때만)
+    const stockCats = ['stocks', '주식·ETF', '민석 금융자산', '시윤 금융자산'];
+    if (stockCats.includes(item.category)) {
+      const linkRow = document.createElement('div');
+      linkRow.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:8px;border-top:0.5px dashed var(--border2)';
+
+      const linkLabel = document.createElement('span');
+      linkLabel.textContent = '🔗 주식연동';
+      linkLabel.style.cssText = 'font-size:11px;color:var(--muted);flex-shrink:0';
+
+      const linkBtns = document.createElement('div');
+      linkBtns.style.cssText = 'display:flex;background:var(--surface3);border-radius:7px;padding:2px;gap:1px;flex:1';
+
+      const linkOptions = [
+        { val: null,  label: '안 함' },
+        { val: 'KR',  label: '국내' },
+        { val: 'US',  label: '해외' },
+        { val: 'all', label: '전체' },
+      ];
+
+      linkOptions.forEach(function(opt) {
+        const btn = document.createElement('button');
+        btn.textContent = opt.label;
+        btn.dataset.id = item.id;
+        btn.dataset.val = opt.val === null ? '' : opt.val;
+        const isActive = (item.stockLink || null) === opt.val;
+        btn.style.cssText = 'flex:1;padding:4px 2px;border-radius:5px;border:none;font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:' + (isActive?'700':'500') + ';cursor:pointer;background:' + (isActive?'var(--blue)':'transparent') + ';color:' + (isActive?'#fff':'var(--muted2)') + ';transition:all .15s';
+        btn.addEventListener('click', function() {
+          const newVal = this.dataset.val === '' ? null : this.dataset.val;
+          updateItemField(this.dataset.id, 'stockLink', newVal);
+          renderAssetItems();
+        });
+        linkBtns.appendChild(btn);
+      });
+
+      linkRow.appendChild(linkLabel);
+      linkRow.appendChild(linkBtns);
+      wrapper.appendChild(linkRow);
+    }
+
     wrapper.appendChild(row1);
     wrapper.appendChild(row2);
     wrapper.appendChild(row3);
     wrapper.appendChild(memoRow);
     wrap.appendChild(wrapper);
+
   });
 }
 
@@ -8923,7 +8964,6 @@ function setStkCurrency(currency) {
   if (currentStkTab === 'chart') renderStockCharts();
 }
 
-// ── 주식 평가금액 → 자산 반영
 function applyStocksToAsset() {
   const usdKrw = load('usd-krw-rate', 0);
   const histArr = load('asset-history', []);
@@ -8937,53 +8977,52 @@ function applyStocksToAsset() {
     return;
   }
 
-  // 소유자별 주식 평가금액 계산 (만원 단위)
-  const calcEval = function(owner) {
+  // stockLink 연동 항목 찾기
+  const linkedItems = latest.items.filter(function(i) {
+    return i.stockLink && i.type === 'asset';
+  });
+
+  if (!linkedItems.length) {
+    showToast('❗ 연동된 항목이 없어요. 자산 편집에서 주식 항목에 🔗 연동을 설정해주세요');
+    return;
+  }
+
+  // owner + market 기준으로 주식 평가금액 계산
+  function calcEval(owner, market) {
     return stocks
-      .filter(function(s) { return s.owner === owner && s.currentPrice > 0; })
+      .filter(function(s) {
+        const ownerMatch = owner === 'all' ? true : s.owner === owner;
+        const marketMatch = market === 'all' ? true : s.market === market;
+        return ownerMatch && marketMatch && s.currentPrice > 0;
+      })
       .reduce(function(sum, s) {
         const evalAmt = s.currentPrice * s.qty;
         const krwAmt = s.market === 'US' ? (usdKrw ? evalAmt * usdKrw : 0) : evalAmt;
         return sum + krwAmt;
       }, 0);
-  };
-
-  const msEval = Math.round(calcEval('minsuk') / 10000); // 원 → 만원
-  const syEval = Math.round(calcEval('siyun') / 10000);
-
-  if (msEval === 0 && syEval === 0) {
-    showToast('❗ 시세 갱신 후 다시 시도해주세요');
-    return;
   }
 
   let updated = 0;
+  const msgs = [];
 
-  // 민석 주식 항목 찾아서 업데이트 (없으면 추가)
-  if (msEval > 0) {
-    var msItem = latest.items.find(function(i) {
-      return (i.category === 'stocks' || i.category === '민석 금융자산') && i.owner === 'minsuk' && i.name.includes('주식');
-    });
-    if (msItem) {
-      msItem.amount = msEval;
-      msItem.category = 'stocks';
-    } else {
-      latest.items.push({ category: 'stocks', emoji: '📈', type: 'asset', name: '주식', amount: msEval, memo: '', owner: 'minsuk' });
-    }
-    updated++;
-  }
+  linkedItems.forEach(function(item) {
+    const owner = item.owner || 'common';
+    const market = item.stockLink; // 'KR', 'US', 'all'
+    const evalKrw = calcEval(owner === 'common' ? 'all' : owner, market);
+    const evalMan = Math.round(evalKrw / 10000);
 
-  // 시윤 주식 항목
-  if (syEval > 0) {
-    var syItem = latest.items.find(function(i) {
-      return (i.category === 'stocks' || i.category === '시윤 금융자산') && i.owner === 'siyun' && i.name.includes('주식');
-    });
-    if (syItem) {
-      syItem.amount = syEval;
-      syItem.category = 'stocks';
-    } else {
-      latest.items.push({ category: 'stocks', emoji: '📈', type: 'asset', name: '주식', amount: syEval, memo: '', owner: 'siyun' });
+    if (evalMan > 0) {
+      item.amount = evalMan;
+      updated++;
+      const marketLabel = market === 'KR' ? '국내' : market === 'US' ? '해외' : '전체';
+      const ownerLabel = owner === 'minsuk' ? '민석' : owner === 'siyun' ? '시윤' : '공동';
+      msgs.push(ownerLabel + ' ' + marketLabel + ' ' + (evalMan/10000).toFixed(2) + '억');
     }
-    updated++;
+  });
+
+  if (!updated) {
+    showToast('❗ 시세 갱신 후 다시 시도해주세요');
+    return;
   }
 
   // 총자산/순자산 재계산
@@ -9000,11 +9039,9 @@ function applyStocksToAsset() {
   updateHomeFromItems(latest);
   renderMonthCards();
 
-  const msgs = [];
-  if (msEval > 0) msgs.push('민석 ' + (msEval/10000).toFixed(2) + '억');
-  if (syEval > 0) msgs.push('시윤 ' + (syEval/10000).toFixed(2) + '억');
-  showToast('✅ 주식 반영 완료! ' + msgs.join(' / '));
+  showToast('✅ 반영 완료! ' + msgs.join(' / '));
 }
+
 
 // ── 주식 탭 전환
 let currentStkTab = 'list';
