@@ -3495,66 +3495,23 @@ async function loadAllDataFromSupabase() {
       console.log('✅ Supabase 데이터 로드 완료');
 
     } else {
-      // Supabase에 데이터 없으면 Cloudflare에서 시도
-      console.log('⚠️ Supabase 데이터 없음 → Cloudflare 시도');
-      const proxyUrl = load('cloudflare-proxy', '');
-      if (proxyUrl) {
-        try {
-          const res = await fetch(proxyUrl + '/sync-get', {
-            signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 8000); return c.signal; })()
-          });
-          if (res.ok) {
-            const json = await res.json();
-            if (json.ok && json.data) {
-              const d = json.data;
-              const keys = ['asset-history','goals','schedules','ledger-txs','ledger-budgets','stocks','recurring-items'];
-              let hasCloudData = false;
-              keys.forEach(function(key) {
-                if (d[key] && (Array.isArray(d[key]) ? d[key].length > 0 : Object.keys(d[key]).length > 0)) {
-                  store(key, d[key]);
-                  hasCloudData = true;
-                }
-              });
-              if (hasCloudData) {
-                assetHistory   = load('asset-history', []);
-                ledgerTxs      = load('ledger-txs', []);
-                stocks         = load('stocks', []);
-                goals          = load('goals', []);
-                schedules      = load('schedules', []);
-                budgets        = load('ledger-budgets', {});
-                recurringItems = load('recurring-items', []);
+      // Supabase에 데이터 없으면 → 새 계정이므로 빈 데이터로 시작
+      console.log('⚠️ Supabase 데이터 없음 → 새 계정으로 빈 데이터 시작');
+      assetHistory   = [];
+      ledgerTxs      = [];
+      stocks         = [];
+      goals          = [];
+      schedules      = [];
+      budgets        = { food:50, cafe:15, trans:20, shop:30, health:10, leisure:20, child:0, edu:10, house:0, etc:20 };
+      recurringItems = [];
 
-                await Promise.all([
-                  saveToSupabase('asset_history', assetHistory),
-                  saveToSupabase('ledger_txs', ledgerTxs),
-                  saveToSupabase('stocks', stocks),
-                  saveToSupabase('goals', goals),
-                  saveToSupabase('schedules', schedules),
-                  saveAppDataToSupabase('budgets', budgets),
-                ]);
-                console.log('✅ Cloudflare → Supabase 마이그레이션 완료');
-              }
-            }
-          }
-        } catch(e) {
-          console.log('Cloudflare 데이터 로드 실패:', e);
-          assetHistory   = load('asset-history', []);
-          ledgerTxs      = load('ledger-txs', []);
-          stocks         = load('stocks', []);
-          goals          = load('goals', []);
-          schedules      = load('schedules', []);
-          budgets        = load('ledger-budgets', {});
-          recurringItems = load('recurring-items', []);
-        }
-      } else {
-        assetHistory   = load('asset-history', []);
-        ledgerTxs      = load('ledger-txs', []);
-        stocks         = load('stocks', []);
-        goals          = load('goals', []);
-        schedules      = load('schedules', []);
-        budgets        = load('ledger-budgets', {});
-        recurringItems = load('recurring-items', []);
-      }
+      store('asset-history', []);
+      store('ledger-txs', []);
+      store('stocks', []);
+      store('goals', []);
+      store('schedules', []);
+      store('ledger-budgets', budgets);
+      store('recurring-items', []);
     }
 
   } catch(e) {
