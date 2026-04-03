@@ -6457,7 +6457,7 @@ function updateHomeWidget() {
 
   // 이번달 지출 금액을 바 안에 표시
   if(el('widget-status-text')) {
-    el('widget-status-text').textContent = Math.round(monthExpense).toLocaleString() + '만원';
+    el('widget-status-text').textContent = Math.round(monthExp).toLocaleString() + '만원';
     el('widget-status-text').style.color = 'var(--muted2)';
     el('widget-status-text').style.textShadow = 'none';
   }
