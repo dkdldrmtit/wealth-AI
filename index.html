@@ -1177,45 +1177,13 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <!-- 헤더 -->
     <div style="padding:16px 16px 12px;display:flex;justify-content:space-between;align-items:center">
       <div style="display:flex;align-items:center;gap:8px">
-        <div style="font-size:11px;color:var(--muted2);font-weight:500;letter-spacing:0.8px;text-transform:uppercase">이달 재무 대결</div>
+        <div style="font-size:11px;color:var(--muted2);font-weight:500;letter-spacing:0.8px;text-transform:uppercase">절약 배틀</div>
       </div>
       <div id="couple-winner-badge" style="font-size:11px;font-weight:700"></div>
     </div>
 
     <!-- 대결 영역 -->
-    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:center;padding:16px 0">
-
-      <!-- 민석 -->
-      <div id="couple-ms-side" onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[4]);setTimeout(()=>setStkOwner('minsuk'),300)" style="padding:0 16px;text-align:center;cursor:pointer">
-        <div style="font-size:12px;font-weight:600;color:var(--minsuk);margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:4px">
-          <span style="width:18px;height:18px;border-radius:50%;background:rgba(59,130,246,0.15);color:var(--blue);font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center">M</span>
-          민석
-          <span id="couple-ms-crown" style="display:none;font-size:13px;line-height:1">👑</span>
-        </div>
-        <div id="couple-ms-save" style="font-size:22px;font-weight:900;color:var(--text);transition:all .3s ease;line-height:1.1">-</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:4px;margin-bottom:8px">이달 지출</div>
-        <div style="font-size:11px;color:var(--muted)">주식 <span id="couple-ms-stock" style="font-weight:700">-</span></div>
-      </div>
-
-      <!-- 가운데 VS + 바 -->
-      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 4px;min-width:60px">
-        <div style="font-size:11px;font-weight:900;color:var(--muted);letter-spacing:1px">VS</div>
-        <div id="couple-bar-wrap" style="width:100%"></div>
-      </div>
-
-      <!-- 시윤 -->
-      <div id="couple-sy-side" onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[4]);setTimeout(()=>setStkOwner('siyun'),300)" style="padding:0 16px;text-align:center;cursor:pointer">
-        <div style="font-size:12px;font-weight:600;color:var(--siyun);margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:4px">
-          <span style="width:18px;height:18px;border-radius:50%;background:rgba(34,197,94,0.15);color:var(--green);font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center">S</span>
-          시윤
-          <span id="couple-sy-crown" style="display:none;font-size:13px;line-height:1">👑</span>
-        </div>
-        <div id="couple-sy-save" style="font-size:22px;font-weight:900;color:var(--text);transition:all .3s ease;line-height:1.1">-</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:4px;margin-bottom:8px">이달 지출</div>
-        <div style="font-size:11px;color:var(--muted)">주식 <span id="couple-sy-stock" style="font-weight:700">-</span></div>
-      </div>
-
-    </div>
+    <div id="couple-battle-area"></div>
 
     <!-- 하단 총평 -->
     <div id="couple-comment" style="padding:10px 16px;background:rgba(255,255,255,.03);border-top:1px solid var(--border);font-size:11px;color:var(--muted);text-align:center;line-height:1.6"></div>
@@ -3565,7 +3533,6 @@ async function loadAllDataFromSupabase() {
                   saveAppDataToSupabase('budgets', budgets),
                 ]);
                 console.log('✅ Cloudflare → Supabase 마이그레이션 완료');
-                showToast('✅ 기존 데이터를 불러왔어요!');
               }
             }
           }
@@ -4126,7 +4093,7 @@ function updateHomeFromItems(rec) {
       const bg = diff >= 0 ? 'rgba(74,222,128,0.12)' : 'rgba(239,68,68,0.12)';
       const arrow = diff >= 0 ? '▲' : '▼';
       changeBadge.innerHTML = '<span style="display:inline-flex;align-items:center;gap:5px;background:' + bg + ';color:' + color + ';font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px">'
-        + arrow + ' ' + sign + (diff/10000).toFixed(2) + '억 전월 대비</span>';
+        + '<sup style="font-size:8px;font-weight:500;opacity:0.65;vertical-align:super;line-height:0">전월 대비</sup> ' + arrow + ' ' + sign + (diff/10000).toFixed(2) + '억</span>';
     } else {
       changeBadge.innerHTML = '<span style="font-size:11px;color:var(--muted)">첫 번째 기록</span>';
     }
@@ -5893,163 +5860,124 @@ function renderHomeLedgerSummary() {
   renderCoupleCard();
 }
 
-// ── 부부 재무 대결 카드 ──
+// ── 부부 재무 대결 카드 (줄다리기 바) ──
 function renderCoupleCard() {
-  const now = new Date();
-  const thisMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  var now = new Date();
+  var thisMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
 
-  const msTxs = ledgerTxs.filter(function(t) { return t.date.startsWith(thisMonth) && t.owner === 'minsuk'; });
-  const syTxs = ledgerTxs.filter(function(t) { return t.date.startsWith(thisMonth) && t.owner === 'siyun'; });
+  var msTxs = ledgerTxs.filter(function(t) { return t.date.startsWith(thisMonth) && t.owner === 'minsuk'; });
+  var syTxs = ledgerTxs.filter(function(t) { return t.date.startsWith(thisMonth) && t.owner === 'siyun'; });
 
-  const msExp = msTxs.filter(function(t) { return t.type === 'expense'; }).reduce(function(s,t) { return s+t.amount; }, 0);
-  const syExp = syTxs.filter(function(t) { return t.type === 'expense'; }).reduce(function(s,t) { return s+t.amount; }, 0);
+  var msExp = msTxs.filter(function(t) { return t.type === 'expense'; }).reduce(function(s,t) { return s+t.amount; }, 0);
+  var syExp = syTxs.filter(function(t) { return t.type === 'expense'; }).reduce(function(s,t) { return s+t.amount; }, 0);
 
-  const usdKrw = load('usd-krw-rate', 0);
-
-  function calcStockPct(owner) {
-    const ownerStocks = stocks.filter(function(s) { return s.owner === owner && s.currentPrice > 0; });
-    if (!ownerStocks.length) return null;
-    const totalEval = ownerStocks.reduce(function(s, st) {
-      const rate = st.market === 'US' && usdKrw ? usdKrw : 1;
-      return s + st.currentPrice * st.qty * rate;
-    }, 0);
-    const totalBuy = ownerStocks.reduce(function(s, st) {
-      const rate = st.market === 'US' && usdKrw ? usdKrw : 1;
-      return s + st.avgPrice * st.qty * rate;
-    }, 0);
-    return totalBuy > 0 ? ((totalEval - totalBuy) / totalBuy * 100) : null;
-  }
-
-  const msStockPct = calcStockPct('minsuk');
-  const syStockPct = calcStockPct('siyun');
-
-  // 점수 계산
-  let msScore = 0, syScore = 0;
-  if (msExp > 0 || syExp > 0) {
-    if (msExp < syExp) msScore += 2;
-    else if (syExp < msExp) syScore += 2;
-    else { msScore += 1; syScore += 1; }
-  }
-  if (msStockPct !== null && syStockPct !== null) {
-    if (msStockPct > syStockPct) msScore += 2;
-    else if (syStockPct > msStockPct) syScore += 2;
-    else { msScore += 1; syScore += 1; }
-  }
-
-  const msWin = msScore > syScore;
-  const syWin = syScore > msScore;
-
-  // 금액 포맷 (만원 단위 저장값 → 표시)
   function fmtExp(v) {
     if (!v) return '-';
-    const won = Math.round(v * 10000);
-    if (won >= 10000) return (won / 10000).toFixed(0) + '만원';
-    return won.toLocaleString() + '원';
+    if (v >= 10000) return (v / 10000).toFixed(0) + '억원';
+    if (v >= 1) return Math.round(v) + '만원';
+    return Math.round(v * 10000).toLocaleString() + '원';
   }
 
-  // 승자 크게 선명하게, 패자 흐리게
-  const msSaveEl = document.getElementById('couple-ms-save');
-  const sySaveEl = document.getElementById('couple-sy-save');
+  var msWins = msExp > 0 && (syExp === 0 || msExp < syExp);
+  var syWins = syExp > 0 && (msExp === 0 || syExp < msExp);
 
-  if (msSaveEl) {
-    msSaveEl.textContent = msExp > 0 ? fmtExp(msExp) : '-';
-    msSaveEl.style.fontSize = msWin ? '26px' : syWin ? '18px' : '22px';
-    msSaveEl.style.opacity = syWin ? '0.3' : '1';
+  // 이기는 사람이 왼쪽
+  var L, R;
+  if (syWins) {
+    L = { name: '시윤', amt: syExp, hex: '#22c55e', cssVar: 'var(--siyun)', badge: 'S', badgeBg: 'rgba(34,197,94,0.15)' };
+    R = { name: '민석', amt: msExp, hex: '#3b82f6', cssVar: 'var(--minsuk)', badge: 'M', badgeBg: 'rgba(59,130,246,0.15)' };
+  } else {
+    L = { name: '민석', amt: msExp, hex: '#3b82f6', cssVar: 'var(--minsuk)', badge: 'M', badgeBg: 'rgba(59,130,246,0.15)' };
+    R = { name: '시윤', amt: syExp, hex: '#22c55e', cssVar: 'var(--siyun)', badge: 'S', badgeBg: 'rgba(34,197,94,0.15)' };
   }
-  if (sySaveEl) {
-    sySaveEl.textContent = syExp > 0 ? fmtExp(syExp) : '-';
-    sySaveEl.style.fontSize = syWin ? '26px' : msWin ? '18px' : '22px';
-    sySaveEl.style.opacity = msWin ? '0.3' : '1';
-  }
+  var lWins = msWins || syWins; // 무승부가 아닌 경우
 
-  // 크라운
-  const msCrown = document.getElementById('couple-ms-crown');
-  const syCrown = document.getElementById('couple-sy-crown');
-  if (msCrown) msCrown.style.display = msWin ? 'inline' : 'none';
-  if (syCrown) syCrown.style.display = syWin ? 'inline' : 'none';
-
-  // 가운데서 반대 방향으로 뻗는 바
-  const maxExp = Math.max(msExp, syExp, 0.001);
-  const msBarPct = Math.min(100, Math.round(msExp / maxExp * 100));
-  const syBarPct = Math.min(100, Math.round(syExp / maxExp * 100));
-
-  const barWrap = document.getElementById('couple-bar-wrap');
-  if (barWrap) {
-    barWrap.innerHTML =
-      '<div style="display:flex;height:6px;border-radius:4px;overflow:hidden;background:rgba(255,255,255,0.06)">'
-      + '  <div style="flex:1;display:flex;justify-content:flex-end">'
-      + '    <div style="height:100%;width:' + msBarPct + '%;background:var(--minsuk);border-radius:3px 0 0 3px;transition:width 1s ease;opacity:' + (syWin ? '0.3' : '1') + '"></div>'
-      + '  </div>'
-      + '  <div style="width:1px;background:var(--border2);flex-shrink:0"></div>'
-      + '  <div style="flex:1;display:flex;justify-content:flex-start">'
-      + '    <div style="height:100%;width:' + syBarPct + '%;background:var(--siyun);border-radius:0 3px 3px 0;transition:width 1s ease;opacity:' + (msWin ? '0.3' : '1') + '"></div>'
-      + '  </div>'
-      + '</div>';
+  // 지출 실제 비율 (덜 쓴 사람 = 짧은 바, 더 쓴 사람 = 긴 바)
+  var total = (L.amt || 0) + (R.amt || 0);
+  var lPct = 50, rPct = 50;
+  if (total > 0) {
+    lPct = Math.max(8, Math.min(92, Math.round(L.amt / total * 100)));
+    rPct = 100 - lPct;
   }
 
-  // 주식 수익률
-  const msStockEl = document.getElementById('couple-ms-stock');
-  const syStockEl = document.getElementById('couple-sy-stock');
-  if (msStockEl) {
-    if (msStockPct !== null) {
-      msStockEl.textContent = (msStockPct >= 0 ? '+' : '') + msStockPct.toFixed(1) + '%';
-      msStockEl.style.color = msStockPct >= 0 ? 'var(--red)' : 'var(--blue)';
-    } else {
-      msStockEl.textContent = '-';
-      msStockEl.style.color = 'var(--muted)';
-    }
-  }
-  if (syStockEl) {
-    if (syStockPct !== null) {
-      syStockEl.textContent = (syStockPct >= 0 ? '+' : '') + syStockPct.toFixed(1) + '%';
-      syStockEl.style.color = syStockPct >= 0 ? 'var(--red)' : 'var(--blue)';
-    } else {
-      syStockEl.textContent = '-';
-      syStockEl.style.color = 'var(--muted)';
-    }
-  }
-
-  // 헤더 승자 배지
-  const winnerBadge = document.getElementById('couple-winner-badge');
+  // 헤더 배지
+  var winnerBadge = document.getElementById('couple-winner-badge');
   if (winnerBadge) {
-    if (msWin) {
-      winnerBadge.textContent = '민석 리드 중!';
-      winnerBadge.style.color = 'var(--minsuk)';
-    } else if (syWin) {
-      winnerBadge.textContent = '시윤 리드 중!';
-      winnerBadge.style.color = 'var(--siyun)';
-    } else {
-      winnerBadge.textContent = '동점';
-      winnerBadge.style.color = 'var(--muted)';
-    }
+    if (msWins) { winnerBadge.textContent = '민석 절약 중'; winnerBadge.style.color = 'var(--text2)'; }
+    else if (syWins) { winnerBadge.textContent = '시윤 절약 중'; winnerBadge.style.color = 'var(--text2)'; }
+    else if (msExp > 0 || syExp > 0) { winnerBadge.textContent = '동점'; winnerBadge.style.color = 'var(--muted)'; }
+    else { winnerBadge.textContent = ''; }
   }
 
-  // 하단 총평
-  const commentEl = document.getElementById('couple-comment');
+  // 배틀 영역 렌더
+  var battleArea = document.getElementById('couple-battle-area');
+  if (!battleArea) return;
+
+  // 무채색 팔레트: 승자는 밝게, 패자는 흐리게
+  var lNameColor  = lWins ? 'var(--text)'  : 'var(--muted)';
+  var lAmtColor   = lWins ? 'var(--text)'  : 'var(--muted)';
+  var lAmtSize    = lWins ? '26px' : '20px';
+  var lOpacity    = '1';
+  var rNameColor  = lWins ? 'var(--muted)' : 'var(--text)';
+  var rAmtColor   = lWins ? 'var(--muted)' : 'var(--text)';
+  var rAmtSize    = lWins ? '18px' : '26px';
+  var rOpacity    = lWins ? '0.4' : '1';
+
+  var badgeStyle  = 'width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.07);color:var(--text2);font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0';
+
+  // 바: 승자=밝은 흰색 짧게, 패자=어두운 회색 길게
+  var lBarBg = lWins
+    ? 'linear-gradient(to right,rgba(255,255,255,0.75),rgba(255,255,255,0.45))'
+    : 'rgba(255,255,255,0.10)';
+  var rBarBg = lWins
+    ? 'rgba(255,255,255,0.10)'
+    : 'linear-gradient(to right,rgba(255,255,255,0.75),rgba(255,255,255,0.45))';
+
+  battleArea.innerHTML =
+    '<div style="padding:2px 16px 16px">'
+    // 이름 + 금액
+    + '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px">'
+    // 왼쪽
+    + '<div>'
+    + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:6px">'
+    + '<span style="' + badgeStyle + '">' + L.badge + '</span>'
+    + '<span style="font-size:11px;font-weight:600;color:' + lNameColor + '">' + L.name + (lWins ? ' 👑' : '') + '</span>'
+    + '</div>'
+    + '<div style="font-size:' + lAmtSize + ';font-weight:900;color:' + lAmtColor + ';line-height:1;opacity:' + lOpacity + '">' + fmtExp(L.amt) + '</div>'
+    + '<div style="font-size:10px;color:var(--muted);margin-top:4px">이달 지출</div>'
+    + '</div>'
+    // 오른쪽
+    + '<div style="text-align:right">'
+    + '<div style="display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-bottom:6px">'
+    + '<span style="font-size:11px;font-weight:600;color:' + rNameColor + '">' + R.name + (!lWins && rPct < lPct ? ' 👑' : '') + '</span>'
+    + '<span style="' + badgeStyle + '">' + R.badge + '</span>'
+    + '</div>'
+    + '<div style="font-size:' + rAmtSize + ';font-weight:700;color:' + rAmtColor + ';line-height:1;opacity:' + rOpacity + '">' + fmtExp(R.amt) + '</div>'
+    + '<div style="font-size:10px;color:var(--muted);margin-top:4px;opacity:' + rOpacity + '">이달 지출</div>'
+    + '</div>'
+    + '</div>'
+    // 줄다리기 바
+    + '<div style="height:8px;border-radius:6px;overflow:hidden;display:flex">'
+    + '<div style="flex:' + lPct + ';background:' + lBarBg + ';transition:flex 1.2s cubic-bezier(0.34,1.56,0.64,1)"></div>'
+    + '<div style="width:2px;background:var(--bg);flex-shrink:0"></div>'
+    + '<div style="flex:' + rPct + ';background:' + rBarBg + ';transition:flex 1.2s cubic-bezier(0.34,1.56,0.64,1)"></div>'
+    + '</div>'
+    + '</div>';
+
+  // 총평
+  var commentEl = document.getElementById('couple-comment');
   if (commentEl) {
-    const comments = [];
     if (msExp > 0 && syExp > 0) {
-      const diff = Math.abs(msExp - syExp);
-      const diffFmt = diff >= 1 ? diff.toFixed(1) + '만원' : Math.round(diff * 10000).toLocaleString() + '원';
-      if (msExp < syExp) {
-        comments.push('민석이 지출 ' + diffFmt + ' 덜 썼어요');
-      } else if (syExp < msExp) {
-        comments.push('시윤이 지출 ' + diffFmt + ' 덜 썼어요');
-      } else {
-        comments.push('이달 지출이 동일해요');
-      }
-    }
-    if (msStockPct !== null && syStockPct !== null) {
-      if (msStockPct > syStockPct) {
-        comments.push('주식은 민석 +' + (msStockPct - syStockPct).toFixed(1) + '%p 우세');
-      } else if (syStockPct > msStockPct) {
-        comments.push('주식은 시윤 +' + (syStockPct - msStockPct).toFixed(1) + '%p 우세');
-      }
-    }
-    if (comments.length === 0) {
-      commentEl.textContent = '이번달 가계부를 기록하면 대결이 시작돼요';
+      var diff = Math.abs(msExp - syExp);
+      if (msWins) commentEl.textContent = '민석이 ' + fmtExp(diff) + ' 덜 썼어요';
+      else if (syWins) commentEl.textContent = '시윤이 ' + fmtExp(diff) + ' 덜 썼어요';
+      else commentEl.textContent = '이달 지출이 동일해요';
+    } else if (msExp > 0) {
+      commentEl.textContent = '시윤의 이달 지출을 기록해 주세요';
+    } else if (syExp > 0) {
+      commentEl.textContent = '민석의 이달 지출을 기록해 주세요';
     } else {
-      commentEl.textContent = comments.join(' · ');
+      commentEl.textContent = '이번달 가계부를 기록하면 대결이 시작돼요';
     }
   }
 }
