@@ -5990,9 +5990,6 @@ function initHome() {
   renderCoupleCard();
   renderHomeStocksSummary();
 
-  // 단지명 UI 반영
-  const aptS = load('apt-settings', null);
-  if (aptS?.name) applyAptNameToUI(aptS.name);
   applyPartnerNamesToUI();
   setDonutTab('all');  
 
@@ -9079,8 +9076,6 @@ function openAptModal(id) {
   document.getElementById('apt-search-btn').style.background = 'var(--surface3)';
   document.getElementById('apt-search-btn').style.color = 'var(--muted)';
   document.getElementById('apt-search-btn').style.borderColor = 'var(--border2)';
-  document.getElementById('apt-modal-area-min').value = '';
-  document.getElementById('apt-modal-area-max').value = '';
   searchResults.style.display = 'none';
   selectedWrap.style.display = 'none';
   if (lawdWrap) lawdWrap.style.display = 'none';
