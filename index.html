@@ -6972,11 +6972,25 @@ function openAssetDetail(month) {
         </div>
 
         <!-- 하단 버튼 -->
-        <div style="padding:20px;display:flex;gap:10px;margin-top:8px">
-          ${load('realestate-cache',null) ? '<button onclick="applyAptFromDetail()" style="flex:1;padding:13px;border-radius:12px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:600;cursor:pointer">실거래가 반영</button>' : ''}
-          <button onclick="openModalFromDetail()" style="flex:1;padding:13px;border-radius:12px;background:var(--text);border:none;color:var(--bg);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">편집하기</button>
-          <button onclick="deleteRecordDirect()" style="padding:13px 16px;border-radius:12px;background:none;border:1px solid var(--border2);color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer">삭제</button>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:10px;margin-top:8px">
+          <!-- 실거래가 + 주식 시세 -->
+          ${(load('realestate-cache',null) || (function(){ const latest = assetHistory[assetHistory.length-1]; return latest && latest.items && latest.items.some(function(i){return i.stockLink;}); })())
+            ? '<div style="display:flex;gap:8px">'
+              + (load('realestate-cache',null)
+                ? '<button onclick="applyAptFromDetail()" style="flex:1;padding:13px;border-radius:12px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:600;cursor:pointer">🏢 실거래가 반영</button>'
+                : '')
+              + (function(){ const latest = assetHistory[assetHistory.length-1]; return latest && latest.items && latest.items.some(function(i){return i.stockLink;}); }()
+                ? '<button onclick="refreshAllStocksInDetail()" style="flex:1;padding:13px;border-radius:12px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:600;cursor:pointer">📈 주식 시세 업데이트</button>'
+                : '')
+              + '</div>'
+            : ''}
+          <!-- 편집/삭제 -->
+          <div style="display:flex;gap:10px">
+            <button onclick="openModalFromDetail()" style="flex:1;padding:13px;border-radius:12px;background:var(--text);border:none;color:var(--bg);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">편집하기</button>
+            <button onclick="deleteRecordDirect()" style="padding:13px 16px;border-radius:12px;background:none;border:1px solid var(--border2);color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer">삭제</button>
+          </div>
         </div>
+
 
       </div>
     </div>
@@ -7176,8 +7190,6 @@ function renderDetailItem(item, totalAsset, prev, isDebt, cid, showOwner) {
   return '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border)">'
     + '<div style="flex:1;min-width:0">'
     + '<div style="font-size:13px;font-weight:500;color:' + color + '">' + item.name + stockBadge + ownerHtml + '</div>'
-    + (item.stockLink ? '<div style="margin-top:4px">' + refreshBtnHtml + '</div>' : '')
-
 
     + (item.memo ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + item.memo + '</div>' : '')
     + '</div>'
@@ -7241,6 +7253,61 @@ function refreshStockItem(itemName, owner, market) {
   // 상세 모달 새로고침
   if (detailMonth) openAssetDetail(detailMonth);
 }
+
+
+function refreshAllStocksInDetail() {
+  const usdKrw = load('usd-krw-rate', 0);
+  if (!assetHistory.length) return;
+  const latest = assetHistory[assetHistory.length - 1];
+  if (!latest.items) return;
+
+  const linkedItems = latest.items.filter(function(i) { return i.stockLink && i.type === 'asset'; });
+  if (!linkedItems.length) { showToast('❗ 연동된 주식 항목이 없어요'); return; }
+
+  const now = new Date();
+  const timeStr = (now.getMonth()+1) + '/' + now.getDate() + ' ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+
+  let updated = 0;
+  linkedItems.forEach(function(item) {
+    const owner = item.owner || 'common';
+    const market = item.stockLink;
+    const evalKrw = stocks
+      .filter(function(s) {
+        const ownerMatch = owner === 'common' ? true : s.owner === owner;
+        return ownerMatch && s.market === market && s.currentPrice > 0;
+      })
+      .reduce(function(sum, s) {
+        const evalAmt = s.currentPrice * s.qty;
+        return sum + (s.market === 'US' ? (usdKrw ? evalAmt * usdKrw : 0) : evalAmt);
+      }, 0);
+
+    const evalMan = Math.round(evalKrw / 10000);
+    if (evalMan > 0) {
+      item.amount = evalMan;
+      item.stockLinkTime = timeStr;
+      updated++;
+    }
+  });
+
+  if (!updated) {
+    showToast('❗ 주식 탭에서 시세 갱신 먼저 해주세요');
+    return;
+  }
+
+  // 총자산/순자산 재계산
+  latest.total = latest.items.filter(function(i){return i.type==='asset';}).reduce(function(s,i){return s+i.amount;},0);
+  latest.debt  = latest.items.filter(function(i){return i.type==='debt';}).reduce(function(s,i){return s+i.amount;},0);
+  latest.net   = latest.total - latest.debt;
+
+  store('asset-history', assetHistory);
+  updateHomeFromItems(latest);
+
+  showToast('✅ ' + updated + '개 주식 항목 업데이트 완료! 편집하기로 저장하세요');
+
+  // 상세 모달 새로고침
+  if (detailMonth) openAssetDetail(detailMonth);
+}
+
 
 
 // ── 탭 전환
