@@ -7111,20 +7111,18 @@ function renderDetailItem(item, totalAsset, prev, isDebt, cid, showOwner) {
     }
   }
 
-  const linkedNote = item.stockLink
-    ? '<div style="font-size:10px;color:var(--blue);margin-top:3px;display:flex;align-items:center;gap:4px">'
-      + '<span style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.15);border-radius:6px;padding:1px 7px;font-weight:600">'
-      + '🔗 ' + (item.stockLink==='KR'?'🇰🇷 국내':'🇺🇸 해외') + ' 자동연동'
+  const linkedBadge = item.stockLink
+    ? '<span style="font-size:9px;font-weight:700;color:var(--blue);background:rgba(59,130,246,0.10);border:1px solid rgba(59,130,246,0.2);border-radius:5px;padding:1px 5px;margin-left:6px;vertical-align:super;line-height:1;white-space:nowrap">'
+      + '🔗 ' + (item.stockLink==='KR'?'🇰🇷 국내':'🇺🇸 해외')
       + (item.stockLinkTime ? ' · ' + item.stockLinkTime : '')
       + '</span>'
-      + refreshBtnHtml
-      + '</div>'
     : '';
 
   return '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border)">'
     + '<div style="flex:1;min-width:0">'
-    + '<div style="font-size:13px;font-weight:500;color:' + color + '">' + item.name + (item.stockLink ? '' : badgeHtml) + ownerHtml + '</div>'
-    + linkedNote
+    + '<div style="font-size:13px;font-weight:500;color:' + color + '">' + item.name + linkedBadge + (item.stockLink ? '' : badgeHtml) + ownerHtml + '</div>'
+    + (item.stockLink ? '<div style="margin-top:3px">' + refreshBtnHtml + '</div>' : '')
+
     + (item.memo ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + item.memo + '</div>' : '')
     + '</div>'
 
