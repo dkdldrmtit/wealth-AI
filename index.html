@@ -7328,8 +7328,9 @@ function refreshAllStocksInDetail() {
   if (!assetHistory.length) return;
 
   // 이번달 기록에만 적용 가능
-  const now = new Date();
-  const thisMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  const _nowRefresh = new Date();
+  const thisMonth = _nowRefresh.getFullYear() + '-' + String(_nowRefresh.getMonth()+1).padStart(2,'0');
+
   const latest = assetHistory[assetHistory.length - 1];
   if (!latest.items) return;
 
@@ -7343,7 +7344,8 @@ function refreshAllStocksInDetail() {
   if (!linkedItems.length) { showToast('❗ 연동된 주식 항목이 없어요'); return; }
 
   const now = new Date();
-  const timeStr = (now.getMonth()+1) + '/' + now.getDate() + ' ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+  const timeStr = (_nowRefresh.getMonth()+1) + '/' + _nowRefresh.getDate() + ' ' + _nowRefresh.getHours() + ':' + String(_nowRefresh.getMinutes()).padStart(2,'0');
+
 
   let updated = 0;
   linkedItems.forEach(function(item) {
