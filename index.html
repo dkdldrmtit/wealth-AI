@@ -1349,10 +1349,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
     <!-- 자산구성 토글 버튼 -->
     <div onclick="toggleAssetDonut()" id="donut-toggle-btn"
-      style="display:flex;align-items:center;justify-content:center;gap:6px;padding:14px 4px;cursor:pointer;border-top:1px solid var(--border);margin-top:16px;transition:background .2s"
-      ontouchstart="this.style.background='var(--surface2)'" ontouchend="this.style.background=''">
-      <span style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px">자산 구성</span>
-      <svg id="donut-toggle-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .3s"><polyline points="6 9 12 15 18 9"/></svg>
+      style="display:flex;align-items:center;justify-content:center;padding:12px 4px 8px;cursor:pointer;margin-top:12px;transition:opacity .2s"
+      ontouchstart="this.style.opacity='0.5'" ontouchend="this.style.opacity='1'">
+      <div style="width:32px;height:4px;border-radius:2px;background:var(--border2);transition:background .2s" id="donut-toggle-handle"></div>
     </div>
 
     <!-- 자산구성 펼쳐지는 영역 -->
@@ -8744,20 +8743,21 @@ let donutTab = 'all'; // 'all' | 'p1' | 'p2'
 // 자산구성 토글
 function toggleAssetDonut() {
   const wrap = document.getElementById('donut-expand-wrap');
-  const arrow = document.getElementById('donut-toggle-arrow');
+  const handle = document.getElementById('donut-toggle-handle');
   const isOpen = wrap.style.maxHeight !== '0px' && wrap.style.maxHeight !== '';
 
   if (isOpen) {
     wrap.style.maxHeight = '0px';
-    arrow.style.transform = 'rotate(0deg)';
+    if (handle) handle.style.background = 'var(--border2)';
     store('donut-expanded', false);
   } else {
     wrap.style.maxHeight = wrap.scrollHeight + 500 + 'px';
-    arrow.style.transform = 'rotate(180deg)';
+    if (handle) handle.style.background = 'var(--muted)';
     store('donut-expanded', true);
     renderDonutCard();
   }
 }
+
 
 // 앱 초기화 시 펼침 상태 복원
 function restoreDonutExpanded() {
