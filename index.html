@@ -8852,10 +8852,47 @@ function renderDonutCard() {
   // 소유자 필터
   let items = latest.items;
   if (donutTab === 'p1') {
-    items = latest.items.filter(function(i) { return i.owner === 'minsuk'; });
+    items = latest.items.filter(function(i) { return i.owner === 'minsuk' || i.owner === 'common'; });
   } else if (donutTab === 'p2') {
-    items = latest.items.filter(function(i) { return i.owner === 'siyun'; });
+    items = latest.items.filter(function(i) { return i.owner === 'siyun' || i.owner === 'common'; });
   }
+
+  // 공동 자산 합계 계산 (p1/p2 탭일 때만)
+  if (donutTab !== 'all') {
+    const commonAsset = latest.items
+      .filter(function(i) { return i.owner === 'common' && i.type === 'asset'; })
+      .reduce(function(s, i) { return s + i.amount; }, 0);
+    const commonDebt = latest.items
+      .filter(function(i) { return i.owner === 'common' && i.type === 'debt'; })
+      .reduce(function(s, i) { return s + i.amount; }, 0);
+    const commonNet = commonAsset - commonDebt;
+
+    // 공동 자산 안내 표시
+    setTimeout(function() {
+      const existingNote = document.getElementById('donut-common-note');
+      if (existingNote) existingNote.remove();
+      if (commonAsset > 0 || commonDebt > 0) {
+        const legend = document.getElementById('donut-legend-list');
+        if (legend) {
+          const note = document.createElement('div');
+          note.id = 'donut-common-note';
+          note.style.cssText = 'margin-top:10px;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:8px;display:flex;justify-content:space-between;align-items:center';
+          note.innerHTML = '<span style="font-size:11px;color:var(--muted)">공동 자산 포함</span>'
+            + '<span style="font-size:11px;font-weight:600;color:var(--muted2)">'
+            + (commonAsset >= 10000 ? (commonAsset/10000).toFixed(2)+'억' : commonAsset.toLocaleString()+'만')
+            + '</span>';
+          legend.insertAdjacentElement('afterend', note);
+        }
+      }
+    }, 50);
+  } else {
+    // 전체 탭이면 공동 안내 제거
+    setTimeout(function() {
+      const existingNote = document.getElementById('donut-common-note');
+      if (existingNote) existingNote.remove();
+    }, 50);
+  }
+
 
   const assetItems = items.filter(function(i) { return i.type === 'asset'; });
   const debtItems  = items.filter(function(i) { return i.type === 'debt'; });
