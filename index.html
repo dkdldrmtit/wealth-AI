@@ -7799,7 +7799,7 @@ function renderHomeCardSettingsList() {
     return '<div class="hcs-item" data-index="' + i + '" draggable="false" style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);user-select:none;transition:opacity .2s">'
       + '<div class="hcs-handle" style="color:var(--muted);font-size:16px;flex-shrink:0;padding:4px 6px;line-height:1;cursor:grab;touch-action:none">☰</div>'
       + '<div style="font-size:13px;flex:1;font-weight:500">' + card.label + '</div>'
-      + '<button onclick="toggleHomeCardVisible(' + i + ')" style="width:34px;height:34px;border-radius:9px;border:1px solid var(--border2);background:' + (card.visible?'rgba(74,222,128,.15)':'var(--surface2)') + ';color:' + (card.visible?'var(--green)':'var(--muted)') + ';font-size:15px;cursor:pointer;flex-shrink:0">' + (card.visible?'👁':'🚫') + '</button>'
+      + '<button onclick="toggleHomeCardVisible(' + i + ')" style="background:none;border:none;font-size:16px;cursor:pointer;flex-shrink:0;padding:4px 6px;opacity:' + (card.visible?'1':'0.3') + ';transition:opacity .2s">' + (card.visible?'◉':'◎') + '</button>'
       + '</div>';
   }).join('');
 
