@@ -8557,16 +8557,10 @@ async function sendChat() {
   chatHistory.push({ role: 'user', content: text });
   addTyping();
   try {
-    const savedApiKey = load('claude-api-key', '');
-    const apiHeaders = {
-      'Content-Type': 'application/json',
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    };
-    if (savedApiKey) apiHeaders['x-api-key'] = savedApiKey;
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const proxyUrl = load('cloudflare-proxy', '');
+    const res = await fetch(proxyUrl + '/', {
       method: 'POST',
-      headers: apiHeaders,
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 1000,
@@ -8574,6 +8568,7 @@ async function sendChat() {
         messages: chatHistory
       })
     });
+
     const data = await res.json();
     const reply = data.content?.map(c => c.text||'').join('') || '죄송해요, 잠시 후 다시 시도해주세요.';
     document.getElementById('typing-indicator')?.remove();
@@ -10239,13 +10234,7 @@ async function loadAiComment(force=false, useWebSearch=false) {
   }
 
   try {
-    const savedApiKey = load('claude-api-key', '');
-    const aiHeaders = {
-      'Content-Type': 'application/json',
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    };
-    if (savedApiKey) aiHeaders['x-api-key'] = savedApiKey;
+    const proxyUrl = load('cloudflare-proxy', '');
 
     const body = {
       model: 'claude-haiku-4-5-20251001',
@@ -10255,11 +10244,12 @@ async function loadAiComment(force=false, useWebSearch=false) {
     };
     if (tools) body.tools = tools;
 
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch(proxyUrl + '/', {
       method: 'POST',
-      headers: aiHeaders,
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
+
 
     const data = await res.json();
 
@@ -10615,8 +10605,7 @@ async function generateStockAnalysis() {
 
   try {
     const proxyUrl = load('cloudflare-proxy', '');
-    const apiUrl = proxyUrl || 'https://api.anthropic.com/v1/messages';
-    const res = await fetch(apiUrl, {
+    const res = await fetch(proxyUrl + '/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -12743,8 +12732,7 @@ ${prev ? `
 
   try {
     const proxyUrl = load('cloudflare-proxy', '');
-    const apiUrl = proxyUrl || 'https://api.anthropic.com/v1/messages';
-    const res = await fetch(apiUrl, {
+    const res = await fetch(proxyUrl + '/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -13318,19 +13306,10 @@ async function runHomeMicParser(text) {
   const todayStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
 
   try {
-    const claudeKey = load('claude-api-key', '');
     const proxyUrl = load('cloudflare-proxy', '');
-    const apiUrl = proxyUrl || 'https://api.anthropic.com/v1/messages';
-    const headers = { 'Content-Type': 'application/json' };
-    if (!proxyUrl) {
-      headers['anthropic-version'] = '2023-06-01';
-      headers['anthropic-dangerous-direct-browser-access'] = 'true';
-      if (claudeKey) headers['x-api-key'] = claudeKey;
-    }
-
-    const res = await fetch(apiUrl, {
+    const res = await fetch(proxyUrl + '/', {
       method: 'POST',
-      headers,
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 150,
