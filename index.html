@@ -4393,6 +4393,22 @@ function renderMonthCards() {
         </div>
       </div>
 
+      <!-- 주식 연동 항목 표시 -->
+      ${(r.items || []).filter(i => i.stockLink).length > 0
+        ? '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:6px">'
+          + (r.items || []).filter(i => i.stockLink).map(i =>
+              '<span style="font-size:10px;font-weight:600;color:var(--blue);background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.15);border-radius:6px;padding:2px 8px">'
+              + '🔗 ' + i.name
+              + ' <span style="font-weight:400;color:var(--muted)">'
+              + (i.stockLink === 'KR' ? '국내' : '해외')
+              + (i.stockLinkTime ? ' · ' + i.stockLinkTime : '')
+              + '</span></span>'
+            ).join('')
+          + '</div>'
+        : ''
+      }
+
+
       <!-- 항목 변화 -->
       ${itemChangesHtml}
 
@@ -5514,7 +5530,7 @@ function saveRecord() {
 
   const rec = {
     month, total, debt, net,
-    items: modalAssetItems.map(i => ({ category:i.category, emoji:i.emoji, type:i.type, name:i.name, amount:i.amount||0, memo:i.memo||'', owner:i.owner||'common' }))
+    items: modalAssetItems.map(i => ({ category:i.category, emoji:i.emoji, type:i.type, name:i.name, amount:i.amount||0, memo:i.memo||'', owner:i.owner||'common', stockLink:i.stockLink||null, stockLinkTime:i.stockLinkTime||null }))
   };
 
   const idx = assetHistory.findIndex(r => r.month === month);
