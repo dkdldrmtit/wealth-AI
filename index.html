@@ -7138,10 +7138,18 @@ function renderDetailItem(item, totalAsset, prev, isDebt, cid, showOwner) {
       + '</span>'
     : '';
 
+  const stockBadge = item.stockLink
+    ? '<sup style="font-size:9px;font-weight:700;color:var(--blue);background:rgba(59,130,246,0.10);border:1px solid rgba(59,130,246,0.2);border-radius:5px;padding:1px 5px;margin-left:5px;vertical-align:super;white-space:nowrap">'
+      + '🔗 ' + (item.stockLink === 'KR' ? '🇰🇷 국내' : '🇺🇸 해외')
+      + (item.stockLinkTime ? ' · ' + item.stockLinkTime : '')
+      + '</sup>'
+    : '';
+
   return '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border)">'
     + '<div style="flex:1;min-width:0">'
-    + '<div style="font-size:13px;font-weight:500;color:' + color + '">' + item.name + linkedBadge + (item.stockLink ? '' : badgeHtml) + ownerHtml + '</div>'
-    + (item.stockLink ? '<div style="margin-top:3px">' + refreshBtnHtml + '</div>' : '')
+    + '<div style="font-size:13px;font-weight:500;color:' + color + '">' + item.name + stockBadge + ownerHtml + '</div>'
+    + (item.stockLink ? '<div style="margin-top:4px">' + refreshBtnHtml + '</div>' : '')
+
 
     + (item.memo ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + item.memo + '</div>' : '')
     + '</div>'
