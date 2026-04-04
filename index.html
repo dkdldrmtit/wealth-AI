@@ -9443,37 +9443,44 @@ async function selectAptComplex(name, lawdCd, sigungu) {
   }
 
   await Promise.all(months.map(async function(ym) {
-    // ... 생략
+    try {
+      const res = await fetch(proxyUrl + '/realestate?lawdCd=' + lawdCd + '&dealYmd=' + ym, {
+        signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 12000); return c.signal; })()
+      });
+      const text = await res.text();
+      if (!text || !text.includes('<item>')) return;
+
+      const xml = new DOMParser().parseFromString(text, 'text/xml');
+      xml.querySelectorAll('item').forEach(function(item) {
+        const itemName = (item.querySelector('aptNm')?.textContent || '').trim();
+        if (itemName !== name) return;
+
+        const area = Math.round(parseFloat(item.querySelector('excluUseAr')?.textContent || '0') * 10) / 10;
+        const price = parseInt((item.querySelector('dealAmount')?.textContent || '0').replace(/,/g, '').trim());
+        const year  = (item.querySelector('dealYear')?.textContent || '').trim();
+        const month = (item.querySelector('dealMonth')?.textContent || '').trim().padStart(2,'0');
+        const day   = (item.querySelector('dealDay')?.textContent || '').trim().padStart(2,'0');
+        const floor = (item.querySelector('floor')?.textContent || '').trim();
+
+        if (area > 0 && price > 0) {
+          if (!areaTradeMap[area]) areaTradeMap[area] = [];
+          areaTradeMap[area].push({ date: year + '.' + month + '.' + day, price, floor });
+        }
+      });
+    } catch(e) {}
   }));
 
-    // 전용면적별 통상적인 공급면적 평수 매핑
-    const map = [
-      { max: 27,  pyeong: 10 },
-      { max: 33,  pyeong: 13 },
-      { max: 40,  pyeong: 15 },
-      { max: 46,  pyeong: 17 },
-      { max: 50,  pyeong: 19 },
-      { max: 55,  pyeong: 21 },
-      { max: 62,  pyeong: 25 },  // 59㎡ → 25평
-      { max: 69,  pyeong: 27 },
-      { max: 75,  pyeong: 30 },
-      { max: 80,  pyeong: 32 },
-      { max: 88,  pyeong: 34 },  // 84㎡ → 34평
-      { max: 96,  pyeong: 38 },
-      { max: 103, pyeong: 40 },
-      { max: 112, pyeong: 43 },
-      { max: 122, pyeong: 46 },
-      { max: 135, pyeong: 50 },
-      { max: 149, pyeong: 56 },
-      { max: 165, pyeong: 62 },
-    ];
-    for (var i = 0; i < map.length; i++) {
-      if (exclusiveArea <= map[i].max) return map[i].pyeong;
-    }
-    return Math.round(exclusiveArea * 0.3025 * 1.25); // 165㎡ 초과는 근사값
+  if (!Object.keys(areaTradeMap).length) {
+    areaChips.innerHTML = '<div style="font-size:11px;color:var(--muted)">평형 정보를 찾지 못했어요. 직접 입력해주세요.</div>';
+    showToast('✅ ' + name + ' 선택됐어요!');
+    return;
   }
 
+  const areas = Object.keys(areaTradeMap).map(Number).sort(function(a,b){ return a-b; });
+  let selectedArea = null;
+
   function renderAreaChips() {
+
     // 평형 칩
     areaChips.innerHTML = areas.map(function(area) {
       const supplyPyeong = getSupplyPyeong(area);           // 공급 기준 평수 (25평, 34평)
