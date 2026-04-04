@@ -1953,62 +1953,48 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
 
   <!-- 🏢 부동산 -->
-  <div id="stab-content-apt" style="display:none">
+<div id="stab-content-apt" style="display:none">
 
-    <!-- 아파트 설정 -->
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-title">아파트 설정</div>
-      <div style="margin-bottom:12px">
-        <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:5px">단지명</label>
-        <input type="text" id="apt-name-input" placeholder="예: 하우스디더레이크"
-          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none;">
-      </div>
-      <div style="margin-bottom:12px">
-        <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:5px">법정동코드 5자리 <span style="color:var(--muted);font-weight:400">(LAWD_CD)</span></label>
-        <input type="text" id="apt-lawd-input" placeholder="예: 11680 (강남구)"
-          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none;">
-        <div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.6">
-          💡 <a onclick="window.open('https://www.code.go.kr/stdcode/regCodeL.do','_blank')" style="color:var(--blue);cursor:pointer">행정표준코드시스템</a>에서 시군구 코드 앞 5자리 확인
-        </div>
-      </div>
-      <div style="margin-bottom:14px">
-        <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:5px">전용면적 범위 (㎡)</label>
-        <div style="display:flex;gap:8px;align-items:center">
-          <input type="number" id="apt-area-min" placeholder="최소 예: 55"
-            style="width:80px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none;">
-          <span style="color:var(--muted);font-size:13px">~</span>
-          <input type="number" id="apt-area-max" placeholder="최대 예: 65"
-            style="width:80px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none;">
-          <span style="color:var(--muted);font-size:11px;flex-shrink:0">㎡</span>
-        </div>
-      </div>
-      <button class="btn-primary" onclick="saveAptSettings()">저장</button>
-      <div id="apt-settings-status" style="margin-top:8px;font-size:12px;text-align:center;display:none"></div>
+  <!-- 등록된 아파트 목록 -->
+  <div class="card" style="margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div class="card-title" style="color:var(--muted);margin-bottom:0">등록된 아파트</div>
+      <button onclick="openAptModal(null)"
+        style="background:rgba(59,130,246,0.10);border:0.5px solid rgba(59,130,246,0.25);border-radius:8px;color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:6px 12px;cursor:pointer">
+        + 추가
+      </button>
     </div>
-
-    <!-- 실거래가 조회 -->
-    <div class="card" style="border-color:rgba(96,165,250,.2)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div class="card-title" style="color:var(--muted);margin-bottom:0">실거래가 조회</div>
-        <button id="fetch-btn" onclick="fetchRealEstate()"
-          style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:6px 12px;cursor:pointer">
-          🔄 조회
-        </button>
+    <div id="apt-list-wrap">
+      <div style="text-align:center;color:var(--muted);font-size:12px;padding:16px 0">
+        + 추가 버튼으로 아파트를 등록해보세요
       </div>
-      <!-- 호갱노노 / 네이버 빠른 링크 -->
-      <div style="display:flex;gap:8px;margin-bottom:12px">
-        <button id="btn-hogangnono" onclick="openHogangnono()"
-          style="flex:1;background:rgba(255,107,0,.12);border:1px solid rgba(255,107,0,.3);border-radius:10px;color:#ff6b00;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;padding:10px;cursor:pointer">
-          🔥 호갱노노 검색
-        </button>
-        <button id="btn-naver" onclick="openNaverLand()"
-          style="flex:1;background:rgba(3,199,90,.12);border:1px solid rgba(3,199,90,.3);border-radius:10px;color:#03c75a;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;padding:10px;cursor:pointer">
-          🟢 네이버 부동산
-        </button>
-      </div>
-      <div id="realestate-content" style="font-size:12px;color:var(--muted)"></div>
     </div>
   </div>
+
+  <!-- 실거래가 조회 -->
+  <div class="card" style="border-color:rgba(96,165,250,.2)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div class="card-title" style="color:var(--muted);margin-bottom:0">실거래가 조회</div>
+      <button onclick="fetchAllApts()"
+        style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:6px 12px;cursor:pointer">
+        🔄 전체 조회
+      </button>
+    </div>
+    <!-- 호갱노노 / 네이버 빠른 링크 -->
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <button onclick="openHogangnono()"
+        style="flex:1;background:rgba(255,107,0,.12);border:1px solid rgba(255,107,0,.3);border-radius:10px;color:#ff6b00;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;padding:10px;cursor:pointer">
+        🔥 호갱노노 검색
+      </button>
+      <button onclick="openNaverLand()"
+        style="flex:1;background:rgba(3,199,90,.12);border:1px solid rgba(3,199,90,.3);border-radius:10px;color:#03c75a;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;padding:10px;cursor:pointer">
+        🟢 네이버 부동산
+      </button>
+    </div>
+    <div id="realestate-content" style="font-size:12px;color:var(--muted)"></div>
+  </div>
+</div>
+
 
   <!-- 🏷️ 카테고리 -->
   <div id="stab-content-cat" style="display:none">
@@ -3097,6 +3083,101 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     </div>
   </div>
 </div>
+
+
+<!-- ══ 아파트 추가/편집 모달 ══ -->
+<div id="apt-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:400;overflow-y:auto">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div id="apt-modal-title" style="font-size:16px;font-weight:700;color:var(--text)">아파트 추가</div>
+        <button onclick="closeAptModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer">✕</button>
+      </div>
+
+      <!-- 소유자 -->
+      <div style="margin-bottom:16px">
+        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:8px">소유자</div>
+        <div style="display:flex;background:var(--surface2);border-radius:10px;padding:3px;gap:2px">
+          <button id="apt-owner-common" onclick="setAptOwner('common')"
+            style="flex:1;padding:8px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text)">공동</button>
+          <button id="apt-owner-minsuk" onclick="setAptOwner('minsuk')"
+            style="flex:1;padding:8px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">민석</button>
+          <button id="apt-owner-siyun" onclick="setAptOwner('siyun')"
+            style="flex:1;padding:8px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">시윤</button>
+        </div>
+      </div>
+
+      <!-- 시/도 선택 -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">시/도</div>
+        <select id="apt-sido-select" onchange="onAptSidoChange(this.value)"
+          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none;cursor:pointer">
+          <option value="">시/도 선택</option>
+        </select>
+      </div>
+
+      <!-- 시/군/구 선택 -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">시/군/구</div>
+        <select id="apt-sigungu-select" onchange="onAptSigunguChange(this.value)"
+          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none;cursor:pointer"
+          disabled>
+          <option value="">시/도를 먼저 선택하세요</option>
+        </select>
+      </div>
+
+      <!-- 단지명 검색 -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">단지명 검색</div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="apt-name-search" placeholder="예: 하우스디더레이크"
+            style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none"
+            onkeydown="if(event.key==='Enter') searchAptComplex()">
+          <button onclick="searchAptComplex()" id="apt-search-btn"
+            style="padding:11px 16px;border-radius:10px;background:var(--blue);border:none;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">
+            🔍 검색
+          </button>
+        </div>
+        <div id="apt-search-status" style="font-size:11px;color:var(--muted);margin-top:6px"></div>
+      </div>
+
+      <!-- 검색 결과 -->
+      <div id="apt-search-results" style="display:none;margin-bottom:16px;max-height:220px;overflow-y:auto;background:var(--surface2);border-radius:12px;border:1px solid var(--border)"></div>
+
+      <!-- 선택된 단지 표시 -->
+      <div id="apt-selected-wrap" style="display:none;margin-bottom:16px;padding:12px 14px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:12px">
+        <div style="font-size:11px;color:var(--blue);font-weight:600;margin-bottom:4px">✅ 선택된 단지</div>
+        <div id="apt-selected-name" style="font-size:14px;font-weight:700;color:var(--text)"></div>
+        <div id="apt-selected-info" style="font-size:11px;color:var(--muted);margin-top:2px"></div>
+      </div>
+
+      <!-- 면적 범위 -->
+      <div style="margin-bottom:20px">
+        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">전용면적 범위 (㎡) <span style="font-weight:400;color:var(--muted)">- 선택사항</span></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="number" id="apt-modal-area-min" placeholder="최소 예: 55"
+            style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none">
+          <span style="color:var(--muted);font-size:13px">~</span>
+          <input type="number" id="apt-modal-area-max" placeholder="최대 예: 65"
+            style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none">
+          <span style="color:var(--muted);font-size:11px;flex-shrink:0">㎡</span>
+        </div>
+      </div>
+
+      <!-- 저장 버튼 -->
+      <div style="display:flex;gap:10px">
+        <button id="apt-modal-delete-btn" onclick="deleteAptFromModal()" style="display:none;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:12px;color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:14px 16px;cursor:pointer">삭제</button>
+        <button onclick="saveAptFromModal()"
+          style="flex:1;padding:14px;border-radius:12px;background:var(--text);border:none;color:var(--bg);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
+          저장
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 
 </div><!-- /app -->
 
@@ -4928,7 +5009,7 @@ function renderAddItemPresets() {
   if (_addItemCategory === 'stocks') {
     const owner = _addItemOwner || 'common';
     const usdKrw = load('usd-krw-rate', 0);
-
+    
     function calcMarket(market) {
       return stocks
         .filter(function(s) {
@@ -5039,6 +5120,21 @@ function renderAddItemPresets() {
     return;
 
   }
+    if (_addItemCategory === 'realestate') {
+    renderAptPresets(presetsWrap);
+    presetsWrap.innerHTML += cat.items.map(function(item) {
+      return '<button onclick="selectAddItemPreset(\'' + item + '\')" style="padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:500;cursor:pointer">' + item + '</button>';
+    }).join('');
+    return;
+  }
+
+  presetsWrap.innerHTML = cat.items.map(function(item) {
+    return '<button onclick="selectAddItemPreset(\'' + item + '\')" style="padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:500;cursor:pointer">' + item + '</button>';
+  }).join('');
+}
+
+  
+
 
   presetsWrap.innerHTML = cat.items.map(function(item) {
     return '<button onclick="selectAddItemPreset(\'' + item + '\')" style="padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:500;cursor:pointer">' + item + '</button>';
@@ -5138,25 +5234,45 @@ function linkStockToItem(market, owner) {
 
 function closeAddItemModal() {
   document.getElementById('add-item-modal').style.display = 'none';
-  // 소유자 버튼 잠금 해제
+
+  // ── 소유자 버튼 잠금 해제
   ['common','minsuk','siyun'].forEach(function(o) {
     const btn = document.getElementById('add-owner-' + o);
-    if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = ''; }
+    if (btn) {
+      btn.disabled = false;
+      btn.style.opacity = '';
+      btn.style.cursor = '';
+    }
   });
+
   const lockNote = document.getElementById('owner-lock-note');
   if (lockNote) lockNote.remove();
+
+  // ── stockLink 초기화
   const modal = document.getElementById('add-item-modal');
   modal.dataset.stockLink = '';
   modal.dataset.stockLinkTime = '';
   modal.dataset.stockLinkOwner = '';
+  window._pendingStockLink = null;
 
-  // 입력칸 잠금 해제
+  // ── aptLink 초기화
+  modal.dataset.aptLink = '';
+  modal.dataset.aptLinkTime = '';
+  window._pendingAptLink = null;
+
+  // ── 입력칸 잠금 해제
   const nameEl = document.getElementById('add-item-name');
   const amountEl = document.getElementById('add-item-amount');
-  if (nameEl) { nameEl.readOnly = false; nameEl.style.opacity = ''; nameEl.style.cursor = ''; }
-  if (amountEl) { amountEl.readOnly = false; amountEl.style.opacity = ''; amountEl.style.cursor = ''; }
-
-
+  if (nameEl) {
+    nameEl.readOnly = false;
+    nameEl.style.opacity = '';
+    nameEl.style.cursor = '';
+  }
+  if (amountEl) {
+    amountEl.readOnly = false;
+    amountEl.style.opacity = '';
+    amountEl.style.cursor = '';
+  }
 }
 
 function selectAddItemPreset(name) {
@@ -5190,7 +5306,8 @@ function confirmAddItem() {
   const cat = cats.find(function(c) { return c.id === _addItemCategory; });
 
   const id = 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-  // stockLink 값 읽기 (여러 방법으로 시도)
+
+  // ── stockLink 값 읽기
   const modal = document.getElementById('add-item-modal');
   let stockLinkVal = null;
   let stockLinkTimeVal = null;
@@ -5202,7 +5319,19 @@ function confirmAddItem() {
     stockLinkTimeVal = modal.dataset.stockLinkTime;
   }
 
+  // ── aptLink 값 읽기
+  let aptLinkVal = null;
+  let aptLinkTimeVal = null;
+  if (window._pendingAptLink && window._pendingAptLink.aptId) {
+    aptLinkVal = window._pendingAptLink.aptId;
+    aptLinkTimeVal = window._pendingAptLink.timeStr;
+  } else if (modal.dataset.aptLink) {
+    aptLinkVal = modal.dataset.aptLink;
+    aptLinkTimeVal = modal.dataset.aptLinkTime;
+  }
+
   console.log('저장될 stockLink:', stockLinkVal); // 디버그
+  console.log('저장될 aptLink:', aptLinkVal);     // 디버그
 
   modalAssetItems.push({
     id,
@@ -5216,21 +5345,24 @@ function confirmAddItem() {
     owner: _addItemOwner,
     stockLink: stockLinkVal,
     stockLinkTime: stockLinkTimeVal,
+    aptLink: aptLinkVal,
+    aptLinkTime: aptLinkTimeVal,
   });
 
-  // 초기화
+  // ── 초기화
   window._pendingStockLink = null;
+  window._pendingAptLink = null;
   modal.dataset.stockLink = '';
   modal.dataset.stockLinkTime = '';
-
-
-
+  modal.dataset.aptLink = '';
+  modal.dataset.aptLinkTime = '';
 
   renderAssetItems();
   updatePreview();
   closeAddItemModal();
   showToast('✅ 항목이 추가됐어요!');
 }
+
 
 function removeAssetItem(id) {
   modalAssetItems = modalAssetItems.filter(i => i.id !== id);
@@ -5293,7 +5425,8 @@ function renderAssetItems() {
     const badge = document.createElement('div');
     badge.style.cssText = 'width:3px;height:30px;border-radius:2px;background:' + color + ';flex-shrink:0';
 
-    const isLinked = !!item.stockLink;
+    const isLinked = !!(item.stockLink || item.aptLink);
+
 
     // 이름 입력
     const nameInput = document.createElement('input');
@@ -5330,18 +5463,28 @@ function renderAssetItems() {
     nameWrap.style.cssText = 'flex:1;min-width:0;display:flex;flex-direction:column;gap:4px';
     nameWrap.appendChild(nameInput);
 
-    if (item.stockLink) {
-      const marketLabel = item.stockLink === 'KR' ? '🇰🇷 국내' : '🇺🇸 해외';
-      const timeLabel = item.stockLinkTime ? item.stockLinkTime : '';
+    if (item.stockLink || item.aptLink) {
       const linkBadge = document.createElement('span');
       linkBadge.style.cssText = 'font-size:9px;font-weight:700;color:var(--blue);background:rgba(59,130,246,0.10);border:1px solid rgba(59,130,246,0.2);border-radius:5px;padding:1px 5px;margin-left:6px;vertical-align:super;line-height:1;white-space:nowrap';
-      linkBadge.textContent = '🔗 ' + marketLabel + (timeLabel ? ' · ' + timeLabel : '');
+
+      if (item.stockLink) {
+        const marketLabel = item.stockLink === 'KR' ? '🇰🇷 국내' : '🇺🇸 해외';
+        const timeLabel = item.stockLinkTime ? ' · ' + item.stockLinkTime : '';
+        linkBadge.textContent = '🔗 ' + marketLabel + timeLabel;
+      } else if (item.aptLink) {
+        const timeLabel = item.aptLinkTime ? ' · ' + item.aptLinkTime : '';
+        linkBadge.style.color = 'var(--green)';
+        linkBadge.style.background = 'rgba(34,197,94,0.10)';
+        linkBadge.style.borderColor = 'rgba(34,197,94,0.2)';
+        linkBadge.textContent = '🏢 실거래가' + timeLabel;
+      }
+
       nameInput.insertAdjacentElement('afterend', linkBadge);
-      // nameWrap flex를 row로 변경
       nameWrap.style.flexDirection = 'row';
       nameWrap.style.alignItems = 'center';
       nameWrap.style.flexWrap = 'wrap';
     }
+
 
     row1.appendChild(nameWrap);
     row1.appendChild(delBtn);
@@ -5450,12 +5593,14 @@ function renderAssetItems() {
 
 function showUnlinkConfirm(itemId) {
   showConfirm(
-    '🔓 주식 연동을 해제할까요?\n\n해제하면 주식 시세 자동 반영이 안 되고\n수동으로 관리해야 해요.',
+    '🔓 연동을 해제할까요?\n\n해제하면 자동 반영이 안 되고\n수동으로 관리해야 해요.',
     '해제하고 수정'
   ).then(function(ok) {
     if (!ok) return;
     updateItemField(itemId, 'stockLink', null);
     updateItemField(itemId, 'stockLinkTime', null);
+    updateItemField(itemId, 'aptLink', null);
+    updateItemField(itemId, 'aptLinkTime', null);
     renderAssetItems();
     showToast('🔓 연동이 해제됐어요. 이제 직접 수정할 수 있어요');
     setTimeout(function() {
@@ -5464,6 +5609,7 @@ function showUnlinkConfirm(itemId) {
     }, 100);
   });
 }
+
 
 
 function updateItemField(id, field, value) {
@@ -5625,7 +5771,20 @@ function saveRecord() {
 
   const rec = {
     month, total, debt, net,
-    items: modalAssetItems.map(i => ({ category:i.category, emoji:i.emoji, type:i.type, name:i.name, amount:i.amount||0, memo:i.memo||'', owner:i.owner||'common', stockLink:i.stockLink||null, stockLinkTime:i.stockLinkTime||null }))
+    items: modalAssetItems.map(i => ({
+      category: i.category,
+      emoji: i.emoji,
+      type: i.type,
+      name: i.name,
+      amount: i.amount || 0,
+      memo: i.memo || '',
+      owner: i.owner || 'common',
+      stockLink: i.stockLink || null,
+      stockLinkTime: i.stockLinkTime || null,
+      aptLink: i.aptLink || null,
+      aptLinkTime: i.aptLinkTime || null,
+    }))
+
   };
 
   const idx = assetHistory.findIndex(r => r.month === month);
@@ -7069,24 +7228,39 @@ function openAssetDetail(month) {
         <!-- 하단 버튼 -->
         <div style="padding:20px;display:flex;flex-direction:column;gap:10px;margin-top:8px">
           <!-- 실거래가 + 주식 시세 -->
-          ${(load('realestate-cache',null) || (function(){ const latest = assetHistory[assetHistory.length-1]; return latest && latest.items && latest.items.some(function(i){return i.stockLink;}); })())
-            ? '<div style="display:flex;gap:8px">'
-              + (load('realestate-cache',null)
-                ? '<button onclick="applyAptFromDetail()" style="flex:1;padding:13px;border-radius:12px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:600;cursor:pointer">🏢 실거래가 반영</button>'
-                : '')
-              + (function(){ const latest = assetHistory[assetHistory.length-1]; return latest && latest.items && latest.items.some(function(i){return i.stockLink;}); }()
-                ? (function(){
-                    const _now = new Date();
-                    const thisMonth = _now.getFullYear() + '-' + String(_now.getMonth()+1).padStart(2,'0');
-                    const isThisMonth = assetHistory.length && assetHistory[assetHistory.length-1].month === thisMonth;
-                    return isThisMonth
-                      ? '<button onclick="refreshAllStocksInDetail()" style="flex:1;padding:13px;border-radius:12px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:600;cursor:pointer">📈 주식 시세 업데이트</button>'
-                      : '<div style="flex:1;padding:13px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;text-align:center;display:flex;align-items:center;justify-content:center">📈 이번달만 업데이트 가능</div>';
-                  })()
-                : '')
+          ${(function() {
+            const latest = assetHistory[assetHistory.length-1];
+            if (!latest || !latest.items) return '';
+            const hasStock = latest.items.some(function(i) { return i.stockLink; });
+            const hasApt   = latest.items.some(function(i) { return i.aptLink; });
+            const legacyApt = load('realestate-cache', null);
+            if (!hasStock && !hasApt && !legacyApt) return '';
 
-              + '</div>'
-            : ''}
+            const _now2 = new Date();
+            const thisMonth2 = _now2.getFullYear() + '-' + String(_now2.getMonth()+1).padStart(2,'0');
+            const isThisMonth = latest.month === thisMonth2;
+
+            let html = '<div style="display:flex;gap:8px;margin-bottom:10px">';
+
+            // ── 주식 시세 버튼
+            if (hasStock) {
+              html += isThisMonth
+                ? '<button onclick="refreshAllStocksInDetail()" style="flex:1;padding:13px;border-radius:12px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:600;cursor:pointer">📈 주식 시세 업데이트</button>'
+                : '<div style="flex:1;padding:13px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;text-align:center;display:flex;align-items:center;justify-content:center">📈 이번달만 업데이트 가능</div>';
+            }
+
+            // ── 실거래가 버튼
+            if (hasApt) {
+              html += isThisMonth
+                ? '<button onclick="refreshAllAptsInDetail()" style="flex:1;padding:13px;border-radius:12px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:600;cursor:pointer">🏢 실거래가 업데이트</button>'
+                : '<div style="flex:1;padding:13px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;text-align:center;display:flex;align-items:center;justify-content:center">🏢 이번달만 업데이트 가능</div>';
+            } else if (legacyApt) {
+              html += '<button onclick="applyAptFromDetail()" style="flex:1;padding:13px;border-radius:12px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:600;cursor:pointer">🏢 실거래가 반영</button>';
+            }
+
+            html += '</div>';
+            return html;
+          })()}
           <!-- 편집/삭제 -->
           <div style="display:flex;gap:10px">
             <button onclick="openModalFromDetail()" style="flex:1;padding:13px;border-radius:12px;background:var(--text);border:none;color:var(--bg);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">편집하기</button>
@@ -7293,9 +7467,18 @@ function renderDetailItem(item, totalAsset, prev, isDebt, cid, showOwner) {
       + '</sup>'
     : '';
 
+  const aptBadge = item.aptLink
+    ? '<sup style="font-size:9px;font-weight:700;color:var(--green);background:rgba(34,197,94,0.10);border:1px solid rgba(34,197,94,0.2);border-radius:5px;padding:1px 5px;margin-left:5px;vertical-align:super;white-space:nowrap">'
+      + '🏢 실거래가'
+      + (item.aptLinkTime ? ' · ' + item.aptLinkTime : '')
+      + '</sup>'
+    : '';
+
+
   return '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border)">'
     + '<div style="flex:1;min-width:0">'
-    + '<div style="font-size:13px;font-weight:500;color:' + color + '">' + item.name + stockBadge + ownerHtml + '</div>'
+    + '<div style="font-size:13px;font-weight:500;color:' + color + '">' + item.name + stockBadge + aptBadge + ownerHtml + '</div>'
+
 
     + (item.memo ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + item.memo + '</div>' : '')
     + '</div>'
@@ -7427,6 +7610,95 @@ function refreshAllStocksInDetail() {
   if (detailMonth) openAssetDetail(detailMonth);
 
 }
+
+async function refreshAllAptsInDetail() {
+  if (!assetHistory.length || !aptList.length) return;
+
+  const _now = new Date();
+  const thisMonth = _now.getFullYear() + '-' + String(_now.getMonth()+1).padStart(2,'0');
+  const latest = assetHistory[assetHistory.length - 1];
+
+  if (!latest.items) {
+    showToast('❗ 구버전 형식이에요. 자산 탭에서 다시 저장해주세요');
+    return;
+  }
+  if (latest.month !== thisMonth) {
+    showToast('❗ 실거래가 업데이트는 이번달 기록에만 가능해요');
+    return;
+  }
+
+  const linkedItems = latest.items.filter(function(i) {
+    return i.aptLink && i.type === 'asset';
+  });
+  if (!linkedItems.length) {
+    showToast('❗ 연동된 부동산 항목이 없어요');
+    return;
+  }
+
+  const timeStr = (_now.getMonth()+1) + '/' + _now.getDate()
+    + ' ' + _now.getHours() + ':' + String(_now.getMinutes()).padStart(2,'0');
+  let updated = 0;
+
+  for (const item of linkedItems) {
+    const apt = aptList.find(function(a) { return a.id === item.aptLink; });
+    if (!apt) continue;
+
+    const proxyUrl = load('cloudflare-proxy', '');
+    const apiKey = load('molit-api-key', '');
+    const results = await fetchMolitData(
+      proxyUrl, apiKey,
+      apt.lawdCd, apt.name,
+      apt.areaMin || 0, apt.areaMax || 999,
+      3
+    );
+    if (!results.length) continue;
+
+    results.sort(function(a, b) {
+      return new Date(b.year, b.month-1, b.day) - new Date(a.year, a.month-1, a.day);
+    });
+    const latestPrice = results[0].price;
+
+    item.amount = latestPrice;
+    item.aptLinkTime = timeStr;
+
+    // ── aptList 캐시 업데이트
+    const aptIdx = aptList.findIndex(function(a) { return a.id === apt.id; });
+    if (aptIdx >= 0) {
+      aptList[aptIdx].cache = {
+        price: latestPrice,
+        fetchedAt: results[0].year + '.' + results[0].month + '.' + results[0].day + ' 거래',
+        results: results.slice(0, 5)
+      };
+    }
+    updated++;
+  }
+
+  if (!updated) {
+    showToast('❗ 업데이트할 항목이 없어요');
+    return;
+  }
+
+  // ── 총자산/순자산 재계산
+  latest.total = latest.items
+    .filter(function(i) { return i.type === 'asset'; })
+    .reduce(function(s, i) { return s + i.amount; }, 0);
+  latest.debt = latest.items
+    .filter(function(i) { return i.type === 'debt'; })
+    .reduce(function(s, i) { return s + i.amount; }, 0);
+  latest.net = latest.total - latest.debt;
+
+  store('apt-list', aptList);
+  store('asset-history', assetHistory);
+  updateHomeFromItems(latest);
+  renderMonthCards();
+  renderHomeApt();
+  renderAptList();
+
+  showToast('✅ ' + updated + '개 부동산 실거래가 업데이트 완료!');
+
+  if (detailMonth) openAssetDetail(detailMonth);
+}
+
 
 
 
@@ -8459,79 +8731,6 @@ function saveApiKey() {
   showToast('🔑 API 키 저장 완료!');
 }
 
-async function fetchRealEstate() {
-  const apiKey = load('molit-api-key', '');
-  const proxyUrl = load('cloudflare-proxy', '');
-  const aptSettings = load('apt-settings', null);
-
-  if (!aptSettings || !aptSettings.name) {
-    document.getElementById('realestate-content').innerHTML =
-      '<div style="text-align:center;padding:16px 0;color:var(--red);font-size:12px">❗ 위에서 단지명을 먼저 설정해주세요</div>';
-    return;
-  }
-
-  if (!aptSettings.lawd) {
-    // 법정동코드 없으면 바로 호갱노노로
-    showToast('📍 법정동코드가 없어 호갱노노로 연결해요');
-    openHogangnono();
-    return;
-  }
-
-  const btn = document.getElementById('fetch-btn');
-  if (btn) { btn.textContent = '⏳ 조회중...'; btn.disabled = true; }
-  const content = document.getElementById('realestate-content');
-  content.innerHTML = '<div style="text-align:center;padding:12px 0;color:var(--muted);font-size:12px">🔍 실거래가 조회 중...</div>';
-
-  const results = await fetchMolitData(proxyUrl, apiKey, aptSettings.lawd, aptSettings.name, aptSettings.areaMin || 0, aptSettings.areaMax || 999, 6);
-
-  if (btn) { btn.textContent = '🔄 조회'; btn.disabled = false; }
-
-  if (!results.length) {
-    // API 실패 → 호갱노노 fallback
-    content.innerHTML = '<div style="padding:12px;background:rgba(255,107,0,.08);border:1px solid rgba(255,107,0,.2);border-radius:12px">'
-      + '<div style="font-size:12px;color:#ff6b00;font-weight:700;margin-bottom:8px">❌ 국토부 API에서 데이터를 찾지 못했어요</div>'
-      + '<div style="font-size:11px;color:var(--muted);margin-bottom:10px">법정동코드가 맞지 않거나 해당 기간에 거래가 없을 수 있어요.</div>'
-      + '<button onclick="openHogangnono()" style="width:100%;background:rgba(255,107,0,.15);border:1px solid rgba(255,107,0,.3);border-radius:10px;color:#ff6b00;font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:700;padding:11px;cursor:pointer">🔥 호갱노노에서 직접 확인하기</button>'
-      + '</div>';
-    return;
-  }
-
-  results.sort(function(a,b) { return new Date(b.year,b.month-1,b.day) - new Date(a.year,a.month-1,a.day); });
-  const latest = results[0];
-  const latestPrice = latest.price;
-
-  const histArr = load('asset-history', []);
-  const latestRec = histArr.length ? histArr[histArr.length-1] : null;
-  let currentApt = 0;
-  if (latestRec?.items) {
-    const aptItem = latestRec.items.find(function(i) { return i.category === '부동산'; });
-    if (aptItem) currentApt = aptItem.amount;
-  } else if (latestRec?.detail) {
-    currentApt = latestRec.detail.apt || 0;
-  }
-  const diff = currentApt > 0 ? latestPrice - currentApt : null;
-  const diffStr = diff === null ? '' : diff >= 0
-    ? '<span style="color:var(--teal)">▲ +' + (diff/10000).toFixed(2) + '억</span>'
-    : '<span style="color:var(--red)">▼ ' + (Math.abs(diff)/10000).toFixed(2) + '억</span>';
-
-  content.innerHTML = '<div style="background:var(--surface2);border-radius:14px;padding:14px;margin-bottom:10px">'
-    + '<div style="font-size:10px;color:var(--muted);font-weight:500;margin-bottom:4px">최근 실거래가 · ' + aptSettings.name + '</div>'
-    + '<div style="font-size:26px;font-weight:900;color:var(--text)">' + (latestPrice/10000).toFixed(2) + '<span style="font-size:13px;color:var(--muted);font-weight:400">억원</span></div>'
-    + '<div style="font-size:11px;color:var(--muted);margin-top:3px">' + latest.year + '.' + latest.month + '.' + latest.day + ' · ' + latest.floor + '층 · ' + latest.area + '㎡</div>'
-    + (diffStr ? '<div style="font-size:12px;margin-top:6px">기록 대비 ' + diffStr + '</div>' : '')
-    + '</div>'
-    + '<div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:700">최근 거래 내역 (' + results.length + '건)</div>'
-    + results.slice(0,5).map(function(r) {
-        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">'
-          + '<div><div style="font-size:12px;font-weight:600">' + (r.price/10000).toFixed(2) + '억</div>'
-          + '<div style="font-size:10px;color:var(--muted)">' + r.year + '.' + r.month + '.' + r.day + ' · ' + r.floor + '층</div></div>'
-          + '<div style="font-size:11px;color:var(--muted)">' + r.area + '㎡</div></div>';
-      }).join('')
-    + '<div style="margin-top:12px"><button onclick="applyAptToAsset(' + latestPrice + ')" style="width:100%;background:rgba(96,165,250,.15);border:1px solid rgba(96,165,250,.3);border-radius:10px;color:var(--blue);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:700;padding:10px;cursor:pointer">📥 이 가격으로 자산에 반영</button></div>';
-
-  store('realestate-cache', { price: latestPrice, fetchedAt: latest.year + '.' + latest.month + '.' + latest.day + ' 거래', aptName: aptSettings.name, results: results.slice(0,5) });
-  renderHomeApt();
-}
 
 // ══ 자산구성 카드 (토스 스타일) ══
 let donutTab = 'all'; // 'all' | 'p1' | 'p2'
@@ -8685,91 +8884,9 @@ function renderDonutCard() {
 
 
 
-// ── 홈 아파트 시세 카드 ──
-function renderHomeApt() {
-  const wrap = document.getElementById('home-apt-content');
-  if (!wrap) return;
-  const cache = load('realestate-cache', null);
-  const aptSettings = load('apt-settings', null);
-  const aptName = cache?.aptName || aptSettings?.name || '아파트';
 
-  if (!cache) {
-    wrap.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:8px 0">새로고침 버튼을 눌러 최신 시세를 불러오세요</div>';
-    return;
-  }
 
-  const histArr = load('asset-history', []);
-  const latestRec = histArr.length ? histArr[histArr.length - 1] : null;
-  let currentApt = 0;
-  if (latestRec && latestRec.items) {
-    const aptItem = latestRec.items.find(function(i) { return i.category === '부동산'; });
-    if (aptItem) currentApt = aptItem.amount;
-  } else if (latestRec && latestRec.detail) {
-    currentApt = latestRec.detail.apt || 0;
-  }
 
-  const price = cache.price;
-  const diff = currentApt > 0 ? price - currentApt : null;
-  const diffHtml = diff !== null
-    ? (diff >= 0
-        ? '<span style="color:var(--red);font-weight:600">▲ +' + (diff/10000).toFixed(2) + '억</span>'
-        : '<span style="color:var(--blue);font-weight:700">▼ ' + (Math.abs(diff)/10000).toFixed(2) + '억</span>')
-    : '';
-
-  wrap.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px">'
-    + '<div onclick="event.stopPropagation();goPage(\'settings\',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab(\'apt\'),200)" style="cursor:pointer">'
-    + '<div style="font-size:26px;font-weight:700;color:var(--text)">' + (price/10000).toFixed(2) + '<span style="font-size:13px;color:var(--muted);font-weight:400">억 ›</span></div>'
-    + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + (cache.results && cache.results[0] ? cache.results[0].area + '㎡' : '') + ' · ' + cache.fetchedAt + '</div>'
-    + '</div>'
-    + '<div style="text-align:right">'
-    + diffHtml
-    + (currentApt > 0 ? '<div style="font-size:10px;color:var(--muted);margin-top:2px">기록 대비</div>' : '')
-    + '</div>'
-    + '</div>'
-    + '<div style="display:flex;gap:8px">'
-    + '<button onclick="event.stopPropagation();applyAptToAsset(' + price + ')" style="flex:1;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.25);border-radius:10px;color:var(--blue);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:700;padding:9px;cursor:pointer">📥 자산에 반영</button>'
-    + '<button onclick="event.stopPropagation();goPage(\'settings\',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab(\'apt\'),200)" style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:600;padding:9px;cursor:pointer">상세보기 →</button>'
-    + '</div>';
-}
-
-async function fetchAndShowApt() {
-  const btn = document.getElementById('apt-refresh-btn');
-  const wrap = document.getElementById('home-apt-content');
-  const apiKey = load('molit-api-key', '');
-  const proxyUrl = load('cloudflare-proxy', '');
-  const aptSettings = load('apt-settings', null);
-
-  if (!aptSettings?.name) {
-    showToast('❗ 설정 탭 → 부동산에서 단지명을 먼저 입력해주세요');
-    return;
-  }
-  if (!aptSettings?.lawd) {
-    showToast('📍 법정동코드가 없어 호갱노노로 연결해요');
-    openHogangnono();
-    return;
-  }
-
-  if (btn) { btn.textContent = '⏳ 조회중...'; btn.disabled = true; }
-  if (wrap) wrap.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:12px 0">🔍 실거래가 조회 중...</div>';
-
-  const results = await fetchMolitData(proxyUrl, apiKey, aptSettings.lawd, aptSettings.name, aptSettings.areaMin || 0, aptSettings.areaMax || 999, 4);
-
-  if (btn) { btn.textContent = '🔄 새로고침'; btn.disabled = false; }
-
-  if (!results.length) {
-    if (wrap) wrap.innerHTML = '<div style="padding:12px;background:rgba(255,107,0,.08);border:1px solid rgba(255,107,0,.2);border-radius:12px">'
-      + '<div style="font-size:12px;color:#ff6b00;font-weight:700;margin-bottom:8px">❌ 데이터를 찾지 못했어요</div>'
-      + '<button onclick="openHogangnono()" style="width:100%;background:rgba(255,107,0,.15);border:1px solid rgba(255,107,0,.3);border-radius:10px;color:#ff6b00;font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:700;padding:11px;cursor:pointer">🔥 호갱노노에서 확인</button>'
-      + '</div>';
-    return;
-  }
-
-  results.sort(function(a,b) { return new Date(b.year,b.month-1,b.day) - new Date(a.year,a.month-1,a.day); });
-  const latest = results[0];
-  store('realestate-cache', { price: latest.price, fetchedAt: latest.year + '.' + latest.month + '.' + latest.day + ' 거래', aptName: aptSettings.name, results: results.slice(0,5) });
-  renderHomeApt();
-  showToast('🏢 실거래가 조회 완료!');
-}
 
 // 공통 국토부 데이터 패치 함수
 async function fetchMolitData(proxyUrl, apiKey, lawdCd, aptName, areaMin, areaMax, months) {
@@ -8882,40 +8999,7 @@ function applyAptToAsset(priceMan) {
   showToast('✅ ' + aptItem.name + ' 시세 반영! ' + (diff >= 0 ? '+' : '') + (diff/10000).toFixed(2) + '억');
 }
 
-function saveAptSettings() {
-  const name = document.getElementById('apt-name-input').value.trim();
-  const lawd = document.getElementById('apt-lawd-input').value.trim();
-  const areaMin = parseFloat(document.getElementById('apt-area-min').value) || 0;
-  const areaMax = parseFloat(document.getElementById('apt-area-max').value) || 999;
-  if (!name) { showToast('❗ 단지명을 입력해주세요'); return; }
-  store('apt-settings', { name, lawd, areaMin, areaMax });
-  applyAptNameToUI(name);
-  const status = document.getElementById('apt-settings-status');
-  if (status) { status.style.display='block'; status.style.color='var(--teal)'; status.textContent='✅ 저장됐어요!'; }
-  showToast('🏢 아파트 설정 저장 완료!');
-}
 
-function loadAptSettings() {
-  const s = load('apt-settings', null);
-  if (!s) return;
-  const n = document.getElementById('apt-name-input');
-  const l = document.getElementById('apt-lawd-input');
-  const mn = document.getElementById('apt-area-min');
-  const mx = document.getElementById('apt-area-max');
-  if (n) n.value = s.name || '';
-  if (l) l.value = s.lawd || '';
-  if (mn && s.areaMin) mn.value = s.areaMin;
-  if (mx && s.areaMax && s.areaMax < 999) mx.value = s.areaMax;
-  applyAptNameToUI(s.name);
-}
-
-function applyAptNameToUI(name) {
-  if (!name) return;
-  const t1 = document.getElementById('home-apt-card-title');
-  const t2 = document.getElementById('dl-apt-name');
-  if (t1) t1.textContent = '🏢 ' + name + ' 실거래가';
-  if (t2) t2.textContent = name;
-}
 
 function openHogangnono() {
   const s = load('apt-settings', null);
@@ -8931,7 +9015,591 @@ function openNaverLand() {
   window.open('https://m.land.naver.com/search/result/' + query, '_blank');
 }
 
-// ── 캐시된 실거래가 복원
+
+// ══════════════════════════════════════
+// ── 아파트 목록 관리 (다중 지원) ──
+// ══════════════════════════════════════
+let aptList = load('apt-list', []);
+let _aptModalOwner = 'common';
+let _aptEditingId = null;
+let _aptSelectedComplex = null; // { name, lawdCd, area }
+
+// ── 설정 탭 아파트 목록 렌더 ──
+function renderAptList() {
+  const wrap = document.getElementById('apt-list-wrap');
+  if (!wrap) return;
+  if (!aptList.length) {
+    wrap.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:16px 0">+ 추가 버튼으로 아파트를 등록해보세요</div>';
+    return;
+  }
+  const p1 = getP1Name(), p2 = getP2Name();
+  wrap.innerHTML = aptList.map(function(apt) {
+    const ownerLabel = apt.owner === 'minsuk' ? p1 : apt.owner === 'siyun' ? p2 : '공동';
+    const ownerColor = apt.owner === 'minsuk' ? 'var(--blue)' : apt.owner === 'siyun' ? 'var(--green)' : 'var(--muted2)';
+    const priceStr = apt.cache ? (apt.cache.price / 10000).toFixed(2) + '억' : '미조회';
+    const fetchedStr = apt.cache ? apt.cache.fetchedAt : '';
+    return '<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'
+      + '<span style="font-size:13px;font-weight:700;color:var(--text)">' + apt.name + '</span>'
+      + '<span style="font-size:10px;font-weight:600;color:' + ownerColor + ';background:' + ownerColor + '15;padding:1px 6px;border-radius:8px">' + ownerLabel + '</span>'
+      + '</div>'
+      + '<div style="font-size:11px;color:var(--muted)">' + apt.sigungu + (apt.areaMin ? ' · ' + apt.areaMin + '~' + apt.areaMax + '㎡' : '') + '</div>'
+      + (apt.cache ? '<div style="font-size:12px;font-weight:700;color:var(--blue);margin-top:2px">' + priceStr + ' <span style="font-size:10px;font-weight:400;color:var(--muted)">· ' + fetchedStr + '</span></div>' : '')
+      + '</div>'
+      + '<div style="display:flex;gap:6px;flex-shrink:0">'
+      + '<button onclick="fetchSingleApt(\'' + apt.id + '\')" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-size:11px;padding:5px 8px;cursor:pointer">🔄</button>'
+      + '<button onclick="openAptModal(\'' + apt.id + '\')" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-size:11px;padding:5px 8px;cursor:pointer">✏️</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+// ── 아파트 모달 열기 ──
+function openAptModal(id) {
+  _aptEditingId = id;
+  _aptSelectedComplex = null;
+  _aptModalOwner = 'common';
+
+  const titleEl = document.getElementById('apt-modal-title');
+  const deleteBtn = document.getElementById('apt-modal-delete-btn');
+  const searchResults = document.getElementById('apt-search-results');
+  const selectedWrap = document.getElementById('apt-selected-wrap');
+  const searchStatus = document.getElementById('apt-search-status');
+
+  // 초기화
+  document.getElementById('apt-name-search').value = '';
+  document.getElementById('apt-modal-area-min').value = '';
+  document.getElementById('apt-modal-area-max').value = '';
+  searchResults.style.display = 'none';
+  selectedWrap.style.display = 'none';
+  if (searchStatus) searchStatus.textContent = '';
+
+  // 시/도 드롭다운 채우기
+  const sidoSelect = document.getElementById('apt-sido-select');
+  sidoSelect.innerHTML = '<option value="">시/도 선택</option>';
+  SIDO_LIST.forEach(function(sido) {
+    const opt = document.createElement('option');
+    opt.value = sido; opt.textContent = sido;
+    sidoSelect.appendChild(opt);
+  });
+
+  const sigunguSelect = document.getElementById('apt-sigungu-select');
+  sigunguSelect.innerHTML = '<option value="">시/도를 먼저 선택하세요</option>';
+  sigunguSelect.disabled = true;
+
+  if (id) {
+    // 편집 모드
+    const apt = aptList.find(function(a) { return a.id === id; });
+    if (!apt) return;
+    titleEl.textContent = '아파트 편집';
+    deleteBtn.style.display = 'block';
+    setAptOwner(apt.owner || 'common');
+
+    // 시/도 복원
+    sidoSelect.value = apt.sido || '';
+    if (apt.sido) {
+      onAptSidoChange(apt.sido, apt.lawdCd);
+    }
+
+    // 면적 복원
+    if (apt.areaMin) document.getElementById('apt-modal-area-min').value = apt.areaMin;
+    if (apt.areaMax) document.getElementById('apt-modal-area-max').value = apt.areaMax;
+
+    // 선택된 단지 표시
+    _aptSelectedComplex = { name: apt.name, lawdCd: apt.lawdCd, sigungu: apt.sigungu };
+    document.getElementById('apt-selected-name').textContent = apt.name;
+    document.getElementById('apt-selected-info').textContent = apt.sigungu + ' · ' + apt.lawdCd;
+    selectedWrap.style.display = 'block';
+    document.getElementById('apt-name-search').value = apt.name;
+
+  } else {
+    // 추가 모드
+    titleEl.textContent = '아파트 추가';
+    deleteBtn.style.display = 'none';
+    setAptOwner('common');
+  }
+
+  document.getElementById('apt-modal').style.display = 'block';
+  lockScroll();
+}
+
+function closeAptModal() {
+  document.getElementById('apt-modal').style.display = 'none';
+  unlockScroll();
+  _aptEditingId = null;
+  _aptSelectedComplex = null;
+}
+
+// ── 소유자 설정 ──
+function setAptOwner(owner) {
+  _aptModalOwner = owner;
+  ['common','minsuk','siyun'].forEach(function(o) {
+    const btn = document.getElementById('apt-owner-' + o);
+    if (!btn) return;
+    const isActive = o === owner;
+    btn.style.background = isActive ? 'var(--surface)' : 'transparent';
+    btn.style.color = isActive ? 'var(--text)' : 'var(--muted2)';
+    btn.style.fontWeight = isActive ? '700' : '600';
+  });
+}
+
+// ── 시/도 변경 ──
+function onAptSidoChange(sido, selectedLawdCd) {
+  const sigunguSelect = document.getElementById('apt-sigungu-select');
+  const list = SIGUNGU_CODE[sido] || [];
+  sigunguSelect.innerHTML = '<option value="">시/군/구 선택</option>';
+  list.forEach(function(sg) {
+    const opt = document.createElement('option');
+    opt.value = sg.code;
+    opt.textContent = sg.name;
+    sigunguSelect.appendChild(opt);
+  });
+  sigunguSelect.disabled = list.length === 0;
+  // 편집 모드에서 기존 법정동코드 복원
+  if (selectedLawdCd) {
+    sigunguSelect.value = selectedLawdCd;
+  }
+  // 검색 결과 초기화
+  document.getElementById('apt-search-results').style.display = 'none';
+}
+
+// ── 시/군/구 변경 ──
+function onAptSigunguChange(code) {
+  // 검색 결과 초기화
+  document.getElementById('apt-search-results').style.display = 'none';
+  document.getElementById('apt-selected-wrap').style.display = 'none';
+  _aptSelectedComplex = null;
+}
+
+// ── 단지 검색 ──
+async function searchAptComplex() {
+  const sigunguSelect = document.getElementById('apt-sigungu-select');
+  const lawdCd = sigunguSelect.value;
+  const aptName = document.getElementById('apt-name-search').value.trim();
+  const statusEl = document.getElementById('apt-search-status');
+  const resultsEl = document.getElementById('apt-search-results');
+
+  if (!lawdCd) { showToast('❗ 시/군/구를 먼저 선택해주세요'); return; }
+  if (!aptName) { showToast('❗ 단지명을 입력해주세요'); return; }
+
+  const proxyUrl = load('cloudflare-proxy', '');
+  const apiKey = load('molit-api-key', '');
+  if (!proxyUrl && !apiKey) {
+    showToast('❗ 설정에서 Cloudflare 주소 또는 국토부 API 키를 입력해주세요');
+    return;
+  }
+
+  const btn = document.getElementById('apt-search-btn');
+  btn.textContent = '⏳';
+  btn.disabled = true;
+  statusEl.textContent = '🔍 검색 중...';
+  resultsEl.style.display = 'none';
+
+  // 최근 6개월 데이터에서 단지 목록 추출
+  const complexMap = {};
+  const now = new Date();
+
+  for (let i = 0; i < 6; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const ym = d.getFullYear() + '' + String(d.getMonth()+1).padStart(2,'0');
+    let xmlStr = null;
+
+    try {
+      if (proxyUrl) {
+        const res = await fetch(proxyUrl + '/realestate?lawdCd=' + lawdCd + '&dealYmd=' + ym, {
+          signal: (function(){ const c=new AbortController(); setTimeout(()=>c.abort(),10000); return c.signal; })()
+        });
+        const text = await res.text();
+        if (text && text.includes('<item>')) xmlStr = text;
+      }
+      if (!xmlStr && apiKey) {
+        const apiUrl = 'https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev?serviceKey=' + encodeURIComponent(apiKey) + '&LAWD_CD=' + lawdCd + '&DEAL_YMD=' + ym + '&pageNo=1&numOfRows=1000';
+        const res = await fetch(apiUrl, { signal: (function(){ const c=new AbortController(); setTimeout(()=>c.abort(),10000); return c.signal; })() });
+        const text = await res.text();
+        if (text && text.includes('<item>')) xmlStr = text;
+      }
+    } catch(e) {}
+
+    if (xmlStr) {
+      try {
+        const xml = new DOMParser().parseFromString(xmlStr, 'text/xml');
+        xml.querySelectorAll('item').forEach(function(item) {
+          const name = (item.querySelector('aptNm')?.textContent || '').trim();
+          const area = parseFloat(item.querySelector('excluUseAr')?.textContent || '0');
+          if (name && name.toLowerCase().includes(aptName.toLowerCase())) {
+            const key = name;
+            if (!complexMap[key]) complexMap[key] = { name, areas: new Set(), lawdCd };
+            complexMap[key].areas.add(Math.round(area));
+          }
+        });
+      } catch(e) {}
+    }
+    if (Object.keys(complexMap).length > 0) break;
+  }
+
+  btn.textContent = '🔍 검색';
+  btn.disabled = false;
+
+  const results = Object.values(complexMap);
+  if (!results.length) {
+    statusEl.textContent = '❌ 검색 결과가 없어요. 단지명을 다시 확인해보세요.';
+    return;
+  }
+
+  statusEl.textContent = results.length + '개 단지 발견';
+
+  // 결과 렌더
+  resultsEl.style.display = 'block';
+  resultsEl.innerHTML = results.map(function(r) {
+    const areas = Array.from(r.areas).sort(function(a,b){return a-b;});
+    const areaStr = areas.length > 0 ? areas[0] + '~' + areas[areas.length-1] + '㎡' : '';
+    return '<div onclick="selectAptComplex(\'' + r.name.replace(/'/g,"\\'") + '\',\'' + r.lawdCd + '\')" '
+      + 'style="padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s" '
+      + 'ontouchstart="this.style.background=\'var(--surface3)\'" ontouchend="this.style.background=\'\'">'
+      + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + r.name + '</div>'
+      + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + areaStr + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+// ── 단지 선택 ──
+function selectAptComplex(name, lawdCd) {
+  const sigunguSelect = document.getElementById('apt-sigungu-select');
+  const selectedSigungu = sigunguSelect.options[sigunguSelect.selectedIndex]?.text || '';
+
+  _aptSelectedComplex = { name, lawdCd, sigungu: selectedSigungu };
+
+  document.getElementById('apt-selected-name').textContent = name;
+  document.getElementById('apt-selected-info').textContent = selectedSigungu + ' · ' + lawdCd;
+  document.getElementById('apt-selected-wrap').style.display = 'block';
+  document.getElementById('apt-search-results').style.display = 'none';
+  document.getElementById('apt-search-status').textContent = '';
+  document.getElementById('apt-name-search').value = name;
+  showToast('✅ ' + name + ' 선택됐어요!');
+}
+
+// ── 아파트 저장 ──
+function saveAptFromModal() {
+  if (!_aptSelectedComplex) { showToast('❗ 단지를 검색해서 선택해주세요'); return; }
+
+  const areaMin = parseFloat(document.getElementById('apt-modal-area-min').value) || 0;
+  const areaMax = parseFloat(document.getElementById('apt-modal-area-max').value) || 999;
+  const sido = document.getElementById('apt-sido-select').value;
+
+  const aptData = {
+    id: _aptEditingId || 'apt_' + Date.now(),
+    name: _aptSelectedComplex.name,
+    lawdCd: _aptSelectedComplex.lawdCd,
+    sigungu: _aptSelectedComplex.sigungu,
+    sido: sido,
+    areaMin: areaMin || 0,
+    areaMax: areaMax || 999,
+    owner: _aptModalOwner,
+    cache: null,
+  };
+
+  if (_aptEditingId) {
+    // 기존 캐시 유지
+    const existing = aptList.find(function(a) { return a.id === _aptEditingId; });
+    if (existing) aptData.cache = existing.cache;
+    const idx = aptList.findIndex(function(a) { return a.id === _aptEditingId; });
+    if (idx >= 0) aptList[idx] = aptData;
+  } else {
+    aptList.push(aptData);
+  }
+
+  store('apt-list', aptList);
+  renderAptList();
+  renderHomeApt();
+  closeAptModal();
+  showToast('✅ 아파트가 ' + (_aptEditingId ? '수정' : '추가') + '됐어요!');
+}
+
+// ── 아파트 삭제 ──
+async function deleteAptFromModal() {
+  const ok = await showConfirm('이 아파트를 삭제할까요?', '삭제');
+  if (!ok) return;
+  aptList = aptList.filter(function(a) { return a.id !== _aptEditingId; });
+  store('apt-list', aptList);
+  renderAptList();
+  renderHomeApt();
+  closeAptModal();
+  showToast('🗑️ 삭제됐어요');
+}
+
+// ── 단일 아파트 실거래가 조회 ──
+async function fetchSingleApt(aptId) {
+  const apt = aptList.find(function(a) { return a.id === aptId; });
+  if (!apt) return;
+  const proxyUrl = load('cloudflare-proxy', '');
+  const apiKey = load('molit-api-key', '');
+  showToast('🔍 ' + apt.name + ' 조회 중...');
+
+  const results = await fetchMolitData(proxyUrl, apiKey, apt.lawdCd, apt.name, apt.areaMin || 0, apt.areaMax || 999, 6);
+  if (!results.length) { showToast('❌ 거래 데이터를 찾지 못했어요'); return; }
+
+  results.sort(function(a,b) { return new Date(b.year,b.month-1,b.day) - new Date(a.year,a.month-1,a.day); });
+  const latest = results[0];
+
+  const idx = aptList.findIndex(function(a) { return a.id === aptId; });
+  if (idx >= 0) {
+    aptList[idx].cache = {
+      price: latest.price,
+      fetchedAt: latest.year + '.' + latest.month + '.' + latest.day + ' 거래',
+      results: results.slice(0, 5)
+    };
+  }
+  store('apt-list', aptList);
+  renderAptList();
+  renderHomeApt();
+  showToast('✅ ' + apt.name + ' ' + (latest.price/10000).toFixed(2) + '억 업데이트!');
+}
+
+// ── 전체 아파트 조회 ──
+async function fetchAllApts() {
+  if (!aptList.length) { showToast('❗ 등록된 아파트가 없어요'); return; }
+  showToast('🔍 전체 조회 중...');
+  for (const apt of aptList) {
+    await fetchSingleApt(apt.id);
+  }
+  showToast('✅ 전체 조회 완료!');
+}
+
+// ── 홈 카드 렌더 (다중 아파트) ──
+function renderHomeApt() {
+  const wrap = document.getElementById('home-apt-content');
+  if (!wrap) return;
+
+  // 구버전 단일 캐시 → 신버전 호환
+  const legacyCache = load('realestate-cache', null);
+  const displayList = aptList.filter(function(a) { return a.cache; });
+
+  if (!displayList.length && !legacyCache) {
+    wrap.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:8px 0">새로고침 버튼을 눌러 최신 시세를 불러오세요</div>';
+    return;
+  }
+
+  // 구버전 단일 캐시도 표시
+  let html = '';
+
+  if (displayList.length) {
+    const p1 = getP1Name(), p2 = getP2Name();
+    html = displayList.map(function(apt) {
+      const price = apt.cache.price;
+      const ownerLabel = apt.owner === 'minsuk' ? p1 : apt.owner === 'siyun' ? p2 : '공동';
+      const ownerColor = apt.owner === 'minsuk' ? 'var(--blue)' : apt.owner === 'siyun' ? 'var(--green)' : 'var(--muted2)';
+
+      // 자산 기록과 비교
+      const latest = assetHistory.length ? assetHistory[assetHistory.length-1] : null;
+      let currentAmt = 0;
+      if (latest && latest.items) {
+        const linked = latest.items.find(function(i) { return i.aptLink === apt.id; });
+        if (linked) currentAmt = linked.amount;
+      }
+      const diff = currentAmt > 0 ? price - currentAmt : null;
+      const diffHtml = diff !== null
+        ? (diff >= 0
+          ? '<span style="color:var(--red);font-size:11px;font-weight:600">▲ +' + (diff/10000).toFixed(2) + '억</span>'
+          : '<span style="color:var(--blue);font-size:11px;font-weight:600">▼ ' + (Math.abs(diff)/10000).toFixed(2) + '억</span>')
+        : '';
+
+      return '<div style="padding:10px 0;border-bottom:1px solid var(--border)">'
+        + '<div style="display:flex;justify-content:space-between;align-items:flex-start">'
+        + '<div style="flex:1;min-width:0">'
+        + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">'
+        + '<span style="font-size:12px;font-weight:700;color:var(--text)">' + apt.name + '</span>'
+        + '<span style="font-size:9px;font-weight:600;color:' + ownerColor + ';background:' + ownerColor + '15;padding:1px 5px;border-radius:6px">' + ownerLabel + '</span>'
+        + '</div>'
+        + '<div style="font-size:11px;color:var(--muted)">' + apt.cache.fetchedAt + '</div>'
+        + '</div>'
+        + '<div style="text-align:right;flex-shrink:0">'
+        + '<div style="font-size:18px;font-weight:800;color:var(--text)">' + (price/10000).toFixed(2) + '억</div>'
+        + diffHtml
+        + '</div>'
+        + '</div>'
+        + '<button onclick="applyAptToAssetById(\'' + apt.id + '\')" '
+        + 'style="width:100%;margin-top:8px;padding:8px;border-radius:8px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--blue);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:700;cursor:pointer">'
+        + '📥 자산에 반영</button>'
+        + '</div>';
+    }).join('');
+  } else if (legacyCache) {
+    // 구버전 단일 캐시 표시 (하위 호환)
+    html = '<div style="font-size:12px;color:var(--muted);padding:8px 0">'
+      + legacyCache.aptName + ' ' + (legacyCache.price/10000).toFixed(2) + '억 · ' + legacyCache.fetchedAt
+      + '</div>';
+  }
+
+  wrap.innerHTML = html
+    + '<button onclick="goPage(\'settings\',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab(\'apt\'),200)" '
+    + 'style="width:100%;margin-top:10px;padding:8px;border-radius:8px;background:transparent;border:1px solid var(--border2);color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:600;cursor:pointer">'
+    + '⚙️ 아파트 관리 →</button>';
+}
+
+// ── 홈 새로고침 버튼 ──
+async function fetchAndShowApt() {
+  if (!aptList.length) {
+    showToast('❗ 설정 탭 → 부동산에서 아파트를 먼저 등록해주세요');
+    return;
+  }
+  const btn = document.getElementById('apt-refresh-btn');
+  if (btn) { btn.textContent = '⏳ 조회중...'; btn.disabled = true; }
+  await fetchAllApts();
+  if (btn) { btn.textContent = '🔄 새로고침'; btn.disabled = false; }
+}
+
+// ── ID로 자산에 반영 ──
+function applyAptToAssetById(aptId) {
+  const apt = aptList.find(function(a) { return a.id === aptId; });
+  if (!apt || !apt.cache) { showToast('❗ 실거래가를 먼저 조회해주세요'); return; }
+  applyAptToAsset(apt.cache.price, aptId);
+}
+
+// ── 자산에 반영 (aptLink 기반) ──
+function applyAptToAsset(priceMan, aptId) {
+  if (priceMan > 10000000) { showToast('❗ 금액 단위 오류'); return; }
+  const histArr = load('asset-history', []);
+  if (!histArr.length) { showToast('❗ 자산 기록이 없어요'); return; }
+  const latest = histArr[histArr.length - 1];
+  if (!latest.items) { showToast('❗ 구버전 형식이에요. 자산 탭에서 다시 저장해주세요'); return; }
+
+  // aptLink로 연결된 항목 찾기
+  let aptItem = null;
+  if (aptId) {
+    aptItem = latest.items.find(function(i) { return i.aptLink === aptId; });
+  }
+  // 없으면 부동산 카테고리 첫 번째 항목 (구버전 호환)
+  if (!aptItem) {
+    aptItem = latest.items.find(function(i) { return i.category === 'realestate' && i.type === 'asset'; });
+  }
+  if (!aptItem) { showToast('❗ 자산 기록에 부동산 항목이 없어요'); return; }
+
+  const oldAmt = aptItem.amount;
+  aptItem.amount = priceMan;
+
+  const totalAsset = latest.items.filter(function(i){return i.type==='asset';}).reduce(function(s,i){return s+i.amount;},0);
+  const totalDebt = latest.items.filter(function(i){return i.type==='debt';}).reduce(function(s,i){return s+i.amount;},0);
+  latest.total = totalAsset; latest.debt = totalDebt; latest.net = totalAsset - totalDebt;
+
+  histArr[histArr.length - 1] = latest;
+  store('asset-history', histArr);
+  assetHistory = histArr;
+  updateHomeFromItems(latest);
+  renderMonthCards();
+  renderHomeApt();
+
+  const diff = priceMan - oldAmt;
+  showToast('✅ ' + aptItem.name + ' 반영! ' + (diff >= 0 ? '+' : '') + (diff/10000).toFixed(2) + '억');
+}
+
+// ── 자산 항목 추가 시 부동산 프리셋 (주식과 동일 방식) ──
+// renderAddItemPresets() 안에서 realestate 카테고리일 때 호출
+function renderAptPresets(presetsWrap) {
+  if (!aptList.length) {
+    presetsWrap.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:10px;background:var(--surface2);border-radius:10px;text-align:center">'
+      + '⚠️ 설정 탭 → 부동산에서 아파트를 먼저 등록해주세요</div>';
+    return;
+  }
+
+  const p1 = getP1Name(), p2 = getP2Name();
+  const alreadyLinked = (modalAssetItems || []).filter(function(i) { return i.aptLink; }).map(function(i) { return i.aptLink; });
+  const now = new Date();
+  const timeStr = (now.getMonth()+1) + '/' + now.getDate() + ' ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+
+  presetsWrap.innerHTML = '<div style="width:100%;margin-bottom:8px">'
+    + '<div style="font-size:11px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px">'
+    + '<span>🏢 등록된 아파트에서 불러오기</span>'
+    + '</div>'
+    + aptList.map(function(apt) {
+        const isDuplicate = alreadyLinked.includes(apt.id);
+        const ownerLabel = apt.owner === 'minsuk' ? p1 : apt.owner === 'siyun' ? p2 : '공동';
+        const priceStr = apt.cache ? (apt.cache.price/10000).toFixed(2) + '억' : '미조회';
+        const fetchedStr = apt.cache ? apt.cache.fetchedAt : '';
+
+        if (isDuplicate) {
+          return '<div style="padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);margin-bottom:6px;opacity:0.5">'
+            + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">' + ownerLabel + '</div>'
+            + '<div style="font-size:14px;font-weight:700;color:var(--muted)">' + apt.name + '</div>'
+            + '<div style="font-size:10px;color:var(--muted);margin-top:2px">이미 연동됨</div>'
+            + '</div>';
+        }
+
+        if (!apt.cache) {
+          return '<div style="padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);margin-bottom:6px">'
+            + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">' + ownerLabel + '</div>'
+            + '<div style="font-size:13px;font-weight:700;color:var(--text)">' + apt.name + '</div>'
+            + '<div style="font-size:10px;color:var(--red);margin-top:3px">🔄 실거래가 조회 필요</div>'
+            + '</div>';
+        }
+
+        return '<button onclick="linkAptToItem(\'' + apt.id + '\')" style="'
+          + 'width:100%;padding:10px 12px;border-radius:12px;'
+          + 'border:1px solid rgba(59,130,246,0.25);'
+          + 'background:rgba(59,130,246,0.05);'
+          + 'font-family:\'Noto Sans KR\',sans-serif;cursor:pointer;text-align:left;'
+          + 'margin-bottom:6px;transition:all .15s">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+          + '<span style="font-size:10px;color:var(--muted)">🏢 ' + ownerLabel + '</span>'
+          + '<span style="font-size:9px;font-weight:700;color:var(--blue);background:rgba(59,130,246,0.1);padding:1px 6px;border-radius:8px">불러오기</span>'
+          + '</div>'
+          + '<div style="font-size:15px;font-weight:800;color:var(--text)">' + apt.name + '</div>'
+          + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + priceStr + ' · ' + fetchedStr + '</div>'
+          + '</button>';
+      }).join('')
+    + '</div>'
+    + '<div style="width:100%;height:1px;background:var(--border);margin:8px 0"></div>'
+    + '<div style="font-size:11px;color:var(--muted);margin-bottom:6px">직접 입력</div>';
+}
+
+// ── 아파트 연동 설정 ──
+function linkAptToItem(aptId) {
+  const apt = aptList.find(function(a) { return a.id === aptId; });
+  if (!apt || !apt.cache) return;
+
+  const nameEl = document.getElementById('add-item-name');
+  const amountEl = document.getElementById('add-item-amount');
+  const now = new Date();
+  const timeStr = (now.getMonth()+1) + '/' + now.getDate() + ' ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+
+  if (nameEl) nameEl.value = apt.name;
+  if (amountEl) amountEl.value = apt.cache.price;
+
+  // aptLink 저장
+  const modal = document.getElementById('add-item-modal');
+  modal.dataset.aptLink = aptId;
+  modal.dataset.aptLinkTime = timeStr;
+  window._pendingAptLink = { aptId, timeStr };
+
+  // 입력칸 잠금
+  if (nameEl) { nameEl.readOnly = true; nameEl.style.opacity = '0.5'; nameEl.style.cursor = 'default'; }
+  if (amountEl) { amountEl.readOnly = true; amountEl.style.opacity = '0.5'; amountEl.style.cursor = 'default'; }
+
+  // 소유자 자동 설정 + 잠금
+  setAddItemOwner(apt.owner || 'common');
+  ['common','minsuk','siyun'].forEach(function(o) {
+    const btn = document.getElementById('add-owner-' + o);
+    if (!btn) return;
+    btn.disabled = true;
+    btn.style.opacity = o === (apt.owner || 'common') ? '1' : '0.3';
+    btn.style.cursor = 'not-allowed';
+  });
+
+  // 잠금 안내
+  const ownerWrap = document.querySelector('#add-item-modal [id^="add-owner-common"]')?.closest('div[style*="border-radius"]');
+  if (ownerWrap) {
+    const lockNote = document.createElement('div');
+    lockNote.id = 'owner-lock-note';
+    lockNote.style.cssText = 'font-size:10px;color:var(--blue);margin-top:4px;text-align:center';
+    lockNote.textContent = '🔗 아파트 연동으로 자동 설정됨';
+    const existing = document.getElementById('owner-lock-note');
+    if (existing) existing.remove();
+    ownerWrap.parentElement.appendChild(lockNote);
+  }
+
+  showToast('✅ ' + apt.name + ' ' + (apt.cache.price/10000).toFixed(2) + '억 불러왔어요!');
+}
+
+// ── initRealEstate() 업데이트 ──
 function initRealEstate() {
   const apiKey = load('molit-api-key', '');
   if (apiKey) { const el = document.getElementById('api-key-input'); if(el) el.value = apiKey; }
@@ -8941,13 +9609,32 @@ function initRealEstate() {
   const claudeKey = load('claude-api-key', '');
   const claudeInput = document.getElementById('claude-api-key-input');
   if (claudeKey && claudeInput) claudeInput.value = claudeKey;
-  loadAptSettings();
-  const cache = load('realestate-cache', null);
-  if (cache) {
-    const content = document.getElementById('realestate-content');
-    if (content) content.innerHTML = '<div style="font-size:11px;color:var(--muted);text-align:center;padding:8px 0">'
-      + '마지막 조회: ' + cache.fetchedAt + '<br>최근 실거래가 <strong style="color:var(--blue)">' + (cache.price/10000).toFixed(2) + '억</strong> · 🔄 버튼으로 새로고침</div>';
+
+  // 구버전 단일 설정 → 신버전 마이그레이션
+  const legacySettings = load('apt-settings', null);
+  if (legacySettings && legacySettings.name && !aptList.length) {
+    const legacyCache = load('realestate-cache', null);
+    aptList.push({
+      id: 'apt_legacy',
+      name: legacySettings.name,
+      lawdCd: legacySettings.lawd || '',
+      sigungu: '',
+      sido: '',
+      areaMin: legacySettings.areaMin || 0,
+      areaMax: legacySettings.areaMax || 999,
+      owner: 'common',
+      cache: legacyCache ? {
+        price: legacyCache.price,
+        fetchedAt: legacyCache.fetchedAt,
+        results: legacyCache.results || []
+      } : null
+    });
+    store('apt-list', aptList);
+    console.log('✅ 구버전 아파트 설정 마이그레이션 완료');
   }
+
+  renderAptList();
+  renderHomeApt();
 }
 
 // ── 순자산 차트 기간 필터
@@ -13311,10 +13998,151 @@ function updateCalcDisplay() {
     }
   }
 }
+
+
 function resetCalcPad() {
   calcRawValue = '';
   updateCalcDisplay();
 }
+
+// ══════════════════════════════════════
+// ── 법정동코드 테이블 ──
+// ══════════════════════════════════════
+const SIDO_LIST = [
+  '서울특별시','부산광역시','대구광역시','인천광역시','광주광역시',
+  '대전광역시','울산광역시','세종특별자치시','경기도','강원특별자치도',
+  '충청북도','충청남도','전북특별자치도','전라남도','경상북도','경상남도','제주특별자치도'
+];
+
+const SIGUNGU_CODE = {
+  '서울특별시': [
+    {name:'종로구',code:'11110'},{name:'중구',code:'11140'},{name:'용산구',code:'11170'},
+    {name:'성동구',code:'11200'},{name:'광진구',code:'11215'},{name:'동대문구',code:'11230'},
+    {name:'중랑구',code:'11260'},{name:'성북구',code:'11290'},{name:'강북구',code:'11305'},
+    {name:'도봉구',code:'11320'},{name:'노원구',code:'11350'},{name:'은평구',code:'11380'},
+    {name:'서대문구',code:'11410'},{name:'마포구',code:'11440'},{name:'양천구',code:'11470'},
+    {name:'강서구',code:'11500'},{name:'구로구',code:'11530'},{name:'금천구',code:'11545'},
+    {name:'영등포구',code:'11560'},{name:'동작구',code:'11590'},{name:'관악구',code:'11620'},
+    {name:'서초구',code:'11650'},{name:'강남구',code:'11680'},{name:'송파구',code:'11710'},
+    {name:'강동구',code:'11740'}
+  ],
+  '부산광역시': [
+    {name:'중구',code:'26110'},{name:'서구',code:'26140'},{name:'동구',code:'26170'},
+    {name:'영도구',code:'26200'},{name:'부산진구',code:'26230'},{name:'동래구',code:'26260'},
+    {name:'남구',code:'26290'},{name:'북구',code:'26320'},{name:'해운대구',code:'26350'},
+    {name:'사하구',code:'26380'},{name:'금정구',code:'26410'},{name:'강서구',code:'26440'},
+    {name:'연제구',code:'26470'},{name:'수영구',code:'26500'},{name:'사상구',code:'26530'},
+    {name:'기장군',code:'26710'}
+  ],
+  '대구광역시': [
+    {name:'중구',code:'27110'},{name:'동구',code:'27140'},{name:'서구',code:'27170'},
+    {name:'남구',code:'27200'},{name:'북구',code:'27230'},{name:'수성구',code:'27260'},
+    {name:'달서구',code:'27290'},{name:'달성군',code:'27710'},{name:'군위군',code:'27720'}
+  ],
+  '인천광역시': [
+    {name:'중구',code:'28110'},{name:'동구',code:'28140'},{name:'미추홀구',code:'28177'},
+    {name:'연수구',code:'28185'},{name:'남동구',code:'28200'},{name:'부평구',code:'28237'},
+    {name:'계양구',code:'28245'},{name:'서구',code:'28260'},{name:'강화군',code:'28710'},
+    {name:'옹진군',code:'28720'}
+  ],
+  '광주광역시': [
+    {name:'동구',code:'29110'},{name:'서구',code:'29140'},{name:'남구',code:'29155'},
+    {name:'북구',code:'29170'},{name:'광산구',code:'29200'}
+  ],
+  '대전광역시': [
+    {name:'동구',code:'30110'},{name:'중구',code:'30140'},{name:'서구',code:'30170'},
+    {name:'유성구',code:'30200'},{name:'대덕구',code:'30230'}
+  ],
+  '울산광역시': [
+    {name:'중구',code:'31110'},{name:'남구',code:'31140'},{name:'동구',code:'31170'},
+    {name:'북구',code:'31200'},{name:'울주군',code:'31710'}
+  ],
+  '세종특별자치시': [
+    {name:'세종시',code:'36110'}
+  ],
+  '경기도': [
+    {name:'수원시 장안구',code:'41111'},{name:'수원시 권선구',code:'41113'},{name:'수원시 팔달구',code:'41115'},
+    {name:'수원시 영통구',code:'41117'},{name:'성남시 수정구',code:'41131'},{name:'성남시 중원구',code:'41133'},
+    {name:'성남시 분당구',code:'41135'},{name:'의정부시',code:'41150'},{name:'안양시 만안구',code:'41171'},
+    {name:'안양시 동안구',code:'41173'},{name:'부천시',code:'41190'},{name:'광명시',code:'41210'},
+    {name:'평택시',code:'41220'},{name:'동두천시',code:'41250'},{name:'안산시 상록구',code:'41271'},
+    {name:'안산시 단원구',code:'41273'},{name:'고양시 덕양구',code:'41281'},{name:'고양시 일산동구',code:'41285'},
+    {name:'고양시 일산서구',code:'41287'},{name:'과천시',code:'41290'},{name:'구리시',code:'41310'},
+    {name:'남양주시',code:'41360'},{name:'오산시',code:'41370'},{name:'시흥시',code:'41390'},
+    {name:'군포시',code:'41410'},{name:'의왕시',code:'41430'},{name:'하남시',code:'41450'},
+    {name:'용인시 처인구',code:'41461'},{name:'용인시 기흥구',code:'41463'},{name:'용인시 수지구',code:'41465'},
+    {name:'파주시',code:'41480'},{name:'이천시',code:'41500'},{name:'안성시',code:'41550'},
+    {name:'김포시',code:'41570'},{name:'화성시',code:'41590'},{name:'광주시',code:'41610'},
+    {name:'양주시',code:'41630'},{name:'포천시',code:'41650'},{name:'여주시',code:'41670'},
+    {name:'연천군',code:'41800'},{name:'가평군',code:'41820'},{name:'양평군',code:'41830'}
+  ],
+  '강원특별자치도': [
+    {name:'춘천시',code:'51110'},{name:'원주시',code:'51130'},{name:'강릉시',code:'51150'},
+    {name:'동해시',code:'51170'},{name:'태백시',code:'51190'},{name:'속초시',code:'51210'},
+    {name:'삼척시',code:'51230'},{name:'홍천군',code:'51720'},{name:'횡성군',code:'51730'},
+    {name:'영월군',code:'51750'},{name:'평창군',code:'51760'},{name:'정선군',code:'51770'},
+    {name:'철원군',code:'51780'},{name:'화천군',code:'51790'},{name:'양구군',code:'51800'},
+    {name:'인제군',code:'51810'},{name:'고성군',code:'51820'},{name:'양양군',code:'51830'}
+  ],
+  '충청북도': [
+    {name:'청주시 상당구',code:'43111'},{name:'청주시 서원구',code:'43112'},{name:'청주시 흥덕구',code:'43113'},
+    {name:'청주시 청원구',code:'43114'},{name:'충주시',code:'43130'},{name:'제천시',code:'43150'},
+    {name:'보은군',code:'43720'},{name:'옥천군',code:'43730'},{name:'영동군',code:'43740'},
+    {name:'증평군',code:'43745'},{name:'진천군',code:'43750'},{name:'괴산군',code:'43760'},
+    {name:'음성군',code:'43770'},{name:'단양군',code:'43800'}
+  ],
+  '충청남도': [
+    {name:'천안시 동남구',code:'44131'},{name:'천안시 서북구',code:'44133'},{name:'공주시',code:'44150'},
+    {name:'보령시',code:'44180'},{name:'아산시',code:'44200'},{name:'서산시',code:'44210'},
+    {name:'논산시',code:'44230'},{name:'계룡시',code:'44250'},{name:'당진시',code:'44270'},
+    {name:'금산군',code:'44710'},{name:'부여군',code:'44760'},{name:'서천군',code:'44770'},
+    {name:'청양군',code:'44790'},{name:'홍성군',code:'44800'},{name:'예산군',code:'44810'},
+    {name:'태안군',code:'44825'}
+  ],
+  '전북특별자치도': [
+    {name:'전주시 완산구',code:'52111'},{name:'전주시 덕진구',code:'52113'},{name:'군산시',code:'52130'},
+    {name:'익산시',code:'52140'},{name:'정읍시',code:'52180'},{name:'남원시',code:'52190'},
+    {name:'김제시',code:'52210'},{name:'완주군',code:'52710'},{name:'진안군',code:'52720'},
+    {name:'무주군',code:'52730'},{name:'장수군',code:'52740'},{name:'임실군',code:'52750'},
+    {name:'순창군',code:'52770'},{name:'고창군',code:'52790'},{name:'부안군',code:'52800'}
+  ],
+  '전라남도': [
+    {name:'목포시',code:'46110'},{name:'여수시',code:'46130'},{name:'순천시',code:'46150'},
+    {name:'나주시',code:'46170'},{name:'광양시',code:'46230'},{name:'담양군',code:'46710'},
+    {name:'곡성군',code:'46720'},{name:'구례군',code:'46730'},{name:'고흥군',code:'46770'},
+    {name:'보성군',code:'46780'},{name:'화순군',code:'46790'},{name:'장흥군',code:'46800'},
+    {name:'강진군',code:'46810'},{name:'해남군',code:'46820'},{name:'영암군',code:'46830'},
+    {name:'무안군',code:'46840'},{name:'함평군',code:'46860'},{name:'영광군',code:'46870'},
+    {name:'장성군',code:'46880'},{name:'완도군',code:'46890'},{name:'진도군',code:'46900'},
+    {name:'신안군',code:'46910'}
+  ],
+  '경상북도': [
+    {name:'포항시 남구',code:'47111'},{name:'포항시 북구',code:'47113'},{name:'경주시',code:'47130'},
+    {name:'김천시',code:'47150'},{name:'안동시',code:'47170'},{name:'구미시',code:'47190'},
+    {name:'영주시',code:'47210'},{name:'영천시',code:'47230'},{name:'상주시',code:'47250'},
+    {name:'문경시',code:'47280'},{name:'경산시',code:'47290'},{name:'군위군',code:'47720'},
+    {name:'의성군',code:'47730'},{name:'청송군',code:'47750'},{name:'영양군',code:'47760'},
+    {name:'영덕군',code:'47770'},{name:'청도군',code:'47820'},{name:'고령군',code:'47830'},
+    {name:'성주군',code:'47840'},{name:'칠곡군',code:'47850'},{name:'예천군',code:'47900'},
+    {name:'봉화군',code:'47920'},{name:'울진군',code:'47930'},{name:'울릉군',code:'47940'}
+  ],
+  '경상남도': [
+    {name:'창원시 의창구',code:'48121'},{name:'창원시 성산구',code:'48123'},{name:'창원시 마산합포구',code:'48125'},
+    {name:'창원시 마산회원구',code:'48127'},{name:'창원시 진해구',code:'48129'},{name:'진주시',code:'48170'},
+    {name:'통영시',code:'48220'},{name:'사천시',code:'48240'},{name:'김해시',code:'48250'},
+    {name:'밀양시',code:'48270'},{name:'거제시',code:'48310'},{name:'양산시',code:'48330'},
+    {name:'의령군',code:'48720'},{name:'함안군',code:'48730'},{name:'창녕군',code:'48740'},
+    {name:'고성군',code:'48820'},{name:'남해군',code:'48840'},{name:'하동군',code:'48850'},
+    {name:'산청군',code:'48860'},{name:'함양군',code:'48870'},{name:'거창군',code:'48880'},
+    {name:'합천군',code:'48890'}
+  ],
+  '제주특별자치도': [
+    {name:'제주시',code:'50110'},{name:'서귀포시',code:'50130'}
+  ]
+};
+
+
+
 
 </script>
 </body>
