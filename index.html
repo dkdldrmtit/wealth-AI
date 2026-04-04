@@ -5082,18 +5082,20 @@ function linkStockToItem(market, owner) {
 
 
   // 이름/금액 입력칸 잠금
-  const nameEl = document.getElementById('add-item-name');
-  const amountEl = document.getElementById('add-item-amount');
-  if (nameEl) {
-    nameEl.readOnly = true;
-    nameEl.style.opacity = '0.5';
-    nameEl.style.cursor = 'default';
+  const nameElLock = document.getElementById('add-item-name');
+  const amountElLock = document.getElementById('add-item-amount');
+
+  if (nameElLock) {
+    nameElLock.readOnly = true;
+    nameElLock.style.opacity = '0.5';
+    nameElLock.style.cursor = 'default';
   }
-  if (amountEl) {
-    amountEl.readOnly = true;
-    amountEl.style.opacity = '0.5';
-    amountEl.style.cursor = 'default';
+  if (amountElLock) {
+    amountElLock.readOnly = true;
+    amountElLock.style.opacity = '0.5';
+    amountElLock.style.cursor = 'default';
   }
+
 
   // 직접입력 프리셋 버튼들 비활성화
   const presetsWrap = document.getElementById('add-item-presets');
