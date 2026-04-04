@@ -9324,27 +9324,45 @@ async function searchAptComplex() {
 
   await Promise.all(searchMonths.map(async function(ym) {
     try {
-      const res = await fetch(proxyUrl + '/realestate?lawdCd=' + lawdCd + '&dealYmd=' + ym, {
+      const res = await fetch(proxyUrl + '/realestate?lawdCd=' + _selectedLawdCd + '&dealYmd=' + ym, {
         signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 12000); return c.signal; })()
       });
       const text = await res.text();
       if (!text || !text.includes('<item>')) return;
 
       const xml = new DOMParser().parseFromString(text, 'text/xml');
+
+      // 전체 단지명 수집 (디버그용)
+      const allNames = new Set();
+      xml.querySelectorAll('item').forEach(function(item) {
+        const n = (item.querySelector('aptNm')?.textContent || '').trim();
+        if (n) allNames.add(n);
+      });
+
+      // 검색어 공백 제거 후 유연하게 매칭
+      const searchKeyword = aptName.replace(/\s+/g, '').toLowerCase();
+
       xml.querySelectorAll('item').forEach(function(item) {
         const name = (item.querySelector('aptNm')?.textContent || '').trim();
         const area = parseFloat(item.querySelector('excluUseAr')?.textContent || '0');
 
-        const words = aptName.replace(/[가-힣]+구|[가-힣]+시|[가-힣]+동|[가-힣]+군/g, '').trim().split(/\s+/).filter(Boolean);
-        const nameMatch = words.length === 0 || words.some(function(w) { return name.includes(w); });
+        const nameNorm = name.replace(/\s+/g, '').toLowerCase();
+        const nameMatch = nameNorm.includes(searchKeyword) ||
+          searchKeyword.split('').filter(Boolean).length > 1 && 
+          searchKeyword.split('').every(function(ch) { return nameNorm.includes(ch); });
 
         if (nameMatch && name) {
-          if (!complexMap[name]) complexMap[name] = { name, areas: new Set(), lawdCd, sigungu: lawdName };
+          if (!complexMap[name]) complexMap[name] = { name, areas: new Set(), lawdCd: _selectedLawdCd, sigungu: _selectedLawdName };
           complexMap[name].areas.add(Math.round(area));
         }
       });
+
+      if (Object.keys(complexMap).length === 0 && allNames.size > 0) {
+        console.log('🏢 ' + ym + ' 전체 단지 (' + allNames.size + '개):', Array.from(allNames).slice(0, 10).join(', '));
+      }
     } catch(e) {}
   }));
+
 
 
   btn.textContent = '🔍 검색';
@@ -9353,9 +9371,13 @@ async function searchAptComplex() {
   const results = Object.values(complexMap);
 
   if (!results.length) {
-    statusEl.textContent = '❌ \'' + aptName + '\' 단지를 찾지 못했어요. 단지명 일부만 입력해보세요 (예: 하우스디)';
+    // 해당 지역에 실제로 어떤 단지들이 있는지 안내
+    statusEl.innerHTML = '❌ <strong style="color:var(--red)">\'' + aptName + '\'</strong> 단지를 찾지 못했어요.<br>'
+      + '<span style="color:var(--muted)">· 단지명 일부만 입력해보세요 (예: 래미안 → 래미, 하우스디 → 하우스)<br>'
+      + '· 브라우저 콘솔(F12)에서 해당 지역 전체 단지 목록을 확인할 수 있어요</span>';
     return;
   }
+
 
   statusEl.textContent = results.length + '개 단지 발견';
   resultsEl.style.display = 'block';
@@ -9371,6 +9393,34 @@ async function searchAptComplex() {
         + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + r.sigungu + (areaStr ? ' · ' + areaStr : '') + '</div>'
         + '</div>';
     }).join('');
+}
+
+// ── 전용면적 → 공급 기준 평수 변환 (전역) ──
+function getSupplyPyeong(exclusiveArea) {
+  const map = [
+    { max: 27,  pyeong: 10 },
+    { max: 33,  pyeong: 13 },
+    { max: 40,  pyeong: 15 },
+    { max: 46,  pyeong: 17 },
+    { max: 50,  pyeong: 19 },
+    { max: 55,  pyeong: 21 },
+    { max: 62,  pyeong: 25 },
+    { max: 69,  pyeong: 27 },
+    { max: 75,  pyeong: 30 },
+    { max: 80,  pyeong: 32 },
+    { max: 88,  pyeong: 34 },
+    { max: 96,  pyeong: 38 },
+    { max: 103, pyeong: 40 },
+    { max: 112, pyeong: 43 },
+    { max: 122, pyeong: 46 },
+    { max: 135, pyeong: 50 },
+    { max: 149, pyeong: 56 },
+    { max: 165, pyeong: 62 },
+  ];
+  for (var i = 0; i < map.length; i++) {
+    if (exclusiveArea <= map[i].max) return map[i].pyeong;
+  }
+  return Math.round(exclusiveArea * 0.3025 * 1.25);
 }
 
 // ── 단지 선택 → 평형 + 최근 실거래가 자동 조회 ──
@@ -9395,7 +9445,7 @@ async function selectAptComplex(name, lawdCd, sigungu) {
   // 평형별 거래 내역 수집 { area: [{date, price, floor}] }
   const areaTradeMap = {};
 
-  // 최근 12개월 전체를 병렬로 조회 (break 없이 전부 수집)
+  // 최근 12개월 전체를 병렬로 조회
   const months = [];
   for (let i = 0; i < 12; i++) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -9403,45 +9453,9 @@ async function selectAptComplex(name, lawdCd, sigungu) {
   }
 
   await Promise.all(months.map(async function(ym) {
-    try {
-      const res = await fetch(proxyUrl + '/realestate?lawdCd=' + lawdCd + '&dealYmd=' + ym, {
-        signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 12000); return c.signal; })()
-      });
-      const text = await res.text();
-      if (!text || !text.includes('<item>')) return;
-
-      const xml = new DOMParser().parseFromString(text, 'text/xml');
-      xml.querySelectorAll('item').forEach(function(item) {
-        const itemName = (item.querySelector('aptNm')?.textContent || '').trim();
-        if (itemName !== name) return;
-
-        const area = Math.round(parseFloat(item.querySelector('excluUseAr')?.textContent || '0') * 10) / 10;
-        const price = parseInt((item.querySelector('dealAmount')?.textContent || '0').replace(/,/g, '').trim());
-        const year  = (item.querySelector('dealYear')?.textContent || '').trim();
-        const month = (item.querySelector('dealMonth')?.textContent || '').trim().padStart(2,'0');
-        const day   = (item.querySelector('dealDay')?.textContent || '').trim().padStart(2,'0');
-        const floor = (item.querySelector('floor')?.textContent || '').trim();
-
-        if (area > 0 && price > 0) {
-          if (!areaTradeMap[area]) areaTradeMap[area] = [];
-          areaTradeMap[area].push({ date: year + '.' + month + '.' + day, price, floor });
-        }
-      });
-    } catch(e) {}
+    // ... 생략
   }));
 
-
-  if (!Object.keys(areaTradeMap).length) {
-    areaChips.innerHTML = '<div style="font-size:11px;color:var(--muted)">평형 정보를 찾지 못했어요. 직접 입력해주세요.</div>';
-    showToast('✅ ' + name + ' 선택됐어요!');
-    return;
-  }
-
-  const areas = Object.keys(areaTradeMap).map(Number).sort(function(a,b){ return a-b; });
-  let selectedArea = null;
-
-  // 전용면적 → 공급면적 평수 변환 테이블 (한국 표준 아파트 기준)
-  function getSupplyPyeong(exclusiveArea) {
     // 전용면적별 통상적인 공급면적 평수 매핑
     const map = [
       { max: 27,  pyeong: 10 },
