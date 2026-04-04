@@ -3157,18 +3157,24 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div id="apt-selected-info" style="font-size:11px;color:var(--muted);margin-top:2px"></div>
       </div>
 
-      <!-- 면적 범위 -->
-      <div style="margin-bottom:20px">
-        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">전용면적 범위 (㎡) <span style="font-weight:400;color:var(--muted)">- 선택사항</span></div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <input type="number" id="apt-modal-area-min" placeholder="최소 예: 55"
-            style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none">
-          <span style="color:var(--muted);font-size:13px">~</span>
-          <input type="number" id="apt-modal-area-max" placeholder="최대 예: 65"
-            style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none">
-          <span style="color:var(--muted);font-size:11px;flex-shrink:0">㎡</span>
-        </div>
+      <!-- 평형 선택 (단지 선택 후 자동 표시) -->
+      <div id="apt-area-wrap" style="display:none;margin-bottom:20px">
+        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:8px">평형 선택 <span style="font-weight:400;color:var(--muted)">- 해당 단지 실거래 평형</span></div>
+        <div id="apt-area-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
+        <!-- 직접 입력 (선택사항) -->
+        <details style="margin-top:4px">
+          <summary style="font-size:11px;color:var(--muted);cursor:pointer;user-select:none">직접 입력 (선택사항)</summary>
+          <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+            <input type="number" id="apt-modal-area-min" placeholder="최소"
+              style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:10px 12px;outline:none">
+            <span style="color:var(--muted);font-size:13px">~</span>
+            <input type="number" id="apt-modal-area-max" placeholder="최대"
+              style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:10px 12px;outline:none">
+            <span style="color:var(--muted);font-size:11px;flex-shrink:0">㎡</span>
+          </div>
+        </details>
       </div>
+
 
       <!-- 저장 버튼 -->
       <div style="display:flex;gap:10px">
@@ -9082,6 +9088,12 @@ function openAptModal(id) {
   selectedWrap.style.display = 'none';
   if (lawdWrap) lawdWrap.style.display = 'none';
   if (searchStatus) searchStatus.textContent = '';
+  const areaWrap = document.getElementById('apt-area-wrap');
+  if (areaWrap) areaWrap.style.display = 'none';
+  const areaChips = document.getElementById('apt-area-chips');
+  if (areaChips) areaChips.innerHTML = '';
+  window._aptAreaSelectFn = null;
+
 
 
   if (id) {
@@ -9347,8 +9359,8 @@ async function searchAptComplex() {
     }).join('');
 }
 
-// ── 단지 선택 ──
-function selectAptComplex(name, lawdCd, sigungu) {
+// ── 단지 선택 → 평형 자동 조회 ──
+async function selectAptComplex(name, lawdCd, sigungu) {
   _aptSelectedComplex = { name, lawdCd, sigungu: sigungu || '' };
 
   document.getElementById('apt-selected-name').textContent = name;
@@ -9356,7 +9368,83 @@ function selectAptComplex(name, lawdCd, sigungu) {
   document.getElementById('apt-selected-wrap').style.display = 'block';
   document.getElementById('apt-search-results').style.display = 'none';
   document.getElementById('apt-search-status').textContent = '';
-  showToast('✅ ' + name + ' 선택됐어요!');
+
+  // 평형 목록 조회
+  const areaWrap = document.getElementById('apt-area-wrap');
+  const areaChips = document.getElementById('apt-area-chips');
+  areaWrap.style.display = 'block';
+  areaChips.innerHTML = '<div style="font-size:11px;color:var(--muted)">⏳ 평형 조회 중...</div>';
+
+  const proxyUrl = load('cloudflare-proxy', '');
+  const areaSet = new Set();
+  const now = new Date();
+
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const ym = d.getFullYear() + '' + String(d.getMonth()+1).padStart(2,'0');
+    try {
+      const res = await fetch(proxyUrl + '/realestate?lawdCd=' + lawdCd + '&dealYmd=' + ym, {
+        signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 10000); return c.signal; })()
+      });
+      const text = await res.text();
+      if (!text || !text.includes('<item>')) continue;
+
+      const xml = new DOMParser().parseFromString(text, 'text/xml');
+      xml.querySelectorAll('item').forEach(function(item) {
+        const itemName = (item.querySelector('aptNm')?.textContent || '').trim();
+        if (itemName !== name) return;
+        const area = parseFloat(item.querySelector('excluUseAr')?.textContent || '0');
+        if (area > 0) areaSet.add(Math.round(area * 10) / 10); // 소수점 1자리
+      });
+
+      if (areaSet.size > 0) break;
+    } catch(e) {}
+  }
+
+  if (!areaSet.size) {
+    areaChips.innerHTML = '<div style="font-size:11px;color:var(--muted)">평형 정보를 찾지 못했어요. 직접 입력해주세요.</div>';
+    showToast('✅ ' + name + ' 선택됐어요!');
+    return;
+  }
+
+  // 평형 → 평수 변환 (㎡ × 0.3025)
+  const areas = Array.from(areaSet).sort(function(a,b){ return a-b; });
+  let selectedArea = null;
+
+  function renderAreaChips() {
+    areaChips.innerHTML = areas.map(function(area) {
+      const pyeong = Math.round(area * 0.3025);
+      const isSelected = selectedArea === area;
+      const margin = area * 0.1; // ±10% 범위
+      return '<button onclick="selectAptArea(' + area + ')" '
+        + 'id="area-chip-' + Math.round(area * 10) + '" '
+        + 'style="padding:8px 14px;border-radius:20px;'
+        + 'border:1px solid ' + (isSelected ? 'var(--blue)' : 'var(--border2)') + ';'
+        + 'background:' + (isSelected ? 'var(--blue)' : 'var(--surface2)') + ';'
+        + 'color:' + (isSelected ? '#fff' : 'var(--text)') + ';'
+        + 'font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:' + (isSelected ? '700' : '500') + ';'
+        + 'cursor:pointer;transition:all .15s">'
+        + pyeong + '평 <span style="font-size:10px;opacity:0.7">(' + area + '㎡)</span>'
+        + '</button>';
+    }).join('');
+  }
+
+  // 전역에서 접근 가능하도록
+  window._aptAreaSelectFn = function(area) {
+    selectedArea = area;
+    const margin = area * 0.1;
+    document.getElementById('apt-modal-area-min').value = Math.floor(area - margin);
+    document.getElementById('apt-modal-area-max').value = Math.ceil(area + margin);
+    renderAreaChips();
+  };
+
+  renderAreaChips();
+  showToast('✅ ' + name + ' 선택됐어요! 평형을 골라주세요');
+}
+
+// ── 평형 칩 선택 ──
+function selectAptArea(area) {
+  if (window._aptAreaSelectFn) window._aptAreaSelectFn(area);
 }
 
 
