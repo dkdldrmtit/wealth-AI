@@ -9306,40 +9306,37 @@ async function searchAptComplex() {
   const complexMap = {};
   const now = new Date();
 
-  // 최근 12개월 순차 조회 (데이터 나오면 중단)
-  for (let i = 0; i < 12; i++) {
+  // 최근 6개월 병렬 조회 (단지 검색은 6개월이면 충분)
+  const searchMonths = [];
+  for (let i = 0; i < 6; i++) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const ym = d.getFullYear() + '' + String(d.getMonth()+1).padStart(2,'0');
+    searchMonths.push(d.getFullYear() + '' + String(d.getMonth()+1).padStart(2,'0'));
+  }
 
+  await Promise.all(searchMonths.map(async function(ym) {
     try {
-      const res = await fetch(proxyUrl + '/realestate?lawdCd=' + _selectedLawdCd + '&dealYmd=' + ym, {
+      const res = await fetch(proxyUrl + '/realestate?lawdCd=' + lawdCd + '&dealYmd=' + ym, {
         signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 12000); return c.signal; })()
       });
       const text = await res.text();
-      if (!text || !text.includes('<item>')) continue;
+      if (!text || !text.includes('<item>')) return;
 
       const xml = new DOMParser().parseFromString(text, 'text/xml');
       xml.querySelectorAll('item').forEach(function(item) {
         const name = (item.querySelector('aptNm')?.textContent || '').trim();
         const area = parseFloat(item.querySelector('excluUseAr')?.textContent || '0');
 
-        // 단지명 부분 매칭 (입력한 키워드 포함 여부)
-        const nameMatch = name.includes(aptName) ||
-          aptName.split(/\s+/).filter(Boolean).every(function(w) { return name.includes(w); });
+        const words = aptName.replace(/[가-힣]+구|[가-힣]+시|[가-힣]+동|[가-힣]+군/g, '').trim().split(/\s+/).filter(Boolean);
+        const nameMatch = words.length === 0 || words.some(function(w) { return name.includes(w); });
 
         if (nameMatch && name) {
-          if (!complexMap[name]) {
-            complexMap[name] = { name, areas: new Set(), lawdCd: _selectedLawdCd, sigungu: _selectedLawdName };
-          }
+          if (!complexMap[name]) complexMap[name] = { name, areas: new Set(), lawdCd, sigungu: lawdName };
           complexMap[name].areas.add(Math.round(area));
         }
       });
-
-      // 해당 월 전체 단지 데이터가 있으면 중단
-      if (Object.keys(complexMap).length > 0) break;
-
     } catch(e) {}
-  }
+  }));
+
 
   btn.textContent = '🔍 검색';
   btn.disabled = false;
@@ -9389,15 +9386,20 @@ async function selectAptComplex(name, lawdCd, sigungu) {
   // 평형별 거래 내역 수집 { area: [{date, price, floor}] }
   const areaTradeMap = {};
 
+  // 최근 12개월 전체를 병렬로 조회 (break 없이 전부 수집)
+  const months = [];
   for (let i = 0; i < 12; i++) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const ym = d.getFullYear() + '' + String(d.getMonth()+1).padStart(2,'0');
+    months.push(d.getFullYear() + '' + String(d.getMonth()+1).padStart(2,'0'));
+  }
+
+  await Promise.all(months.map(async function(ym) {
     try {
       const res = await fetch(proxyUrl + '/realestate?lawdCd=' + lawdCd + '&dealYmd=' + ym, {
-        signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 10000); return c.signal; })()
+        signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 12000); return c.signal; })()
       });
       const text = await res.text();
-      if (!text || !text.includes('<item>')) continue;
+      if (!text || !text.includes('<item>')) return;
 
       const xml = new DOMParser().parseFromString(text, 'text/xml');
       xml.querySelectorAll('item').forEach(function(item) {
@@ -9416,10 +9418,9 @@ async function selectAptComplex(name, lawdCd, sigungu) {
           areaTradeMap[area].push({ date: year + '.' + month + '.' + day, price, floor });
         }
       });
-
-      if (Object.keys(areaTradeMap).length > 0) break;
     } catch(e) {}
-  }
+  }));
+
 
   if (!Object.keys(areaTradeMap).length) {
     areaChips.innerHTML = '<div style="font-size:11px;color:var(--muted)">평형 정보를 찾지 못했어요. 직접 입력해주세요.</div>';
