@@ -9516,29 +9516,27 @@ function selectAptArea(area) {
 }
 
 
-
 // ── 아파트 저장 ──
 function saveAptFromModal() {
   if (!_aptSelectedComplex) { showToast('❗ 단지를 검색해서 선택해주세요'); return; }
 
-  const areaMin = parseFloat(document.getElementById('apt-modal-area-min').value) || 0;
-  const areaMax = parseFloat(document.getElementById('apt-modal-area-max').value) || 999;
-  const sido = document.getElementById('apt-sido-select').value;
+  const areaMinEl = document.getElementById('apt-modal-area-min');
+  const areaMaxEl = document.getElementById('apt-modal-area-max');
+  const areaMin = areaMinEl ? (parseFloat(areaMinEl.value) || 0) : 0;
+  const areaMax = areaMaxEl ? (parseFloat(areaMaxEl.value) || 999) : 999;
 
   const aptData = {
     id: _aptEditingId || 'apt_' + Date.now(),
     name: _aptSelectedComplex.name,
     lawdCd: _aptSelectedComplex.lawdCd,
     sigungu: _aptSelectedComplex.sigungu || '',
-    areaMin: areaMin || 0,
-    areaMax: areaMax || 999,
+    areaMin: areaMin,
+    areaMax: areaMax,
     owner: _aptModalOwner,
     cache: null,
   };
 
-
   if (_aptEditingId) {
-    // 기존 캐시 유지
     const existing = aptList.find(function(a) { return a.id === _aptEditingId; });
     if (existing) aptData.cache = existing.cache;
     const idx = aptList.findIndex(function(a) { return a.id === _aptEditingId; });
@@ -9553,6 +9551,7 @@ function saveAptFromModal() {
   closeAptModal();
   showToast('✅ 아파트가 ' + (_aptEditingId ? '수정' : '추가') + '됐어요!');
 }
+
 
 // ── 아파트 삭제 ──
 async function deleteAptFromModal() {
