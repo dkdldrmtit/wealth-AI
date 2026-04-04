@@ -1171,10 +1171,10 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div id="ai-comment-text" style="font-size:13px;color:var(--text);line-height:1.8;letter-spacing:0.1px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer" onclick="toggleAiComment(this)">
         <div style="color:var(--muted);font-size:12px">분석 중...</div>
       </div>
-      <div id="ai-comment-expand" onclick="toggleAiComment(document.getElementById('ai-comment-text'))" style="display:none;margin-top:8px;cursor:pointer;opacity:0;transition:opacity 0.4s ease;pointer-events:none;text-align:center;padding:4px 0">
-        <span style="font-size:10px;color:var(--muted);font-weight:400;letter-spacing:0.8px">더보기</span>
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--muted);vertical-align:middle;margin-left:3px"><polyline points="6 9 12 15 18 9"/></svg>
-      </div>    </div>
+      <div id="ai-comment-expand" onclick="toggleAiComment(document.getElementById('ai-comment-text'))" style="display:none;margin-top:10px;cursor:pointer;opacity:0;transition:opacity 0.4s ease;pointer-events:none;text-align:center;padding:4px 0">
+        <div style="width:32px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto;transition:background .2s" id="ai-comment-handle"></div>
+      </div>
+    </div>
   </div>
   </div>
 
@@ -8101,25 +8101,27 @@ function saveClaudeApiKey() {
 function toggleAiComment(el) {
   const isCollapsed = el.style.webkitLineClamp === '2';
   const hint = document.getElementById('ai-comment-expand');
+  const handle = document.getElementById('ai-comment-handle');
 
   if (isCollapsed) {
-    // 펼치기 - 부드럽게
     el.style.webkitLineClamp = 'unset';
     el.style.overflow = 'visible';
+    if (handle) handle.style.background = 'var(--muted)';
     if (hint) {
       hint.style.opacity = '0';
       setTimeout(function() { hint.style.display = 'none'; }, 300);
     }
   } else {
-    // 접기 - 부드럽게
     el.style.webkitLineClamp = '2';
     el.style.overflow = 'hidden';
+    if (handle) handle.style.background = 'var(--border2)';
     if (hint) {
-      hint.style.display = 'flex';
+      hint.style.display = 'block';
       setTimeout(function() { hint.style.opacity = '1'; }, 50);
     }
   }
 }
+
 
 document.addEventListener('DOMContentLoaded', function() {
   // ── 스플래시 스크린 (세션당 1회만)
