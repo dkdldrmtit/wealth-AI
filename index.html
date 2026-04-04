@@ -7796,8 +7796,8 @@ function renderHomeCardSettingsList() {
   if (!wrap) return;
 
   wrap.innerHTML = homeCardSettings.map(function(card, i) {
-    return '<div class="hcs-item" data-index="' + i + '" draggable="true" style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);cursor:grab;user-select:none;transition:opacity .2s">'
-      + '<div style="color:var(--muted);font-size:16px;flex-shrink:0;padding:0 4px;line-height:1">☰</div>'
+    return '<div class="hcs-item" data-index="' + i + '" draggable="false" style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);user-select:none;transition:opacity .2s">'
+      + '<div class="hcs-handle" style="color:var(--muted);font-size:16px;flex-shrink:0;padding:4px 6px;line-height:1;cursor:grab;touch-action:none">☰</div>'
       + '<div style="font-size:13px;flex:1;font-weight:500">' + card.label + '</div>'
       + '<button onclick="toggleHomeCardVisible(' + i + ')" style="width:34px;height:34px;border-radius:9px;border:1px solid var(--border2);background:' + (card.visible?'rgba(74,222,128,.15)':'var(--surface2)') + ';color:' + (card.visible?'var(--green)':'var(--muted)') + ';font-size:15px;cursor:pointer;flex-shrink:0">' + (card.visible?'👁':'🚫') + '</button>'
       + '</div>';
@@ -7814,6 +7814,17 @@ function initHomeCardDragDrop() {
   let dragSrcIdx = null;
 
   items.forEach(function(item) {
+    const handle = item.querySelector('.hcs-handle');
+
+    // PC 드래그: 핸들에서만 draggable 활성화
+    item.setAttribute('draggable', 'false');
+    handle.addEventListener('mousedown', function() {
+      item.setAttribute('draggable', 'true');
+    });
+    document.addEventListener('mouseup', function() {
+      item.setAttribute('draggable', 'false');
+    });
+
     item.addEventListener('dragstart', function(e) {
       dragSrcIdx = parseInt(this.dataset.index);
       this.style.opacity = '0.4';
@@ -7849,19 +7860,20 @@ function initHomeCardDragDrop() {
     let touchClone = null;
     let touchOffsetY = 0;
 
-    item.addEventListener('touchstart', function(e) {
-      touchSrcIdx = parseInt(this.dataset.index);
-      touchOffsetY = e.touches[0].clientY - this.getBoundingClientRect().top;
-      touchClone = this.cloneNode(true);
+    handle.addEventListener('touchstart', function(e) {
+      const item = this.closest('.hcs-item');
+      touchSrcIdx = parseInt(item.dataset.index);
+      touchOffsetY = e.touches[0].clientY - item.getBoundingClientRect().top;
+      touchClone = item.cloneNode(true);
       touchClone.style.cssText = 'position:fixed;left:16px;right:16px;z-index:9999;opacity:0.85;pointer-events:none;background:var(--surface2);border-radius:12px;padding:4px 12px;box-shadow:0 8px 24px rgba(0,0,0,0.4)';
       touchClone.style.top = (e.touches[0].clientY - touchOffsetY) + 'px';
       document.body.appendChild(touchClone);
       this.style.opacity = '0.3';
     }, { passive: true });
 
-    item.addEventListener('touchmove', function(e) {
+    handle.addEventListener('touchmove', function(e) {
       if (!touchClone) return;
-      e.preventDefault(); // 스크롤 방지
+      e.preventDefault();
       e.stopPropagation();
       touchClone.style.top = (e.touches[0].clientY - touchOffsetY) + 'px';
       wrap.querySelectorAll('.hcs-item').forEach(function(el) { el.style.borderTop = ''; });
@@ -7872,9 +7884,10 @@ function initHomeCardDragDrop() {
     }, { passive: false });
 
 
-    item.addEventListener('touchend', function(e) {
+    handle.addEventListener('touchend', function(e) {
+      const item = this.closest('.hcs-item');
       if (touchClone) { document.body.removeChild(touchClone); touchClone = null; }
-      this.style.opacity = '1';
+      item.style.opacity = '1';
       wrap.querySelectorAll('.hcs-item').forEach(function(el) { el.style.borderTop = ''; });
       const touch = e.changedTouches[0];
       const el = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -10863,9 +10876,9 @@ function renderStockList() {
       const ownerBadge = (currentStkOwner === 'all' && s.owner)
         ? '<span style="font-size:9px;background:' + (s.owner==='minsuk'?'rgba(96,165,250,.15)':'rgba(52,211,153,.15)') + ';color:' + (s.owner==='minsuk'?'var(--minsuk)':'var(--siyun)') + ';padding:1px 5px;border-radius:5px;font-weight:700;margin-left:5px">' + (s.owner==='minsuk'?'민석':'시윤') + '</span>' : '';
 
-      return '<div class="stock-drag-item" data-id="' + s.id + '" data-market="' + s.market + '" draggable="true" style="display:flex;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);gap:12px">'
+      return '<div class="stock-drag-item" data-id="' + s.id + '" data-market="' + s.market + '" draggable="false" style="display:flex;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);gap:12px">'
         // 드래그 핸들
-        + '<div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;cursor:grab;padding:4px 2px;opacity:0.4">'
+        + '<div class="stock-drag-handle" style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;cursor:grab;padding:4px 6px;opacity:0.4;touch-action:none">'
         + '<div style="width:14px;height:2px;border-radius:1px;background:var(--muted)"></div>'
         + '<div style="width:14px;height:2px;border-radius:1px;background:var(--muted)"></div>'
         + '<div style="width:14px;height:2px;border-radius:1px;background:var(--muted)"></div>'
@@ -10932,6 +10945,16 @@ function initStockDragDrop() {
   let dragSrc = null;
 
   document.querySelectorAll('.stock-drag-item').forEach(function(item) {
+    const handle = item.querySelector('.stock-drag-handle');
+
+    // PC: 핸들에서만 draggable 활성화
+    handle.addEventListener('mousedown', function() {
+      item.setAttribute('draggable', 'true');
+    });
+    document.addEventListener('mouseup', function() {
+      item.setAttribute('draggable', 'false');
+    });
+
     item.addEventListener('dragstart', function(e) {
       dragSrc = this;
       this.classList.add('dragging');
@@ -10987,18 +11010,18 @@ function initStockDragDrop() {
     let touchItem = null;
     let touchClone = null;
 
-    item.addEventListener('touchstart', function(e) {
-      touchItem = this;
+    handle.addEventListener('touchstart', function(e) {
+      touchItem = this.closest('.stock-drag-item');
       touchStartY = e.touches[0].clientY;
       // 클론 생성
-      touchClone = this.cloneNode(true);
+      touchClone = touchItem.cloneNode(true);
       touchClone.style.cssText = 'position:fixed;left:16px;right:16px;z-index:9999;opacity:0.85;pointer-events:none;background:var(--surface2);border-radius:12px;padding:0 14px;box-shadow:0 8px 32px rgba(0,0,0,0.4)';
       touchClone.style.top = this.getBoundingClientRect().top + 'px';
       document.body.appendChild(touchClone);
       this.style.opacity = '0.3';
     }, { passive: true });
 
-    item.addEventListener('touchmove', function(e) {
+    handle.addEventListener('touchmove', function(e) {
       if (!touchClone) return;
       e.preventDefault();
       e.stopPropagation();
@@ -11018,7 +11041,7 @@ function initStockDragDrop() {
     }, { passive: false });
 
 
-    item.addEventListener('touchend', function(e) {
+    handle.addEventListener('touchend', function(e) {
       if (!touchClone || !touchItem) return;
       // 클론 제거
       document.body.removeChild(touchClone);
