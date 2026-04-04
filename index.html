@@ -5081,9 +5081,36 @@ function linkStockToItem(market, owner) {
 
 
 
+  // 이름/금액 입력칸 잠금
+  const nameEl = document.getElementById('add-item-name');
+  const amountEl = document.getElementById('add-item-amount');
+  if (nameEl) {
+    nameEl.readOnly = true;
+    nameEl.style.opacity = '0.5';
+    nameEl.style.cursor = 'default';
+  }
+  if (amountEl) {
+    amountEl.readOnly = true;
+    amountEl.style.opacity = '0.5';
+    amountEl.style.cursor = 'default';
+  }
+
+  // 직접입력 프리셋 버튼들 비활성화
+  const presetsWrap = document.getElementById('add-item-presets');
+  if (presetsWrap) {
+    presetsWrap.querySelectorAll('button').forEach(function(btn) {
+      if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes('selectAddItemPreset')) {
+        btn.disabled = true;
+        btn.style.opacity = '0.3';
+        btn.style.cursor = 'default';
+      }
+    });
+  }
+
   // 소유자 자동 설정 + 버튼 잠금
   setAddItemOwner(owner);
   ['common','minsuk','siyun'].forEach(function(o) {
+
     const btn = document.getElementById('add-owner-' + o);
     if (!btn) return;
     btn.disabled = true;
@@ -5120,6 +5147,13 @@ function closeAddItemModal() {
   modal.dataset.stockLink = '';
   modal.dataset.stockLinkTime = '';
   modal.dataset.stockLinkOwner = '';
+
+  // 입력칸 잠금 해제
+  const nameEl = document.getElementById('add-item-name');
+  const amountEl = document.getElementById('add-item-amount');
+  if (nameEl) { nameEl.readOnly = false; nameEl.style.opacity = ''; nameEl.style.cursor = ''; }
+  if (amountEl) { amountEl.readOnly = false; amountEl.style.opacity = ''; amountEl.style.cursor = ''; }
+
 
 }
 
