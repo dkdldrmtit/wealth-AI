@@ -1331,7 +1331,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
 
       <!-- 비율 바 -->
-      <div style="position:relative;height:22px;background:rgba(255,255,255,0.07);border-radius:6px;overflow:hidden;margin-bottom:14px">
+      <div style="position:relative;height:22px;background:rgba(255,255,255,0.07);border-radius:6px;overflow:hidden;margin-bottom:0">
         <div id="h-asset-bar" style="position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,rgba(96,165,250,0.35),rgba(59,130,246,0.15));border-radius:6px;transition:width .8s ease;width:100%"></div>
         <div id="h-debt-bar" style="position:absolute;right:0;top:0;height:100%;background:rgba(239,68,68,0.35);border-radius:6px;transition:width .8s ease;width:0%"></div>
         <div style="position:absolute;left:10px;top:50%;transform:translateY(-50%);display:flex;align-items:baseline;gap:3px;z-index:1">
@@ -1347,8 +1347,64 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
     </div>
 
+    <!-- 자산구성 토글 버튼 -->
+    <div onclick="toggleAssetDonut()" id="donut-toggle-btn"
+      style="display:flex;align-items:center;justify-content:center;gap:6px;padding:14px 4px;cursor:pointer;border-top:1px solid var(--border);margin-top:16px;transition:background .2s"
+      ontouchstart="this.style.background='var(--surface2)'" ontouchend="this.style.background=''">
+      <span style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px">자산 구성</span>
+      <svg id="donut-toggle-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .3s"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+
+    <!-- 자산구성 펼쳐지는 영역 -->
+    <div id="donut-expand-wrap" style="max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.4,0,.2,1)">
+      <div style="padding:0 4px 16px;border-top:1px solid var(--border)">
+
+        <!-- 소유자 탭 -->
+        <div onclick="event.stopPropagation()" style="display:flex;background:var(--surface2);border-radius:20px;padding:3px;gap:2px;margin:14px 0 16px">
+          <button id="donut-tab-all" onclick="setDonutTab('all')"
+            style="flex:1;padding:5px 10px;border-radius:16px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:700;cursor:pointer;background:var(--text);color:var(--bg);transition:all .2s">
+            전체
+          </button>
+          <button id="donut-tab-p1" onclick="setDonutTab('p1')"
+            style="flex:1;padding:5px 10px;border-radius:16px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">
+            나
+          </button>
+          <button id="donut-tab-p2" onclick="setDonutTab('p2')"
+            style="flex:1;padding:5px 10px;border-radius:16px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">
+            파트너
+          </button>
+        </div>
+
+        <!-- 스택 바 -->
+        <div id="donut-stacked-bar" style="display:flex;height:8px;border-radius:6px;overflow:hidden;gap:1px;margin-bottom:16px"></div>
+
+        <!-- 범례 -->
+        <div id="donut-legend-list" style="display:flex;flex-direction:column;gap:0"></div>
+
+        <!-- 부채 -->
+        <div style="padding-top:14px;border-top:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="width:3px;height:14px;border-radius:2px;background:var(--red)"></div>
+              <span style="font-size:13px;color:var(--muted2)">부채</span>
+            </div>
+            <div id="donut-debt-val" style="font-size:14px;font-weight:700;color:var(--red)">—</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.06);border-radius:4px;height:4px;overflow:hidden">
+            <div id="donut-debt-bar" style="height:100%;background:var(--red);border-radius:4px;width:0%;transition:width .8s ease"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:5px">
+            <span style="font-size:10px;color:var(--muted)">부채비율</span>
+            <span id="donut-debt-ratio" style="font-size:10px;font-weight:700;color:var(--red)">—%</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </div>
   </div>
+
 
   <!-- 자산구성 카드 제거 (summary 카드에 통합됨) -->
   <div data-card="donut" id="home-card-donut" style="display:none"></div>
@@ -1380,68 +1436,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
   </div>
 
-  <!-- ⑦ 자산 구성 토스 스타일 -->
-  <div data-card="donut" id="home-card-donut">
-  <div class="card" style="cursor:pointer" onclick="goPage('input',document.querySelectorAll('.nav-item')[3])">
-
-    <!-- 헤더 + 소유자 탭 -->
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.8px;text-transform:uppercase">자산 구성</div>
-      <div onclick="event.stopPropagation()" style="display:flex;background:var(--surface2);border-radius:20px;padding:3px;gap:2px">
-        <button id="donut-tab-all" onclick="setDonutTab('all')"
-          style="padding:4px 10px;border-radius:16px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:700;cursor:pointer;background:var(--text);color:var(--bg);transition:all .2s">
-          전체
-        </button>
-        <button id="donut-tab-p1" onclick="setDonutTab('p1')"
-          style="padding:4px 10px;border-radius:16px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">
-          나
-        </button>
-        <button id="donut-tab-p2" onclick="setDonutTab('p2')"
-          style="padding:4px 10px;border-radius:16px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">
-          파트너
-        </button>
-      </div>
-    </div>
-
-    <!-- 총자산 큰 숫자 -->
-    <div style="margin-bottom:20px">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:4px" id="donut-total-label">총자산</div>
-      <div style="display:flex;align-items:baseline;gap:4px">
-        <div id="donut-total-val" style="font-size:28px;font-weight:900;color:var(--text)">—</div>
-        <div style="font-size:14px;color:var(--muted);font-weight:400">억</div>
-        <div id="donut-net-badge" style="margin-left:8px;font-size:11px;font-weight:700"></div>
-      </div>
-    </div>
-
-    <!-- 비율 바 (토스 스타일 stacked bar) -->
-    <div style="margin-bottom:20px">
-      <div id="donut-stacked-bar" style="display:flex;height:8px;border-radius:6px;overflow:hidden;gap:1px;margin-bottom:12px"></div>
-      <!-- 범례 -->
-      <div id="donut-legend-list" style="display:flex;flex-direction:column;gap:0"></div>
-    </div>
-
-    <!-- 부채 -->
-    <div style="padding-top:14px;border-top:1px solid var(--border)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div style="display:flex;align-items:center;gap:8px">
-          <div style="width:3px;height:14px;border-radius:2px;background:var(--red)"></div>
-          <span style="font-size:13px;color:var(--muted2)">부채</span>
-        </div>
-        <div id="donut-debt-val" style="font-size:14px;font-weight:700;color:var(--red)">—</div>
-      </div>
-      <!-- 부채 비율 바 -->
-      <div style="background:rgba(255,255,255,0.06);border-radius:4px;height:4px;overflow:hidden">
-        <div id="donut-debt-bar" style="height:100%;background:var(--red);border-radius:4px;width:0%;transition:width .8s ease"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;margin-top:5px">
-        <span style="font-size:10px;color:var(--muted)">부채비율</span>
-        <span id="donut-debt-ratio" style="font-size:10px;font-weight:700;color:var(--red)">—%</span>
-      </div>
-    </div>
-
-  </div>
-  </div>
-
+  <!-- 자산구성 카드 (summary 카드 내 토글로 통합됨) -->
+  <div data-card="donut" id="home-card-donut" style="display:none"></div>
 
   <!-- ⑨ 아파트 실거래가 -->
   <div data-card="apt" id="home-card-apt">
