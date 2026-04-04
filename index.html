@@ -5218,12 +5218,16 @@ function renderAssetItems() {
     nameWrap.appendChild(nameInput);
 
     if (item.stockLink) {
-      const linkBadge = document.createElement('div');
-      const marketLabel = item.stockLink === 'KR' ? '🇰🇷 국내' : item.stockLink === 'US' ? '🇺🇸 해외' : '전체';
-      const timeLabel = item.stockLinkTime ? ' · ' + item.stockLinkTime : '';
-      linkBadge.style.cssText = 'font-size:10px;color:var(--blue);display:flex;align-items:center;gap:4px';
-      linkBadge.innerHTML = '<span style="background:rgba(59,130,246,0.10);border:1px solid rgba(59,130,246,0.2);border-radius:6px;padding:1px 7px;font-weight:600">🔗 ' + marketLabel + ' 연동' + timeLabel + '</span>';
-      nameWrap.appendChild(linkBadge);
+      const marketLabel = item.stockLink === 'KR' ? '🇰🇷 국내' : '🇺🇸 해외';
+      const timeLabel = item.stockLinkTime ? item.stockLinkTime : '';
+      const linkBadge = document.createElement('span');
+      linkBadge.style.cssText = 'font-size:9px;font-weight:700;color:var(--blue);background:rgba(59,130,246,0.10);border:1px solid rgba(59,130,246,0.2);border-radius:5px;padding:1px 5px;margin-left:6px;vertical-align:super;line-height:1;white-space:nowrap';
+      linkBadge.textContent = '🔗 ' + marketLabel + (timeLabel ? ' · ' + timeLabel : '');
+      nameInput.insertAdjacentElement('afterend', linkBadge);
+      // nameWrap flex를 row로 변경
+      nameWrap.style.flexDirection = 'row';
+      nameWrap.style.alignItems = 'center';
+      nameWrap.style.flexWrap = 'wrap';
     }
 
     row1.appendChild(nameWrap);
