@@ -9067,15 +9067,20 @@ function openAptModal(id) {
   // 초기화
   _selectedLawdCd = '';
   _selectedLawdName = '';
-  document.getElementById('apt-region-input').value = '';
-  document.getElementById('apt-region-status').textContent = '';
-  document.getElementById('apt-name-search').value = '';
-  document.getElementById('apt-name-search').disabled = true;
-  document.getElementById('apt-name-search').style.opacity = '0.5';
-  document.getElementById('apt-search-btn').disabled = true;
-  document.getElementById('apt-search-btn').style.background = 'var(--surface3)';
-  document.getElementById('apt-search-btn').style.color = 'var(--muted)';
-  document.getElementById('apt-search-btn').style.borderColor = 'var(--border2)';
+  const regionInput = document.getElementById('apt-region-input');
+  const regionStatus = document.getElementById('apt-region-status');
+  const nameSearch = document.getElementById('apt-name-search');
+  if (regionInput) regionInput.value = '';
+  if (regionStatus) regionStatus.textContent = '';
+  if (nameSearch) nameSearch.value = '';
+  const searchBtn = document.getElementById('apt-search-btn');
+  if (nameSearch) { nameSearch.disabled = true; nameSearch.style.opacity = '0.5'; }
+  if (searchBtn) {
+    searchBtn.disabled = true;
+    searchBtn.style.background = 'var(--surface3)';
+    searchBtn.style.color = 'var(--muted)';
+    searchBtn.style.borderColor = 'var(--border2)';
+  }
   searchResults.style.display = 'none';
   selectedWrap.style.display = 'none';
   if (lawdWrap) lawdWrap.style.display = 'none';
@@ -9105,8 +9110,10 @@ function openAptModal(id) {
     setAptOwner(apt.owner || 'common');
 
     // 면적 복원
-    if (apt.areaMin) document.getElementById('apt-modal-area-min').value = apt.areaMin;
-    if (apt.areaMax) document.getElementById('apt-modal-area-max').value = apt.areaMax;
+    const minEl = document.getElementById('apt-modal-area-min');
+    const maxEl = document.getElementById('apt-modal-area-max');
+    if (apt.areaMin && minEl) minEl.value = apt.areaMin;
+    if (apt.areaMax && maxEl) maxEl.value = apt.areaMax;
 
     // 선택된 단지 표시
     _aptSelectedComplex = { name: apt.name, lawdCd: apt.lawdCd, sigungu: apt.sigungu };
