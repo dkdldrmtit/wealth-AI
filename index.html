@@ -4964,8 +4964,27 @@ function renderAddItemPresets() {
     const p1Name = getP1Name();
     const p2Name = getP2Name();
 
+    // 이미 연동된 owner+market 조합 체크
+    const alreadyLinked = (modalAssetItems || []).filter(function(i) {
+      return i.stockLink;
+    }).map(function(i) {
+      return (i.owner || 'common') + '_' + i.stockLink;
+    });
+
     function stockCard(owner, market, amt, ownerLabel, flag) {
       if (amt <= 0) return '';
+      const key = owner + '_' + market;
+      const isDuplicate = alreadyLinked.includes(key);
+
+      if (isDuplicate) {
+        return '<div style="flex:1;padding:10px 12px;border-radius:12px;'
+          + 'border:1px solid var(--border);background:var(--surface2);text-align:left;opacity:0.5">'
+          + '<div style="font-size:10px;color:var(--muted);margin-bottom:4px">' + flag + ' ' + ownerLabel + '</div>'
+          + '<div style="font-size:14px;font-weight:700;color:var(--muted)">' + amt.toLocaleString() + '만원</div>'
+          + '<div style="font-size:10px;color:var(--muted);margin-top:3px">이미 연동됨</div>'
+          + '</div>';
+      }
+
       return '<button onclick="linkStockToItem(\'' + market + '\',\'' + owner + '\')" style="'
         + 'flex:1;padding:10px 12px;border-radius:12px;'
         + 'border:1px solid rgba(59,130,246,0.25);'
@@ -4979,6 +4998,7 @@ function renderAddItemPresets() {
         + '<div style="font-size:16px;font-weight:900;color:var(--text)">' + amt.toLocaleString() + '만원</div>'
         + '</button>';
     }
+
 
     const hasAny = msKr > 0 || msUs > 0 || syKr > 0 || syUs > 0;
 
