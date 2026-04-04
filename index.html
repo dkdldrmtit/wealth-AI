@@ -1134,25 +1134,22 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </button>
     </div>
 
-    <!-- 지출 바 단독 -->
-    <div style="position:relative;height:34px;background:var(--surface3);border-radius:10px;overflow:hidden">
-      <!-- 채워지는 바 -->
-      <div id="widget-exp-bar" style="position:absolute;left:0;top:0;height:100%;border-radius:10px;width:0%;transition:width 1s cubic-bezier(.4,0,.2,1)"></div>
-      <!-- 왼쪽: 이번달 총 지출 -->
-      <div style="position:absolute;left:14px;top:50%;transform:translateY(-50%);z-index:1;display:flex;align-items:baseline;gap:3px">
-        <span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.55);letter-spacing:0.3px;line-height:1;vertical-align:super;position:relative;top:-2px">이번달</span>
-        <span id="widget-status-text" style="font-size:13px;font-weight:800;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.35)"></span>
-      </div>
-      <!-- 오른쪽: % -->
-      <div style="position:absolute;right:14px;top:50%;transform:translateY(-50%);z-index:1">
-        <span id="widget-exp-pct" style="font-size:13px;font-weight:900;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.35)"></span>
-      </div>
+    <!-- 지출 바 -->
+    <div style="height:8px;background:var(--surface3);border-radius:10px;overflow:hidden;margin-bottom:8px">
+      <div id="widget-exp-bar" style="height:100%;border-radius:10px;width:0%;transition:width 1s cubic-bezier(.4,0,.2,1)"></div>
+    </div>
+
+    <!-- 바 아래 텍스트 -->
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span id="widget-status-text" style="font-size:11px;color:var(--muted);font-weight:400"></span>
+      <span id="widget-exp-pct" style="font-size:11px;color:var(--muted);font-weight:500"></span>
     </div>
 
     <!-- 숨김 처리 (JS 참조 유지용) -->
     <span id="widget-month-exp" style="display:none">0</span>
     <span id="widget-budget-label" style="display:none"></span>
     <span id="widget-budget-val" style="display:none"></span>
+
 
   </div>
   </div>
@@ -6861,17 +6858,13 @@ function updateHomeWidget() {
     el('widget-exp-bar').style.background = barColor;
   }
 
-  // 이번달 지출 금액을 바 안에 표시
   if(el('widget-status-text')) {
-    el('widget-status-text').textContent = Math.round(monthExp).toLocaleString() + '만원';
-    el('widget-status-text').style.color = 'var(--muted2)';
-    el('widget-status-text').style.textShadow = 'none';
+    el('widget-status-text').textContent = '이번달 ' + Math.round(monthExp).toLocaleString() + '만원'
+      + (totalBudget > 0 ? ' · 예산 ' + Math.round(totalBudget).toLocaleString() + '만원' : '');
   }
 
   if(el('widget-exp-pct')) {
     el('widget-exp-pct').textContent = totalBudget > 0 ? pct + '%' : '';
-    el('widget-exp-pct').style.color = 'var(--muted2)';
-    el('widget-exp-pct').style.textShadow = 'none';
   }
 
 }
