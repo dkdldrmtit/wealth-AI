@@ -5208,8 +5208,24 @@ function renderAssetItems() {
 
     row1.appendChild(moveWrap);
     row1.appendChild(badge);
-    row1.appendChild(nameInput);
+
+    // 이름 + 연동 배지 감싸는 wrapper
+    const nameWrap = document.createElement('div');
+    nameWrap.style.cssText = 'flex:1;min-width:0;display:flex;flex-direction:column;gap:4px';
+    nameWrap.appendChild(nameInput);
+
+    if (item.stockLink) {
+      const linkBadge = document.createElement('div');
+      const marketLabel = item.stockLink === 'KR' ? '🇰🇷 국내' : item.stockLink === 'US' ? '🇺🇸 해외' : '전체';
+      const timeLabel = item.stockLinkTime ? ' · ' + item.stockLinkTime : '';
+      linkBadge.style.cssText = 'font-size:10px;color:var(--blue);display:flex;align-items:center;gap:4px';
+      linkBadge.innerHTML = '<span style="background:rgba(59,130,246,0.10);border:1px solid rgba(59,130,246,0.2);border-radius:6px;padding:1px 7px;font-weight:600">🔗 ' + marketLabel + ' 연동' + timeLabel + '</span>';
+      nameWrap.appendChild(linkBadge);
+    }
+
+    row1.appendChild(nameWrap);
     row1.appendChild(delBtn);
+
 
     // ── 2행: 금액
     const row2 = document.createElement('div');
@@ -5283,46 +5299,6 @@ function renderAssetItems() {
 
     row3.appendChild(ownerWrap);
     row3.appendChild(memoBtn);
-
-    // ── 주식 연동 행 (category가 stocks 계열일 때만)
-    const stockCats = ['stocks', '주식·ETF', '민석 금융자산', '시윤 금융자산'];
-    if (stockCats.includes(item.category)) {
-      const linkRow = document.createElement('div');
-      linkRow.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:8px;border-top:0.5px dashed var(--border2)';
-
-      const linkLabel = document.createElement('span');
-      linkLabel.textContent = '🔗 주식연동';
-      linkLabel.style.cssText = 'font-size:11px;color:var(--muted);flex-shrink:0';
-
-      const linkBtns = document.createElement('div');
-      linkBtns.style.cssText = 'display:flex;background:var(--surface3);border-radius:7px;padding:2px;gap:1px;flex:1';
-
-      const linkOptions = [
-        { val: null,  label: '안 함' },
-        { val: 'KR',  label: '국내' },
-        { val: 'US',  label: '해외' },
-        { val: 'all', label: '전체' },
-      ];
-
-      linkOptions.forEach(function(opt) {
-        const btn = document.createElement('button');
-        btn.textContent = opt.label;
-        btn.dataset.id = item.id;
-        btn.dataset.val = opt.val === null ? '' : opt.val;
-        const isActive = (item.stockLink || null) === opt.val;
-        btn.style.cssText = 'flex:1;padding:4px 2px;border-radius:5px;border:none;font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:' + (isActive?'700':'500') + ';cursor:pointer;background:' + (isActive?'var(--blue)':'transparent') + ';color:' + (isActive?'#fff':'var(--muted2)') + ';transition:all .15s';
-        btn.addEventListener('click', function() {
-          const newVal = this.dataset.val === '' ? null : this.dataset.val;
-          updateItemField(this.dataset.id, 'stockLink', newVal);
-          renderAssetItems();
-        });
-        linkBtns.appendChild(btn);
-      });
-
-      linkRow.appendChild(linkLabel);
-      linkRow.appendChild(linkBtns);
-      wrapper.appendChild(linkRow);
-    }
 
     wrapper.appendChild(row1);
     wrapper.appendChild(row2);
