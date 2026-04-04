@@ -5118,9 +5118,19 @@ function confirmAddItem() {
   const cat = cats.find(function(c) { return c.id === _addItemCategory; });
 
   const id = 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+  // stockLink 값 읽기 (여러 방법으로 시도)
   const modal = document.getElementById('add-item-modal');
-  const stockLinkVal = modal.dataset.stockLink || (window._pendingStockLink ? window._pendingStockLink.market : null);
-  const stockLinkTimeVal = modal.dataset.stockLinkTime || (window._pendingStockLink ? window._pendingStockLink.timeStr : null);
+  let stockLinkVal = null;
+  let stockLinkTimeVal = null;
+  if (window._pendingStockLink && window._pendingStockLink.market) {
+    stockLinkVal = window._pendingStockLink.market;
+    stockLinkTimeVal = window._pendingStockLink.timeStr;
+  } else if (modal.dataset.stockLink) {
+    stockLinkVal = modal.dataset.stockLink;
+    stockLinkTimeVal = modal.dataset.stockLinkTime;
+  }
+
+  console.log('저장될 stockLink:', stockLinkVal); // 디버그
 
   modalAssetItems.push({
     id,
@@ -5135,10 +5145,12 @@ function confirmAddItem() {
     stockLink: stockLinkVal,
     stockLinkTime: stockLinkTimeVal,
   });
+
   // 초기화
+  window._pendingStockLink = null;
   modal.dataset.stockLink = '';
   modal.dataset.stockLinkTime = '';
-  modal.dataset.stockLinkOwner = '';
+
 
 
 
