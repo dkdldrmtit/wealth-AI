@@ -5036,7 +5036,12 @@ function linkStockToItem(market, owner) {
   if (amountEl) amountEl.value = evalMan;
 
   // stockLink 임시 저장 (confirmAddItem에서 사용)
-  window._pendingStockLink = { market, timeStr };
+  // DOM에 직접 저장 (전역변수보다 안전)
+  const addBtn = document.querySelector('#add-item-modal button[onclick="confirmAddItem()"]');
+  document.getElementById('add-item-modal').dataset.stockLink = market;
+  document.getElementById('add-item-modal').dataset.stockLinkTime = timeStr;
+  document.getElementById('add-item-modal').dataset.stockLinkOwner = owner;
+
 
   // 소유자 자동 설정 + 버튼 잠금
   setAddItemOwner(owner);
@@ -5073,7 +5078,11 @@ function closeAddItemModal() {
   });
   const lockNote = document.getElementById('owner-lock-note');
   if (lockNote) lockNote.remove();
-  window._pendingStockLink = null;
+  const modal = document.getElementById('add-item-modal');
+  modal.dataset.stockLink = '';
+  modal.dataset.stockLinkTime = '';
+  modal.dataset.stockLinkOwner = '';
+
 }
 
 function selectAddItemPreset(name) {
@@ -5107,7 +5116,9 @@ function confirmAddItem() {
   const cat = cats.find(function(c) { return c.id === _addItemCategory; });
 
   const id = 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-  const stockLink = window._pendingStockLink || null;
+  const modal = document.getElementById('add-item-modal');
+  const stockLinkVal = modal.dataset.stockLink || null;
+  const stockLinkTimeVal = modal.dataset.stockLinkTime || null;
   modalAssetItems.push({
     id,
     category: cat ? cat.label : '기타자산',
@@ -5118,10 +5129,14 @@ function confirmAddItem() {
     amount,
     memo,
     owner: _addItemOwner,
-    stockLink: stockLink ? stockLink.market : null,
-    stockLinkTime: stockLink ? stockLink.timeStr : null,
+    stockLink: stockLinkVal,
+    stockLinkTime: stockLinkTimeVal,
   });
-  window._pendingStockLink = null;
+  // 초기화
+  modal.dataset.stockLink = '';
+  modal.dataset.stockLinkTime = '';
+  modal.dataset.stockLinkOwner = '';
+
 
 
   renderAssetItems();
