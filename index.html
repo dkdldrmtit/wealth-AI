@@ -9044,8 +9044,12 @@ function renderAptList() {
       + (apt.cache ? '<div style="font-size:12px;font-weight:700;color:var(--blue);margin-top:2px">' + priceStr + ' <span style="font-size:10px;font-weight:400;color:var(--muted)">· ' + fetchedStr + '</span></div>' : '')
       + '</div>'
       + '<div style="display:flex;gap:6px;flex-shrink:0">'
-      + '<button onclick="fetchSingleApt(\'' + apt.id + '\')" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-size:11px;padding:5px 8px;cursor:pointer">🔄</button>'
-      + '<button onclick="openAptModal(\'' + apt.id + '\')" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-size:11px;padding:5px 8px;cursor:pointer">✏️</button>'
+      + '<button onclick="fetchSingleApt(\'' + apt.id + '\')" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);padding:6px 10px;cursor:pointer;display:flex;align-items:center;justify-content:center">'
+      + '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>'
+      + '</button>'
+      + '<button onclick="openAptModal(\'' + apt.id + '\')" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);padding:6px 10px;cursor:pointer;display:flex;align-items:center;justify-content:center">'
+      + '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>'
+      + '</button>'
       + '</div>'
       + '</div>';
   }).join('');
