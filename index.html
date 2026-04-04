@@ -9668,6 +9668,9 @@ function renderHomeApt() {
   const wrap = document.getElementById('home-apt-content');
   if (!wrap) return;
 
+  // 항상 최신 상태로 다시 읽기
+  aptList = load('apt-list', []);
+
   // 구버전 단일 캐시 → 신버전 호환
   const legacyCache = load('realestate-cache', null);
   const displayList = aptList.filter(function(a) { return a.cache; });
@@ -9726,11 +9729,6 @@ function renderHomeApt() {
         + '</div>'
         + '</div>';
     }).join('');
-  } else if (legacyCache) {
-    // 구버전 단일 캐시 표시 (하위 호환)
-    html = '<div style="font-size:12px;color:var(--muted);padding:8px 0">'
-      + legacyCache.aptName + ' ' + (legacyCache.price/10000).toFixed(2) + '억 · ' + legacyCache.fetchedAt
-      + '</div>';
   }
 
   wrap.innerHTML = html
@@ -9913,9 +9911,10 @@ function initRealEstate() {
   const claudeInput = document.getElementById('claude-api-key-input');
   if (claudeKey && claudeInput) claudeInput.value = claudeKey;
 
-  // 구버전 단일 설정 → 신버전 마이그레이션
+  // 구버전 단일 설정 → 신버전 마이그레이션 (1회만 실행)
+  const legacyMigrated = load('apt-legacy-migrated', false);
   const legacySettings = load('apt-settings', null);
-  if (legacySettings && legacySettings.name && legacySettings.lawd && !aptList.length) {
+  if (!legacyMigrated && legacySettings && legacySettings.name && legacySettings.lawd && !aptList.length) {
     const legacyCache = load('realestate-cache', null);
     aptList.push({
       id: 'apt_legacy',
@@ -9933,8 +9932,10 @@ function initRealEstate() {
       } : null
     });
     store('apt-list', aptList);
+    store('apt-legacy-migrated', true);
     console.log('✅ 구버전 아파트 설정 마이그레이션 완료');
   }
+
 
   renderAptList();
   renderHomeApt();
