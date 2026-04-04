@@ -9715,9 +9715,6 @@ function renderHomeApt() {
         + diffHtml
         + '</div>'
         + '</div>'
-        + '<button onclick="applyAptToAssetById(\'' + apt.id + '\')" '
-        + 'style="width:100%;margin-top:8px;padding:8px;border-radius:8px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--blue);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:700;cursor:pointer">'
-        + '📥 자산에 반영</button>'
         + '</div>';
     }).join('');
   } else if (legacyCache) {
@@ -9729,8 +9726,8 @@ function renderHomeApt() {
 
   wrap.innerHTML = html
     + '<button onclick="goPage(\'settings\',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab(\'apt\'),200)" '
-    + 'style="width:100%;margin-top:10px;padding:8px;border-radius:8px;background:transparent;border:1px solid var(--border2);color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:600;cursor:pointer">'
-    + '⚙️ 아파트 관리 →</button>';
+    + 'style="width:100%;margin-top:10px;padding:9px;border-radius:8px;background:transparent;border:none;color:var(--muted);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:500;cursor:pointer;letter-spacing:0.3px">'
+    + '부동산 관리</button>';
 }
 
 // ── 홈 새로고침 버튼 ──
