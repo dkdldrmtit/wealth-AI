@@ -5305,7 +5305,15 @@ function renderAssetItems() {
     nameInput.style.cssText = 'flex:1;min-width:0;background:var(--surface3);border:0.5px solid var(--border2);border-radius:7px;color:var(--text);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;padding:6px 8px;outline:none;cursor:' + (isLinked?'default':'text') + ';opacity:' + (isLinked?'0.7':'1') + ';';
 
     nameInput.dataset.id = item.id;
-    if (!isLinked) nameInput.addEventListener('input', function() { updateItemField(this.dataset.id, 'name', this.value); });
+    if (isLinked) {
+      nameInput.addEventListener('focus', function() {
+        this.blur();
+        showUnlinkConfirm(this.dataset.id);
+      });
+    } else {
+      nameInput.addEventListener('input', function() { updateItemField(this.dataset.id, 'name', this.value); });
+    }
+
 
     // 삭제 버튼
     const delBtn = document.createElement('button');
@@ -5352,12 +5360,19 @@ function renderAssetItems() {
     amtInput.readOnly = isLinked;
     amtInput.style.cssText = 'flex:1;min-width:0;background:var(--surface3);border:0.5px solid var(--border2);border-radius:7px;color:' + (isDebt?'var(--red)':'var(--text)') + ';font-family:\'Noto Sans KR\',sans-serif;font-size:14px;font-weight:700;padding:7px 10px;outline:none;cursor:' + (isLinked?'default':'text') + ';opacity:' + (isLinked?'0.6':'1') + ';';
     amtInput.dataset.id = item.id;
-    if (!isLinked) {
+    if (isLinked) {
+      // 연동 항목 클릭 시 해제 확인
+      amtInput.addEventListener('focus', function() {
+        this.blur();
+        showUnlinkConfirm(this.dataset.id);
+      });
+    } else {
       amtInput.addEventListener('input', function() {
         updateItemField(this.dataset.id, 'amount', parseFloat(this.value)||0);
         updatePreview();
       });
     }
+
 
 
     const unit = document.createElement('span');
@@ -5383,12 +5398,17 @@ function renderAssetItems() {
       btn.dataset.owner = o;
       btn.disabled = isLinked;
       btn.style.cssText = 'padding:4px 10px;border-radius:5px;border:none;font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:' + (isActive?'700':'500') + ';cursor:' + (isLinked?'default':'pointer') + ';background:' + (isActive?'var(--surface)':'transparent') + ';color:' + (isActive?(isLinked?'var(--text2)':'var(--text)'):'var(--muted)') + ';transition:all .15s;opacity:' + (isLinked&&!isActive?'0.3':'1') + ';';
-      if (!isLinked) {
+      if (isLinked) {
+        btn.addEventListener('click', function() {
+          showUnlinkConfirm(this.dataset.id);
+        });
+      } else {
         btn.addEventListener('click', function() {
           updateItemField(this.dataset.id, 'owner', this.dataset.owner);
           renderAssetItems();
         });
       }
+
       ownerWrap.appendChild(btn);
     });
 
@@ -5427,6 +5447,26 @@ function renderAssetItems() {
 
   });
 }
+
+function showUnlinkConfirm(itemId) {
+  showConfirm(
+    '🔓 주식 연동을 해제할까요?\n\n해제하면 주식 시세 자동 반영이 안 되고\n수동으로 관리해야 해요.',
+    '해제하고 수정'
+  ).then(function(ok) {
+    if (!ok) return;
+    updateItemField(itemId, 'stockLink', null);
+    updateItemField(itemId, 'stockLinkTime', null);
+    renderAssetItems();
+    showToast('🔓 연동이 해제됐어요. 이제 직접 수정할 수 있어요');
+    setTimeout(function() {
+      const el = document.getElementById('amt_' + itemId);
+      if (el) { el.focus(); el.select(); }
+    }, 100);
+  });
+}
+
+function updateItemField(id, field, value) {
+
 
 function updateItemField(id, field, value) {
   const item = modalAssetItems.find(i => i.id === id);
