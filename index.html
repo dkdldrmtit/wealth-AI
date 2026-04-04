@@ -8857,41 +8857,6 @@ function renderDonutCard() {
     items = latest.items.filter(function(i) { return i.owner === 'siyun' || i.owner === 'common'; });
   }
 
-  // 공동 자산 합계 계산 (p1/p2 탭일 때만)
-  if (donutTab !== 'all') {
-    const commonAsset = latest.items
-      .filter(function(i) { return i.owner === 'common' && i.type === 'asset'; })
-      .reduce(function(s, i) { return s + i.amount; }, 0);
-    const commonDebt = latest.items
-      .filter(function(i) { return i.owner === 'common' && i.type === 'debt'; })
-      .reduce(function(s, i) { return s + i.amount; }, 0);
-    const commonNet = commonAsset - commonDebt;
-
-    // 공동 자산 안내 표시
-    setTimeout(function() {
-      const existingNote = document.getElementById('donut-common-note');
-      if (existingNote) existingNote.remove();
-      if (commonAsset > 0 || commonDebt > 0) {
-        const legend = document.getElementById('donut-legend-list');
-        if (legend) {
-          const note = document.createElement('div');
-          note.id = 'donut-common-note';
-          note.style.cssText = 'margin-top:10px;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:8px;display:flex;justify-content:space-between;align-items:center';
-          note.innerHTML = '<span style="font-size:11px;color:var(--muted)">공동 자산 포함</span>'
-            + '<span style="font-size:11px;font-weight:600;color:var(--muted2)">'
-            + (commonAsset >= 10000 ? (commonAsset/10000).toFixed(2)+'억' : commonAsset.toLocaleString()+'만')
-            + '</span>';
-          legend.insertAdjacentElement('afterend', note);
-        }
-      }
-    }, 50);
-  } else {
-    // 전체 탭이면 공동 안내 제거
-    setTimeout(function() {
-      const existingNote = document.getElementById('donut-common-note');
-      if (existingNote) existingNote.remove();
-    }, 50);
-  }
 
 
   const assetItems = items.filter(function(i) { return i.type === 'asset'; });
@@ -8965,13 +8930,19 @@ function renderDonutCard() {
       // 해당 카테고리 하위 항목들
       const subItems = assetItems.filter(function(i) { return i.category === e[0]; });
 
+      // 공동 항목 포함 여부 체크 (p1/p2 탭일 때)
+      const hasCommon = donutTab !== 'all' && subItems.some(function(i) { return i.owner === 'common'; });
+
       return '<div style="padding:12px 0;border-bottom:1px solid var(--border)">'
         // 카테고리 헤더
         + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:' + (subItems.length > 1 ? '8' : '0') + 'px">'
         + '<div style="display:flex;align-items:center;gap:10px">'
         + '<div style="width:3px;height:16px;border-radius:2px;background:' + color + ';flex-shrink:0"></div>'
         + '<div>'
+        + '<div style="display:flex;align-items:center;gap:5px">'
         + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + (CAT_LABELS_DONUT[e[0]] || e[0]) + '</div>'
+        + (hasCommon ? '<span style="font-size:9px;font-weight:600;color:var(--muted);background:var(--surface3);padding:1px 5px;border-radius:5px">공동포함</span>' : '')
+        + '</div>'
         + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + pct + '%</div>'
         + '</div></div>'
         + '<div style="font-size:15px;font-weight:800;color:var(--text)">' + amtStr + '</div>'
