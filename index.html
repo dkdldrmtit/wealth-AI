@@ -5189,15 +5189,18 @@ function renderAssetItems() {
     const badge = document.createElement('div');
     badge.style.cssText = 'width:3px;height:30px;border-radius:2px;background:' + color + ';flex-shrink:0';
 
+    const isLinked = !!item.stockLink;
+
     // 이름 입력
     const nameInput = document.createElement('input');
     nameInput.type = 'text';
     nameInput.id = 'name_' + item.id;
     nameInput.value = item.name || '';
     nameInput.placeholder = '항목명';
-    nameInput.style.cssText = 'flex:1;min-width:0;background:var(--surface3);border:0.5px solid var(--border2);border-radius:7px;color:var(--text);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;padding:6px 8px;outline:none;';
+    nameInput.readOnly = isLinked;
+    nameInput.style.cssText = 'flex:1;min-width:0;background:' + (isLinked ? 'transparent' : 'var(--surface3)') + ';border:0.5px solid ' + (isLinked ? 'transparent' : 'var(--border2)') + ';border-radius:7px;color:' + (isLinked ? 'var(--text2)' : 'var(--text)') + ';font-family:\'Noto Sans KR\',sans-serif;font-size:13px;padding:6px 8px;outline:none;cursor:' + (isLinked ? 'default' : 'text') + ';';
     nameInput.dataset.id = item.id;
-    nameInput.addEventListener('input', function() { updateItemField(this.dataset.id, 'name', this.value); });
+    if (!isLinked) nameInput.addEventListener('input', function() { updateItemField(this.dataset.id, 'name', this.value); });
 
     // 삭제 버튼
     const delBtn = document.createElement('button');
@@ -5237,12 +5240,16 @@ function renderAssetItems() {
     amtInput.value = item.amount || '';
     amtInput.placeholder = '금액';
     amtInput.setAttribute('inputmode', 'decimal');
-    amtInput.style.cssText = 'flex:1;min-width:0;background:var(--surface3);border:0.5px solid var(--border2);border-radius:7px;color:' + (isDebt?'var(--red)':'var(--text)') + ';font-family:\'Noto Sans KR\',sans-serif;font-size:14px;font-weight:700;padding:7px 10px;outline:none;';
+    amtInput.readOnly = isLinked;
+    amtInput.style.cssText = 'flex:1;min-width:0;background:' + (isLinked ? 'transparent' : 'var(--surface3)') + ';border:0.5px solid ' + (isLinked ? 'transparent' : 'var(--border2)') + ';border-radius:7px;color:' + (isDebt?'var(--red)':(isLinked?'var(--text2)':'var(--text)')) + ';font-family:\'Noto Sans KR\',sans-serif;font-size:14px;font-weight:700;padding:7px 10px;outline:none;cursor:' + (isLinked ? 'default' : 'text') + ';';
     amtInput.dataset.id = item.id;
-    amtInput.addEventListener('input', function() {
-      updateItemField(this.dataset.id, 'amount', parseFloat(this.value)||0);
-      updatePreview();
-    });
+    if (!isLinked) {
+      amtInput.addEventListener('input', function() {
+        updateItemField(this.dataset.id, 'amount', parseFloat(this.value)||0);
+        updatePreview();
+      });
+    }
+
 
     const unit = document.createElement('span');
     unit.textContent = '만원';
@@ -5265,11 +5272,14 @@ function renderAssetItems() {
       btn.textContent = label;
       btn.dataset.id = item.id;
       btn.dataset.owner = o;
-      btn.style.cssText = 'padding:4px 10px;border-radius:5px;border:none;font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:' + (isActive?'700':'500') + ';cursor:pointer;background:' + (isActive?'var(--surface)':'transparent') + ';color:' + (isActive?'var(--text)':'var(--muted2)') + ';transition:all .15s';
-      btn.addEventListener('click', function() {
-        updateItemField(this.dataset.id, 'owner', this.dataset.owner);
-        renderAssetItems();
-      });
+      btn.disabled = isLinked;
+      btn.style.cssText = 'padding:4px 10px;border-radius:5px;border:none;font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:' + (isActive?'700':'500') + ';cursor:' + (isLinked?'default':'pointer') + ';background:' + (isActive?'var(--surface)':'transparent') + ';color:' + (isActive?(isLinked?'var(--text2)':'var(--text)'):'var(--muted)') + ';transition:all .15s;opacity:' + (isLinked&&!isActive?'0.3':'1') + ';';
+      if (!isLinked) {
+        btn.addEventListener('click', function() {
+          updateItemField(this.dataset.id, 'owner', this.dataset.owner);
+          renderAssetItems();
+        });
+      }
       ownerWrap.appendChild(btn);
     });
 
@@ -7097,11 +7107,23 @@ function renderDetailItem(item, totalAsset, prev, isDebt, cid, showOwner) {
     }
   }
 
+  const linkedNote = item.stockLink
+    ? '<div style="font-size:10px;color:var(--blue);margin-top:3px;display:flex;align-items:center;gap:4px">'
+      + '<span style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.15);border-radius:6px;padding:1px 7px;font-weight:600">'
+      + '🔗 ' + (item.stockLink==='KR'?'🇰🇷 국내':'🇺🇸 해외') + ' 자동연동'
+      + (item.stockLinkTime ? ' · ' + item.stockLinkTime : '')
+      + '</span>'
+      + refreshBtnHtml
+      + '</div>'
+    : '';
+
   return '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border)">'
     + '<div style="flex:1;min-width:0">'
-    + '<div style="font-size:13px;font-weight:500;color:' + color + '">' + item.name + badgeHtml + refreshBtnHtml + ownerHtml + '</div>'
+    + '<div style="font-size:13px;font-weight:500;color:' + color + '">' + item.name + (item.stockLink ? '' : badgeHtml) + ownerHtml + '</div>'
+    + linkedNote
     + (item.memo ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + item.memo + '</div>' : '')
     + '</div>'
+
     + '<div style="text-align:right;flex-shrink:0">'
     + '<div style="font-size:15px;font-weight:700;color:' + color + '">' + amtStr + diffHtml + '</div>'
     + '<div style="font-size:11px;color:var(--muted);margin-top:1px">전체의 ' + pct + '%</div>'
