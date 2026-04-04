@@ -1295,68 +1295,10 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
   </div>
 
-  <!-- ⑤ 총자산/부채/순자산 -->
-  <div data-card="summary" id="home-card-summary">
-  <div style="margin-bottom:14px">
-
-    <!-- 순자산 대형 표시 -->
-    <div onclick="goPage('input',document.querySelectorAll('.nav-item')[3])" style="cursor:pointer;padding:20px 4px 8px">
-      <div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">순자산</div>
-      <div style="display:flex;align-items:flex-start;gap:6px">
-        <div style="display:flex;align-items:baseline;gap:6px;flex:1">
-          <div id="h-net-large" style="font-size:52px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-2px;font-variant-numeric:tabular-nums">—</div>
-          <div style="font-size:20px;color:var(--muted);font-weight:400">억</div>
-        </div>
-        <div id="h-net-change-badge" style="margin-top:6px;text-align:right;flex-shrink:0"></div>
-      </div>
-    </div>
-
-   <!-- 총자산 / 부채 C안 -->
-    <div style="margin-top:10px;cursor:pointer" onclick="goPage('input',document.querySelectorAll('.nav-item')[3])">
-
-      <!-- 2등분 수치 -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin-bottom:8px">
-        <div onclick="event.stopPropagation();goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('asset'),50)" style="cursor:pointer">
-          <div style="font-size:9px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:3px">총자산</div>
-          <div style="display:flex;align-items:baseline;gap:2px">
-            <span id="h-total" style="font-size:14px;font-weight:800;color:var(--text)">—</span>
-            <span style="font-size:9px;color:var(--muted)">억</span>
-          </div>
-        </div>
-        <div onclick="event.stopPropagation();goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('debt'),50)" style="text-align:right;cursor:pointer">
-          <div style="font-size:9px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:3px">부채</div>
-          <div style="display:flex;align-items:baseline;gap:2px;justify-content:flex-end">
-            <span id="h-debt" style="font-size:14px;font-weight:800;color:var(--red)">—</span>
-            <span style="font-size:9px;color:var(--muted)">억</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 비율 바 -->
-      <div style="position:relative;height:22px;background:rgba(255,255,255,0.07);border-radius:6px;overflow:hidden;margin-bottom:14px">
-        <div id="h-asset-bar" style="position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,rgba(96,165,250,0.35),rgba(59,130,246,0.15));border-radius:6px;transition:width .8s ease;width:100%"></div>
-        <div id="h-debt-bar" style="position:absolute;right:0;top:0;height:100%;background:rgba(239,68,68,0.35);border-radius:6px;transition:width .8s ease;width:0%"></div>
-        <div style="position:absolute;left:10px;top:50%;transform:translateY(-50%);display:flex;align-items:baseline;gap:3px;z-index:1">
-          <span style="font-size:9px;color:rgba(59,130,246,0.4);font-weight:500">자산</span>
-          <span id="h-asset-ratio" style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.6)">—</span>
-          <span style="font-size:9px;color:rgba(59,130,246,0.35)">%</span>
-        </div>
-        <div style="position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;align-items:baseline;gap:3px;z-index:1">
-          <span style="font-size:9px;color:rgba(239,68,68,0.6);font-weight:500">부채</span>
-          <span id="h-debt-ratio" style="font-size:11px;font-weight:700;color:rgba(239,68,68,0.8)">—</span>
-          <span style="font-size:9px;color:rgba(239,68,68,0.5)">%</span>
-        </div>
-      </div>
+  <!-- 자산구성 카드 제거 (summary 카드에 통합됨) -->
+  <div data-card="donut" id="home-card-donut" style="display:none"></div>
 
 
-
-    </div>
-    
-    </div>
-  </div>
-  </div>
-
-  <!-- ⑥ 순자산 변화 추이 -->
   <div data-card="chart" id="home-card-chart">
   <div class="card" onclick="goPage('input',document.querySelectorAll('.nav-item')[3])" style="cursor:pointer">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -5911,7 +5853,8 @@ function initHome() {
   renderHomeStocksSummary();
 
   applyPartnerNamesToUI();
-  setDonutTab('all');  
+  setDonutTab('all');
+  restoreDonutExpanded();
 
   // 대기목록 체크 (앱 열릴 때 + 30초마다)
   checkPendingTxs();
@@ -8747,6 +8690,37 @@ function saveApiKey() {
 // ══ 자산구성 카드 (토스 스타일) ══
 let donutTab = 'all'; // 'all' | 'p1' | 'p2'
 
+// 자산구성 토글
+function toggleAssetDonut() {
+  const wrap = document.getElementById('donut-expand-wrap');
+  const arrow = document.getElementById('donut-toggle-arrow');
+  const isOpen = wrap.style.maxHeight !== '0px' && wrap.style.maxHeight !== '';
+
+  if (isOpen) {
+    wrap.style.maxHeight = '0px';
+    arrow.style.transform = 'rotate(0deg)';
+    store('donut-expanded', false);
+  } else {
+    wrap.style.maxHeight = wrap.scrollHeight + 500 + 'px';
+    arrow.style.transform = 'rotate(180deg)';
+    store('donut-expanded', true);
+    renderDonutCard();
+  }
+}
+
+// 앱 초기화 시 펼침 상태 복원
+function restoreDonutExpanded() {
+  const isOpen = load('donut-expanded', false);
+  if (isOpen) {
+    const wrap = document.getElementById('donut-expand-wrap');
+    const arrow = document.getElementById('donut-toggle-arrow');
+    if (wrap) {
+      wrap.style.maxHeight = '2000px';
+      if (arrow) arrow.style.transform = 'rotate(180deg)';
+    }
+  }
+}
+
 function setDonutTab(tab) {
   donutTab = tab;
   const tabs = { all: '전체', p1: getP1Name(), p2: getP2Name() };
@@ -8764,8 +8738,56 @@ function setDonutTab(tab) {
   const p2Btn = document.getElementById('donut-tab-p2');
   if (p2Btn) p2Btn.style.display = getP2Name() ? '' : 'none';
 
+  // 소유자 탭 선택에 따라 순자산 카드 숫자 업데이트
+  const latest = assetHistory.length > 0 ? assetHistory[assetHistory.length - 1] : null;
+  if (latest && latest.items) {
+    let filterOwner = null;
+    if (tab === 'p1') filterOwner = 'minsuk';
+    if (tab === 'p2') filterOwner = 'siyun';
+
+    const items = filterOwner
+      ? latest.items.filter(function(i) { return i.owner === filterOwner; })
+      : latest.items;
+
+    const totalAsset = items.filter(function(i) { return i.type === 'asset'; }).reduce(function(s,i) { return s+i.amount; }, 0);
+    const totalDebt  = items.filter(function(i) { return i.type === 'debt'; }).reduce(function(s,i) { return s+i.amount; }, 0);
+    const net = totalAsset - totalDebt;
+
+    const el = function(id) { return document.getElementById(id); };
+    if (el('h-net-large')) animateNumber(el('h-net-large'), 0, net/10000, 600, function(v) { return v.toFixed(2); });
+    if (el('h-total')) animateNumber(el('h-total'), 0, totalAsset/10000, 600, function(v) { return v.toFixed(2); });
+    if (el('h-debt')) animateNumber(el('h-debt'), 0, totalDebt/10000, 600, function(v) { return v.toFixed(2); });
+
+    // 비율 바 업데이트
+    const debtPct = totalAsset > 0 ? Math.min(100, Math.round(totalDebt/totalAsset*100)) : 0;
+    const assetPct = 100 - debtPct;
+    const debtBar = document.getElementById('h-debt-bar');
+    const assetBar = document.getElementById('h-asset-bar');
+    const debtRatioEl = document.getElementById('h-debt-ratio');
+    const assetRatioEl = document.getElementById('h-asset-ratio');
+    if (debtBar) debtBar.style.width = debtPct + '%';
+    if (assetBar) assetBar.style.width = assetPct + '%';
+    if (debtRatioEl) debtRatioEl.textContent = debtPct;
+    if (assetRatioEl) assetRatioEl.textContent = assetPct;
+
+    // 전월 대비 배지 (전체일 때만)
+    const changeBadge = el('h-net-change-badge');
+    if (changeBadge && tab === 'all' && assetHistory.length > 1) {
+      const prev = assetHistory[assetHistory.length - 2];
+      const diff = latest.net - prev.net;
+      const sign = diff >= 0 ? '+' : '';
+      const color = diff >= 0 ? 'var(--green)' : 'var(--red)';
+      const bg = diff >= 0 ? 'rgba(74,222,128,0.12)' : 'rgba(239,68,68,0.12)';
+      const arrow = diff >= 0 ? '▲' : '▼';
+      changeBadge.innerHTML = '<span style="display:inline-flex;align-items:center;gap:5px;background:' + bg + ';color:' + color + ';font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px"><sup style="font-size:8px;font-weight:500;opacity:0.65;vertical-align:super;line-height:0">전월 대비</sup> ' + arrow + ' ' + sign + (diff/10000).toFixed(2) + '억</span>';
+    } else if (changeBadge && tab !== 'all') {
+      changeBadge.innerHTML = '<span style="font-size:10px;color:var(--muted);background:var(--surface2);padding:4px 10px;border-radius:20px">' + tabs[tab] + ' 기준</span>';
+    }
+  }
+
   renderDonutCard();
 }
+
 
 function renderDonutCard() {
   const latest = assetHistory.length > 0 ? assetHistory[assetHistory.length - 1] : null;
