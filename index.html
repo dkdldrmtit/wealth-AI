@@ -3930,15 +3930,11 @@ function goBack() {
 // ══════════════════════════════════════
 const APP_DEFAULTS = {
   'cloudflare-proxy': 'https://ms-wealth-proxy.dkdldrmtit-d5e.workers.dev',
-  'claude-api-key':   '',        // ← Claude API 키 입력
-  'molit-api-key':    '',        // ← 국토부 API 키 입력
-  'apt-settings': {
-    name:    '동탄 하우스디더레이크',  // ← 단지명
-    lawd:    '41590',               // ← 법정동코드
-    areaMin: 55,                    // ← 최소 면적
-    areaMax: 65,                    // ← 최대 면적
-  },
+  'claude-api-key':   '',
+  'molit-api-key':    '',
+  'apt-settings':     null,
 };
+
 // ══════════════════════════════════════
 
 // ── Storage ──
@@ -9606,7 +9602,7 @@ function initRealEstate() {
 
   // 구버전 단일 설정 → 신버전 마이그레이션
   const legacySettings = load('apt-settings', null);
-  if (legacySettings && legacySettings.name && !aptList.length) {
+  if (legacySettings && legacySettings.name && legacySettings.lawd && !aptList.length) {
     const legacyCache = load('realestate-cache', null);
     aptList.push({
       id: 'apt_legacy',
