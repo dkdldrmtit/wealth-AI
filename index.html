@@ -3108,27 +3108,44 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         </div>
       </div>
 
-      <!-- 지역명 + 단지명 통합 검색 -->
+      <!-- 지역명 검색 -->
       <div style="margin-bottom:12px">
-        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">지역 + 단지명 검색</div>
+        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">지역명 <span style="font-weight:400;color:var(--muted)">(시/구/동 단위)</span></div>
         <div style="display:flex;gap:8px">
-          <input type="text" id="apt-name-search" placeholder="예: 동탄 하우스디더레이크"
+          <input type="text" id="apt-region-input" placeholder="예: 화성시 동탄, 강남구, 수지구"
             style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none"
-            onkeydown="if(event.key==='Enter') searchAptComplex()">
+            onkeydown="if(event.key==='Enter') searchAptRegion()">
+          <button onclick="searchAptRegion()" id="apt-region-btn"
+            style="padding:11px 16px;border-radius:10px;background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">
+            조회
+          </button>
+        </div>
+        <div id="apt-region-status" style="font-size:11px;color:var(--muted);margin-top:5px"></div>
+      </div>
+
+      <!-- 지역 선택 칩 -->
+      <div id="apt-lawdcd-wrap" style="display:none;margin-bottom:12px">
+        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">지역 선택</div>
+        <div id="apt-lawdcd-list" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+      </div>
+
+      <!-- 단지명 검색 (지역 선택 후 활성화) -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">단지명 검색</div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="apt-name-search" placeholder="예: 하우스디, 래미안, 힐스테이트"
+            style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none"
+            onkeydown="if(event.key==='Enter') searchAptComplex()"
+            disabled>
           <button onclick="searchAptComplex()" id="apt-search-btn"
-            style="padding:11px 16px;border-radius:10px;background:var(--blue);border:none;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">
+            style="padding:11px 16px;border-radius:10px;background:var(--surface3);border:1px solid var(--border2);color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0"
+            disabled>
             🔍 검색
           </button>
         </div>
-        <div style="font-size:11px;color:var(--muted);margin-top:5px">💡 지역명과 단지명을 함께 입력하면 더 정확해요</div>
         <div id="apt-search-status" style="font-size:11px;color:var(--muted);margin-top:4px"></div>
       </div>
 
-      <!-- 법정동 선택 (검색 후 표시) -->
-      <div id="apt-lawdcd-wrap" style="display:none;margin-bottom:12px">
-        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">지역 선택 <span style="font-weight:400;color:var(--muted)">(검색 결과에서 선택)</span></div>
-        <div id="apt-lawdcd-list" style="display:flex;flex-wrap:wrap;gap:6px"></div>
-      </div>
 
       <!-- 검색 결과 -->
       <div id="apt-search-results" style="display:none;margin-bottom:16px;max-height:220px;overflow-y:auto;background:var(--surface2);border-radius:12px;border:1px solid var(--border)"></div>
@@ -9048,13 +9065,24 @@ function openAptModal(id) {
   const lawdWrap = document.getElementById('apt-lawdcd-wrap');
 
   // 초기화
+  _selectedLawdCd = '';
+  _selectedLawdName = '';
+  document.getElementById('apt-region-input').value = '';
+  document.getElementById('apt-region-status').textContent = '';
   document.getElementById('apt-name-search').value = '';
+  document.getElementById('apt-name-search').disabled = true;
+  document.getElementById('apt-name-search').style.opacity = '0.5';
+  document.getElementById('apt-search-btn').disabled = true;
+  document.getElementById('apt-search-btn').style.background = 'var(--surface3)';
+  document.getElementById('apt-search-btn').style.color = 'var(--muted)';
+  document.getElementById('apt-search-btn').style.borderColor = 'var(--border2)';
   document.getElementById('apt-modal-area-min').value = '';
   document.getElementById('apt-modal-area-max').value = '';
   searchResults.style.display = 'none';
   selectedWrap.style.display = 'none';
   if (lawdWrap) lawdWrap.style.display = 'none';
   if (searchStatus) searchStatus.textContent = '';
+
 
   if (id) {
     // 편집 모드
@@ -9070,10 +9098,16 @@ function openAptModal(id) {
 
     // 선택된 단지 표시
     _aptSelectedComplex = { name: apt.name, lawdCd: apt.lawdCd, sigungu: apt.sigungu };
+    _selectedLawdCd = apt.lawdCd;
+    _selectedLawdName = apt.sigungu || '';
     document.getElementById('apt-selected-name').textContent = apt.name;
     document.getElementById('apt-selected-info').textContent = (apt.sigungu || '') + ' · ' + apt.lawdCd;
     selectedWrap.style.display = 'block';
     document.getElementById('apt-name-search').value = apt.name;
+    document.getElementById('apt-name-search').disabled = false;
+    document.getElementById('apt-name-search').style.opacity = '1';
+    document.getElementById('apt-region-input').value = apt.sigungu || '';
+
 
   } else {
     // 추가 모드
@@ -9135,14 +9169,109 @@ function onAptSigunguChange(code) {
   _aptSelectedComplex = null;
 }
 
-// ── 단지 검색 (법정동코드 API → 실거래가 API 순서로) ──
+// ── STEP1: 지역명으로 법정동코드 조회 ──
+async function searchAptRegion() {
+  const query = document.getElementById('apt-region-input').value.trim();
+  const statusEl = document.getElementById('apt-region-status');
+  const lawdWrap = document.getElementById('apt-lawdcd-wrap');
+  const nameInput = document.getElementById('apt-name-search');
+  const searchBtn = document.getElementById('apt-search-btn');
+
+  if (!query) { showToast('❗ 지역명을 입력해주세요'); return; }
+
+  const proxyUrl = load('cloudflare-proxy', '');
+  if (!proxyUrl) { showToast('❗ 설정에서 Cloudflare 주소를 입력해주세요'); return; }
+
+  const btn = document.getElementById('apt-region-btn');
+  btn.textContent = '⏳';
+  btn.disabled = true;
+  statusEl.textContent = '🔍 조회 중...';
+  lawdWrap.style.display = 'none';
+  document.getElementById('apt-search-results').style.display = 'none';
+  document.getElementById('apt-selected-wrap').style.display = 'none';
+
+  try {
+    const res = await fetch(proxyUrl + '/lawdcode?name=' + encodeURIComponent(query), {
+      signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 10000); return c.signal; })()
+    });
+    const json = await res.json();
+
+    if (!json.ok || !json.data || json.data.length === 0) {
+      statusEl.textContent = '❌ 지역을 찾지 못했어요. 예: 화성시 동탄, 강남구, 수지구';
+      btn.textContent = '조회';
+      btn.disabled = false;
+      return;
+    }
+
+    // 결과 칩 렌더
+    lawdWrap.style.display = 'block';
+    const listEl = document.getElementById('apt-lawdcd-list');
+    listEl.innerHTML = json.data.map(function(l) {
+      return '<button onclick="selectAptRegion(\'' + l.code + '\',\'' + l.name.replace(/'/g,"\\'") + '\')" '
+        + 'id="lawd-btn-' + l.code + '" '
+        + 'style="padding:7px 14px;border-radius:20px;border:1px solid var(--border2);background:var(--surface2);'
+        + 'color:var(--text);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:600;cursor:pointer;'
+        + 'transition:all .15s">'
+        + l.name + '</button>';
+    }).join('');
+
+    statusEl.textContent = json.data.length + '개 지역 발견 · 아래에서 선택해주세요';
+
+    // 결과가 1개면 자동 선택
+    if (json.data.length === 1) {
+      selectAptRegion(json.data[0].code, json.data[0].name);
+    }
+
+  } catch(e) {
+    statusEl.textContent = '❌ 오류: ' + e.message;
+  }
+
+  btn.textContent = '조회';
+  btn.disabled = false;
+}
+
+// ── 지역 칩 선택 → 단지명 입력 활성화 ──
+let _selectedLawdCd = '';
+let _selectedLawdName = '';
+
+function selectAptRegion(code, name) {
+  _selectedLawdCd = code;
+  _selectedLawdName = name;
+
+  // 칩 스타일 업데이트
+  document.querySelectorAll('[id^="lawd-btn-"]').forEach(function(btn) {
+    const isSelected = btn.id === 'lawd-btn-' + code;
+    btn.style.background = isSelected ? 'var(--blue)' : 'var(--surface2)';
+    btn.style.color = isSelected ? '#fff' : 'var(--text)';
+    btn.style.borderColor = isSelected ? 'var(--blue)' : 'var(--border2)';
+  });
+
+  // 단지명 입력 활성화
+  const nameInput = document.getElementById('apt-name-search');
+  const searchBtn = document.getElementById('apt-search-btn');
+  nameInput.disabled = false;
+  nameInput.style.opacity = '1';
+  searchBtn.disabled = false;
+  searchBtn.style.background = 'var(--blue)';
+  searchBtn.style.color = '#fff';
+  searchBtn.style.borderColor = 'var(--blue)';
+
+  document.getElementById('apt-region-status').textContent = '✅ ' + name + ' 선택됨 · 이제 단지명을 입력해서 검색하세요';
+  document.getElementById('apt-search-results').style.display = 'none';
+  document.getElementById('apt-selected-wrap').style.display = 'none';
+
+  // 단지명 입력창 포커스
+  setTimeout(function() { nameInput.focus(); }, 100);
+}
+
+// ── STEP2: 단지명으로 실거래가 검색 ──
 async function searchAptComplex() {
-  const query = document.getElementById('apt-name-search').value.trim();
+  const aptName = document.getElementById('apt-name-search').value.trim();
   const statusEl = document.getElementById('apt-search-status');
   const resultsEl = document.getElementById('apt-search-results');
-  const lawdWrap = document.getElementById('apt-lawdcd-wrap');
 
-  if (!query) { showToast('❗ 지역명 또는 단지명을 입력해주세요'); return; }
+  if (!_selectedLawdCd) { showToast('❗ 먼저 지역을 선택해주세요'); return; }
+  if (!aptName) { showToast('❗ 단지명을 입력해주세요'); return; }
 
   const proxyUrl = load('cloudflare-proxy', '');
   if (!proxyUrl) { showToast('❗ 설정에서 Cloudflare 주소를 입력해주세요'); return; }
@@ -9150,97 +9279,21 @@ async function searchAptComplex() {
   const btn = document.getElementById('apt-search-btn');
   btn.textContent = '⏳';
   btn.disabled = true;
-  statusEl.textContent = '🔍 법정동코드 조회 중...';
+  statusEl.textContent = '🔍 ' + _selectedLawdName + ' 에서 ' + aptName + ' 검색 중...';
   resultsEl.style.display = 'none';
-  if (lawdWrap) lawdWrap.style.display = 'none';
   document.getElementById('apt-selected-wrap').style.display = 'none';
-
-  // ── STEP 1: /lawdcode API로 법정동코드 목록 조회
-  let lawdList = [];
-  try {
-    const res = await fetch(proxyUrl + '/lawdcode?name=' + encodeURIComponent(query), {
-      signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 10000); return c.signal; })()
-    });
-    const json = await res.json();
-    if (json.ok && json.data && json.data.length > 0) {
-      lawdList = json.data; // [{name, code}]
-    }
-  } catch(e) {
-    statusEl.textContent = '❌ 법정동코드 조회 실패: ' + e.message;
-    btn.textContent = '🔍 검색';
-    btn.disabled = false;
-    return;
-  }
-
-  // 법정동코드가 여러 개면 선택 UI 표시
-  if (lawdList.length > 1) {
-    statusEl.textContent = lawdList.length + '개 지역이 검색됐어요. 지역을 선택해주세요.';
-    lawdWrap.style.display = 'block';
-    const lawdListEl = document.getElementById('apt-lawdcd-list');
-    lawdListEl.innerHTML = lawdList.map(function(l) {
-      return '<button onclick="selectLawdAndSearch(\'' + l.code + '\',\'' + l.name.replace(/'/g,"\\'") + '\')" '
-        + 'style="padding:6px 14px;border-radius:20px;border:1px solid var(--border2);background:var(--surface2);'
-        + 'color:var(--text);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:600;cursor:pointer;'
-        + 'transition:all .15s">'
-        + l.name + '</button>';
-    }).join('');
-    btn.textContent = '🔍 검색';
-    btn.disabled = false;
-    return;
-  }
-
-  // 법정동코드 1개 → 바로 실거래가 검색
-  if (lawdList.length === 1) {
-    btn.textContent = '🔍 검색';
-    btn.disabled = false;
-    await searchAptByLawd(lawdList[0].code, lawdList[0].name, query);
-    return;
-  }
-
-  // 법정동코드 못 찾은 경우 → 단지명만으로 검색 시도 안내
-  statusEl.textContent = '❌ 지역을 찾지 못했어요. "서울 강남" 처럼 지역명을 포함해서 입력해보세요.';
-  btn.textContent = '🔍 검색';
-  btn.disabled = false;
-}
-
-// ── 지역 선택 후 실거래가 검색
-async function selectLawdAndSearch(lawdCd, lawdName) {
-  const query = document.getElementById('apt-name-search').value.trim();
-  const lawdWrap = document.getElementById('apt-lawdcd-wrap');
-
-  // 선택된 버튼 강조
-  if (lawdWrap) {
-    lawdWrap.querySelectorAll('button').forEach(function(btn) {
-      const isSelected = btn.textContent.trim() === lawdName;
-      btn.style.background = isSelected ? 'var(--blue)' : 'var(--surface2)';
-      btn.style.color = isSelected ? '#fff' : 'var(--text)';
-      btn.style.borderColor = isSelected ? 'var(--blue)' : 'var(--border2)';
-    });
-  }
-
-  await searchAptByLawd(lawdCd, lawdName, query);
-}
-
-// ── 법정동코드로 실거래가 API 조회 후 단지 목록 추출
-async function searchAptByLawd(lawdCd, lawdName, aptName) {
-  const statusEl = document.getElementById('apt-search-status');
-  const resultsEl = document.getElementById('apt-search-results');
-  const proxyUrl = load('cloudflare-proxy', '');
-
-  statusEl.textContent = '🔍 ' + lawdName + ' 단지 검색 중...';
-  resultsEl.style.display = 'none';
 
   const complexMap = {};
   const now = new Date();
 
-  // 최근 6개월 순차 조회 (데이터 나오면 중단)
-  for (let i = 0; i < 6; i++) {
+  // 최근 12개월 순차 조회 (데이터 나오면 중단)
+  for (let i = 0; i < 12; i++) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const ym = d.getFullYear() + '' + String(d.getMonth()+1).padStart(2,'0');
 
     try {
-      const res = await fetch(proxyUrl + '/realestate?lawdCd=' + lawdCd + '&dealYmd=' + ym, {
-        signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 10000); return c.signal; })()
+      const res = await fetch(proxyUrl + '/realestate?lawdCd=' + _selectedLawdCd + '&dealYmd=' + ym, {
+        signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 12000); return c.signal; })()
       });
       const text = await res.text();
       if (!text || !text.includes('<item>')) continue;
@@ -9250,41 +9303,49 @@ async function searchAptByLawd(lawdCd, lawdName, aptName) {
         const name = (item.querySelector('aptNm')?.textContent || '').trim();
         const area = parseFloat(item.querySelector('excluUseAr')?.textContent || '0');
 
-        // 단지명 필터 (공백 분리 검색)
-        const words = aptName.replace(/[가-힣]+구|[가-힣]+시|[가-힣]+동|[가-힣]+군/g, '').trim().split(/\s+/).filter(Boolean);
-        const nameMatch = words.length === 0 || words.some(function(w) { return name.includes(w); });
+        // 단지명 부분 매칭 (입력한 키워드 포함 여부)
+        const nameMatch = name.includes(aptName) ||
+          aptName.split(/\s+/).filter(Boolean).every(function(w) { return name.includes(w); });
 
         if (nameMatch && name) {
-          if (!complexMap[name]) complexMap[name] = { name, areas: new Set(), lawdCd, sigungu: lawdName };
+          if (!complexMap[name]) {
+            complexMap[name] = { name, areas: new Set(), lawdCd: _selectedLawdCd, sigungu: _selectedLawdName };
+          }
           complexMap[name].areas.add(Math.round(area));
         }
       });
 
+      // 해당 월 전체 단지 데이터가 있으면 중단
       if (Object.keys(complexMap).length > 0) break;
+
     } catch(e) {}
   }
+
+  btn.textContent = '🔍 검색';
+  btn.disabled = false;
 
   const results = Object.values(complexMap);
 
   if (!results.length) {
-    statusEl.textContent = '❌ ' + lawdName + '에서 단지를 찾지 못했어요. 단지명을 다시 확인해보세요.';
+    statusEl.textContent = '❌ \'' + aptName + '\' 단지를 찾지 못했어요. 단지명 일부만 입력해보세요 (예: 하우스디)';
     return;
   }
 
   statusEl.textContent = results.length + '개 단지 발견';
   resultsEl.style.display = 'block';
-  resultsEl.innerHTML = results.map(function(r) {
-    const areas = Array.from(r.areas).sort(function(a,b){ return a-b; });
-    const areaStr = areas.length > 0 ? areas[0] + '~' + areas[areas.length-1] + '㎡' : '';
-    return '<div onclick="selectAptComplex(\'' + r.name.replace(/'/g,"\\'") + '\',\'' + r.lawdCd + '\',\'' + r.sigungu.replace(/'/g,"\\'") + '\')" '
-      + 'style="padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s" '
-      + 'ontouchstart="this.style.background=\'var(--surface3)\'" ontouchend="this.style.background=\'\'">'
-      + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + r.name + '</div>'
-      + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + r.sigungu + (areaStr ? ' · ' + areaStr : '') + '</div>'
-      + '</div>';
-  }).join('');
+  resultsEl.innerHTML = results
+    .sort(function(a, b) { return a.name.localeCompare(b.name); })
+    .map(function(r) {
+      const areas = Array.from(r.areas).sort(function(a,b){ return a-b; });
+      const areaStr = areas.length > 0 ? areas[0] + '~' + areas[areas.length-1] + '㎡' : '';
+      return '<div onclick="selectAptComplex(\'' + r.name.replace(/'/g,"\\'") + '\',\'' + r.lawdCd + '\',\'' + r.sigungu.replace(/'/g,"\\'") + '\')" '
+        + 'style="padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s" '
+        + 'ontouchstart="this.style.background=\'var(--surface3)\'" ontouchend="this.style.background=\'\'">'
+        + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + r.name + '</div>'
+        + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + r.sigungu + (areaStr ? ' · ' + areaStr : '') + '</div>'
+        + '</div>';
+    }).join('');
 }
-
 
 // ── 단지 선택 ──
 function selectAptComplex(name, lawdCd, sigungu) {
@@ -9295,9 +9356,9 @@ function selectAptComplex(name, lawdCd, sigungu) {
   document.getElementById('apt-selected-wrap').style.display = 'block';
   document.getElementById('apt-search-results').style.display = 'none';
   document.getElementById('apt-search-status').textContent = '';
-  document.getElementById('apt-name-search').value = name;
   showToast('✅ ' + name + ' 선택됐어요!');
 }
+
 
 
 // ── 아파트 저장 ──
