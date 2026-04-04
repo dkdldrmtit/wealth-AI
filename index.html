@@ -7358,11 +7358,13 @@ function refreshAllStocksInDetail() {
 
   store('asset-history', assetHistory);
   updateHomeFromItems(latest);
+  renderMonthCards();
 
-  showToast('✅ ' + updated + '개 주식 항목 업데이트 완료! 편집하기로 저장하세요');
+  showToast('✅ ' + updated + '개 주식 항목 업데이트 완료!');
 
   // 상세 모달 새로고침
   if (detailMonth) openAssetDetail(detailMonth);
+
 }
 
 
@@ -7404,9 +7406,10 @@ function closeAssetDetail() {
 function applyAptFromDetail() {
   const cache = load('realestate-cache', null);
   if (!cache) { showToast('❗ 실거래가 데이터가 없어요. 홈에서 새로고침해주세요'); return; }
-  closeAssetDetail();
   applyAptToAsset(cache.price);
+  if (detailMonth) openAssetDetail(detailMonth);
 }
+
 
 function openModalFromDetail() {
   const month = detailMonth;
