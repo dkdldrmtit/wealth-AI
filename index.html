@@ -5094,7 +5094,9 @@ function setAddItemOwner(owner) {
 }
 
 function confirmAddItem() {
+  console.log('pendingStockLink:', window._pendingStockLink); // 디버그
   const name = (document.getElementById('add-item-name').value || '').trim();
+
   const amount = parseFloat(document.getElementById('add-item-amount').value) || 0;
   const memo = (document.getElementById('add-item-memo').value || '').trim();
 
