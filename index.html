@@ -9673,7 +9673,16 @@ function renderHomeApt() {
   const displayList = aptList.filter(function(a) { return a.cache; });
 
   if (!displayList.length && !legacyCache) {
-    wrap.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:8px 0">새로고침 버튼을 눌러 최신 시세를 불러오세요</div>';
+    if (!aptList.length) {
+      wrap.innerHTML = '<div style="text-align:center;padding:12px 0">'
+        + '<div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.7">등록된 부동산이 없어요.<br>보유 중인 아파트를 등록하면<br>실거래가를 자동으로 추적해줘요.</div>'
+        + '<button onclick="goPage(\'settings\',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab(\'apt\'),200)" '
+        + 'style="padding:8px 16px;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:600;cursor:pointer">'
+        + '등록하기</button>'
+        + '</div>';
+    } else {
+      wrap.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:8px 0">새로고침 버튼을 눌러 최신 시세를 불러오세요</div>';
+    }
     return;
   }
 
