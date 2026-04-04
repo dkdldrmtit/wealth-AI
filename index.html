@@ -9427,7 +9427,7 @@ async function selectAptComplex(name, lawdCd, sigungu) {
 
   await Promise.all(months.map(async function(ym) {
     try {
-      const res = await fetch(proxyUrl + '/realestate?lawdCd=' + lawdCd + '&dealYmd=' + ym, {
+      const res = await fetch(proxyUrl + '/realestate?lawdCd=' + _selectedLawdCd + '&dealYmd=' + ym, {
         signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 12000); return c.signal; })()
       });
       const text = await res.text();
@@ -9453,7 +9453,11 @@ async function selectAptComplex(name, lawdCd, sigungu) {
     } catch(e) {}
   }));
 
+  console.log('📊 수집된 평형 목록:', Object.keys(areaTradeMap).sort(function(a,b){return a-b;}).join(', ') + '㎡');
+  console.log('📊 총 수집 개월수: 12개월 조회 완료');
+
   if (!Object.keys(areaTradeMap).length) {
+
     areaChips.innerHTML = '<div style="font-size:11px;color:var(--muted)">평형 정보를 찾지 못했어요. 직접 입력해주세요.</div>';
     showToast('✅ ' + name + ' 선택됐어요!');
     return;
