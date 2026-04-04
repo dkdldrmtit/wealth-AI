@@ -7038,8 +7038,8 @@ function openAssetDetail(month) {
                 : '')
               + (function(){ const latest = assetHistory[assetHistory.length-1]; return latest && latest.items && latest.items.some(function(i){return i.stockLink;}); }()
                 ? (function(){
-                    const now = new Date();
-                    const thisMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+                    const _now = new Date();
+                    const thisMonth = _now.getFullYear() + '-' + String(_now.getMonth()+1).padStart(2,'0');
                     const isThisMonth = assetHistory.length && assetHistory[assetHistory.length-1].month === thisMonth;
                     return isThisMonth
                       ? '<button onclick="refreshAllStocksInDetail()" style="flex:1;padding:13px;border-radius:12px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:600;cursor:pointer">📈 주식 시세 업데이트</button>'
