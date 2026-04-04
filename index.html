@@ -7227,7 +7227,10 @@ function renderDetailItem(item, totalAsset, prev, isDebt, cid, showOwner) {
   // 전월 대비
   var diffHtml = '';
   if (prev && prev.items) {
-    var prevItem = prev.items.find(function(p){ return p.name === item.name; });
+    var prevItem = prev.items.find(function(p){ 
+      return p.name === item.name && (p.owner || 'common') === (item.owner || 'common'); 
+    });
+
     if (prevItem) {
       var d = amt - (prevItem.amount || 0);
       if (d !== 0) {
