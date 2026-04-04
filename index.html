@@ -7037,8 +7037,16 @@ function openAssetDetail(month) {
                 ? '<button onclick="applyAptFromDetail()" style="flex:1;padding:13px;border-radius:12px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:600;cursor:pointer">🏢 실거래가 반영</button>'
                 : '')
               + (function(){ const latest = assetHistory[assetHistory.length-1]; return latest && latest.items && latest.items.some(function(i){return i.stockLink;}); }()
-                ? '<button onclick="refreshAllStocksInDetail()" style="flex:1;padding:13px;border-radius:12px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:600;cursor:pointer">📈 주식 시세 업데이트</button>'
+                ? (function(){
+                    const now = new Date();
+                    const thisMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+                    const isThisMonth = assetHistory.length && assetHistory[assetHistory.length-1].month === thisMonth;
+                    return isThisMonth
+                      ? '<button onclick="refreshAllStocksInDetail()" style="flex:1;padding:13px;border-radius:12px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:600;cursor:pointer">📈 주식 시세 업데이트</button>'
+                      : '<div style="flex:1;padding:13px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;text-align:center;display:flex;align-items:center;justify-content:center">📈 이번달만 업데이트 가능</div>';
+                  })()
                 : '')
+
               + '</div>'
             : ''}
           <!-- 편집/삭제 -->
@@ -7315,8 +7323,18 @@ function refreshStockItem(itemName, owner, market) {
 function refreshAllStocksInDetail() {
   const usdKrw = load('usd-krw-rate', 0);
   if (!assetHistory.length) return;
+
+  // 이번달 기록에만 적용 가능
+  const now = new Date();
+  const thisMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
   const latest = assetHistory[assetHistory.length - 1];
   if (!latest.items) return;
+
+  if (latest.month !== thisMonth) {
+    showToast('❗ 주식 시세 업데이트는 이번달 기록에만 가능해요');
+    return;
+  }
+
 
   const linkedItems = latest.items.filter(function(i) { return i.stockLink && i.type === 'asset'; });
   if (!linkedItems.length) { showToast('❗ 연동된 주식 항목이 없어요'); return; }
