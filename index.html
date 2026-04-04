@@ -5041,6 +5041,8 @@ function linkStockToItem(market, owner) {
   document.getElementById('add-item-modal').dataset.stockLink = market;
   document.getElementById('add-item-modal').dataset.stockLinkTime = timeStr;
   document.getElementById('add-item-modal').dataset.stockLinkOwner = owner;
+  window._pendingStockLink = { market, timeStr };
+
 
 
   // 소유자 자동 설정 + 버튼 잠금
@@ -5117,8 +5119,9 @@ function confirmAddItem() {
 
   const id = 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
   const modal = document.getElementById('add-item-modal');
-  const stockLinkVal = modal.dataset.stockLink || null;
-  const stockLinkTimeVal = modal.dataset.stockLinkTime || null;
+  const stockLinkVal = modal.dataset.stockLink || (window._pendingStockLink ? window._pendingStockLink.market : null);
+  const stockLinkTimeVal = modal.dataset.stockLinkTime || (window._pendingStockLink ? window._pendingStockLink.timeStr : null);
+
   modalAssetItems.push({
     id,
     category: cat ? cat.label : '기타자산',
