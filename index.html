@@ -1828,14 +1828,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div style="display:flex;background:var(--surface2);border-radius:14px;padding:4px;margin-bottom:20px;gap:2px">
     <button id="stab-home" onclick="setSettingsTab('home')"
       style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.10);color:var(--text);border:0.5px solid rgba(59,130,246,0.25)">홈</button>
-    <button id="stab-api" onclick="setSettingsTab('api')"
-      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">🔑 API</button>
     <button id="stab-apt" onclick="setSettingsTab('apt')"
-      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">🏢 부동산</button>
+      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">부동산</button>
     <button id="stab-cat" onclick="setSettingsTab('cat')"
-      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">🏷️ 카테고리</button>
+      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">카테고리</button>
     <button id="stab-data" onclick="setSettingsTab('data')"
-      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">💾 데이터·커플</button>
+      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">계정</button>
   </div>
 
   <!-- 홈 설정 -->
@@ -1881,76 +1879,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div id="pname-status" style="display:none;margin-top:8px;font-size:12px;text-align:center"></div>
     </div>
 
-    <!-- 계정 -->
-    <div class="card" style="border-color:rgba(239,68,68,0.15)">
-      <div class="card-title" style="color:var(--muted)">계정</div>
-      <div id="settings-my-info" style="padding:12px;background:var(--surface2);border-radius:12px;margin-bottom:12px">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">로그인된 계정</div>
-        <div id="settings-my-email" style="font-size:14px;font-weight:600;color:var(--text)">-</div>
-      </div>
-      <button onclick="handleLogout()"
-        style="width:100%;padding:13px;border-radius:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
-        로그아웃
-      </button>
-    </div>
   </div>
 
 
-  <!-- 🔑 API 연동 -->
-  <div id="stab-content-api" style="display:none">
+  <!-- API 탭 제거됨 -->
+  <div id="stab-content-api" style="display:none"></div>
 
-    <!-- Claude API -->
-    <div class="card" style="border-color:rgba(240,192,64,.25);margin-bottom:14px">
-      <div class="card-title" style="color:var(--muted)">Claude API 키</div>
-      <p style="font-size:12px;color:var(--muted2);line-height:1.7;margin-bottom:14px">
-        입력하면 어디서 열어도 AI 기능이 작동해요.<br>
-        <strong style="color:var(--text)">console.anthropic.com</strong>에서 발급
-      </p>
-      <div style="margin-bottom:10px">
-        <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:5px">API Key (sk-ant-...)</label>
-        <input type="password" id="claude-api-key-input" placeholder="sk-ant-api03-..."
-          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:12px;padding:11px 13px;outline:none;">
-      </div>
-      <button class="btn-primary" onclick="saveClaudeApiKey()" style="">저장</button>
-      <div id="claude-key-status" style="margin-top:10px;font-size:12px;text-align:center;display:none"></div>
-      <div style="margin-top:10px;padding:10px 12px;background:var(--surface2);border-radius:10px;font-size:11px;color:var(--muted);line-height:1.7">
-        💡 월 사용량은 보통 <strong style="color:var(--text)">$1~2</strong> 수준이에요.<br>
-        console에서 월 한도 설정을 추천해요.
-      </div>
-    </div>
-
-    <!-- Cloudflare -->
-    <div class="card" style="border-color:rgba(74,222,128,.25);margin-bottom:14px">
-      <div class="card-title" style="color:var(--muted)">Cloudflare 프록시</div>
-      <p style="font-size:12px;color:var(--muted2);line-height:1.7;margin-bottom:14px">
-        주식 시세 · 부동산 실거래가 조회에 필요해요.
-      </p>
-      <div style="margin-bottom:10px">
-        <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:5px">Workers URL</label>
-        <input type="text" id="proxy-url-input" placeholder="https://molit-proxy.xxx.workers.dev"
-          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:12px;padding:11px 13px;outline:none;">
-      </div>
-      <div style="display:flex;gap:8px">
-        <button class="btn-primary" onclick="saveProxyUrl()" style="flex:1">저장</button>
-        <button onclick="testProxyConnection()" style="padding:14px 16px;border-radius:12px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">🔌 테스트</button>
-      </div>
-      <div id="proxy-status" style="margin-top:10px;font-size:12px;text-align:center;display:none"></div>    </div>
-
-    <!-- 국토부 -->
-    <div class="card" style="border-color:rgba(96,165,250,.25)">
-      <div class="card-title" style="color:var(--muted)">국토부 실거래가 API</div>
-      <p style="font-size:12px;color:var(--muted2);line-height:1.7;margin-bottom:14px">
-        <strong style="color:var(--text)">data.go.kr</strong> → 아파트매매 실거래 상세 → 일반 인증키(Decoding)
-      </p>
-      <div style="margin-bottom:10px">
-        <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:5px">인증키 (Decoding)</label>
-        <input type="text" id="api-key-input" placeholder="발급받은 인증키 붙여넣기"
-          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:12px;padding:11px 13px;outline:none;">
-      </div>
-      <button class="btn-primary" onclick="saveApiKey()">저장</button>
-      <div id="api-key-status" style="margin-top:10px;font-size:12px;text-align:center;display:none"></div>
-    </div>
-  </div>
 
   <!-- 🏢 부동산 -->
 <div id="stab-content-apt" style="display:none">
@@ -7955,7 +7889,7 @@ let currentSettingsTab = 'home';
 
 function setSettingsTab(tab) {
   currentSettingsTab = tab;
-  ['home','api','apt','cat','data'].forEach(t => {
+  ['home','apt','cat','data'].forEach(t => {
     const btn = document.getElementById('stab-' + t);
     const con = document.getElementById('stab-content-' + t);
     const isActive = t === tab;
@@ -7963,14 +7897,19 @@ function setSettingsTab(tab) {
       btn.style.background = isActive ? 'rgba(59,130,246,0.10)' : 'transparent';
       btn.style.color = isActive ? '#3b82f6' : 'var(--muted2)';
       btn.style.fontWeight = isActive ? '700' : '600';
+      if (isActive) {
+        btn.style.border = '0.5px solid rgba(59,130,246,0.25)';
+      } else {
+        btn.style.border = 'none';
+      }
     }
     if (con) con.style.display = isActive ? 'block' : 'none';
   });
   if (tab === 'cat') renderCatSettings();
   if (tab === 'data') renderCoupleSettings();
   if (tab === 'home') loadPartnerNamesUI();
-
 }
+
 
 // ── 파트너 이름 설정 UI ──
 function loadPartnerNamesUI() {
@@ -9934,15 +9873,6 @@ function linkAptToItem(aptId) {
 
 // ── initRealEstate() 업데이트 ──
 function initRealEstate() {
-  const apiKey = load('molit-api-key', '');
-  if (apiKey) { const el = document.getElementById('api-key-input'); if(el) el.value = apiKey; }
-  const proxyUrl = load('cloudflare-proxy', '');
-  const proxyInput = document.getElementById('proxy-url-input');
-  if (proxyUrl && proxyInput) proxyInput.value = proxyUrl;
-  const claudeKey = load('claude-api-key', '');
-  const claudeInput = document.getElementById('claude-api-key-input');
-  if (claudeKey && claudeInput) claudeInput.value = claudeKey;
-
   // 구버전 단일 설정 → 신버전 마이그레이션 (1회만 실행)
   const legacyMigrated = load('apt-legacy-migrated', false);
   const legacySettings = load('apt-settings', null);
