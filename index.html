@@ -7861,13 +7861,16 @@ function initHomeCardDragDrop() {
 
     item.addEventListener('touchmove', function(e) {
       if (!touchClone) return;
+      e.preventDefault(); // 스크롤 방지
+      e.stopPropagation();
       touchClone.style.top = (e.touches[0].clientY - touchOffsetY) + 'px';
       wrap.querySelectorAll('.hcs-item').forEach(function(el) { el.style.borderTop = ''; });
       const touch = e.touches[0];
       const el = document.elementFromPoint(touch.clientX, touch.clientY);
       const target = el ? el.closest('.hcs-item') : null;
       if (target && target !== item) target.style.borderTop = '2px solid var(--blue)';
-    }, { passive: true });
+    }, { passive: false });
+
 
     item.addEventListener('touchend', function(e) {
       if (touchClone) { document.body.removeChild(touchClone); touchClone = null; }
@@ -10997,6 +11000,8 @@ function initStockDragDrop() {
 
     item.addEventListener('touchmove', function(e) {
       if (!touchClone) return;
+      e.preventDefault();
+      e.stopPropagation();
       const touch = e.touches[0];
       touchClone.style.top = (touch.clientY - 30) + 'px';
       // 아래에 있는 요소 찾기
@@ -11010,7 +11015,8 @@ function initStockDragDrop() {
       if (target && target !== touchItem && target.dataset.market === touchItem.dataset.market) {
         target.classList.add('drag-over');
       }
-    }, { passive: true });
+    }, { passive: false });
+
 
     item.addEventListener('touchend', function(e) {
       if (!touchClone || !touchItem) return;
