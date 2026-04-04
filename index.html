@@ -9671,23 +9671,55 @@ function renderHomeApt() {
   // 항상 최신 상태로 다시 읽기
   aptList = load('apt-list', []);
 
-  // 구버전 단일 캐시 → 신버전 호환
-  const legacyCache = load('realestate-cache', null);
+  const legacyCache = null; // 구버전 캐시 무시
   const displayList = aptList.filter(function(a) { return a.cache; });
 
-  if (!displayList.length && !legacyCache) {
+  if (!aptList.length) {
+    wrap.innerHTML = '<div style="padding:4px 0">'
+      + '<div style="font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:12px">'
+      + '등록된 부동산이 없어요.<br>'
+      + '<span style="color:var(--text3)">아파트를 보유하고 있다면 등록해보세요.<br>필요 없다면 설정에서 이 카드를 숨길 수 있어요.</span>'
+      + '</div>'
+      + '<div style="display:flex;gap:8px">'
+      + '<button onclick="goPage(\'settings\',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab(\'apt\'),200)" '
+      + 'style="flex:1;padding:9px;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:600;cursor:pointer">'
+      + '아파트 등록</button>'
+      + '<button onclick="goPage(\'settings\',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab(\'home\'),200)" '
+      + 'style="flex:1;padding:9px;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:500;cursor:pointer">'
+      + '카드 숨기기</button>'
+      + '</div>'
+      + '</div>';
+    return;
+  }
+
+  if (!displayList.length) {
+    wrap.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:8px 0">새로고침 버튼을 눌러 최신 시세를 불러오세요</div>';
+    return;
+  }
+
+
+  if (!displayList.length) {
     if (!aptList.length) {
-      wrap.innerHTML = '<div style="text-align:center;padding:12px 0">'
-        + '<div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.7">등록된 부동산이 없어요.<br>보유 중인 아파트를 등록하면<br>실거래가를 자동으로 추적해줘요.</div>'
+      wrap.innerHTML = '<div style="padding:4px 0">'
+        + '<div style="font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:12px">'
+        + '등록된 부동산이 없어요.<br>'
+        + '<span style="color:var(--muted)">아파트를 보유하고 있다면 등록해보세요.<br>부동산이 없다면 설정에서 이 카드를 숨길 수 있어요.</span>'
+        + '</div>'
+        + '<div style="display:flex;gap:8px">'
         + '<button onclick="goPage(\'settings\',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab(\'apt\'),200)" '
-        + 'style="padding:8px 16px;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:600;cursor:pointer">'
-        + '등록하기</button>'
+        + 'style="flex:1;padding:9px;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:600;cursor:pointer">'
+        + '아파트 등록</button>'
+        + '<button onclick="goPage(\'settings\',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>{renderHomeCardSettingsList();},200)" '
+        + 'style="flex:1;padding:9px;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:500;cursor:pointer">'
+        + '카드 숨기기</button>'
+        + '</div>'
         + '</div>';
     } else {
       wrap.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:8px 0">새로고침 버튼을 눌러 최신 시세를 불러오세요</div>';
     }
     return;
   }
+
 
   // 구버전 단일 캐시도 표시
   let html = '';
