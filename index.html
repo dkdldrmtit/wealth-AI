@@ -9420,7 +9420,7 @@ async function selectAptComplex(name, lawdCd, sigungu) {
 
   // 최근 12개월 전체를 병렬로 조회
   const months = [];
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < 36; i++) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     months.push(d.getFullYear() + '' + String(d.getMonth()+1).padStart(2,'0'));
   }
@@ -9453,6 +9453,7 @@ async function selectAptComplex(name, lawdCd, sigungu) {
     } catch(e) {}
   }));
 
+  console.log('📊 단지명 검색어:', name);
   console.log('📊 수집된 평형 목록:', Object.keys(areaTradeMap).sort(function(a,b){return a-b;}).join(', ') + '㎡');
   console.log('📊 총 수집 개월수: 12개월 조회 완료');
 
@@ -9500,10 +9501,15 @@ async function selectAptComplex(name, lawdCd, sigungu) {
       .slice(0, 5);
 
     if (!trades.length) {
-      tradeWrap.style.display = 'none';
+      tradeWrap.style.display = 'block';
+      tradeWrap.innerHTML =
+        '<div style="text-align:center;padding:16px;color:var(--muted)">'
+        + '<div style="font-size:24px;margin-bottom:8px">📭</div>'
+        + '<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">최근 3년간 거래 내역이 없어요</div>'
+        + '<div style="font-size:11px;color:var(--muted);line-height:1.6">인근 유사 평형 시세를 참고하거나<br>호갱노노에서 직접 확인해보세요</div>'
+        + '</div>';
       return;
     }
-
     const latestPrice = trades[0].price;
     const supplyPyeong = getSupplyPyeong(selectedArea);
     const exclusivePyeong = Math.round(selectedArea * 0.3025);
