@@ -5133,13 +5133,7 @@ function renderAddItemPresets() {
   }).join('');
 }
 
-  
 
-
-  presetsWrap.innerHTML = cat.items.map(function(item) {
-    return '<button onclick="selectAddItemPreset(\'' + item + '\')" style="padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:500;cursor:pointer">' + item + '</button>';
-  }).join('');
-}
 
 function linkStockToItem(market, owner) {
   owner = owner || _addItemOwner || 'common';
