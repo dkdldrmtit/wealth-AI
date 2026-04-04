@@ -3179,6 +3179,10 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           </div>
         </details>
       </div>
+      <!-- 면적 저장용 hidden input (JS에서 평형 선택 시 자동 세팅) -->
+      <input type="hidden" id="apt-modal-area-min-val" value="0">
+      <input type="hidden" id="apt-modal-area-max-val" value="999">
+
 
 
       <!-- 저장 버튼 -->
@@ -9099,7 +9103,12 @@ function openAptModal(id) {
   if (areaChips) areaChips.innerHTML = '';
   const tradeHistory = document.getElementById('apt-trade-history');
   if (tradeHistory) { tradeHistory.style.display = 'none'; tradeHistory.innerHTML = ''; }
+  const areaMinVal = document.getElementById('apt-modal-area-min-val');
+  const areaMaxVal = document.getElementById('apt-modal-area-max-val');
+  if (areaMinVal) areaMinVal.value = '0';
+  if (areaMaxVal) areaMaxVal.value = '999';
   window._aptAreaSelectFn = null;
+
 
 
 
@@ -9431,10 +9440,40 @@ async function selectAptComplex(name, lawdCd, sigungu) {
   const areas = Object.keys(areaTradeMap).map(Number).sort(function(a,b){ return a-b; });
   let selectedArea = null;
 
+  // 전용면적 → 공급면적 평수 변환 테이블 (한국 표준 아파트 기준)
+  function getSupplyPyeong(exclusiveArea) {
+    // 전용면적별 통상적인 공급면적 평수 매핑
+    const map = [
+      { max: 27,  pyeong: 10 },
+      { max: 33,  pyeong: 13 },
+      { max: 40,  pyeong: 15 },
+      { max: 46,  pyeong: 17 },
+      { max: 50,  pyeong: 19 },
+      { max: 55,  pyeong: 21 },
+      { max: 62,  pyeong: 25 },  // 59㎡ → 25평
+      { max: 69,  pyeong: 27 },
+      { max: 75,  pyeong: 30 },
+      { max: 80,  pyeong: 32 },
+      { max: 88,  pyeong: 34 },  // 84㎡ → 34평
+      { max: 96,  pyeong: 38 },
+      { max: 103, pyeong: 40 },
+      { max: 112, pyeong: 43 },
+      { max: 122, pyeong: 46 },
+      { max: 135, pyeong: 50 },
+      { max: 149, pyeong: 56 },
+      { max: 165, pyeong: 62 },
+    ];
+    for (var i = 0; i < map.length; i++) {
+      if (exclusiveArea <= map[i].max) return map[i].pyeong;
+    }
+    return Math.round(exclusiveArea * 0.3025 * 1.25); // 165㎡ 초과는 근사값
+  }
+
   function renderAreaChips() {
     // 평형 칩
     areaChips.innerHTML = areas.map(function(area) {
-      const pyeong = Math.round(area * 0.3025);
+      const supplyPyeong = getSupplyPyeong(area);           // 공급 기준 평수 (25평, 34평)
+      const exclusivePyeong = Math.round(area * 0.3025);    // 전용 기준 평수 (18평, 26평)
       const isSelected = selectedArea === area;
       return '<button onclick="selectAptArea(' + area + ')" '
         + 'style="padding:8px 14px;border-radius:20px;'
@@ -9442,11 +9481,12 @@ async function selectAptComplex(name, lawdCd, sigungu) {
         + 'background:' + (isSelected ? 'var(--blue)' : 'var(--surface2)') + ';'
         + 'color:' + (isSelected ? '#fff' : 'var(--text)') + ';'
         + 'font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:' + (isSelected ? '700' : '500') + ';'
-        + 'cursor:pointer;transition:all .15s">'
-        + pyeong + '평'
-        + '<span style="font-size:10px;opacity:0.7;margin-left:3px">(' + area + '㎡)</span>'
+        + 'cursor:pointer;transition:all .15s;line-height:1.4;text-align:center">'
+        + '<div>' + supplyPyeong + '평</div>'
+        + '<div style="font-size:10px;opacity:0.65">전용 ' + area + '㎡</div>'
         + '</button>';
     }).join('');
+
 
     // 선택된 평형의 최근 실거래가 표시
     const tradeWrap = document.getElementById('apt-trade-history');
@@ -9467,13 +9507,17 @@ async function selectAptComplex(name, lawdCd, sigungu) {
     }
 
     const latestPrice = trades[0].price;
-    const pyeong = Math.round(selectedArea * 0.3025);
+    const supplyPyeong = getSupplyPyeong(selectedArea);
+    const exclusivePyeong = Math.round(selectedArea * 0.3025);
 
     tradeWrap.style.display = 'block';
     tradeWrap.innerHTML =
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
-      + '<div style="font-size:11px;color:var(--muted);font-weight:600">'
-      + pyeong + '평 최근 실거래가</div>'
+      + '<div>'
+      + '<div style="font-size:13px;font-weight:700;color:var(--text)">' + supplyPyeong + '평 최근 실거래가</div>'
+      + '<div style="font-size:10px;color:var(--muted);margin-top:1px">전용 ' + selectedArea + '㎡ · 전용기준 ' + exclusivePyeong + '평</div>'
+      + '</div>'
+
       + '<div style="font-size:18px;font-weight:900;color:var(--blue)">'
       + (latestPrice / 10000).toFixed(2) + '억'
       + '</div>'
@@ -9501,10 +9545,17 @@ async function selectAptComplex(name, lawdCd, sigungu) {
   window._aptAreaSelectFn = function(area) {
     selectedArea = area;
     const margin = area * 0.1;
-    document.getElementById('apt-modal-area-min').value = Math.floor(area - margin);
-    document.getElementById('apt-modal-area-max').value = Math.ceil(area + margin);
+    // hidden input에 값 저장
+    document.getElementById('apt-modal-area-min-val').value = Math.floor(area - margin);
+    document.getElementById('apt-modal-area-max-val').value = Math.ceil(area + margin);
+    // details 직접입력칸도 동기화
+    const minEl = document.getElementById('apt-modal-area-min');
+    const maxEl = document.getElementById('apt-modal-area-max');
+    if (minEl) minEl.value = Math.floor(area - margin);
+    if (maxEl) maxEl.value = Math.ceil(area + margin);
     renderAreaChips();
   };
+
 
   renderAreaChips();
   showToast('✅ ' + name + ' 선택됐어요! 평형을 골라주세요');
@@ -9520,10 +9571,14 @@ function selectAptArea(area) {
 function saveAptFromModal() {
   if (!_aptSelectedComplex) { showToast('❗ 단지를 검색해서 선택해주세요'); return; }
 
-  const areaMinEl = document.getElementById('apt-modal-area-min');
-  const areaMaxEl = document.getElementById('apt-modal-area-max');
-  const areaMin = areaMinEl ? (parseFloat(areaMinEl.value) || 0) : 0;
-  const areaMax = areaMaxEl ? (parseFloat(areaMaxEl.value) || 999) : 999;
+  // hidden val 우선, 없으면 직접입력 칸, 없으면 기본값
+  const areaMinVal = document.getElementById('apt-modal-area-min-val');
+  const areaMaxVal = document.getElementById('apt-modal-area-max-val');
+  const areaMinDirect = document.getElementById('apt-modal-area-min');
+  const areaMaxDirect = document.getElementById('apt-modal-area-max');
+  const areaMin = parseFloat((areaMinVal && areaMinVal.value) || (areaMinDirect && areaMinDirect.value) || '0') || 0;
+  const areaMax = parseFloat((areaMaxVal && areaMaxVal.value) || (areaMaxDirect && areaMaxDirect.value) || '999') || 999;
+
 
   const aptData = {
     id: _aptEditingId || 'apt_' + Date.now(),
