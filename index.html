@@ -9315,7 +9315,6 @@ async function searchAptComplex() {
   const complexMap = {};
   const now = new Date();
 
-  // 최근 6개월 병렬 조회 (단지 검색은 6개월이면 충분)
   const searchMonths = [];
   for (let i = 0; i < 6; i++) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -9332,14 +9331,12 @@ async function searchAptComplex() {
 
       const xml = new DOMParser().parseFromString(text, 'text/xml');
 
-      // 전체 단지명 수집 (디버그용)
       const allNames = new Set();
       xml.querySelectorAll('item').forEach(function(item) {
         const n = (item.querySelector('aptNm')?.textContent || '').trim();
         if (n) allNames.add(n);
       });
 
-      // 검색어 공백 제거 후 유연하게 매칭
       const searchKeyword = aptName.replace(/\s+/g, '').toLowerCase();
 
       xml.querySelectorAll('item').forEach(function(item) {
@@ -9347,9 +9344,7 @@ async function searchAptComplex() {
         const area = parseFloat(item.querySelector('excluUseAr')?.textContent || '0');
 
         const nameNorm = name.replace(/\s+/g, '').toLowerCase();
-        const nameMatch = nameNorm.includes(searchKeyword) ||
-          searchKeyword.split('').filter(Boolean).length > 1 && 
-          searchKeyword.split('').every(function(ch) { return nameNorm.includes(ch); });
+        const nameMatch = nameNorm.includes(searchKeyword);
 
         if (nameMatch && name) {
           if (!complexMap[name]) complexMap[name] = { name, areas: new Set(), lawdCd: _selectedLawdCd, sigungu: _selectedLawdName };
@@ -9363,18 +9358,13 @@ async function searchAptComplex() {
     } catch(e) {}
   }));
 
-
-
   btn.textContent = '🔍 검색';
   btn.disabled = false;
 
   const results = Object.values(complexMap);
 
   if (!results.length) {
-    // 해당 지역에 실제로 어떤 단지들이 있는지 안내
-    statusEl.innerHTML = '❌ <strong style="color:var(--red)">\'' + aptName + '\'</strong> 단지를 찾지 못했어요.<br>'
-      + '<span style="color:var(--muted)">· 단지명 일부만 입력해보세요 (예: 래미안 → 래미, 하우스디 → 하우스)<br>'
-      + '· 브라우저 콘솔(F12)에서 해당 지역 전체 단지 목록을 확인할 수 있어요</span>';
+    statusEl.textContent = '❌ \'' + aptName + '\' 단지를 찾지 못했어요. 단지명 일부만 입력해보세요';
     return;
   }
 
