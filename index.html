@@ -2083,31 +2083,35 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
     <!-- 수입/지출/잔액 -->
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px">
-      <div onclick="openLedgerAdd('income')" style="background:var(--surface);padding:16px 8px;text-align:center;cursor:pointer">
+      <div onclick="openLedgerAdd('income')" style="background:var(--surface);padding:16px 6px;text-align:center;cursor:pointer">
         <div style="font-size:9px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:6px;text-transform:uppercase">수입</div>
-        <div id="ledger-income" style="font-size:17px;font-weight:800;color:var(--text)">0원</div>
+        <div id="ledger-income" style="font-size:clamp(11px,3.5vw,17px);font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">0원</div>
       </div>
-      <div onclick="openLedgerAdd('expense')" style="background:var(--surface);padding:16px 8px;text-align:center;cursor:pointer">
+      <div onclick="openLedgerAdd('expense')" style="background:var(--surface);padding:16px 6px;text-align:center;cursor:pointer">
         <div style="font-size:9px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:6px;text-transform:uppercase">지출</div>
-        <div id="ledger-expense" style="font-size:17px;font-weight:800;color:var(--red)">0원</div>
+        <div id="ledger-expense" style="font-size:clamp(11px,3.5vw,17px);font-weight:800;color:var(--red);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">0원</div>
       </div>
-      <div style="background:var(--surface);padding:16px 8px;text-align:center">
+      <div style="background:var(--surface);padding:16px 6px;text-align:center">
         <div style="font-size:9px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:6px;text-transform:uppercase">잔액</div>
-        <div id="ledger-balance" style="font-size:17px;font-weight:800">0원</div>
+        <div id="ledger-balance" style="font-size:clamp(11px,3.5vw,17px);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">0원</div>
       </div>
     </div>
+
 
     <!-- 소유자 탭 -->
-    <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px">
+    <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:0">
       <button id="owner-all" onclick="setLedgerOwner('all')" style="flex:1;padding:10px 4px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;color:var(--text);border-bottom:2px solid var(--text);margin-bottom:-1px">전체</button>
-      <button id="owner-common" onclick="setLedgerOwner('common')" style="flex:1;padding:10px 4px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted)">공동</button>
-      <button id="owner-minsuk" onclick="setLedgerOwner('minsuk')" style="flex:1;padding:10px 4px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted)">나</button>
-      <button id="owner-siyun" onclick="setLedgerOwner('siyun')" style="flex:1;padding:10px 4px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted)">파트너</button>
+      <button id="owner-common" onclick="setLedgerOwner('common')" style="flex:1;padding:10px 4px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px">공동</button>
+      <button id="owner-minsuk" onclick="setLedgerOwner('minsuk')" style="flex:1;padding:10px 4px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px">나</button>
+      <button id="owner-siyun" onclick="setLedgerOwner('siyun')" style="flex:1;padding:10px 4px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px">파트너</button>
     </div>
 
+    <!-- 여백 -->
+    <div style="height:20px"></div>
 
     <!-- 탭 (내역/분석/예산/캘린더) -->
     <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:0">
+
       <button id="ltab-list" onclick="setLedgerTab('list')" style="flex:1;padding:12px 4px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--text);border-bottom:2px solid var(--text);margin-bottom:-1px">내역</button>
       <button id="ltab-chart" onclick="setLedgerTab('chart')" style="flex:1;padding:12px 4px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px">분석</button>
       <button id="ltab-budget" onclick="setLedgerTab('budget')" style="flex:1;padding:12px 4px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px">예산</button>
@@ -2120,7 +2124,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
 
   <!-- 내역 탭 -->
-  <div id="ltab-content-list" style="padding:0 16px 120px">
+  <div id="ltab-content-list" style="padding:16px 16px 120px">
+
 
     <!-- 월 네비 -->
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;margin-top:4px">
@@ -2213,7 +2218,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
 
   <!-- 분석 탭 -->
-  <div id="ltab-content-chart" style="display:none;padding:0 16px 120px">
+  <div id="ltab-content-chart" style="display:none;padding:16px 16px 120px">
+
 
     <!-- AI 월말 리포트 -->
     <div class="siri-card" style="margin-bottom:12px">
@@ -2303,7 +2309,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
 
   <!-- 캘린더 탭 -->
-  <div id="ltab-content-calendar" style="display:none;padding:0 16px 120px">
+  <div id="ltab-content-calendar" style="display:none;padding:16px 16px 120px">
+
 
     <!-- 월 네비 -->
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;margin-top:4px">
@@ -2358,7 +2365,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
 
   <!-- 예산 탭 -->
-  <div id="ltab-content-budget" style="display:none;padding:0 16px 120px">
+  <div id="ltab-content-budget" style="display:none;padding:16px 16px 120px">
+
     <!-- 예산 현황 -->
     <div class="card" style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
