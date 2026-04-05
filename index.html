@@ -1412,9 +1412,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
 
 
-  <!-- 자산구성 카드 제거 (summary 카드에 통합됨) -->
-  <div data-card="donut" id="home-card-donut" style="display:none"></div>
-
   <div data-card="chart" id="home-card-chart">
 
   <div class="card" onclick="goPage('input',document.querySelectorAll('.nav-item')[3])" style="cursor:pointer">
@@ -3100,9 +3097,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
 </div>
 
-
-
-</div><!-- /app -->
 
 
 </div><!-- /app -->
@@ -6823,7 +6817,10 @@ function setWidgetTab(tab) {
     monthTabEl.style.borderBottom = isMonthActive ? 'none' : '1px dashed var(--muted)';
     monthTabEl.style.cursor = 'pointer';
   }
+  // 탭 전환 시 위젯 숫자 업데이트 (updateHomeWidget 내부의 setWidgetTab 호출과 분리)
+  _renderWidgetContent(tab);
 }
+
 
 
 // pct에 따라 그라데이션 색상 보간
@@ -6854,6 +6851,54 @@ function getWidgetBarColor(pct) {
   return 'linear-gradient(90deg,' + start + ',' + end + ')';
 }
 
+function _renderWidgetContent(tab) {
+  const now = new Date();
+  const today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+  const thisMonth = today.substring(0,7);
+  const el = function(id){ return document.getElementById(id); };
+  const monthTxs = ledgerTxs.filter(function(t){ return t.date.startsWith(thisMonth); });
+  const monthExp = monthTxs.filter(function(t){ return t.type==='expense'; }).reduce(function(s,t){ return s+t.amount; },0);
+  const todayExp = ledgerTxs.filter(function(t){ return t.date===today&&t.type==='expense'; }).reduce(function(s,t){ return s+t.amount; },0);
+  const totalBudget = Object.values(budgets).reduce(function(s,v){ return s+(v||0); }, 0);
+  const prevDate = new Date(now.getFullYear(), now.getMonth()-1, 1);
+  const prevMonth = prevDate.getFullYear() + '-' + String(prevDate.getMonth()+1).padStart(2,'0');
+  const prevExp = ledgerTxs.filter(function(t){ return t.date.startsWith(prevMonth)&&t.type==='expense'; }).reduce(function(s,t){ return s+t.amount; },0);
+  const effectiveBudget = totalBudget > 0 ? totalBudget : prevExp;
+  const isFallback = totalBudget === 0 && prevExp > 0;
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const dailyBudget = effectiveBudget > 0 ? effectiveBudget / daysInMonth : 0;
+
+  if (tab === 'today') {
+    if (el('widget-amount')) el('widget-amount').textContent = (todayExp * 10000).toLocaleString() + '원';
+    const pct = dailyBudget > 0 ? Math.round(todayExp / dailyBudget * 100) : 0;
+    if (el('widget-exp-bar')) {
+      el('widget-exp-bar').style.width = Math.min(pct, 100) + '%';
+      el('widget-exp-bar').style.background = effectiveBudget > 0 ? getWidgetBarColor(pct) : 'rgba(59,130,246,0.25)';
+    }
+    if (el('widget-status-text')) {
+      el('widget-status-text').innerHTML = dailyBudget > 0
+        ? '하루 예산 ' + Math.round(dailyBudget * 10000).toLocaleString() + '원' + (isFallback ? ' <span style="font-size:9px;color:var(--muted);opacity:0.6">전월 기준</span>' : '')
+        : '';
+    }
+    if (el('widget-exp-pct')) el('widget-exp-pct').textContent = dailyBudget > 0 ? pct + '%' : '';
+  } else {
+    if (el('widget-amount')) el('widget-amount').textContent = Math.round(monthExp).toLocaleString() + '만원';
+    const pct = effectiveBudget > 0 ? Math.round(monthExp / effectiveBudget * 100) : 0;
+    if (el('widget-exp-bar')) {
+      el('widget-exp-bar').style.width = Math.min(pct, 100) + '%';
+      el('widget-exp-bar').style.background = effectiveBudget > 0 ? getWidgetBarColor(pct) : 'rgba(59,130,246,0.25)';
+    }
+    if (el('widget-status-text')) {
+      el('widget-status-text').innerHTML = effectiveBudget > 0
+        ? '예산 ' + Math.round(effectiveBudget).toLocaleString() + '만원' + (isFallback ? ' <span style="font-size:9px;color:var(--muted);opacity:0.6">전월 기준</span>' : '')
+        : '';
+    }
+    if (el('widget-exp-pct')) el('widget-exp-pct').textContent = effectiveBudget > 0 ? pct + '%' : '';
+  }
+  if (el('widget-today-exp')) el('widget-today-exp').textContent = (todayExp*10000).toLocaleString();
+  if (el('widget-month-exp')) el('widget-month-exp').textContent = Math.round(monthExp).toLocaleString();
+}
+
 function updateHomeWidget() {
   const now = new Date();
   const today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
@@ -6882,7 +6927,7 @@ function updateHomeWidget() {
   const dailyBudget = effectiveBudget > 0 ? effectiveBudget / daysInMonth : 0;
 
   // 탭 상태 반영
-  setWidgetTab(widgetTab);
+  _renderWidgetContent(widgetTab);
 
   if (widgetTab === 'today') {
     // 오늘 탭
@@ -11499,14 +11544,11 @@ function saveTrade() {
   closeTradeModal();
 }
 
-// goPage 확장 - stocks 연동 + FAB 이중 보장
+// goPage 확장 - stocks 연동 + FAB
 const _origGoPageStocks = goPage;
 goPage = function(name, el) {
   _origGoPageStocks(name, el);
   if (name === 'stocks') initStocks();
-  // FAB 이중 보장 (오버라이드 이후에도 확실히 적용)
-  const fab = document.getElementById('home-fab-mic');
-  if (fab) fab.style.display = name === 'home' ? 'flex' : 'none';
 };
 
 // ══════════════════════════════════════
@@ -14237,12 +14279,16 @@ async function syncLoad(silent=false) {
   store = function(k, v) {
     _origStore(k, v);
     if (SYNC_KEYS.includes(k)) {
-      // Supabase는 즉시 저장 (딜레이 없이)
+      // Supabase 저장 (비동기, 에러 묻히지 않도록 catch 추가)
       if (currentCoupleId) {
         if (TABLE_MAP[k]) {
-          saveToSupabase(TABLE_MAP[k], v);
+          saveToSupabase(TABLE_MAP[k], v).catch(function(e) {
+            console.warn('Supabase 저장 실패:', k, e);
+          });
         } else if (APP_DATA_KEYS[k]) {
-          saveAppDataToSupabase(APP_DATA_KEYS[k], v);
+          saveAppDataToSupabase(APP_DATA_KEYS[k], v).catch(function(e) {
+            console.warn('Supabase 저장 실패:', k, e);
+          });
         }
       }
       // Cloudflare는 기존대로 3초 딜레이 (부하 방지)
@@ -14252,6 +14298,7 @@ async function syncLoad(silent=false) {
       }, 3000);
     }
   };
+
 })();
 // ── 스와이프 삭제 ──
 let _swipeStartX = 0;
