@@ -6869,25 +6869,56 @@ function _renderWidgetContent(tab) {
   const dailyBudget = effectiveBudget > 0 ? effectiveBudget / daysInMonth : 0;
 
   if (tab === 'today') {
-    if (el('widget-amount')) el('widget-amount').textContent = (todayExp * 10000).toLocaleString() + '원';
-    const pct = dailyBudget > 0 ? Math.round(todayExp / dailyBudget * 100) : 0;
-    if (el('widget-exp-bar')) {
-      el('widget-exp-bar').style.width = Math.min(pct, 100) + '%';
-      el('widget-exp-bar').style.background = effectiveBudget > 0 ? getWidgetBarColor(pct) : 'rgba(59,130,246,0.25)';
+    const targetAmt = Math.round(todayExp * 10000);
+    const amountEl = el('widget-amount');
+    if (amountEl) {
+      animateNumber(amountEl, 0, targetAmt, 800, function(v) {
+        return Math.round(v).toLocaleString() + '원';
+      });
     }
+    const pct = dailyBudget > 0 ? Math.round(todayExp / dailyBudget * 100) : 0;
+    const barEl = el('widget-exp-bar');
+    if (barEl) {
+      setTimeout(function() {
+        barEl.style.height = '16px';
+        barEl.style.borderRadius = '8px';
+        barEl.style.width = Math.min(pct, 100) + '%';
+        barEl.style.background = effectiveBudget > 0 ? getWidgetBarColor(pct) : 'rgba(59,130,246,0.25)';
+        barEl.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+        barEl.style.transition = 'width 1.2s cubic-bezier(.4,0,.2,1)';
+      }, 100);
+    }
+    const barBg = el('widget-exp-bar')?.parentElement;
+    if (barBg) { barBg.style.height = '16px'; barBg.style.borderRadius = '8px'; }
     if (el('widget-status-text')) {
       el('widget-status-text').innerHTML = dailyBudget > 0
         ? '하루 예산 ' + Math.round(dailyBudget * 10000).toLocaleString() + '원' + (isFallback ? ' <span style="font-size:9px;color:var(--muted);opacity:0.6">전월 기준</span>' : '')
         : '';
     }
     if (el('widget-exp-pct')) el('widget-exp-pct').textContent = dailyBudget > 0 ? pct + '%' : '';
+
   } else {
-    if (el('widget-amount')) el('widget-amount').textContent = Math.round(monthExp * 10000).toLocaleString() + '원';
-    const pct = effectiveBudget > 0 ? Math.round(monthExp / effectiveBudget * 100) : 0;
-    if (el('widget-exp-bar')) {
-      el('widget-exp-bar').style.width = Math.min(pct, 100) + '%';
-      el('widget-exp-bar').style.background = effectiveBudget > 0 ? getWidgetBarColor(pct) : 'rgba(59,130,246,0.25)';
+    const targetAmt = Math.round(monthExp * 10000);
+    const amountEl = el('widget-amount');
+    if (amountEl) {
+      animateNumber(amountEl, 0, targetAmt, 800, function(v) {
+        return Math.round(v).toLocaleString() + '원';
+      });
     }
+    const pct = effectiveBudget > 0 ? Math.round(monthExp / effectiveBudget * 100) : 0;
+    const barEl = el('widget-exp-bar');
+    if (barEl) {
+      setTimeout(function() {
+        barEl.style.height = '16px';
+        barEl.style.borderRadius = '8px';
+        barEl.style.width = Math.min(pct, 100) + '%';
+        barEl.style.background = effectiveBudget > 0 ? getWidgetBarColor(pct) : 'rgba(59,130,246,0.25)';
+        barEl.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+        barEl.style.transition = 'width 1.2s cubic-bezier(.4,0,.2,1)';
+      }, 100);
+    }
+    const barBg2 = el('widget-exp-bar')?.parentElement;
+    if (barBg2) { barBg2.style.height = '16px'; barBg2.style.borderRadius = '8px'; }
     if (el('widget-status-text')) {
       el('widget-status-text').innerHTML = effectiveBudget > 0
         ? '이번달 예산 ' + Math.round(effectiveBudget * 10000).toLocaleString() + '원' + (isFallback ? ' <span style="font-size:9px;color:var(--muted);opacity:0.6">전월 기준</span>' : '')
@@ -6899,6 +6930,7 @@ function _renderWidgetContent(tab) {
   if (el('widget-today-exp')) el('widget-today-exp').textContent = (todayExp*10000).toLocaleString();
   if (el('widget-month-exp')) el('widget-month-exp').textContent = Math.round(monthExp).toLocaleString();
 }
+
 
 function updateHomeWidget() {
   const now = new Date();
