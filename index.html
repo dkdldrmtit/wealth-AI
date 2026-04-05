@@ -12704,7 +12704,12 @@ function renderLedgerList(txs) {
                 </div>
                 <div style="font-size:11px;color:var(--muted);margin-top:2px">
                   ${cat.label}
-                  ${t.owner !== 'common' ? '· <span style="color:' + (t.owner==='minsuk'?'var(--blue)':'var(--green)') + '">' + (t.owner==='minsuk'?'나':'파트너') + '</span>' : ''}
+                  ${(function() {
+                if (t.owner === 'common') return '';
+                var ownerColor = t.owner === 'minsuk' ? 'var(--blue)' : 'var(--green)';
+                var ownerName = t.owner === 'minsuk' ? '나' : '파트너';
+                return '· <span style="color:' + ownerColor + '">' + ownerName + '</span>';
+              })()}
                 </div>
               </div>
 
