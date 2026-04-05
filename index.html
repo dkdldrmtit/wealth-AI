@@ -6882,7 +6882,7 @@ function _renderWidgetContent(tab) {
     }
     if (el('widget-exp-pct')) el('widget-exp-pct').textContent = dailyBudget > 0 ? pct + '%' : '';
   } else {
-    if (el('widget-amount')) el('widget-amount').textContent = Math.round(monthExp).toLocaleString() + '만원';
+    if (el('widget-amount')) el('widget-amount').textContent = Math.round(monthExp * 10000).toLocaleString() + '원';
     const pct = effectiveBudget > 0 ? Math.round(monthExp / effectiveBudget * 100) : 0;
     if (el('widget-exp-bar')) {
       el('widget-exp-bar').style.width = Math.min(pct, 100) + '%';
@@ -6890,11 +6890,12 @@ function _renderWidgetContent(tab) {
     }
     if (el('widget-status-text')) {
       el('widget-status-text').innerHTML = effectiveBudget > 0
-        ? '예산 ' + Math.round(effectiveBudget).toLocaleString() + '만원' + (isFallback ? ' <span style="font-size:9px;color:var(--muted);opacity:0.6">전월 기준</span>' : '')
+        ? '이번달 예산 ' + Math.round(effectiveBudget * 10000).toLocaleString() + '원' + (isFallback ? ' <span style="font-size:9px;color:var(--muted);opacity:0.6">전월 기준</span>' : '')
         : '';
     }
     if (el('widget-exp-pct')) el('widget-exp-pct').textContent = effectiveBudget > 0 ? pct + '%' : '';
   }
+
   if (el('widget-today-exp')) el('widget-today-exp').textContent = (todayExp*10000).toLocaleString();
   if (el('widget-month-exp')) el('widget-month-exp').textContent = Math.round(monthExp).toLocaleString();
 }
