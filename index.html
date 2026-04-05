@@ -2061,20 +2061,21 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <!-- 우측 상단 아이콘 버튼들 -->
         <div style="display:flex;align-items:center;gap:2px;margin-top:8px">
           <button onclick="openVoiceParser()"
-            style="background:none;border:none;color:var(--muted);width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:16px"
+            style="background:none;border:none;color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px"
             ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
-            🎙️
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
           </button>
           <button onclick="openSmsParser()"
-            style="background:none;border:none;color:var(--muted);width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:16px"
+            style="background:none;border:none;color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px"
             ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
-            📱
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
           </button>
           <button onclick="openExcelImport()"
-            style="background:none;border:none;color:var(--muted);width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px"
+            style="background:none;border:none;color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px"
             ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><line x1="8" y1="9" x2="10" y2="9"/></svg>
           </button>
+
         </div>
       </div>
     </div>
@@ -2132,8 +2133,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
 
     <!-- 검색 + 필터 버튼 -->
-    <div style="position:relative;margin-bottom:8px">
-      <div id="search-wrap" style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:0 14px">
+    <div style="position:relative;margin-bottom:8px;overflow:hidden">
+      <div id="search-wrap" style="display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:0 12px;min-width:0">
+
         <span style="font-size:14px;color:var(--muted)">🔍</span>
         <input type="text" id="ledger-search" placeholder="가맹점·메모 검색"
           oninput="onLedgerSearchInput(this.value)"
@@ -7461,7 +7463,7 @@ function renderCatFilterBtns(txs) {
   allBtn.id = 'catf-all';
   allBtn.textContent = '전체';
   const allActive = ledgerCatFilter.length === 0;
-  allBtn.style.cssText = 'flex-shrink:0;padding:6px 14px;border-radius:20px;font-family:Noto Sans KR,sans-serif;font-size:11px;font-weight:' + (allActive?'700':'500') + ';cursor:pointer;background:' + (allActive?'var(--surface3)':'transparent') + ';color:' + (allActive?'var(--text)':'var(--muted2)') + ';border:1px solid ' + (allActive?'var(--border)':'var(--border2)') + ';transition:all .15s';
+  allBtn.style.cssText = 'flex-shrink:0;padding:5px 12px;border-radius:20px;font-family:Noto Sans KR,sans-serif;font-size:11px;font-weight:' + (allActive?'700':'500') + ';cursor:pointer;background:' + (allActive?'var(--surface3)':'transparent') + ';color:' + (allActive?'var(--text)':'var(--muted2)') + ';border:1px solid ' + (allActive?'var(--border)':'var(--border2)') + ';transition:all .15s';
   allBtn.addEventListener('click', function() { setLedgerCatFilter('all'); });
   wrap.appendChild(allBtn);
 
@@ -7471,18 +7473,21 @@ function renderCatFilterBtns(txs) {
     const isActive = ledgerCatFilter.includes(catId);
     const btn = document.createElement('button');
     btn.id = 'catf-' + catId;
-    btn.style.cssText = 'flex-shrink:0;padding:6px 14px;border-radius:20px;font-family:Noto Sans KR,sans-serif;font-size:11px;cursor:pointer;transition:all .15s;'
+    // 카테고리명에서 앞의 '· ' 제거하고 텍스트만 추출
+    const catName = cat.label.replace(/^·\s*/, '');
+    btn.style.cssText = 'flex-shrink:0;padding:5px 10px;border-radius:20px;font-family:Noto Sans KR,sans-serif;font-size:11px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;'
       + 'font-weight:' + (isActive?'700':'500') + ';'
-      + 'background:' + (isActive ? cat.color+'33' : 'transparent') + ';'
-      + 'color:' + (isActive ? cat.color : 'var(--muted2)') + ';'
-      + 'border:1px solid ' + (isActive ? cat.color : 'var(--border2)') + ';'
-      + 'position:relative';
-    // 선택된 경우 체크 표시 포함
-    btn.innerHTML = (isActive ? '<span style="font-size:10px;margin-right:3px">✓</span>' : '') + cat.label;
+      + 'background:' + (isActive ? cat.color+'22' : 'transparent') + ';'
+      + 'color:' + (isActive ? 'var(--text)' : 'var(--muted2)') + ';'
+      + 'border:1px solid ' + (isActive ? cat.color : 'var(--border2)') + ';';
+    // 도트 + 카테고리명
+    btn.innerHTML = '<div style="width:7px;height:7px;border-radius:50%;background:' + cat.color + ';flex-shrink:0;opacity:' + (isActive?'1':'0.5') + '"></div>'
+      + '<span>' + catName + '</span>';
     btn.addEventListener('click', function() { setLedgerCatFilter(catId); });
     wrap.appendChild(btn);
   });
 }
+
 
 
 function getLedgerPeriodTxs() {
@@ -11998,25 +12003,26 @@ goPage = function(name, el) {
 // ══════════════════════════════════════
 const CATEGORIES = {
   expense: [
-    { id:'food',    label:'🍚 식비',    color:'#ef4444' },
-    { id:'cafe',    label:'☕ 카페',    color:'#fb923c' },
-    { id:'trans',   label:'🚗 교통',    color:'#fbbf24' },
-    { id:'shop',    label:'🛍 쇼핑',    color:'#3b82f6' },
-    { id:'health',  label:'🏥 의료',    color:'#34d399' },
-    { id:'leisure', label:'🎮 여가',    color:'#60a5fa' },
-    { id:'child',   label:'👶 육아',    color:'#f472b6' },
-    { id:'edu',     label:'📚 교육',    color:'#ffffff' },
-    { id:'house',   label:'🏠 주거',    color:'#94a3b8' },
-    { id:'etc',     label:'💡 기타',    color:'#6b7280' },
+    { id:'food',    label:'· 식비',    color:'#ef4444' },
+    { id:'cafe',    label:'· 카페',    color:'#fb923c' },
+    { id:'trans',   label:'· 교통',    color:'#fbbf24' },
+    { id:'shop',    label:'· 쇼핑',    color:'#3b82f6' },
+    { id:'health',  label:'· 의료',    color:'#34d399' },
+    { id:'leisure', label:'· 여가',    color:'#60a5fa' },
+    { id:'child',   label:'· 육아',    color:'#f472b6' },
+    { id:'edu',     label:'· 교육',    color:'#a78bfa' },
+    { id:'house',   label:'· 주거',    color:'#94a3b8' },
+    { id:'etc',     label:'· 기타',    color:'#6b7280' },
   ],
   income: [
-    { id:'salary',  label:'💼 급여',    color:'#22c55e' },
-    { id:'bonus',   label:'🎁 보너스',  color:'#a3e635' },
-    { id:'invest',  label:'📈 투자',    color:'#34d399' },
-    { id:'side',    label:'💻 부업',    color:'#60a5fa' },
-    { id:'etc_in',  label:'💡 기타',    color:'#6b7280' },
+    { id:'salary',  label:'· 급여',    color:'#22c55e' },
+    { id:'bonus',   label:'· 보너스',  color:'#a3e635' },
+    { id:'invest',  label:'· 투자',    color:'#34d399' },
+    { id:'side',    label:'· 부업',    color:'#60a5fa' },
+    { id:'etc_in',  label:'· 기타',    color:'#6b7280' },
   ]
 };
+
 
 let ledgerMonth = (() => {
   const d = new Date();
@@ -12810,7 +12816,6 @@ function renderLedgerList(txs) {
 }
 
 
-  
 // ── 순자산 목표 게이지 ──
 function renderGoalGauge() {
   const wrap = document.getElementById('goal-gauge-wrap');
