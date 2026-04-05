@@ -37,6 +37,12 @@
   --minsuk: #3b82f6;
   --siyun: #22c55e;
   --shadow: rgba(0,0,0,0.4);
+  /* 여백 토큰 */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
 }
 
 /* ── 라이트 모드 ── */
@@ -176,7 +182,11 @@ input, textarea, select {
 
 /* HEADER */
 .page-header { margin-bottom:16px; margin-top:8px; }
-#page-home .page-header { margin-top:max(52px, calc(env(safe-area-inset-top, 0px) + 16px)); }
+#page-home .page-header,
+#page-ai .page-header,
+#page-input .page-header,
+#page-stocks .page-header,
+#page-ledger .page-header { margin-top:max(52px, calc(env(safe-area-inset-top, 0px) + 16px)); }
 .page-header .eyebrow { font-size:11px; color:var(--muted); font-weight:500; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
 .page-header h1 {
   font-family:'Playfair Display', serif; font-size:28px; line-height:1.15;
@@ -837,6 +847,97 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
 </div>
 
+<!-- ══ 온보딩 ══ -->
+<div id="onboarding-overlay" style="display:none;position:fixed;inset:0;background:#080808;z-index:9999;overflow:hidden;font-family:'Noto Sans KR',sans-serif">
+  <!-- 슬라이드 컨테이너 -->
+  <div id="ob-slides" style="display:flex;width:400%;height:100%;transition:transform .4s cubic-bezier(.4,0,.2,1)">
+
+    <!-- Step 1: 자산 기록 -->
+    <div style="width:25%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 120px;text-align:center">
+      <div style="font-size:56px;margin-bottom:32px;line-height:1">🏠 📈 💰</div>
+      <div style="font-size:22px;font-weight:700;color:#f0f0f0;margin-bottom:14px;letter-spacing:-.5px">자산을 한 곳에 기록하세요</div>
+      <div style="font-size:14px;color:rgba(255,255,255,0.45);line-height:1.7;max-width:280px">아파트, 주식, 예금, 대출까지<br>매달 한 번, 1분이면 충분해요</div>
+      <div style="margin-top:32px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.15);border-radius:16px;padding:16px 20px;max-width:300px;text-align:left">
+        <div style="font-size:10px;color:rgba(59,130,246,0.6);letter-spacing:1px;margin-bottom:10px">자산 항목 예시</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:rgba(255,255,255,0.5)">동탄 아파트</span><span style="color:#f0f0f0;font-weight:600">7.3억</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:rgba(255,255,255,0.5)">주식·ETF</span><span style="color:#f0f0f0;font-weight:600">2,340만</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:rgba(255,255,255,0.5)">주택담보대출</span><span style="color:#ef4444;font-weight:600">-3.0억</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: 가계부 분석 -->
+    <div style="width:25%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 120px;text-align:center">
+      <div style="font-size:56px;margin-bottom:32px;line-height:1">📊</div>
+      <div style="font-size:22px;font-weight:700;color:#f0f0f0;margin-bottom:14px;letter-spacing:-.5px">지출 패턴을 분석해드려요</div>
+      <div style="font-size:14px;color:rgba(255,255,255,0.45);line-height:1.7;max-width:280px">카테고리별 지출을 한눈에 파악하고<br>절약 포인트를 바로 찾아요</div>
+      <div style="margin-top:32px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.15);border-radius:16px;padding:16px 20px;max-width:300px;text-align:left">
+        <div style="font-size:10px;color:rgba(59,130,246,0.6);letter-spacing:1px;margin-bottom:10px">이번달 지출 분석</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:rgba(255,255,255,0.5)">식비</span><span style="color:#f0f0f0">42만</span></div>
+            <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px"><div style="width:70%;height:100%;background:#3b82f6;border-radius:2px"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:rgba(255,255,255,0.5)">교통</span><span style="color:#f0f0f0">18만</span></div>
+            <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px"><div style="width:30%;height:100%;background:#3b82f6;border-radius:2px"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: AI 분석 -->
+    <div style="width:25%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 120px;text-align:center">
+      <div style="font-size:56px;margin-bottom:32px;line-height:1">🤖</div>
+      <div style="font-size:22px;font-weight:700;color:#f0f0f0;margin-bottom:14px;letter-spacing:-.5px">AI가 맞춤 조언을 드려요</div>
+      <div style="font-size:14px;color:rgba(255,255,255,0.45);line-height:1.7;max-width:280px">10년 경력 PB급 금융 솔루션을<br>내 자산에 맞게 제안해드려요</div>
+      <div style="margin-top:32px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.15);border-radius:16px;padding:16px 20px;max-width:300px;text-align:left">
+        <div style="font-size:10px;color:rgba(59,130,246,0.6);letter-spacing:1px;margin-bottom:10px">AI 조언 예시</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6">💡 IRP 미가입 상태예요. 연말정산 세액공제로 최대 <span style="color:#3b82f6;font-weight:600">148만원</span> 환급 가능해요. 지금 개설하면 올해 혜택 받을 수 있어요.</div>
+      </div>
+    </div>
+
+    <!-- Step 4: 시작 (이름 입력) -->
+    <div style="width:25%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 120px;text-align:center">
+      <div style="font-size:56px;margin-bottom:24px;line-height:1">👫</div>
+      <div style="font-size:22px;font-weight:700;color:#f0f0f0;margin-bottom:10px;letter-spacing:-.5px">함께 시작해요</div>
+      <div style="font-size:14px;color:rgba(255,255,255,0.45);line-height:1.7;margin-bottom:32px;max-width:280px">이름을 입력하면 자산을<br>누구의 것인지 구분할 수 있어요</div>
+      <div style="width:100%;max-width:300px;display:flex;flex-direction:column;gap:12px;text-align:left">
+        <div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:.5px">파트너 1</div>
+          <input id="ob-name1" type="text" placeholder="예: 민석" maxlength="10"
+            style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;padding:12px 16px;outline:none;box-sizing:border-box;-webkit-appearance:none">
+        </div>
+        <div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:.5px">파트너 2</div>
+          <input id="ob-name2" type="text" placeholder="예: 시윤" maxlength="10"
+            style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;padding:12px 16px;outline:none;box-sizing:border-box;-webkit-appearance:none">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 하단 고정 영역 -->
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:24px 32px max(32px,env(safe-area-inset-bottom,32px));background:linear-gradient(0deg,#080808 60%,transparent)">
+    <!-- 점 인디케이터 -->
+    <div id="ob-dots" style="display:flex;justify-content:center;gap:6px;margin-bottom:20px">
+      <div class="ob-dot" style="width:20px;height:4px;border-radius:2px;background:#3b82f6;transition:all .3s"></div>
+      <div class="ob-dot" style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);transition:all .3s"></div>
+      <div class="ob-dot" style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);transition:all .3s"></div>
+      <div class="ob-dot" style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);transition:all .3s"></div>
+    </div>
+    <!-- 버튼 -->
+    <button id="ob-next-btn" onclick="obNext()"
+      style="width:100%;padding:16px;border-radius:14px;border:none;background:#3b82f6;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:-.3px">
+      다음
+    </button>
+    <button id="ob-skip-btn" onclick="obSkip()"
+      style="width:100%;padding:12px;border:none;background:transparent;color:rgba(255,255,255,0.25);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer;margin-top:4px">
+      건너뛰기
+    </button>
+  </div>
+</div>
 
 <!-- ══ 로그인/회원가입 모달 ══ -->
 <div id="auth-screen" style="display:none;position:fixed;inset:0;background:#080808;z-index:99998;overflow-y:auto">
@@ -2051,7 +2152,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 <div class="page" id="page-ledger" style="padding-bottom:0">
 
   <!-- 헤더 + 월 네비 -->
-  <div style="padding:24px 16px 0">
+  <div style="padding:0 16px 0">
     <div class="page-header" style="margin-bottom:16px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
         <div>
@@ -4975,6 +5076,8 @@ function renderAddCategoryChips() {
 function selectAddCategory(catId) {
   _addItemCategory = catId;
   renderAddCategoryChips();
+  // 칩 선택 즉시 모달 열기
+  openAddItemModal();
 }
 
 function openAddItemModal() {
@@ -5734,6 +5837,60 @@ function openModal(month) {
   renderAddCategoryChips();
   renderAssetItems();
   updatePreview();
+}
+
+// ── 온보딩 ──
+var _obStep = 0;
+var _obTotal = 4;
+
+function obUpdateUI() {
+  var slides = document.getElementById('ob-slides');
+  var dots = document.querySelectorAll('.ob-dot');
+  var nextBtn = document.getElementById('ob-next-btn');
+  var skipBtn = document.getElementById('ob-skip-btn');
+  if (slides) slides.style.transform = 'translateX(-' + (_obStep * 25) + '%)';
+  dots.forEach(function(d, i) {
+    d.style.width = i === _obStep ? '20px' : '4px';
+    d.style.background = i === _obStep ? '#3b82f6' : 'rgba(255,255,255,0.2)';
+  });
+  if (nextBtn) nextBtn.textContent = _obStep === _obTotal - 1 ? '시작하기' : '다음';
+  if (skipBtn) skipBtn.style.display = _obStep === _obTotal - 1 ? 'none' : 'block';
+}
+
+function obNext() {
+  if (_obStep < _obTotal - 1) {
+    _obStep++;
+    obUpdateUI();
+    if (_obStep === _obTotal - 1) {
+      setTimeout(function() {
+        var el = document.getElementById('ob-name1');
+        if (el) el.focus();
+      }, 400);
+    }
+  } else {
+    obFinish();
+  }
+}
+
+function obSkip() {
+  obFinish();
+}
+
+function obFinish() {
+  var n1 = (document.getElementById('ob-name1') || {}).value || '';
+  var n2 = (document.getElementById('ob-name2') || {}).value || '';
+  if (n1.trim() || n2.trim()) {
+    PARTNER_NAMES.partner1 = n1.trim() || '나';
+    PARTNER_NAMES.partner2 = n2.trim() || '파트너';
+    savePartnerNames();
+  }
+  store('onboarding-done', true);
+  var ob = document.getElementById('onboarding-overlay');
+  if (ob) {
+    ob.style.transition = 'opacity .3s ease';
+    ob.style.opacity = '0';
+    setTimeout(function() { ob.style.display = 'none'; }, 300);
+  }
 }
 
 function closeModal() {
@@ -8609,6 +8766,14 @@ document.addEventListener('DOMContentLoaded', function() {
   if (splashShown) {
     // 이미 본 경우 바로 숨김
     splash.style.display = 'none';
+    // 온보딩 체크
+    var hasData2 = load('asset-history', []).length > 0 || load('ledger-txs', []).length > 0;
+    if (!load('onboarding-done', false) && !hasData2) {
+      var ob2 = document.getElementById('onboarding-overlay');
+      if (ob2) ob2.style.display = 'block';
+    } else {
+      store('onboarding-done', true);
+    }
   } else {
     // 처음 진입 시만 표시
     sessionStorage.setItem('splash-shown', '1');
@@ -8627,6 +8792,14 @@ document.addEventListener('DOMContentLoaded', function() {
       splash.style.transform = 'scale(1.05)';
       setTimeout(function() {
         splash.style.display = 'none';
+        // 온보딩 미완료 + 기존 데이터 없는 신규 사용자만 표시
+        var hasData = load('asset-history', []).length > 0 || load('ledger-txs', []).length > 0;
+        if (!load('onboarding-done', false) && !hasData) {
+          var ob = document.getElementById('onboarding-overlay');
+          if (ob) ob.style.display = 'block';
+        } else {
+          store('onboarding-done', true);
+        }
       }, 500);
     }, 1000);
   }
