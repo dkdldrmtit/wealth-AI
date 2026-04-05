@@ -2176,11 +2176,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <!-- 분석 탭 -->
   <div id="ltab-content-chart" style="display:none;padding:0 16px 120px">
 
-    <!-- 자동 인사이트 카드 -->
-    <div id="ledger-insight-card" style="margin-bottom:12px"></div>
-
     <!-- AI 월말 리포트 -->
     <div class="siri-card" style="margin-bottom:12px">
+
       <div class="siri-card-inner">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px">AI 지출 리포트</div>
@@ -2195,8 +2193,22 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
     </div>
 
+    <!-- 지출 대결 -->
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="card-title" style="margin-bottom:0">👫 절약 배틀</div>
+        <div id="ledger-couple-winner-badge" style="font-size:11px;font-weight:700"></div>
+      </div>
+      <div id="ledger-couple-battle-area"></div>
+      <div id="ledger-couple-comment" style="margin-top:10px;padding:10px 14px;background:rgba(255,255,255,.03);border-top:1px solid var(--border);font-size:11px;color:var(--muted);text-align:center;line-height:1.6;border-radius:0 0 12px 12px"></div>
+    </div>
+
+    <!-- 자동 인사이트 카드 -->
+    <div id="ledger-insight-card" style="margin-bottom:12px"></div>
+
     <!-- 지출 히트맵 캘린더 -->
 <div class="card" style="margin-bottom:12px">
+
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
     <div class="card-title" style="margin-bottom:0">📅 이달 지출 히트맵</div>
     <div id="heatmap-month-label" style="font-size:11px;color:var(--muted)"></div>
