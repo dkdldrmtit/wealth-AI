@@ -2121,7 +2121,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
 
       <!-- 초대 코드 -->
-      <div style="padding:14px;background:var(--surface2);border-radius:12px;margin-bottom:12px">
+      <div id="couple-code-section" style="padding:14px;background:var(--surface2);border-radius:12px;margin-bottom:12px">
         <div style="font-size:11px;color:var(--muted);margin-bottom:8px">초대 코드</div>
         <div id="couple-invite-code-display" style="font-size:24px;font-weight:900;color:#22c55e;letter-spacing:4px;text-align:center;padding:12px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:10px;margin-bottom:10px">-</div>
         <button onclick="copyInviteCode()"
@@ -2130,6 +2130,34 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         </button>
         <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.6">파트너에게 이 코드를 알려주면<br>같은 공간에서 재무를 관리할 수 있어요</div>
       </div>
+
+      <!-- 커플 연결 (미연결 상태일 때만 표시) -->
+      <div id="couple-connect-section" style="display:none;margin-bottom:12px">
+        <div style="padding:14px;background:var(--surface2);border-radius:12px;margin-bottom:8px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px">🔗 커플 연결하기</div>
+
+          <!-- 새로 만들기 -->
+          <button onclick="handleCreateCoupleFromSettings()"
+            style="width:100%;padding:12px;border-radius:10px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">
+            🆕 커플 공간 만들기
+          </button>
+
+          <!-- 초대 코드로 참여 -->
+          <div style="font-size:11px;color:var(--muted);margin-bottom:6px">또는 파트너 코드로 참여</div>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="settings-invite-input" placeholder="초대 코드 입력"
+              style="flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none;text-transform:lowercase;letter-spacing:1px"
+              onfocus="this.style.borderColor='rgba(34,197,94,0.4)'"
+              onblur="this.style.borderColor='var(--border2)'">
+            <button onclick="handleJoinCoupleFromSettings()"
+              style="padding:11px 16px;border-radius:10px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:#22c55e;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">
+              참여
+            </button>
+          </div>
+          <div id="settings-couple-msg" style="display:none;margin-top:8px;font-size:12px;text-align:center;padding:8px;border-radius:8px"></div>
+        </div>
+      </div>
+
 
       <!-- 로그아웃 -->
       <button onclick="handleLogout()"
@@ -8626,8 +8654,135 @@ async function renderCoupleSettings() {
       partnerEl.style.color = 'var(--muted)';
     }
   }
+
+  updateCoupleConnectUI();
 }
 
+
+
+// 커플 연결 섹션 표시 제어
+function updateCoupleConnectUI() {
+  const connectSection = document.getElementById('couple-connect-section');
+  const codeSection = document.getElementById('couple-code-section');
+  if (!connectSection || !codeSection) return;
+
+  if (!currentCoupleId) {
+    // 미연결 → 연결 UI 표시, 초대코드 섹션 숨김
+    connectSection.style.display = 'block';
+    codeSection.style.display = 'none';
+  } else {
+    // 연결됨 → 초대코드 섹션 표시
+    connectSection.style.display = 'none';
+    codeSection.style.display = 'block';
+  }
+}
+
+// 설정에서 커플 공간 만들기
+async function handleCreateCoupleFromSettings() {
+  const btn = event.target;
+  const msgEl = document.getElementById('settings-couple-msg');
+  btn.textContent = '생성 중...';
+  btn.disabled = true;
+  msgEl.style.display = 'none';
+
+  const { data: couple, error } = await _supabase
+    .from('couples')
+    .insert({})
+    .select()
+    .single();
+
+  if (error) {
+    msgEl.style.display = 'block';
+    msgEl.style.background = 'rgba(239,68,68,0.08)';
+    msgEl.style.color = 'var(--red)';
+    msgEl.textContent = '❗ 오류가 발생했어요. 다시 시도해주세요';
+    btn.textContent = '🆕 커플 공간 만들기';
+    btn.disabled = false;
+    return;
+  }
+
+  await _supabase.from('profiles')
+    .update({ couple_id: couple.id, role: 'partner1' })
+    .eq('id', currentUser.id);
+
+  currentCoupleId = couple.id;
+
+  msgEl.style.display = 'block';
+  msgEl.style.background = 'rgba(34,197,94,0.08)';
+  msgEl.style.color = '#22c55e';
+  msgEl.textContent = '✅ 커플 공간이 만들어졌어요!';
+
+  btn.textContent = '🆕 커플 공간 만들기';
+  btn.disabled = false;
+
+  // UI 갱신
+  setTimeout(function() {
+    renderCoupleSettings();
+    updateCoupleConnectUI();
+  }, 800);
+}
+
+// 설정에서 초대 코드로 참여
+async function handleJoinCoupleFromSettings() {
+  const inviteCode = (document.getElementById('settings-invite-input').value || '').trim().toLowerCase();
+  const msgEl = document.getElementById('settings-couple-msg');
+
+  if (!inviteCode) {
+    msgEl.style.display = 'block';
+    msgEl.style.background = 'rgba(239,68,68,0.08)';
+    msgEl.style.color = 'var(--red)';
+    msgEl.textContent = '❗ 초대 코드를 입력해주세요';
+    return;
+  }
+
+  msgEl.style.display = 'block';
+  msgEl.style.background = 'rgba(59,130,246,0.08)';
+  msgEl.style.color = 'var(--blue)';
+  msgEl.textContent = '🔍 확인 중...';
+
+  const { data: couple, error } = await _supabase
+    .from('couples')
+    .select('*')
+    .eq('invite_code', inviteCode)
+    .single();
+
+  if (error || !couple) {
+    msgEl.style.background = 'rgba(239,68,68,0.08)';
+    msgEl.style.color = 'var(--red)';
+    msgEl.textContent = '❗ 유효하지 않은 초대 코드예요';
+    return;
+  }
+
+  // 이미 2명인지 확인
+  const { data: members } = await _supabase
+    .from('profiles')
+    .select('id')
+    .eq('couple_id', couple.id);
+
+  if (members && members.length >= 2) {
+    msgEl.style.background = 'rgba(239,68,68,0.08)';
+    msgEl.style.color = 'var(--red)';
+    msgEl.textContent = '❗ 이미 가득 찬 커플 공간이에요';
+    return;
+  }
+
+  await _supabase.from('profiles')
+    .update({ couple_id: couple.id, role: 'partner2' })
+    .eq('id', currentUser.id);
+
+  currentCoupleId = couple.id;
+
+  msgEl.style.background = 'rgba(34,197,94,0.08)';
+  msgEl.style.color = '#22c55e';
+  msgEl.textContent = '✅ 파트너와 연결됐어요! 🎉';
+
+  // 데이터 동기화 후 UI 갱신
+  setTimeout(async function() {
+    await loadAllDataFromSupabase();
+    renderCoupleSettings();
+    updateCoupleConnectUI();
+  }, 1000);
+}
 
 // 초대 코드 복사
 async function copyInviteCode() {
