@@ -4692,10 +4692,11 @@ function renderItemView() {
   assetHistory.forEach(function(r) {
     if (!r.items) return;
     r.items.forEach(function(item) {
-      const key = item.category + '::' + item.name;
+      const normCat = normalizeCatId(item.category);
+      const key = normCat + '::' + item.name;
       if (!seen.has(key)) {
         seen.add(key);
-        itemKeys.push({ key, name: item.name, category: item.category, emoji: item.emoji, type: item.type });
+        itemKeys.push({ key, name: item.name, category: normCat, emoji: item.emoji, type: item.type });
       }
     });
   });
@@ -4846,7 +4847,7 @@ function renderItemView() {
     items.forEach(function(ik) {
       // 이 항목의 월별 금액 수집
       const series = assetHistory.map(function(r) {
-        const found = r.items && r.items.find(function(i) { return i.category === ik.category && i.name === ik.name; });
+        const found = r.items && r.items.find(function(i) { return normalizeCatId(i.category) === ik.category && i.name === ik.name; });
         return { month: r.month, amount: found ? found.amount : null };
       });
 
