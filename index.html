@@ -3315,22 +3315,98 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   background:var(--surface);border-top:1px solid var(--border);
   padding:12px 16px max(16px, env(safe-area-inset-bottom));
   flex-direction:column;gap:8px">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+  <!-- 선택 카운트 + 전체선택/해제 -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
     <span id="ledger-edit-count" style="font-size:13px;font-weight:600;color:var(--muted)">0개 선택</span>
-    <button onclick="ledgerSelectedIds=new Set();renderLedger();document.getElementById('ledger-edit-count').textContent='0개 선택'"
-      style="background:none;border:none;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer">
-      전체 해제
+    <div style="display:flex;gap:10px">
+      <button onclick="ledgerSelectAll()"
+        style="background:none;border:none;color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer">
+        전체 선택
+      </button>
+      <button onclick="ledgerDeselectAll()"
+        style="background:none;border:none;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer">
+        전체 해제
+      </button>
+    </div>
+  </div>
+  <!-- 액션 버튼 4개 -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px">
+    <button id="bulk-btn-cat" onclick="openBulkCategoryChange()"
+      style="padding:12px 4px;border-radius:12px;border:1px solid var(--border2);
+      background:var(--surface2);color:var(--muted2);
+      font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;
+      cursor:pointer;opacity:0.4;transition:all .2s;line-height:1.3">
+      📂<br>카테고리
+    </button>
+    <button id="bulk-btn-owner" onclick="openBulkOwnerChange()"
+      style="padding:12px 4px;border-radius:12px;border:1px solid var(--border2);
+      background:var(--surface2);color:var(--muted2);
+      font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;
+      cursor:pointer;opacity:0.4;transition:all .2s;line-height:1.3">
+      👤<br>소유자
+    </button>
+    <button id="bulk-btn-date" onclick="openBulkDateChange()"
+      style="padding:12px 4px;border-radius:12px;border:1px solid var(--border2);
+      background:var(--surface2);color:var(--muted2);
+      font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;
+      cursor:pointer;opacity:0.4;transition:all .2s;line-height:1.3">
+      📅<br>날짜
+    </button>
+    <button id="bulk-btn-delete" onclick="openBulkDelete()"
+      style="padding:12px 4px;border-radius:12px;border:1px solid rgba(239,68,68,0.25);
+      background:rgba(239,68,68,0.08);color:var(--red);
+      font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;
+      cursor:pointer;opacity:0.4;transition:all .2s;line-height:1.3">
+      🗑️<br>삭제
     </button>
   </div>
-  <button id="ledger-edit-confirm" onclick="openBulkCategoryChange()"
-    style="width:100%;padding:14px;border-radius:14px;background:var(--text);border:none;
-    color:var(--bg);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;
-    cursor:pointer;opacity:0.4;transition:opacity .2s">
-    카테고리 변경
-  </button>
+</div>
+
+
+<!-- ══ 일괄 소유자 변경 모달 ══ -->
+<div id="bulk-owner-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;overflow:hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 20px 16px;border-bottom:1px solid var(--border)">
+        <div style="font-size:16px;font-weight:700;color:var(--text)">소유자 변경</div>
+        <button onclick="document.getElementById('bulk-owner-modal').style.display='none'"
+          style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer">✕</button>
+      </div>
+      <div style="padding:16px 20px">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:14px">선택한 거래의 소유자를 변경해요</div>
+        <div id="bulk-owner-list" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 일괄 날짜 변경 모달 ══ -->
+<div id="bulk-date-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;overflow:hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 20px 16px;border-bottom:1px solid var(--border)">
+        <div style="font-size:16px;font-weight:700;color:var(--text)">날짜 변경</div>
+        <button onclick="document.getElementById('bulk-date-modal').style.display='none'"
+          style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer">✕</button>
+      </div>
+      <div style="padding:20px">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:16px">선택한 <span id="bulk-date-count" style="color:var(--text);font-weight:700">0</span>개 거래를 아래 날짜로 일괄 변경해요</div>
+        <div style="margin-bottom:20px">
+          <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:8px">변경할 날짜</label>
+          <input type="date" id="bulk-date-input"
+            style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:15px;padding:13px 14px;outline:none">
+        </div>
+        <button onclick="applyBulkDate()"
+          style="width:100%;padding:14px;border-radius:12px;background:var(--text);border:none;color:var(--bg);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
+          날짜 변경
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ══ 일괄 카테고리 선택 모달 ══ -->
+
 <div id="bulk-cat-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto">
   <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;overflow:hidden">
@@ -6086,7 +6162,13 @@ function renderSchedules() {
   if (!list) return;
   const today = new Date();
   today.setHours(0,0,0,0);
-  const sorted = [...schedules].map((s,i) => ({...s, origIdx:i})).sort((a,b) => new Date(a.date)-new Date(b.date));
+  // 날짜 문자열을 로컬 타임존 기준으로 파싱하는 헬퍼 (UTC 오프셋 문제 방지)
+  function parseLocalDate(str) {
+    const [y, m, d] = str.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+  const sorted = [...schedules].map((s,i) => ({...s, origIdx:i})).sort((a,b) => parseLocalDate(a.date)-parseLocalDate(b.date));
+
 
   if (!sorted.length) {
     list.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:12px 0">+ 추가 버튼으로 일정을 등록해보세요!</div>';
@@ -6094,9 +6176,11 @@ function renderSchedules() {
   }
 
   const itemsHtml = sorted.map(function(s) {
-    const d = new Date(s.date);
-    const diff = Math.ceil((d - today) / 86400000);
+    const [sy, sm, sd] = s.date.split('-').map(Number);
+    const d = new Date(sy, sm - 1, sd); // 로컬 타임존 기준 파싱
+    const diff = Math.round((d - today) / 86400000);
     const isPast = diff < 0;
+
 
     // D-day 배지 클래스 + 도트 색상 결정
     let ddayClass, dotColor, nameColor;
@@ -13012,19 +13096,154 @@ function toggleLedgerSelect(id) {
   } else {
     ledgerSelectedIds.add(id);
   }
-  const count = document.getElementById('ledger-edit-count');
-  if (count) count.textContent = ledgerSelectedIds.size + '개 선택';
-  const confirmBtn = document.getElementById('ledger-edit-confirm');
-  if (confirmBtn) confirmBtn.style.opacity = ledgerSelectedIds.size > 0 ? '1' : '0.4';
+  updateBulkEditBar();
   renderLedger();
 }
 
+// ── 일괄 소유자 변경
+function openBulkOwnerChange() {
+  if (ledgerSelectedIds.size === 0) { showToast('❗ 거래를 먼저 선택해주세요'); return; }
+  const modal = document.getElementById('bulk-owner-modal');
+  if (!modal) return;
+  const p1 = getP1Name(), p2 = getP2Name(), cm = getCommonName();
+  const list = document.getElementById('bulk-owner-list');
+  const owners = [
+    { key: 'common',  label: cm,  icon: '👥', color: 'var(--muted2)' },
+    { key: 'minsuk',  label: p1,  icon: '👤', color: 'var(--blue)' },
+    { key: 'siyun',   label: p2,  icon: '👤', color: 'var(--green)' },
+  ];
+  list.innerHTML = owners.map(function(o) {
+    // p2 이름 없으면 숨김
+    if (o.key === 'siyun' && !p2) return '';
+    return '<button onclick="applyBulkOwner(\'' + o.key + '\')" style="'
+      + 'display:flex;align-items:center;gap:14px;width:100%;padding:16px 18px;'
+      + 'background:var(--surface2);border:1px solid var(--border);border-radius:14px;'
+      + 'font-family:\'Noto Sans KR\',sans-serif;cursor:pointer;text-align:left;transition:all .15s'
+      + '" ontouchstart="this.style.background=\'var(--surface3)\'" ontouchend="this.style.background=\'var(--surface2)\'">'
+      + '<span style="font-size:22px">' + o.icon + '</span>'
+      + '<div>'
+      + '<div style="font-size:15px;font-weight:700;color:' + o.color + '">' + o.label + '</div>'
+      + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + ledgerSelectedIds.size + '개 거래를 ' + o.label + '(으)로 변경</div>'
+      + '</div>'
+      + '</button>';
+  }).join('');
+  modal.style.display = 'block';
+}
+
+function applyBulkOwner(owner) {
+  ledgerSelectedIds.forEach(function(id) {
+    const idx = ledgerTxs.findIndex(function(t) { return t.id === id; });
+    if (idx >= 0) ledgerTxs[idx].owner = owner;
+  });
+  store('ledger-txs', ledgerTxs);
+  document.getElementById('bulk-owner-modal').style.display = 'none';
+  const count = ledgerSelectedIds.size;
+  ledgerSelectedIds = new Set();
+  ledgerEditMode = false;
+  const btn = document.getElementById('ledger-edit-btn');
+  if (btn) { btn.textContent = '편집'; btn.style.color = 'var(--muted)'; }
+  const editBar = document.getElementById('ledger-edit-bar');
+  if (editBar) editBar.style.display = 'none';
+  renderLedger();
+  showToast('✅ ' + count + '개 소유자 변경 완료!');
+}
+
+// ── 일괄 날짜 변경
+function openBulkDateChange() {
+  if (ledgerSelectedIds.size === 0) { showToast('❗ 거래를 먼저 선택해주세요'); return; }
+  const modal = document.getElementById('bulk-date-modal');
+  if (!modal) return;
+  const countEl = document.getElementById('bulk-date-count');
+  if (countEl) countEl.textContent = ledgerSelectedIds.size;
+  // 오늘 날짜를 기본값으로
+  const today = new Date();
+  const todayStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+  const input = document.getElementById('bulk-date-input');
+  if (input) input.value = ledgerMonth + '-01'; // 현재 보고 있는 달의 1일
+  modal.style.display = 'block';
+}
+
+function applyBulkDate() {
+  const newDate = document.getElementById('bulk-date-input').value;
+  if (!newDate) { showToast('❗ 날짜를 선택해주세요'); return; }
+  ledgerSelectedIds.forEach(function(id) {
+    const idx = ledgerTxs.findIndex(function(t) { return t.id === id; });
+    if (idx >= 0) ledgerTxs[idx].date = newDate;
+  });
+  store('ledger-txs', ledgerTxs);
+  document.getElementById('bulk-date-modal').style.display = 'none';
+  const count = ledgerSelectedIds.size;
+  // 변경된 날짜의 월로 가계부 이동
+  ledgerMonth = newDate.substring(0, 7);
+  ledgerSelectedIds = new Set();
+  ledgerEditMode = false;
+  const btn = document.getElementById('ledger-edit-btn');
+  if (btn) { btn.textContent = '편집'; btn.style.color = 'var(--muted)'; }
+  const editBar = document.getElementById('ledger-edit-bar');
+  if (editBar) editBar.style.display = 'none';
+  renderLedger();
+  showToast('✅ ' + count + '개 날짜 변경 완료!');
+}
+
+// ── 일괄 삭제
+async function openBulkDelete() {
+  if (ledgerSelectedIds.size === 0) { showToast('❗ 거래를 먼저 선택해주세요'); return; }
+  const count = ledgerSelectedIds.size;
+  const ok = await showConfirm('선택한 ' + count + '개 거래를 삭제할까요?\n삭제 후 복구할 수 없어요.', '삭제');
+  if (!ok) return;
+  ledgerTxs = ledgerTxs.filter(function(t) { return !ledgerSelectedIds.has(t.id); });
+  store('ledger-txs', ledgerTxs);
+  ledgerSelectedIds = new Set();
+  ledgerEditMode = false;
+  const btn = document.getElementById('ledger-edit-btn');
+  if (btn) { btn.textContent = '편집'; btn.style.color = 'var(--muted)'; }
+  const editBar = document.getElementById('ledger-edit-bar');
+  if (editBar) editBar.style.display = 'none';
+  renderLedger();
+  renderHomeLedgerSummary();
+  updateHomeWidget();
+  showToast('🗑️ ' + count + '개 삭제 완료!');
+}
+
+
+// ── 편집 모드 전체선택 / 전체해제
+function ledgerSelectAll() {
+  // 현재 렌더된 거래 목록 기준으로 전체 선택
+  const allVisible = document.querySelectorAll('[id^="row-"]');
+  allVisible.forEach(function(el) {
+    const id = el.id.replace('row-', '');
+    ledgerSelectedIds.add(id);
+  });
+  updateBulkEditBar();
+  renderLedger();
+}
+
+function ledgerDeselectAll() {
+  ledgerSelectedIds = new Set();
+  updateBulkEditBar();
+  renderLedger();
+}
+
+// ── 편집 바 버튼 활성화 상태 업데이트
+function updateBulkEditBar() {
+  const count = ledgerSelectedIds.size;
+  const countEl = document.getElementById('ledger-edit-count');
+  if (countEl) countEl.textContent = count + '개 선택';
+  // 버튼 활성화
+  ['bulk-btn-cat', 'bulk-btn-owner', 'bulk-btn-date', 'bulk-btn-delete'].forEach(function(id) {
+    const btn = document.getElementById(id);
+    if (btn) btn.style.opacity = count > 0 ? '1' : '0.4';
+  });
+}
+
+// ── 일괄 카테고리 변경
 function openBulkCategoryChange() {
   if (ledgerSelectedIds.size === 0) { showToast('❗ 거래를 먼저 선택해주세요'); return; }
   const modal = document.getElementById('bulk-cat-modal');
   if (modal) modal.style.display = 'block';
   renderBulkCatBtns();
 }
+
 
 function renderBulkCatBtns() {
   const wrap = document.getElementById('bulk-cat-list');
@@ -13041,8 +13260,9 @@ function renderBulkCatBtns() {
 }
 
 function applyBulkCategory(catId) {
+  const count = ledgerSelectedIds.size;
   ledgerSelectedIds.forEach(function(id) {
-    const idx = ledgerTxs.findIndex(function(t){ return t.id === id; });
+    const idx = ledgerTxs.findIndex(function(t) { return t.id === id; });
     if (idx >= 0) ledgerTxs[idx].category = catId;
   });
   store('ledger-txs', ledgerTxs);
@@ -13054,8 +13274,9 @@ function applyBulkCategory(catId) {
   const editBar = document.getElementById('ledger-edit-bar');
   if (editBar) editBar.style.display = 'none';
   renderLedger();
-  showToast('✅ 카테고리가 변경됐어요!');
+  showToast('✅ ' + count + '개 카테고리 변경 완료!');
 }
+
 
 function renderLedgerList(txs) {
   const wrap = document.getElementById('ledger-list');
