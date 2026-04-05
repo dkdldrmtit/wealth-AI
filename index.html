@@ -8033,13 +8033,23 @@ if (!_saved) {
   homeCardSettings = HOME_CARD_DEFAULTS.map(function(c) { return Object.assign({}, c); });
 } else {
   // 기존 저장값 유지하되 DEFAULT에 있는데 저장값에 없는 카드 추가
-  homeCardSettings = _saved;
+  // donut 제거 + desc 동기화
+  homeCardSettings = _saved
+    .filter(function(s) { return s.id !== 'donut'; })
+    .map(function(s) {
+      const def = HOME_CARD_DEFAULTS.find(function(d) { return d.id === s.id; });
+      if (def) {
+        return Object.assign({}, s, { label: def.label, desc: def.desc });
+      }
+      return s;
+    });
   HOME_CARD_DEFAULTS.forEach(function(def) {
     if (!homeCardSettings.find(function(s) { return s.id === def.id; })) {
       homeCardSettings.push(Object.assign({}, def));
     }
   });
 }
+
 
 function applyHomeCardOrder() {
   const anchor = document.getElementById('home-cards-anchor');
