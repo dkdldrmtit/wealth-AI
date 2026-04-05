@@ -2159,6 +2159,14 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
 
 
+      <!-- 커플 나가기 (커플 연결 상태일 때만) -->
+      <div id="couple-leave-section" style="display:none;margin-bottom:8px">
+        <button onclick="handleLeaveCouple()"
+          style="width:100%;padding:13px;border-radius:12px;background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.2);color:#ca8a04;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
+          🚪 커플 공간 나가기
+        </button>
+      </div>
+
       <!-- 로그아웃 -->
       <button onclick="handleLogout()"
         style="width:100%;padding:13px;border-radius:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
@@ -8676,16 +8684,19 @@ async function renderCoupleSettings() {
 function updateCoupleConnectUI() {
   const connectSection = document.getElementById('couple-connect-section');
   const codeSection = document.getElementById('couple-code-section');
+  const leaveSection = document.getElementById('couple-leave-section');
   if (!connectSection || !codeSection) return;
 
   if (!currentCoupleId) {
-    // 미연결 → 연결 UI 표시, 초대코드 섹션 숨김
+    // 미연결 → 연결 UI 표시, 초대코드/나가기 섹션 숨김
     connectSection.style.display = 'block';
     codeSection.style.display = 'none';
+    if (leaveSection) leaveSection.style.display = 'none';
   } else {
-    // 연결됨 → 초대코드 섹션 표시
+    // 연결됨 → 초대코드 + 나가기 버튼 표시
     connectSection.style.display = 'none';
     codeSection.style.display = 'block';
+    if (leaveSection) leaveSection.style.display = 'block';
   }
 }
 
@@ -8813,6 +8824,48 @@ async function copyInviteCode() {
   if (!code || code === '-') return;
   await navigator.clipboard.writeText(code);
   showToast('✅ 초대 코드가 복사됐어요!');
+}
+
+// 커플 공간 나가기
+async function handleLeaveCouple() {
+  const confirmed = await showConfirm(
+    '커플 공간을 나가면 현재 공유 데이터에 더 이상 접근할 수 없어요.\n\n나가시겠어요?'
+  );
+  if (!confirmed) return;
+
+  const btn = document.querySelector('#couple-leave-section button');
+  if (btn) { btn.disabled = true; btn.textContent = '처리 중...'; }
+
+  try {
+    // 내 프로필의 couple_id, role을 null로 초기화
+    const { error } = await _supabase
+      .from('profiles')
+      .update({ couple_id: null, role: null })
+      .eq('id', currentUser.id);
+
+    if (error) throw error;
+
+    // 로컬 상태 초기화
+    currentCoupleId = null;
+    currentProfile = Object.assign({}, currentProfile, { couple_id: null, role: null });
+
+    // 로컬 데이터 초기화 (커플 데이터 포기)
+    assetHistory = []; ledgerTxs = []; stocks = []; goals = []; schedules = [];
+    budgets = { food:50, cafe:15, trans:20, shop:30, health:10, leisure:20, child:0, edu:10, house:0, etc:20 };
+    recurringItems = [];
+    store('asset-history', []); store('ledger-txs', []); store('stocks', []);
+    store('goals', []); store('schedules', []); store('ledger-budgets', budgets);
+    store('recurring-items', []);
+
+    // UI 갱신
+    updateCoupleConnectUI();
+    renderGoals(); renderMonthCards(); initHome();
+    showToast('✅ 커플 공간에서 나왔어요. 새로 시작할 수 있어요!');
+
+  } catch(e) {
+    showToast('❌ 오류가 발생했어요. 다시 시도해주세요.');
+    if (btn) { btn.disabled = false; btn.textContent = '🚪 커플 공간 나가기'; }
+  }
 }
 
 
