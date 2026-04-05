@@ -1121,14 +1121,21 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div id="home-widget" onclick="goPage('ledger',document.querySelectorAll('.nav-item')[1]);setTimeout(()=>setLedgerTab('list'),300)"
     style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:20px;margin-bottom:14px;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 1px 8px var(--shadow)">
 
-    <!-- 상단: 오늘 지출 + 추가 버튼 -->
+    <!-- 상단: 토글 + 추가 버튼 -->
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
       <div>
-        <div style="display:flex;align-items:baseline;gap:5px;margin-bottom:6px">
-          <div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:1.5px;text-transform:uppercase">Today</div>
-          <div style="font-size:9px;color:var(--muted);font-weight:400;opacity:0.45;letter-spacing:0.2px">오늘 지출</div>
+        <!-- 오늘/이번달 텍스트 토글 -->
+        <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:8px">
+          <span id="widget-tab-today" onclick="event.stopPropagation();setWidgetTab('today')"
+            style="font-size:11px;font-weight:700;color:var(--text);letter-spacing:0.5px;cursor:pointer;transition:all .2s">
+            오늘 지출
+          </span>
+          <span id="widget-tab-month" onclick="event.stopPropagation();setWidgetTab('month')"
+            style="font-size:11px;font-weight:400;color:var(--muted);letter-spacing:0.5px;cursor:pointer;border-bottom:1px dashed var(--muted);transition:all .2s">
+            이번달 지출
+          </span>
         </div>
-        <div id="widget-today-exp" style="font-size:36px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-1px">0원</div>
+        <div id="widget-amount" style="font-size:36px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-1px">0원</div>
       </div>
       <button onclick="event.stopPropagation();goPage('ledger',document.querySelectorAll('.nav-item')[1]);setTimeout(()=>openLedgerAdd('expense'),300)"
         style="background:none;border:none;color:var(--muted);font-size:24px;font-weight:300;cursor:pointer;flex-shrink:0;padding:0;line-height:1;margin-top:2px">
@@ -1148,13 +1155,14 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     </div>
 
     <!-- 숨김 처리 (JS 참조 유지용) -->
+    <span id="widget-today-exp" style="display:none"></span>
     <span id="widget-month-exp" style="display:none">0</span>
     <span id="widget-budget-label" style="display:none"></span>
     <span id="widget-budget-val" style="display:none"></span>
 
+  </div>
+  </div>
 
-  </div>
-  </div>
 
   <!-- ② AI 코멘트 -->
   <div data-card="ai" id="home-card-ai">
@@ -6793,76 +6801,139 @@ async function homeRefreshStocks() {
   if (btn) { btn.textContent = '🔄'; btn.disabled = false; }
 }
 
+// 위젯 탭 상태
+let widgetTab = load('widget-tab', 'today');
+
+function setWidgetTab(tab) {
+  widgetTab = tab;
+  store('widget-tab', tab);
+  const todayTabEl = document.getElementById('widget-tab-today');
+  const monthTabEl = document.getElementById('widget-tab-month');
+  if (todayTabEl) {
+    todayTabEl.style.fontWeight = tab === 'today' ? '700' : '400';
+    todayTabEl.style.color = tab === 'today' ? 'var(--text)' : 'var(--muted)';
+    todayTabEl.style.borderBottom = tab === 'today' ? 'none' : '1px dashed var(--muted)';
+  }
+  if (monthTabEl) {
+    monthTabEl.style.fontWeight = tab === 'month' ? '700' : '400';
+    monthTabEl.style.color = tab === 'month' ? 'var(--text)' : 'var(--muted)';
+    monthTabEl.style.borderBottom = tab === 'month' ? 'none' : '1px dashed var(--muted)';
+  }
+  updateHomeWidget();
+}
+
+// pct에 따라 그라데이션 색상 보간
+function getWidgetBarColor(pct) {
+  // 색상 정의 (r,g,b,a)
+  const green  = [34,  197, 94,  0.28];
+  const yellow = [251, 191, 36,  0.32];
+  const orange = [249, 115, 22,  0.36];
+  const red    = [239, 68,  68,  0.40];
+
+  function lerp(a, b, t) {
+    return a.map(function(v, i) { return v + (b[i] - v) * t; });
+  }
+
+  let c;
+  if (pct <= 70) {
+    c = lerp(green, yellow, pct / 70);
+  } else if (pct <= 90) {
+    c = lerp(yellow, orange, (pct - 70) / 20);
+  } else if (pct <= 100) {
+    c = lerp(orange, red, (pct - 90) / 10);
+  } else {
+    c = red;
+  }
+
+  const start = 'rgba(' + Math.round(c[0]) + ',' + Math.round(c[1]) + ',' + Math.round(c[2]) + ',' + (c[3] * 0.6).toFixed(2) + ')';
+  const end   = 'rgba(' + Math.round(c[0]) + ',' + Math.round(c[1]) + ',' + Math.round(c[2]) + ',' + c[3].toFixed(2) + ')';
+  return 'linear-gradient(90deg,' + start + ',' + end + ')';
+}
+
 function updateHomeWidget() {
   const now = new Date();
   const today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
   const thisMonth = today.substring(0,7);
   const el = function(id){ return document.getElementById(id); };
 
-  // 오늘 지출
-  const todayExp = ledgerTxs.filter(function(t){ return t.date===today&&t.type==='expense'; }).reduce(function(s,t){ return s+t.amount; },0);
-  if(el('widget-today-exp')) el('widget-today-exp').textContent = (todayExp*10000).toLocaleString()+'원';
-
   // 이번달 지출
   const monthTxs = ledgerTxs.filter(function(t){ return t.date.startsWith(thisMonth); });
   const monthExp = monthTxs.filter(function(t){ return t.type==='expense'; }).reduce(function(s,t){ return s+t.amount; },0);
-  if(el('widget-month-exp')) el('widget-month-exp').textContent = Math.round(monthExp).toLocaleString();
 
-  // 예산 계산
+  // 오늘 지출
+  const todayExp = ledgerTxs.filter(function(t){ return t.date===today&&t.type==='expense'; }).reduce(function(s,t){ return s+t.amount; },0);
+
+  // 예산
   const totalBudget = Object.values(budgets).reduce(function(s,v){ return s+(v||0); }, 0);
-  const pct = totalBudget > 0 ? Math.round(monthExp / totalBudget * 100) : 0;
 
-  // 예산 표시
-  if(el('widget-budget-val')) {
-    if(totalBudget > 0) {
-      el('widget-budget-val').textContent = Math.round(totalBudget).toLocaleString() + '만원';
-      el('widget-budget-label').textContent = '예산';
-    } else {
-      // 예산 미설정시 전월 대비
-      const prevDate = new Date(now.getFullYear(), now.getMonth()-1, 1);
-      const prevMonth = prevDate.getFullYear() + '-' + String(prevDate.getMonth()+1).padStart(2,'0');
-      const prevExp = ledgerTxs.filter(function(t){ return t.date.startsWith(prevMonth)&&t.type==='expense'; }).reduce(function(s,t){ return s+t.amount; },0);
-      el('widget-budget-val').textContent = prevExp > 0 ? Math.round(prevExp).toLocaleString()+'만원' : '-';
-      el('widget-budget-label').textContent = '전월';
+  // 전월 예산 (미설정 시 대체)
+  const prevDate = new Date(now.getFullYear(), now.getMonth()-1, 1);
+  const prevMonth = prevDate.getFullYear() + '-' + String(prevDate.getMonth()+1).padStart(2,'0');
+  const prevExp = ledgerTxs.filter(function(t){ return t.date.startsWith(prevMonth)&&t.type==='expense'; }).reduce(function(s,t){ return s+t.amount; },0);
+  const effectiveBudget = totalBudget > 0 ? totalBudget : prevExp;
+  const isFallback = totalBudget === 0 && prevExp > 0;
+
+  // 하루 예산 계산
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const dailyBudget = effectiveBudget > 0 ? effectiveBudget / daysInMonth : 0;
+
+  // 탭 상태 반영
+  setWidgetTab(widgetTab);
+
+  if (widgetTab === 'today') {
+    // 오늘 탭
+    const amount = el('widget-amount');
+    if (amount) amount.textContent = (todayExp * 10000).toLocaleString() + '원';
+
+    const pct = dailyBudget > 0 ? Math.round(todayExp / dailyBudget * 100) : 0;
+
+    if (el('widget-exp-bar')) {
+      el('widget-exp-bar').style.width = Math.min(pct, 100) + '%';
+      el('widget-exp-bar').style.background = effectiveBudget > 0 ? getWidgetBarColor(pct) : 'rgba(59,130,246,0.25)';
+    }
+
+    if (el('widget-status-text')) {
+      if (dailyBudget > 0) {
+        el('widget-status-text').innerHTML = '하루 예산 ' + Math.round(dailyBudget * 10000).toLocaleString() + '원'
+          + (isFallback ? ' <span style="font-size:9px;color:var(--muted);opacity:0.6">전월 기준</span>' : '');
+      } else {
+        el('widget-status-text').textContent = '';
+      }
+    }
+    if (el('widget-exp-pct')) {
+      el('widget-exp-pct').textContent = dailyBudget > 0 ? pct + '%' : '';
+    }
+
+  } else {
+    // 이번달 탭
+    const amount = el('widget-amount');
+    if (amount) amount.textContent = Math.round(monthExp).toLocaleString() + '만원';
+
+    const pct = effectiveBudget > 0 ? Math.round(monthExp / effectiveBudget * 100) : 0;
+
+    if (el('widget-exp-bar')) {
+      el('widget-exp-bar').style.width = Math.min(pct, 100) + '%';
+      el('widget-exp-bar').style.background = effectiveBudget > 0 ? getWidgetBarColor(pct) : 'rgba(59,130,246,0.25)';
+    }
+
+    if (el('widget-status-text')) {
+      if (effectiveBudget > 0) {
+        el('widget-status-text').innerHTML = '예산 ' + Math.round(effectiveBudget).toLocaleString() + '만원'
+          + (isFallback ? ' <span style="font-size:9px;color:var(--muted);opacity:0.6">전월 기준</span>' : '');
+      } else {
+        el('widget-status-text').textContent = '';
+      }
+    }
+    if (el('widget-exp-pct')) {
+      el('widget-exp-pct').textContent = effectiveBudget > 0 ? pct + '%' : '';
     }
   }
 
-  // 색상 단계
-  var barColor, statusText, pctColor;
-  if(totalBudget === 0) {
-    barColor = 'var(--blue)';
-    statusText = '';
-    pctColor = 'var(--muted)';
-  } else if(pct <= 60) {
-    barColor = 'rgba(34,197,94,0.25)';
-    pctColor = 'var(--muted2)';
-  } else if(pct <= 80) {
-    barColor = 'rgba(251,191,36,0.3)';
-    pctColor = 'var(--muted2)';
-  } else if(pct <= 100) {
-    barColor = 'rgba(249,115,22,0.35)';
-    pctColor = 'var(--muted2)';
-  } else {
-    barColor = 'rgba(239,68,68,0.35)';
-    pctColor = 'var(--muted2)';
-  }
-
-  // 바 업데이트
-  if(el('widget-exp-bar')) {
-    el('widget-exp-bar').style.width = Math.min(pct, 100) + '%';
-    el('widget-exp-bar').style.background = barColor;
-  }
-
-  if(el('widget-status-text')) {
-    el('widget-status-text').textContent = '이번달 ' + Math.round(monthExp).toLocaleString() + '만원'
-      + (totalBudget > 0 ? ' · 예산 ' + Math.round(totalBudget).toLocaleString() + '만원' : '');
-  }
-
-  if(el('widget-exp-pct')) {
-    el('widget-exp-pct').textContent = totalBudget > 0 ? pct + '%' : '';
-  }
-
+  // hidden 참조 유지
+  if(el('widget-today-exp')) el('widget-today-exp').textContent = (todayExp*10000).toLocaleString();
+  if(el('widget-month-exp')) el('widget-month-exp').textContent = Math.round(monthExp).toLocaleString();
 }
+
 
 
 // ── 홈 접기/펼치기
