@@ -12612,7 +12612,207 @@ function applyBulkCategory(catId) {
   showToast('✅ 카테고리가 변경됐어요!');
 }
 
+// ── 편집 모드 상태
+let ledgerEditMode = false;
+let ledgerSelectedIds = new Set();
+
+function toggleLedgerEditMode() {
+  ledgerEditMode = !ledgerEditMode;
+  ledgerSelectedIds = new Set();
+  const btn = document.getElementById('ledger-edit-btn');
+  if (btn) {
+    btn.textContent = ledgerEditMode ? '완료' : '편집';
+    btn.style.color = ledgerEditMode ? 'var(--blue)' : 'var(--muted)';
+  }
+  const editBar = document.getElementById('ledger-edit-bar');
+  if (editBar) editBar.style.display = ledgerEditMode ? 'flex' : 'none';
+  renderLedger();
+}
+
+function toggleLedgerSelect(id) {
+  if (ledgerSelectedIds.has(id)) {
+    ledgerSelectedIds.delete(id);
+  } else {
+    ledgerSelectedIds.add(id);
+  }
+  const count = document.getElementById('ledger-edit-count');
+  if (count) count.textContent = ledgerSelectedIds.size + '개 선택';
+  const confirmBtn = document.getElementById('ledger-edit-confirm');
+  if (confirmBtn) confirmBtn.style.opacity = ledgerSelectedIds.size > 0 ? '1' : '0.4';
+  renderLedger();
+}
+
+function openBulkCategoryChange() {
+  if (ledgerSelectedIds.size === 0) { showToast('❗ 거래를 먼저 선택해주세요'); return; }
+  const modal = document.getElementById('bulk-cat-modal');
+  if (modal) modal.style.display = 'block';
+  renderBulkCatBtns();
+}
+
+function renderBulkCatBtns() {
+  const wrap = document.getElementById('bulk-cat-list');
+  if (!wrap) return;
+  wrap.innerHTML = [...CATEGORIES.expense, ...CATEGORIES.income].map(function(cat) {
+    return '<button onclick="applyBulkCategory(\'' + cat.id + '\')" style="'
+      + 'display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;'
+      + 'background:transparent;border:none;border-bottom:1px solid var(--border);'
+      + 'font-family:\'Noto Sans KR\',sans-serif;cursor:pointer;text-align:left">'
+      + '<div style="width:10px;height:10px;border-radius:50%;background:' + cat.color + ';flex-shrink:0"></div>'
+      + '<span style="font-size:13px;color:var(--text);font-weight:500">' + cat.label + '</span>'
+      + '</button>';
+  }).join('');
+}
+
+function applyBulkCategory(catId) {
+  ledgerSelectedIds.forEach(function(id) {
+    const idx = ledgerTxs.findIndex(function(t){ return t.id === id; });
+    if (idx >= 0) ledgerTxs[idx].category = catId;
+  });
+  store('ledger-txs', ledgerTxs);
+  document.getElementById('bulk-cat-modal').style.display = 'none';
+  ledgerSelectedIds = new Set();
+  ledgerEditMode = false;
+  const btn = document.getElementById('ledger-edit-btn');
+  if (btn) { btn.textContent = '편집'; btn.style.color = 'var(--muted)'; }
+  const editBar = document.getElementById('ledger-edit-bar');
+  if (editBar) editBar.style.display = 'none';
+  renderLedger();
+  showToast('✅ 카테고리가 변경됐어요!');
+}
+
 function renderLedgerList(txs) {
+  const wrap = document.getElementById('ledger-list');
+  if (!wrap) return;
+
+  if (!txs.length) {
+    wrap.innerHTML = '<div style="text-align:center;padding:50px 0;color:var(--muted)">'
+      + '<div style="font-size:40px;margin-bottom:12px">📭</div>'
+      + '<div style="font-size:14px;font-weight:600;margin-bottom:6px">내역이 없어요</div>'
+      + '<div style="font-size:12px;margin-bottom:20px">이번달 첫 거래를 기록해보세요!</div>'
+      + '<div style="display:flex;gap:8px;justify-content:center">'
+      + '<button onclick="openLedgerAdd(\'expense\')" style="padding:12px 20px;border-radius:12px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--red);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:700;cursor:pointer">💸 지출 추가</button>'
+      + '<button onclick="openLedgerAdd(\'income\')" style="padding:12px 20px;border-radius:12px;background:rgba(74,158,255,.12);border:1px solid rgba(74,158,255,.3);color:var(--blue);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:700;cursor:pointer">💰 수입 추가</button>'
+      + '</div></div>';
+    return;
+  }
+
+  const sorted = [...txs].sort(function(a,b) {
+    return ledgerSortOrder === 'asc' ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date);
+  });
+  const groups = {};
+  sorted.forEach(function(t) { if (!groups[t.date]) groups[t.date] = []; groups[t.date].push(t); });
+  Object.keys(groups).forEach(function(date) { groups[date].reverse(); });
+
+  var todayStr2 = new Date().toISOString().slice(0,10);
+  var dayNames = ['일','월','화','수','목','금','토'];
+
+  wrap.innerHTML = Object.entries(groups).map(function(entry) {
+    var date = entry[0];
+    var items = entry[1];
+    var parts = date.split('-');
+    var mm = parts[1], dd = parts[2];
+    var dateObj = new Date(date);
+    var dayName = dayNames[dateObj.getDay()];
+    var isSat = dateObj.getDay() === 6;
+    var isSun = dateObj.getDay() === 0;
+    var dayColor = isSat ? '#60a5fa' : isSun ? '#ef4444' : 'var(--muted)';
+    var isToday = date === todayStr2;
+    var dayIncome  = items.filter(function(t){ return t.type==='income'; }).reduce(function(s,t){ return s+t.amount; },0);
+    var dayExpense = items.filter(function(t){ return t.type==='expense'; }).reduce(function(s,t){ return s+t.amount; },0);
+    var dayNet = dayIncome - dayExpense;
+
+    var dateHeader = '<div style="display:flex;justify-content:space-between;align-items:center;padding:0 2px;margin-bottom:8px">'
+      + '<div style="display:flex;align-items:center;gap:8px">'
+      + '<span style="font-size:13px;font-weight:700;color:var(--text)">' + parseInt(mm) + '/' + parseInt(dd) + '</span>'
+      + '<span style="font-size:11px;color:' + dayColor + '">' + dayName + '</span>'
+      + (isToday ? '<span style="font-size:9px;background:rgba(59,130,246,0.12);color:var(--blue);padding:2px 7px;border-radius:8px;font-weight:700">오늘</span>' : '')
+      + '</div>'
+      + '<span style="font-size:11px;font-weight:500;color:' + (dayNet>=0?'var(--blue)':'var(--red)') + '">'
+      + (dayNet>=0?'+':'') + Math.round(dayNet*10000).toLocaleString() + '원</span>'
+      + '</div>';
+
+    var allCats = CATEGORIES.expense.concat(CATEGORIES.income);
+
+    var rows = items.map(function(t, i) {
+      var cat = allCats.find(function(c){ return c.id===t.category; }) || {label:'기타', color:'#6b7280'};
+      var isLast = i === items.length - 1;
+      var isSelected = ledgerSelectedIds.has(t.id);
+      var catName = cat.label.split(' ').slice(1).join(' ');
+
+      // 소유자 표시
+      var ownerHtml = '';
+      if (t.owner !== 'common') {
+        var ownerColor = t.owner === 'minsuk' ? 'var(--blue)' : 'var(--green)';
+        var ownerName = t.owner === 'minsuk' ? '나' : '파트너';
+        ownerHtml = ' · <span style="color:' + ownerColor + '">' + ownerName + '</span>';
+      }
+
+      // 왼쪽 아이콘 (편집모드: 체크박스 / 일반: 컬러 도트)
+      var leftIcon = '';
+      if (ledgerEditMode) {
+        leftIcon = '<div style="width:22px;height:22px;border-radius:50%;border:2px solid '
+          + (isSelected ? 'var(--blue)' : 'var(--border2)')
+          + ';background:' + (isSelected ? 'var(--blue)' : 'transparent')
+          + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s">'
+          + (isSelected ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '')
+          + '</div>';
+      } else {
+        leftIcon = '<div style="width:10px;height:10px;border-radius:50%;background:' + cat.color
+          + ';flex-shrink:0;box-shadow:0 0 0 3px ' + cat.color + '22"></div>';
+      }
+
+      // 스와이프 삭제 버튼 (편집모드 아닐때만)
+      var swipeBtn = '';
+      if (!ledgerEditMode) {
+        swipeBtn = '<div class="swipe-delete-btn" id="del-' + t.id + '" onclick="swipeDeleteTx(\'' + t.id + '\')"'
+          + ' style="position:absolute;right:0;top:0;bottom:0;width:80px;background:var(--red);'
+          + 'display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;'
+          + 'color:#fff;cursor:pointer;transform:translateX(100%);transition:transform .25s ease;z-index:1">삭제</div>';
+      }
+
+      // 터치 이벤트 (편집모드 아닐때만)
+      var touchEvents = '';
+      if (!ledgerEditMode) {
+        touchEvents = 'ontouchstart="swipeStart(event,\'' + t.id + '\')" '
+          + 'ontouchmove="swipeMove(event,\'' + t.id + '\')" '
+          + 'ontouchend="swipeEnd(event,\'' + t.id + '\')"';
+      }
+
+      var clickFn = ledgerEditMode
+        ? 'toggleLedgerSelect(\'' + t.id + '\')'
+        : 'openTxEdit(\'' + t.id + '\')';
+
+      return '<div style="position:relative;overflow:hidden;' + (isLast?'':'border-bottom:1px solid var(--border)') + '">'
+        + swipeBtn
+        + '<div onclick="' + clickFn + '" id="row-' + t.id + '" ' + touchEvents
+        + ' style="display:flex;align-items:center;gap:12px;padding:13px 14px;cursor:pointer;'
+        + 'background:' + (isSelected ? 'rgba(59,130,246,0.06)' : 'var(--surface)') + ';'
+        + 'position:relative;z-index:2;transition:background .15s">'
+        + leftIcon
+        + '<div style="flex:1;min-width:0">'
+        + '<div style="font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'
+        + (t.memo || catName)
+        + '</div>'
+        + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + cat.label + ownerHtml + '</div>'
+        + '</div>'
+        + '<div style="text-align:right;flex-shrink:0">'
+        + '<div style="font-size:13px;font-weight:600;color:' + (t.type==='income'?'var(--blue)':'var(--text)') + '">'
+        + (t.type==='income'?'+':'-') + Math.round(t.amount*10000).toLocaleString() + '원'
+        + '</div>'
+        + '</div>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+
+    return '<div style="margin-bottom:20px">'
+      + dateHeader
+      + '<div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden">'
+      + rows
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
   const wrap = document.getElementById('ledger-list');
   if (!wrap) return;
   if (!txs.length) {
