@@ -1539,8 +1539,20 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
 </div>
 
+<!-- FAB 거래추가 버튼 (가계부 전용) -->
+<button id="ledger-fab-add" onclick="openLedgerAdd('expense')"
+  style="display:none;position:fixed;bottom:90px;right:20px;width:58px;height:58px;border-radius:29px;
+  background:#1a1a1a;border:1px solid var(--border2);color:#fff;font-size:22px;cursor:pointer;z-index:50;
+  align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,0.4);
+  transition:transform .15s"
+  ontouchstart="this.style.transform='scale(0.88)'"
+  ontouchend="this.style.transform='scale(1)'">
+  +
+</button>
+
 <!-- FAB 음성 입력 버튼 (홈 전용, page 밖 고정) -->
 <button id="home-fab-mic" onclick="openHomeMic()"
+
   style="position:fixed;bottom:90px;right:20px;width:58px;height:58px;border-radius:29px;
   color:#fff;font-size:22px;cursor:pointer;z-index:50;
   display:flex;align-items:center;justify-content:center;
@@ -2041,137 +2053,164 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <!-- 헤더 + 월 네비 -->
   <div style="padding:24px 16px 0">
     <div class="page-header" style="margin-bottom:16px">
-      <div class="eyebrow">가계부</div>
-      <h1>수입 · 지출</h1>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div class="eyebrow">가계부</div>
+          <h1>수입 · 지출</h1>
+        </div>
+        <!-- 우측 상단 아이콘 버튼들 -->
+        <div style="display:flex;align-items:center;gap:2px;margin-top:8px">
+          <button onclick="openVoiceParser()"
+            style="background:none;border:none;color:var(--muted);width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:16px"
+            ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
+            🎙️
+          </button>
+          <button onclick="openSmsParser()"
+            style="background:none;border:none;color:var(--muted);width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:16px"
+            ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
+            📱
+          </button>
+          <button onclick="openExcelImport()"
+            style="background:none;border:none;color:var(--muted);width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px"
+            ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </button>
+        </div>
+      </div>
     </div>
+
 
 
     <!-- 수입/지출/잔액 -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
-      <div onclick="openLedgerAdd('income')" style="background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);border-radius:14px;padding:14px 8px;text-align:center;cursor:pointer">
-        <div style="font-size:9px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:5px">+ 수입</div>
-        <div id="ledger-income" style="font-size:16px;font-weight:700;color:var(--muted2)">0만</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px">
+      <div onclick="openLedgerAdd('income')" style="background:var(--surface);padding:16px 8px;text-align:center;cursor:pointer">
+        <div style="font-size:9px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:6px;text-transform:uppercase">수입</div>
+        <div id="ledger-income" style="font-size:17px;font-weight:800;color:var(--text)">0원</div>
       </div>
-      <div onclick="openLedgerAdd('expense')" style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:14px;padding:14px 8px;text-align:center;cursor:pointer">
-        <div style="font-size:9px;color:var(--red);font-weight:700;letter-spacing:1px;margin-bottom:5px">- 지출</div>
-        <div id="ledger-expense" style="font-size:16px;font-weight:900;color:var(--red)">0만</div>
+      <div onclick="openLedgerAdd('expense')" style="background:var(--surface);padding:16px 8px;text-align:center;cursor:pointer">
+        <div style="font-size:9px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:6px;text-transform:uppercase">지출</div>
+        <div id="ledger-expense" style="font-size:17px;font-weight:800;color:var(--red)">0원</div>
       </div>
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:14px 8px;text-align:center">
-        <div style="font-size:9px;color:var(--muted);font-weight:700;letter-spacing:1px;margin-bottom:5px">잔액</div>
-        <div id="ledger-balance" style="font-size:16px;font-weight:900">0만</div>
+      <div style="background:var(--surface);padding:16px 8px;text-align:center">
+        <div style="font-size:9px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:6px;text-transform:uppercase">잔액</div>
+        <div id="ledger-balance" style="font-size:17px;font-weight:800">0원</div>
       </div>
     </div>
 
-    <!-- 민석/시윤 탭 -->
-    <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:16px">
-      <button id="owner-all" onclick="setLedgerOwner('all')" style="flex:1;padding:8px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.10);color:var(--text);border:0.5px solid rgba(59,130,246,0.25)">전체</button>
-      <button id="owner-common" onclick="setLedgerOwner('common')" style="flex:1;padding:8px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">공동</button>
-      <button id="owner-minsuk" onclick="setLedgerOwner('minsuk')" style="flex:1;padding:8px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">👨 민석</button>
-      <button id="owner-siyun" onclick="setLedgerOwner('siyun')" style="flex:1;padding:8px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">👩 시윤</button>
-    </div>
-
-    <!-- 탭 (내역/분석/예산) -->
-    <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:16px">
-    <button id="ltab-list" onclick="setLedgerTab('list')" style="flex:1;padding:10px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--text);border-bottom:2px solid var(--text);margin-bottom:-2px">내역</button>
-    <button id="ltab-chart" onclick="setLedgerTab('chart')" style="flex:1;padding:10px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)">분석</button>
-    <button id="ltab-budget" onclick="setLedgerTab('budget')" style="flex:1;padding:10px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)">예산</button>
-    <button id="ltab-calendar" onclick="setLedgerTab('calendar')" style="flex:1;padding:10px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)">캘린더</button>
+    <!-- 소유자 탭 -->
+    <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px">
+      <button id="owner-all" onclick="setLedgerOwner('all')" style="flex:1;padding:10px 4px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;color:var(--text);border-bottom:2px solid var(--text);margin-bottom:-1px">전체</button>
+      <button id="owner-common" onclick="setLedgerOwner('common')" style="flex:1;padding:10px 4px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted)">공동</button>
+      <button id="owner-minsuk" onclick="setLedgerOwner('minsuk')" style="flex:1;padding:10px 4px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted)">나</button>
+      <button id="owner-siyun" onclick="setLedgerOwner('siyun')" style="flex:1;padding:10px 4px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted)">파트너</button>
     </div>
 
 
-    <!-- 거래 추가 / 문자 파싱 / 엑셀 / 음성 버튼 -->
-    <div id="ledger-add-btn" style="display:none;flex-direction:row;gap:8px;margin-bottom:14px">
-      <button onclick="openLedgerAdd()"
-        style="flex:1;height:46px;border-radius:12px;background:#1a1a1a;border:1px solid var(--border2);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer">
-        + 거래 추가
-      </button>
-      <button onclick="openExcelImport()"
-        style="height:46px;padding:0 12px;border-radius:12px;background:var(--surface2);border:0.5px solid var(--border2);color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">
-        엑셀
-      </button>
-      <button onclick="openSmsParser()"
-        style="height:46px;padding:0 12px;border-radius:12px;background:var(--surface2);border:0.5px solid var(--border2);color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">
-        📱 문자
-      </button>
-      <button onclick="openVoiceParser()"
-        style="height:46px;width:46px;border-radius:12px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);color:var(--teal);font-size:20px;cursor:pointer;flex-shrink:0">
-        🎙️
-      </button>
+    <!-- 탭 (내역/분석/예산/캘린더) -->
+    <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:0">
+      <button id="ltab-list" onclick="setLedgerTab('list')" style="flex:1;padding:12px 4px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--text);border-bottom:2px solid var(--text);margin-bottom:-1px">내역</button>
+      <button id="ltab-chart" onclick="setLedgerTab('chart')" style="flex:1;padding:12px 4px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px">분석</button>
+      <button id="ltab-budget" onclick="setLedgerTab('budget')" style="flex:1;padding:12px 4px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px">예산</button>
+      <button id="ltab-calendar" onclick="setLedgerTab('calendar')" style="flex:1;padding:12px 4px;border:none;background:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px">캘린더</button>
     </div>
+
+
+    <!-- 거래 추가 버튼 (FAB 스타일로 이동, 여기선 제거) -->
+    <div id="ledger-add-btn" style="display:none"></div>
   </div>
 
   <!-- 내역 탭 -->
   <div id="ltab-content-list" style="padding:0 16px 120px">
 
     <!-- 월 네비 -->
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;margin-top:4px">
-      <button onclick="ledgerPrevMonth()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:20px;width:38px;height:38px;cursor:pointer;flex-shrink:0;line-height:1">‹</button>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;margin-top:4px">
+      <button onclick="ledgerPrevMonth()" style="background:none;border:none;color:var(--muted);font-size:24px;width:38px;height:38px;cursor:pointer;flex-shrink:0;line-height:1">‹</button>
       <div id="ledger-month-label" style="flex:1;text-align:center;font-size:17px;font-weight:800;color:var(--text)"></div>
-      <button onclick="ledgerNextMonth()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:20px;width:38px;height:38px;cursor:pointer;flex-shrink:0;line-height:1">›</button>
+      <button onclick="ledgerNextMonth()" style="background:none;border:none;color:var(--muted);font-size:24px;width:38px;height:38px;cursor:pointer;flex-shrink:0;line-height:1">›</button>
     </div>
 
-    <!-- 필터 영역 -->
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:14px">
-
-      <!-- 기간 빠른선택 -->
-      <div style="display:flex;gap:6px;margin-bottom:10px;overflow-x:auto;padding-bottom:2px">
-        <button id="period-month" onclick="setLedgerPeriod('month')"
-          style="flex-shrink:0;padding:5px 12px;border-radius:20px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.10);color:var(--text);border:0.5px solid rgba(59,130,246,0.25)">이번달</button>
-        <button id="period-3month" onclick="setLedgerPeriod('3month')"
-          style="flex-shrink:0;padding:5px 12px;border-radius:20px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">3개월</button>
-        <button id="period-6month" onclick="setLedgerPeriod('6month')"
-          style="flex-shrink:0;padding:5px 12px;border-radius:20px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">6개월</button>
-        <button id="period-all" onclick="setLedgerPeriod('all')"
-          style="flex-shrink:0;padding:5px 12px;border-radius:20px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">전체</button>
-        <button id="period-custom" onclick="setLedgerPeriod('custom')"
-          style="flex-shrink:0;padding:5px 12px;border-radius:20px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">📅 직접선택</button>
-      </div>
-
-      <!-- 날짜 직접 선택 (custom 시에만 표시) -->
-      <div id="period-custom-wrap" style="display:none;gap:8px;align-items:center;margin-bottom:10px">
-        <input type="date" id="period-from" onchange="renderLedger()"
-          style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:12px;padding:7px 10px;outline:none">
-        <span style="font-size:12px;color:var(--muted)">~</span>
-        <input type="date" id="period-to" onchange="renderLedger()"
-          style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:12px;padding:7px 10px;outline:none">
-      </div>
-
-      <!-- 소유자 필터 -->
-      <div style="display:flex;gap:5px;margin-bottom:10px">
-        <button id="lf-owner-all" onclick="setLedgerFilterOwner('all')"
-          style="flex:1;padding:5px 4px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface3);color:var(--text)">전체</button>
-        <button id="lf-owner-common" onclick="setLedgerFilterOwner('common')"
-          style="flex:1;padding:5px 4px;border-radius:8px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">🤝공동</button>
-        <button id="lf-owner-minsuk" onclick="setLedgerFilterOwner('minsuk')"
-          style="flex:1;padding:5px 4px;border-radius:8px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">👨민석</button>
-        <button id="lf-owner-siyun" onclick="setLedgerFilterOwner('siyun')"
-          style="flex:1;padding:5px 4px;border-radius:8px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">👩시윤</button>
-      </div>
-
-      <!-- 카테고리 필터 -->
-      <div style="display:flex;gap:5px;overflow-x:auto;padding-bottom:2px" id="cat-filter-wrap">
-        <button id="catf-all" style="flex-shrink:0;padding:4px 10px;border-radius:16px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface3);color:var(--text)">전체</button>
-      </div>
-
-      <!-- 검색 -->
-      <div style="position:relative;margin-top:10px">
-      <div id="search-wrap" style="display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:0 12px">
+    <!-- 검색 + 필터 버튼 -->
+    <div style="position:relative;margin-bottom:8px">
+      <div id="search-wrap" style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:0 14px">
         <span style="font-size:14px;color:var(--muted)">🔍</span>
         <input type="text" id="ledger-search" placeholder="가맹점·메모 검색"
           oninput="onLedgerSearchInput(this.value)"
           onfocus="onLedgerSearchInput(this.value)"
-          style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:10px 0;outline:none">
+          style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:12px 0;outline:none">
         <button id="ledger-search-clear" onclick="clearLedgerSearch()" style="display:none;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0">✕</button>
-        <div style="width:1px;height:16px;background:var(--border2)"></div>
+        <div style="width:1px;height:16px;background:var(--border)"></div>
+        <button onclick="toggleLedgerFilter()" id="filter-toggle-btn"
+          style="background:none;border:none;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px;white-space:nowrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+          <span id="filter-toggle-label">필터</span>
+        </button>
+        <div style="width:1px;height:16px;background:var(--border)"></div>
         <button id="sort-toggle" onclick="toggleLedgerSort()"
-          style="background:none;border:none;color:var(--blue);font-size:15px;cursor:pointer;padding:0;font-weight:900;line-height:1">↓</button>
+          style="background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer;padding:0;font-weight:900;line-height:1">↓</button>
       </div>
       <div id="search-autocomplete" class="search-autocomplete" style="display:none"></div>
+    </div>
+
+    <!-- 활성 필터 뱃지 표시 -->
+    <div id="active-filter-badges" style="display:none;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
+
+    <!-- 필터 패널 (접힘/펼침) -->
+    <div id="ledger-filter-panel" style="max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1)">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:8px">
+
+        <!-- 기간 -->
+        <div style="margin-bottom:12px">
+          <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:0.5px;margin-bottom:8px">기간</div>
+          <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px">
+            <button id="period-month" onclick="setLedgerPeriod('month')"
+              style="flex-shrink:0;padding:6px 14px;border-radius:20px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:var(--surface3);color:var(--text)">이번달</button>
+            <button id="period-3month" onclick="setLedgerPeriod('3month')"
+              style="flex-shrink:0;padding:6px 14px;border-radius:20px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">3개월</button>
+            <button id="period-6month" onclick="setLedgerPeriod('6month')"
+              style="flex-shrink:0;padding:6px 14px;border-radius:20px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">6개월</button>
+            <button id="period-all" onclick="setLedgerPeriod('all')"
+              style="flex-shrink:0;padding:6px 14px;border-radius:20px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">전체</button>
+            <button id="period-custom" onclick="setLedgerPeriod('custom')"
+              style="flex-shrink:0;padding:6px 14px;border-radius:20px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">직접선택</button>
+          </div>
+          <div id="period-custom-wrap" style="display:none;gap:8px;align-items:center;margin-top:8px">
+            <input type="date" id="period-from" onchange="renderLedger()"
+              style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:12px;padding:7px 10px;outline:none">
+            <span style="font-size:12px;color:var(--muted)">~</span>
+            <input type="date" id="period-to" onchange="renderLedger()"
+              style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:12px;padding:7px 10px;outline:none">
+          </div>
+        </div>
+
+        <!-- 소유자 필터 -->
+        <div style="margin-bottom:12px">
+          <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:0.5px;margin-bottom:8px">소유자</div>
+          <div style="display:flex;gap:6px">
+            <button id="lf-owner-all" onclick="setLedgerFilterOwner('all')"
+              style="flex:1;padding:6px 4px;border-radius:8px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface3);color:var(--text)">전체</button>
+            <button id="lf-owner-common" onclick="setLedgerFilterOwner('common')"
+              style="flex:1;padding:6px 4px;border-radius:8px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">공동</button>
+            <button id="lf-owner-minsuk" onclick="setLedgerFilterOwner('minsuk')"
+              style="flex:1;padding:6px 4px;border-radius:8px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">나</button>
+            <button id="lf-owner-siyun" onclick="setLedgerFilterOwner('siyun')"
+              style="flex:1;padding:6px 4px;border-radius:8px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">파트너</button>
+          </div>
+        </div>
+
+        <!-- 카테고리 필터 -->
+        <div>
+          <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:0.5px;margin-bottom:8px">카테고리</div>
+          <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px" id="cat-filter-wrap">
+            <button id="catf-all" style="flex-shrink:0;padding:6px 12px;border-radius:16px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface3);color:var(--text)">전체</button>
+          </div>
+        </div>
+
       </div>
     </div>
 
     <div id="ledger-list"></div>
   </div>
+
 
   <!-- 분석 탭 -->
   <div id="ltab-content-chart" style="display:none;padding:0 16px 120px">
@@ -3855,6 +3894,10 @@ function goPage(name, el) {
   // 홈 FAB - 홈에서만 표시
   const fab = document.getElementById('home-fab-mic');
   if (fab) fab.style.display = name === 'home' ? 'flex' : 'none';
+
+  // 가계부 FAB - 가계부 내역 탭에서만 표시
+  const ledgerFab = document.getElementById('ledger-fab-add');
+  if (ledgerFab) ledgerFab.style.display = (name === 'ledger') ? 'flex' : 'none';
 
   if (name === 'ledger') {
     setLedgerTab(ledgerTab || 'list');
@@ -7240,7 +7283,76 @@ function toggleTheme() {
   else applyTheme('system');
 }
 
+let ledgerFilterOpen = false;
+
+function toggleLedgerFilter() {
+  ledgerFilterOpen = !ledgerFilterOpen;
+  const panel = document.getElementById('ledger-filter-panel');
+  const btn = document.getElementById('filter-toggle-btn');
+  if (!panel) return;
+  if (ledgerFilterOpen) {
+    panel.style.maxHeight = panel.scrollHeight + 400 + 'px';
+    if (btn) btn.style.color = 'var(--blue)';
+  } else {
+    panel.style.maxHeight = '0';
+    if (btn) btn.style.color = 'var(--muted)';
+  }
+  updateFilterBadges();
+}
+
+function updateFilterBadges() {
+  const wrap = document.getElementById('active-filter-badges');
+  const label = document.getElementById('filter-toggle-label');
+  if (!wrap) return;
+
+  const badges = [];
+  if (ledgerPeriodFilter !== 'month') {
+    const periodLabels = { '3month':'3개월', '6month':'6개월', 'all':'전체', 'custom':'직접선택' };
+    badges.push({ text: periodLabels[ledgerPeriodFilter] || ledgerPeriodFilter, clear: function(){ setLedgerPeriod('month'); } });
+  }
+  if (ledgerFilterOwner !== 'all') {
+    const ownerLabels = { 'common':'공동', 'minsuk':'나', 'siyun':'파트너' };
+    badges.push({ text: ownerLabels[ledgerFilterOwner], clear: function(){ setLedgerFilterOwner('all'); } });
+  }
+  if (ledgerCatFilter !== 'all') {
+    const allCats = [...CATEGORIES.expense, ...CATEGORIES.income];
+    const cat = allCats.find(function(c){ return c.id === ledgerCatFilter; });
+    badges.push({ text: cat ? cat.label : ledgerCatFilter, clear: function(){ setLedgerCatFilter('all'); } });
+  }
+
+  // 필터 버튼 라벨 업데이트
+  if (label) {
+    label.textContent = badges.length > 0 ? '필터 ' + badges.length : '필터';
+  }
+  const filterBtn = document.getElementById('filter-toggle-btn');
+  if (filterBtn) filterBtn.style.color = badges.length > 0 ? 'var(--blue)' : 'var(--muted)';
+
+  if (!badges.length) {
+    wrap.style.display = 'none';
+    return;
+  }
+
+  wrap.style.display = 'flex';
+  wrap.innerHTML = badges.map(function(b, i) {
+    return '<div style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:rgba(59,130,246,0.10);border:1px solid rgba(59,130,246,0.25);border-radius:20px;font-size:11px;font-weight:600;color:var(--blue);cursor:pointer" onclick="filterBadgeClear(' + i + ')">'
+      + b.text
+      + '<span style="font-size:12px;opacity:0.7">✕</span>'
+      + '</div>';
+  }).join('');
+
+  // 클리어 함수 저장
+  wrap._clearFns = badges.map(function(b){ return b.clear; });
+}
+
+function filterBadgeClear(i) {
+  const wrap = document.getElementById('active-filter-badges');
+  if (wrap && wrap._clearFns && wrap._clearFns[i]) {
+    wrap._clearFns[i]();
+  }
+}
+
 function setLedgerPeriod(period) {
+
   ledgerPeriodFilter = period;
   ['month','3month','6month','all','custom'].forEach(p => {
     const btn = document.getElementById('period-' + p);
@@ -7253,26 +7365,26 @@ function setLedgerPeriod(period) {
   });
   const customWrap = document.getElementById('period-custom-wrap');
   if (customWrap) customWrap.style.display = period === 'custom' ? 'flex' : 'none';
+  updateFilterBadges();
   renderLedger();
 }
 
+
 function setLedgerFilterOwner(owner) {
   ledgerFilterOwner = owner;
-  ['all','common','minsuk','siyun'].forEach(o => {
+  ['all','common','minsuk','siyun'].forEach(function(o) {
     const btn = document.getElementById('lf-owner-' + o);
     if (!btn) return;
     const isActive = o === owner;
-    const colors = { all:'var(--surface3)', common:'var(--purple)', minsuk:'var(--minsuk)', siyun:'var(--siyun)' };
-    btn.style.background = isActive ? colors[o] : 'transparent';
-    btn.style.color = isActive ? (o==='siyun'?'#000':'#fff') : 'var(--muted2)';
-    btn.style.border = isActive ? 'none' : '1px solid var(--border2)';
+    btn.style.background = isActive ? 'var(--surface3)' : 'transparent';
+    btn.style.color = isActive ? 'var(--text)' : 'var(--muted2)';
+    btn.style.border = isActive ? '1px solid var(--border)' : '1px solid var(--border2)';
     btn.style.fontWeight = isActive ? '700' : '600';
   });
-  // all 버튼 색상 특별처리
-  const allBtn = document.getElementById('lf-owner-all');
-  if (allBtn && owner === 'all') { allBtn.style.color = 'var(--text)'; }
+  updateFilterBadges();
   renderLedger();
 }
+
 
 function setLedgerCatFilter(catId) {
   ledgerCatFilter = catId;
@@ -11873,7 +11985,7 @@ function ledgerNextMonth() {
 // ── 탭
 function setLedgerTab(tab) {
   ledgerTab = tab;
-  ['list','chart','budget','calendar'].forEach(t => {
+  ['list','chart','budget','calendar'].forEach(function(t) {
     const btn = document.getElementById('ltab-'+t);
     const cont = document.getElementById('ltab-content-'+t);
     const isActive = t === tab;
@@ -11884,29 +11996,37 @@ function setLedgerTab(tab) {
     }
     if (cont) {
       cont.style.display = isActive ? 'block' : 'none';
-      // 탭 전환 시 스크롤 최상단 복귀
       if (isActive) cont.scrollTop = 0;
     }
   });
-  // + 버튼은 내역 탭에서만 표시
+
+  // FAB 거래추가 - 내역 탭에서만 표시
+  const ledgerFab = document.getElementById('ledger-fab-add');
+  if (ledgerFab) ledgerFab.style.display = tab === 'list' ? 'flex' : 'none';
+
+  // 엑셀/문자/음성 버튼 영역 숨김 (FAB으로 대체)
   const addBtn = document.getElementById('ledger-add-btn');
-  if (addBtn) addBtn.style.display = tab === 'list' ? 'flex' : 'none';
+  if (addBtn) addBtn.style.display = 'none';
+
   renderLedger();
 }
+
 
 // ── 필터
 function setLedgerOwner(owner) {
   ledgerOwnerFilter = owner;
-  ['all','minsuk','siyun','common'].forEach(o => {
+  ['all','minsuk','siyun','common'].forEach(function(o) {
     const btn = document.getElementById('owner-'+o);
     if (!btn) return;
     const isActive = o === owner;
-    btn.style.background = isActive ? (o==='all'?'var(--gold)':o==='minsuk'?'var(--minsuk)':o==='siyun'?'var(--siyun)':'var(--purple)') : 'transparent';
-    btn.style.color = isActive ? (o==='siyun'?'#000':'#fff') : 'var(--muted2)';
-    btn.style.fontWeight = isActive ? '700' : '600';
+    btn.style.color = isActive ? 'var(--text)' : 'var(--muted)';
+    btn.style.fontWeight = isActive ? '700' : '500';
+    btn.style.borderBottom = isActive ? '2px solid var(--text)' : '2px solid transparent';
+    btn.style.marginBottom = '-1px';
   });
   renderLedger();
 }
+
 
 // ── 메인 렌더
 let ledgerSortOrder = 'desc'; // 기본 최신순
@@ -12240,9 +12360,10 @@ function renderLedger() {
   const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
   const setColor = (id, color) => { const el = document.getElementById(id); if(el) el.style.color = color; };
 
-  set('ledger-income', Math.round(income).toLocaleString()+'만원');
-  set('ledger-expense', Math.round(expense).toLocaleString()+'만원');
-  set('ledger-balance', (bal>=0?'+':'')+Math.round(bal).toLocaleString()+'만원');
+  set('ledger-income', Math.round(income*10000).toLocaleString()+'원');
+  set('ledger-expense', Math.round(expense*10000).toLocaleString()+'원');
+  set('ledger-balance', (bal>=0?'+':'')+Math.round(bal*10000).toLocaleString()+'원');
+
   setColor('ledger-balance', bal >= 0 ? 'var(--green)' : 'var(--red)');
 
   if (ledgerTab === 'list') {
