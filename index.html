@@ -2958,19 +2958,14 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <button onclick="closeCatModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer">✕</button>
       </div>
 
-      <!-- 이모지 + 이름 -->
-      <div style="display:flex;gap:10px;margin-bottom:14px">
-        <div>
-          <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">이모지</div>
-          <input type="text" id="cat-emoji-input" placeholder="🍕" maxlength="2"
-            style="width:56px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:22px;padding:8px;outline:none;text-align:center">
-        </div>
-        <div style="flex:1">
-          <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">카테고리 이름</div>
-          <input type="text" id="cat-name-input" placeholder="예: 반려동물"
-            style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none">
-        </div>
+      <!-- 이름 -->
+      <div style="margin-bottom:14px">
+        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">카테고리 이름</div>
+        <input type="text" id="cat-name-input" placeholder="예: 반려동물"
+          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none">
+        <input type="hidden" id="cat-emoji-input" value="">
       </div>
+
 
       <!-- 색상 선택 -->
       <div style="margin-bottom:18px">
@@ -2991,14 +2986,15 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <!-- 미리보기 -->
       <div style="margin-bottom:18px;padding:12px;background:var(--surface2);border-radius:12px">
         <div style="font-size:11px;color:var(--muted);margin-bottom:8px">미리보기</div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div id="cat-preview-badge" style="width:36px;height:36px;border-radius:10px;background:rgba(239,68,68,0.15);display:flex;align-items:center;justify-content:center;font-size:18px">🍕</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div id="cat-preview-badge" style="width:10px;height:10px;border-radius:50%;background:#ef4444;flex-shrink:0"></div>
           <div>
             <div id="cat-preview-name" style="font-size:13px;font-weight:700;color:var(--text)">카테고리명</div>
-            <div id="cat-preview-label" style="font-size:11px;font-weight:600;color:#ef4444">🍕 카테고리명</div>
+            <div id="cat-preview-label" style="font-size:11px;font-weight:600;color:#ef4444">카테고리명</div>
           </div>
         </div>
       </div>
+
 
       <div style="display:flex;gap:10px">
         <button id="cat-delete-btn" onclick="deleteCatFromModal()" style="display:none;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:12px;color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:14px 16px;cursor:pointer">삭제</button>
@@ -6213,28 +6209,27 @@ function syncColorFromText(val) {
 }
 
 function updateCatPreview() {
-  const emoji = document.getElementById('cat-emoji-input').value || '❓';
   const name = document.getElementById('cat-name-input').value || '카테고리명';
   const color = document.getElementById('cat-color-input').value || '#ef4444';
 
   const badge = document.getElementById('cat-preview-badge');
   const nameEl = document.getElementById('cat-preview-name');
   const labelEl = document.getElementById('cat-preview-label');
-  if (badge) { badge.textContent = emoji; badge.style.background = color + '22'; }
+  if (badge) { badge.style.background = color; }
   if (nameEl) nameEl.textContent = name;
-  if (labelEl) { labelEl.textContent = emoji + ' ' + name; labelEl.style.color = color; }
+  if (labelEl) { labelEl.textContent = name; labelEl.style.color = color; }
 }
 
+
 function saveCatFromModal() {
-  const emoji = document.getElementById('cat-emoji-input').value.trim();
   const name = document.getElementById('cat-name-input').value.trim();
   const color = document.getElementById('cat-color-input').value.trim();
 
-  if (!emoji) { showToast('❗ 이모지를 입력해주세요'); return; }
   if (!name) { showToast('❗ 카테고리 이름을 입력해주세요'); return; }
   if (!color || !/^#[0-9A-Fa-f]{6}$/.test(color)) { showToast('❗ 올바른 색상 코드를 입력해주세요 (#rrggbb)'); return; }
 
-  const label = emoji + ' ' + name;
+  const label = name;
+
 
   if (_catEditingId) {
     // 수정
@@ -12003,25 +11998,26 @@ goPage = function(name, el) {
 // ══════════════════════════════════════
 const CATEGORIES = {
   expense: [
-    { id:'food',    label:'· 식비',    color:'#ef4444' },
-    { id:'cafe',    label:'· 카페',    color:'#fb923c' },
-    { id:'trans',   label:'· 교통',    color:'#fbbf24' },
-    { id:'shop',    label:'· 쇼핑',    color:'#3b82f6' },
-    { id:'health',  label:'· 의료',    color:'#34d399' },
-    { id:'leisure', label:'· 여가',    color:'#60a5fa' },
-    { id:'child',   label:'· 육아',    color:'#f472b6' },
-    { id:'edu',     label:'· 교육',    color:'#a78bfa' },
-    { id:'house',   label:'· 주거',    color:'#94a3b8' },
-    { id:'etc',     label:'· 기타',    color:'#6b7280' },
+    { id:'food',    label:'식비',    color:'#ef4444' },
+    { id:'cafe',    label:'카페',    color:'#fb923c' },
+    { id:'trans',   label:'교통',    color:'#fbbf24' },
+    { id:'shop',    label:'쇼핑',    color:'#3b82f6' },
+    { id:'health',  label:'의료',    color:'#34d399' },
+    { id:'leisure', label:'여가',    color:'#60a5fa' },
+    { id:'child',   label:'육아',    color:'#f472b6' },
+    { id:'edu',     label:'교육',    color:'#a78bfa' },
+    { id:'house',   label:'주거',    color:'#94a3b8' },
+    { id:'etc',     label:'기타',    color:'#6b7280' },
   ],
   income: [
-    { id:'salary',  label:'· 급여',    color:'#22c55e' },
-    { id:'bonus',   label:'· 보너스',  color:'#a3e635' },
-    { id:'invest',  label:'· 투자',    color:'#34d399' },
-    { id:'side',    label:'· 부업',    color:'#60a5fa' },
-    { id:'etc_in',  label:'· 기타',    color:'#6b7280' },
+    { id:'salary',  label:'급여',    color:'#22c55e' },
+    { id:'bonus',   label:'보너스',  color:'#a3e635' },
+    { id:'invest',  label:'투자',    color:'#34d399' },
+    { id:'side',    label:'부업',    color:'#60a5fa' },
+    { id:'etc_in',  label:'기타',    color:'#6b7280' },
   ]
 };
+
 
 
 let ledgerMonth = (() => {
