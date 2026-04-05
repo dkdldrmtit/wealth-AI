@@ -2159,14 +2159,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
 
 
-      <!-- 커플 나가기 (커플 연결 상태일 때만) -->
-      <div id="couple-leave-section" style="display:none;margin-bottom:8px">
-        <button onclick="handleLeaveCouple()"
-          style="width:100%;padding:13px;border-radius:12px;background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.2);color:#ca8a04;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
-          🚪 커플 공간 나가기
-        </button>
-      </div>
-
       <!-- 로그아웃 -->
       <button onclick="handleLogout()"
         style="width:100%;padding:13px;border-radius:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
@@ -3473,9 +3465,6 @@ async function loadProfile() {
 function showAuthScreen() {
   document.getElementById('auth-screen').style.display = 'block';
   document.getElementById('couple-setup-screen').style.display = 'none';
-  // 온보딩이 떠있으면 같이 숨기기 (로그인 화면이 우선)
-  var ob = document.getElementById('onboarding-overlay');
-  if (ob) ob.style.display = 'none';
 }
 
 // 커플 설정 화면 표시
@@ -3893,14 +3882,6 @@ async function loadAllDataFromSupabase() {
   initHome();
   initRealEstate();
   applyHomeCardOrder();
-
-  // ── 온보딩 체크 (Supabase 로드 완료 후 한 번만)
-  if (!load('onboarding-done', false) && assetHistory.length === 0 && ledgerTxs.length === 0) {
-    var obEl = document.getElementById('onboarding-overlay');
-    if (obEl) obEl.style.display = 'block';
-  } else {
-    store('onboarding-done', true);
-  }
 }
 
 // ── 기존 자산 카테고리 → 새 구조로 마이그레이션 (1회)
@@ -8448,13 +8429,21 @@ const HOME_CARD_DEFAULTS = [
 ];
 
 
-// 저장된 설정과 DEFAULT 병합 (새 카드 누락 방지)
+// ── 홈 카드 설정 버전 마이그레이션 ──
+// v2: 기본 표시 카드를 5개로 축소 (widget, ai, schedule, goalguage, summary만 visible)
+const HOME_CARD_SETTINGS_VERSION = 2;
+
 const _saved = load('home-card-settings', null);
+const _savedVersion = load('home-card-settings-version', 0);
 let homeCardSettings;
-if (!_saved) {
+
+// 버전이 다르면 → 기본값(5개)으로 리셋, 이후 사용자 수정은 유지
+if (!_saved || _savedVersion < HOME_CARD_SETTINGS_VERSION) {
   homeCardSettings = HOME_CARD_DEFAULTS.map(function(c) { return Object.assign({}, c); });
+  store('home-card-settings', homeCardSettings);
+  store('home-card-settings-version', HOME_CARD_SETTINGS_VERSION);
 } else {
-  // 기존 저장값 유지하되 DEFAULT에 있는데 저장값에 없는 카드 추가
+  // 최신 버전 → 기존 저장값 유지하되 DEFAULT에 있는데 저장값에 없는 카드 추가
   // donut 제거 + desc 동기화
   homeCardSettings = _saved
     .filter(function(s) { return s.id !== 'donut'; })
@@ -8471,6 +8460,7 @@ if (!_saved) {
     }
   });
 }
+
 
 
 function applyHomeCardOrder() {
@@ -8684,19 +8674,16 @@ async function renderCoupleSettings() {
 function updateCoupleConnectUI() {
   const connectSection = document.getElementById('couple-connect-section');
   const codeSection = document.getElementById('couple-code-section');
-  const leaveSection = document.getElementById('couple-leave-section');
   if (!connectSection || !codeSection) return;
 
   if (!currentCoupleId) {
-    // 미연결 → 연결 UI 표시, 초대코드/나가기 섹션 숨김
+    // 미연결 → 연결 UI 표시, 초대코드 섹션 숨김
     connectSection.style.display = 'block';
     codeSection.style.display = 'none';
-    if (leaveSection) leaveSection.style.display = 'none';
   } else {
-    // 연결됨 → 초대코드 + 나가기 버튼 표시
+    // 연결됨 → 초대코드 섹션 표시
     connectSection.style.display = 'none';
     codeSection.style.display = 'block';
-    if (leaveSection) leaveSection.style.display = 'block';
   }
 }
 
@@ -8824,48 +8811,6 @@ async function copyInviteCode() {
   if (!code || code === '-') return;
   await navigator.clipboard.writeText(code);
   showToast('✅ 초대 코드가 복사됐어요!');
-}
-
-// 커플 공간 나가기
-async function handleLeaveCouple() {
-  const confirmed = await showConfirm(
-    '커플 공간을 나가면 현재 공유 데이터에 더 이상 접근할 수 없어요.\n\n나가시겠어요?'
-  );
-  if (!confirmed) return;
-
-  const btn = document.querySelector('#couple-leave-section button');
-  if (btn) { btn.disabled = true; btn.textContent = '처리 중...'; }
-
-  try {
-    // 내 프로필의 couple_id, role을 null로 초기화
-    const { error } = await _supabase
-      .from('profiles')
-      .update({ couple_id: null, role: null })
-      .eq('id', currentUser.id);
-
-    if (error) throw error;
-
-    // 로컬 상태 초기화
-    currentCoupleId = null;
-    currentProfile = Object.assign({}, currentProfile, { couple_id: null, role: null });
-
-    // 로컬 데이터 초기화 (커플 데이터 포기)
-    assetHistory = []; ledgerTxs = []; stocks = []; goals = []; schedules = [];
-    budgets = { food:50, cafe:15, trans:20, shop:30, health:10, leisure:20, child:0, edu:10, house:0, etc:20 };
-    recurringItems = [];
-    store('asset-history', []); store('ledger-txs', []); store('stocks', []);
-    store('goals', []); store('schedules', []); store('ledger-budgets', budgets);
-    store('recurring-items', []);
-
-    // UI 갱신
-    updateCoupleConnectUI();
-    renderGoals(); renderMonthCards(); initHome();
-    showToast('✅ 커플 공간에서 나왔어요. 새로 시작할 수 있어요!');
-
-  } catch(e) {
-    showToast('❌ 오류가 발생했어요. 다시 시도해주세요.');
-    if (btn) { btn.disabled = false; btn.textContent = '🚪 커플 공간 나가기'; }
-  }
 }
 
 
@@ -9025,8 +8970,16 @@ document.addEventListener('DOMContentLoaded', function() {
   const splashShown = sessionStorage.getItem('splash-shown');
 
   if (splashShown) {
-    // 이미 본 경우 바로 숨김 (온보딩은 Supabase 로드 후 체크)
+    // 이미 본 경우 바로 숨김
     splash.style.display = 'none';
+    // 온보딩 체크
+    var hasData2 = load('asset-history', []).length > 0 || load('ledger-txs', []).length > 0;
+    if (!load('onboarding-done', false) && !hasData2) {
+      var ob2 = document.getElementById('onboarding-overlay');
+      if (ob2) ob2.style.display = 'block';
+    } else {
+      store('onboarding-done', true);
+    }
   } else {
     // 처음 진입 시만 표시
     sessionStorage.setItem('splash-shown', '1');
@@ -9045,7 +8998,14 @@ document.addEventListener('DOMContentLoaded', function() {
       splash.style.transform = 'scale(1.05)';
       setTimeout(function() {
         splash.style.display = 'none';
-        // 온보딩은 Supabase 로드 완료 후 initAuth 내에서 체크
+        // 온보딩 미완료 + 기존 데이터 없는 신규 사용자만 표시
+        var hasData = load('asset-history', []).length > 0 || load('ledger-txs', []).length > 0;
+        if (!load('onboarding-done', false) && !hasData) {
+          var ob = document.getElementById('onboarding-overlay');
+          if (ob) ob.style.display = 'block';
+        } else {
+          store('onboarding-done', true);
+        }
       }, 500);
     }, 1000);
   }
