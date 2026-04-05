@@ -2124,7 +2124,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <button onclick="ledgerPrevMonth()" style="background:none;border:none;color:var(--muted);font-size:24px;width:38px;height:38px;cursor:pointer;flex-shrink:0;line-height:1">‹</button>
       <div id="ledger-month-label" style="flex:1;text-align:center;font-size:17px;font-weight:800;color:var(--text)"></div>
       <button onclick="ledgerNextMonth()" style="background:none;border:none;color:var(--muted);font-size:24px;width:38px;height:38px;cursor:pointer;flex-shrink:0;line-height:1">›</button>
+      <button id="ledger-edit-btn" onclick="toggleLedgerEditMode()"
+        style="background:none;border:none;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;padding:0 4px;flex-shrink:0">
+        편집
+      </button>
     </div>
+
 
     <!-- 검색 + 필터 버튼 -->
     <div style="position:relative;margin-bottom:8px">
@@ -3176,7 +3181,42 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
 
 
+<!-- ══ 편집 모드 하단 바 ══ -->
+<div id="ledger-edit-bar" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:var(--surface);border-top:1px solid var(--border);
+  padding:12px 16px max(16px, env(safe-area-inset-bottom));
+  flex-direction:column;gap:8px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+    <span id="ledger-edit-count" style="font-size:13px;font-weight:600;color:var(--muted)">0개 선택</span>
+    <button onclick="ledgerSelectedIds=new Set();renderLedger();document.getElementById('ledger-edit-count').textContent='0개 선택'"
+      style="background:none;border:none;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer">
+      전체 해제
+    </button>
+  </div>
+  <button id="ledger-edit-confirm" onclick="openBulkCategoryChange()"
+    style="width:100%;padding:14px;border-radius:14px;background:var(--text);border:none;
+    color:var(--bg);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;
+    cursor:pointer;opacity:0.4;transition:opacity .2s">
+    카테고리 변경
+  </button>
+</div>
+
+<!-- ══ 일괄 카테고리 선택 모달 ══ -->
+<div id="bulk-cat-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;overflow:hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 20px 16px;border-bottom:1px solid var(--border)">
+        <div style="font-size:16px;font-weight:700;color:var(--text)">카테고리 변경</div>
+        <button onclick="document.getElementById('bulk-cat-modal').style.display='none'"
+          style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer">✕</button>
+      </div>
+      <div id="bulk-cat-list" style="max-height:60vh;overflow-y:auto"></div>
+    </div>
+  </div>
+</div>
+
 </div><!-- /app -->
+
 
 <nav class="nav">
   <div style="display:flex;width:100%;max-width:680px">
@@ -12501,7 +12541,187 @@ document.addEventListener('click', function(e) {
 });
 
 // ── 거래 목록
+// ── 편집 모드 상태
+let ledgerEditMode = false;
+let ledgerSelectedIds = new Set();
+
+function toggleLedgerEditMode() {
+  ledgerEditMode = !ledgerEditMode;
+  ledgerSelectedIds = new Set();
+  const btn = document.getElementById('ledger-edit-btn');
+  if (btn) {
+    btn.textContent = ledgerEditMode ? '완료' : '편집';
+    btn.style.color = ledgerEditMode ? 'var(--blue)' : 'var(--muted)';
+  }
+  // 하단 편집 바 표시/숨김
+  const editBar = document.getElementById('ledger-edit-bar');
+  if (editBar) editBar.style.display = ledgerEditMode ? 'flex' : 'none';
+  renderLedger();
+}
+
+function toggleLedgerSelect(id) {
+  if (ledgerSelectedIds.has(id)) {
+    ledgerSelectedIds.delete(id);
+  } else {
+    ledgerSelectedIds.add(id);
+  }
+  // 선택 카운트 업데이트
+  const count = document.getElementById('ledger-edit-count');
+  if (count) count.textContent = ledgerSelectedIds.size + '개 선택';
+  const confirmBtn = document.getElementById('ledger-edit-confirm');
+  if (confirmBtn) confirmBtn.style.opacity = ledgerSelectedIds.size > 0 ? '1' : '0.4';
+  // 해당 행만 스타일 업데이트
+  renderLedger();
+}
+
+function openBulkCategoryChange() {
+  if (ledgerSelectedIds.size === 0) { showToast('❗ 거래를 먼저 선택해주세요'); return; }
+  const modal = document.getElementById('bulk-cat-modal');
+  if (modal) modal.style.display = 'block';
+  renderBulkCatBtns();
+}
+
+function renderBulkCatBtns() {
+  const wrap = document.getElementById('bulk-cat-list');
+  if (!wrap) return;
+  wrap.innerHTML = [...CATEGORIES.expense, ...CATEGORIES.income].map(function(cat) {
+    return '<button onclick="applyBulkCategory(\'' + cat.id + '\')" style="'
+      + 'display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;'
+      + 'background:transparent;border:none;border-bottom:1px solid var(--border);'
+      + 'font-family:\'Noto Sans KR\',sans-serif;cursor:pointer;text-align:left">'
+      + '<div style="width:10px;height:10px;border-radius:50%;background:' + cat.color + ';flex-shrink:0"></div>'
+      + '<span style="font-size:13px;color:var(--text);font-weight:500">' + cat.label + '</span>'
+      + '</button>';
+  }).join('');
+}
+
+function applyBulkCategory(catId) {
+  ledgerSelectedIds.forEach(function(id) {
+    const idx = ledgerTxs.findIndex(function(t){ return t.id === id; });
+    if (idx >= 0) ledgerTxs[idx].category = catId;
+  });
+  store('ledger-txs', ledgerTxs);
+  document.getElementById('bulk-cat-modal').style.display = 'none';
+  ledgerSelectedIds = new Set();
+  ledgerEditMode = false;
+  const btn = document.getElementById('ledger-edit-btn');
+  if (btn) { btn.textContent = '편집'; btn.style.color = 'var(--muted)'; }
+  const editBar = document.getElementById('ledger-edit-bar');
+  if (editBar) editBar.style.display = 'none';
+  renderLedger();
+  showToast('✅ 카테고리가 변경됐어요!');
+}
+
 function renderLedgerList(txs) {
+  const wrap = document.getElementById('ledger-list');
+  if (!wrap) return;
+  if (!txs.length) {
+    wrap.innerHTML = `<div style="text-align:center;padding:50px 0;color:var(--muted)">
+      <div style="font-size:40px;margin-bottom:12px">📭</div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:6px">내역이 없어요</div>
+      <div style="font-size:12px;margin-bottom:20px">이번달 첫 거래를 기록해보세요!</div>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button onclick="openLedgerAdd('expense')"
+          style="padding:12px 20px;border-radius:12px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
+          💸 지출 추가
+        </button>
+        <button onclick="openLedgerAdd('income')"
+          style="padding:12px 20px;border-radius:12px;background:rgba(74,158,255,.12);border:1px solid rgba(74,158,255,.3);color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
+          💰 수입 추가
+        </button>
+      </div>
+    </div>`;
+    return;
+  }
+
+  const sorted = [...txs].sort(function(a,b) {
+    return ledgerSortOrder === 'asc' ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date);
+  });
+  const groups = {};
+  sorted.forEach(function(t) { if (!groups[t.date]) groups[t.date] = []; groups[t.date].push(t); });
+  Object.keys(groups).forEach(function(date) { groups[date].reverse(); });
+
+  wrap.innerHTML = Object.entries(groups).map(function([date, items]) {
+    const dayIncome  = items.filter(function(t){ return t.type==='income'; }).reduce(function(s,t){ return s+t.amount; },0);
+    const dayExpense = items.filter(function(t){ return t.type==='expense'; }).reduce(function(s,t){ return s+t.amount; },0);
+    const dayNet = dayIncome - dayExpense;
+    const [yy,mm,dd] = date.split('-');
+    const dayNames = ['일','월','화','수','목','금','토'];
+    const dateObj = new Date(date);
+    const dayName = dayNames[dateObj.getDay()];
+    const isSat = dateObj.getDay() === 6;
+    const isSun = dateObj.getDay() === 0;
+    const dayColor = isSat ? '#60a5fa' : isSun ? '#ef4444' : 'var(--muted)';
+    const todayStr2 = new Date().toISOString().slice(0,10);
+    const isToday = date === todayStr2;
+
+    return `<div style="margin-bottom:20px">
+      <!-- 날짜 헤더 -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:0 2px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:13px;font-weight:700;color:var(--text)">${parseInt(mm)}/${parseInt(dd)}</span>
+          <span style="font-size:11px;color:${dayColor}">${dayName}</span>
+          ${isToday ? '<span style="font-size:9px;background:rgba(59,130,246,0.12);color:var(--blue);padding:2px 7px;border-radius:8px;font-weight:700">오늘</span>' : ''}
+        </div>
+        <span style="font-size:11px;font-weight:500;color:${dayNet>=0?'var(--blue)':'var(--red)'}">${dayNet>=0?'+':''}${Math.round(dayNet*10000).toLocaleString()}원</span>
+      </div>
+
+      <!-- 거래 목록 -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden">
+        ${items.map(function(t, i) {
+          const allCats = [...CATEGORIES.expense, ...CATEGORIES.income];
+          const cat = allCats.find(function(c){ return c.id===t.category; }) || {label:'기타', color:'#6b7280'};
+          const isLast = i === items.length - 1;
+          const isSelected = ledgerSelectedIds.has(t.id);
+
+          return `<div style="position:relative;overflow:hidden;${isLast?'':'border-bottom:1px solid var(--border)'}">
+            <!-- 스와이프 삭제 버튼 (편집모드 아닐때만) -->
+            ${!ledgerEditMode ? `<div class="swipe-delete-btn" id="del-${t.id}" onclick="swipeDeleteTx('${t.id}')"
+              style="position:absolute;right:0;top:0;bottom:0;width:80px;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;transform:translateX(100%);transition:transform .25s ease;z-index:1">
+              삭제
+            </div>` : ''}
+
+            <div
+              onclick="${ledgerEditMode ? `toggleLedgerSelect('${t.id}')` : `openTxEdit('${t.id}')`}"
+              id="row-${t.id}"
+              style="display:flex;align-items:center;gap:12px;padding:13px 14px;cursor:pointer;
+              background:${isSelected ? 'rgba(59,130,246,0.06)' : 'var(--surface)'};
+              position:relative;z-index:2;transition:background .15s"
+              ${!ledgerEditMode ? `ontouchstart="swipeStart(event,'${t.id}')" ontouchmove="swipeMove(event,'${t.id}')" ontouchend="swipeEnd(event,'${t.id}')"` : ''}>
+
+              <!-- 선택 체크박스 or 컬러 도트 -->
+              ${ledgerEditMode
+                ? `<div style="width:22px;height:22px;border-radius:50%;border:2px solid ${isSelected?'var(--blue)':'var(--border2)'};background:${isSelected?'var(--blue)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s">
+                    ${isSelected ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+                  </div>`
+                : `<div style="width:10px;height:10px;border-radius:50%;background:${cat.color};flex-shrink:0;box-shadow:0 0 0 3px ${cat.color}22"></div>`
+              }
+
+              <!-- 내용 -->
+              <div style="flex:1;min-width:0">
+                <div style="font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                  ${t.memo || cat.label.split(' ').slice(1).join(' ')}
+                </div>
+                <div style="font-size:11px;color:var(--muted);margin-top:2px">
+                  ${cat.label}
+                  ${t.owner !== 'common' ? '· <span style="color:' + (t.owner==='minsuk'?'var(--blue)':'var(--green)') + '">' + (t.owner==='minsuk'?'나':'파트너') + '</span>' : ''}
+                </div>
+              </div>
+
+              <!-- 금액 -->
+              <div style="text-align:right;flex-shrink:0">
+                <div style="font-size:13px;font-weight:600;color:${t.type==='income'?'var(--blue)':'var(--text)'}">
+                  ${t.type==='income'?'+':'-'}${Math.round(t.amount*10000).toLocaleString()}원
+                </div>
+              </div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
   const wrap = document.getElementById('ledger-list');
   if (!wrap) return;
   if (!txs.length) {
