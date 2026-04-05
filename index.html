@@ -1338,15 +1338,16 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <!-- 민석/시윤 분리 -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
       <div onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[4]);setTimeout(()=>setStkOwner('minsuk'),300)" style="background:var(--surface2);border-radius:12px;padding:10px;cursor:pointer">
-        <div style="font-size:10px;color:var(--minsuk);font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:4px"><span style="width:15px;height:15px;border-radius:50%;background:rgba(59,130,246,0.15);color:var(--blue);font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center">M</span>민석 ›</div>
+        <div id="home-stock-ms-label" style="font-size:10px;color:var(--minsuk);font-weight:600;margin-bottom:6px">나 ›</div>
         <div id="home-stock-ms-val" style="font-size:14px;font-weight:800;color:var(--text)">-</div>
         <div id="home-stock-ms-pnl" style="font-size:11px;font-weight:600;margin-top:2px">-</div>
       </div>
       <div onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[4]);setTimeout(()=>setStkOwner('siyun'),300)" style="background:var(--surface2);border-radius:12px;padding:10px;cursor:pointer">
-        <div style="font-size:10px;color:var(--siyun);font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:4px"><span style="width:15px;height:15px;border-radius:50%;background:rgba(34,197,94,0.15);color:var(--green);font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center">S</span>시윤 ›</div>
+        <div id="home-stock-sy-label" style="font-size:10px;color:var(--siyun);font-weight:600;margin-bottom:6px">배우자 ›</div>
         <div id="home-stock-sy-val" style="font-size:14px;font-weight:800;color:var(--text)">-</div>
         <div id="home-stock-sy-pnl" style="font-size:11px;font-weight:600;margin-top:2px">-</div>
       </div>
+
     </div>
 
     <!-- 순위 탭 -->
@@ -1997,7 +1998,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         </div>
         <div>
           <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:5px">파트너 (파트너2) <span style="color:var(--muted);font-weight:400">- 혼자 쓰면 비워두세요</span></label>
-          <input type="text" id="pname-p2" placeholder="파트너"
+          <input type="text" id="pname-p2" placeholder="배우자"
             style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none">
         </div>
       </div>
@@ -3486,13 +3487,14 @@ let currentCoupleId = null;
 // 파트너 이름 전역 관리
 let PARTNER_NAMES = load('partner-names', {
   partner1: '나',
-  partner2: '파트너',
+  partner2: '배우자',
   common: '공동'
 });
 
 function getP1Name() { return PARTNER_NAMES.partner1 || '나'; }
-function getP2Name() { return PARTNER_NAMES.partner2 || '파트너'; }
+function getP2Name() { return PARTNER_NAMES.partner2 || '배우자'; }
 function getCommonName() { return PARTNER_NAMES.common || '공동'; }
+
 function savePartnerNames() { store('partner-names', PARTNER_NAMES); }
 
 
@@ -5803,8 +5805,8 @@ function renderAssetItems() {
     const ownerWrap = document.createElement('div');
     ownerWrap.style.cssText = 'display:flex;background:var(--surface3);border-radius:7px;padding:2px;gap:1px';
 
-    ['common','minsuk','siyun'].forEach(function(o) {
-      const label = o === 'common' ? '공동' : o === 'minsuk' ? '민석' : '시윤';
+      ['common','minsuk','siyun'].forEach(function(o) {
+        const label = o === 'common' ? getCommonName() : o === 'minsuk' ? getP1Name() : getP2Name();
       const isActive = (item.owner || 'common') === o;
       const btn = document.createElement('button');
       btn.textContent = label;
@@ -6928,12 +6930,13 @@ function renderCoupleCard() {
   // 이기는 사람이 왼쪽
   var L, R;
   if (syWins) {
-    L = { name: '시윤', amt: syExp, hex: '#22c55e', cssVar: 'var(--siyun)', badge: 'S', badgeBg: 'rgba(34,197,94,0.15)' };
-    R = { name: '민석', amt: msExp, hex: '#3b82f6', cssVar: 'var(--minsuk)', badge: 'M', badgeBg: 'rgba(59,130,246,0.15)' };
+    L = { name: getP2Name(), amt: syExp, hex: '#22c55e', cssVar: 'var(--siyun)', badge: getP2Name(), badgeBg: 'rgba(34,197,94,0.15)' };
+    R = { name: getP1Name(), amt: msExp, hex: '#3b82f6', cssVar: 'var(--minsuk)', badge: getP1Name(), badgeBg: 'rgba(59,130,246,0.15)' };
   } else {
-    L = { name: '민석', amt: msExp, hex: '#3b82f6', cssVar: 'var(--minsuk)', badge: 'M', badgeBg: 'rgba(59,130,246,0.15)' };
-    R = { name: '시윤', amt: syExp, hex: '#22c55e', cssVar: 'var(--siyun)', badge: 'S', badgeBg: 'rgba(34,197,94,0.15)' };
+    L = { name: getP1Name(), amt: msExp, hex: '#3b82f6', cssVar: 'var(--minsuk)', badge: getP1Name(), badgeBg: 'rgba(59,130,246,0.15)' };
+    R = { name: getP2Name(), amt: syExp, hex: '#22c55e', cssVar: 'var(--siyun)', badge: getP2Name(), badgeBg: 'rgba(34,197,94,0.15)' };
   }
+
   var lWins = msWins || syWins; // 무승부가 아닌 경우
 
   // 지출 실제 비율 (덜 쓴 사람 = 짧은 바, 더 쓴 사람 = 긴 바)
@@ -7051,11 +7054,11 @@ function renderLedgerCoupleCard(txs) {
 
   var L, R;
   if (syWins) {
-    L = { name: getP2Name(), amt: syExp, badge: 'S' };
-    R = { name: getP1Name(), amt: msExp, badge: 'M' };
+    L = { name: getP2Name(), amt: syExp, badge: getP2Name() };
+    R = { name: getP1Name(), amt: msExp, badge: getP1Name() };
   } else {
-    L = { name: getP1Name(), amt: msExp, badge: 'M' };
-    R = { name: getP2Name(), amt: syExp, badge: 'S' };
+    L = { name: getP1Name(), amt: msExp, badge: getP1Name() };
+    R = { name: getP2Name(), amt: syExp, badge: getP2Name() };
   }
 
   const lWins = msWins || syWins;
@@ -7269,10 +7272,17 @@ function renderHomeStocksSummary() {
   const ms = calcOwner('minsuk');
   const sy = calcOwner('siyun');
 
+  // 이름 라벨 동적 업데이트
+  const msLabelEl = document.getElementById('home-stock-ms-label');
+  const syLabelEl = document.getElementById('home-stock-sy-label');
+  if (msLabelEl) msLabelEl.textContent = getP1Name() + ' ›';
+  if (syLabelEl) syLabelEl.textContent = getP2Name() + ' ›';
+
   const msValEl = document.getElementById('home-stock-ms-val');
   const msPnlEl = document.getElementById('home-stock-ms-pnl');
   const syValEl = document.getElementById('home-stock-sy-val');
   const syPnlEl = document.getElementById('home-stock-sy-pnl');
+
 
   if (msValEl) msValEl.textContent = ms.hasPrice ? Math.round(ms.eval).toLocaleString() + '원' : '-';
   if (msPnlEl && ms.hasPrice) {
@@ -10785,10 +10795,10 @@ function renderHomeApt() {
   let html = '';
 
   if (displayList.length) {
-    const p1 = getP1Name(), p2 = getP2Name();
+    const p1 = getP1Name(), p2 = getP2Name(), cm = getCommonName();
     html = displayList.map(function(apt) {
       const price = apt.cache.price;
-      const ownerLabel = apt.owner === 'minsuk' ? p1 : apt.owner === 'siyun' ? p2 : '공동';
+      const ownerLabel = apt.owner === 'minsuk' ? p1 : apt.owner === 'siyun' ? p2 : cm;
       const ownerColor = apt.owner === 'minsuk' ? 'var(--blue)' : apt.owner === 'siyun' ? 'var(--green)' : 'var(--muted2)';
 
       // 자산 기록과 비교
@@ -11870,9 +11880,10 @@ function renderStockHistory() {
     const priceStr = t.market === 'KR' ? t.price.toLocaleString() + '원' : '$' + t.price.toFixed(2);
     const totalStr = t.market === 'KR' ? Math.round(t.price * t.qty).toLocaleString() + '원' : '$' + (t.price * t.qty).toFixed(2);
     const ownerBadge = currentStkOwner === 'all'
-      ? (t.owner === 'minsuk' ? '<span style="font-size:9px;background:rgba(96,165,250,.15);color:var(--minsuk);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">민석</span>'
-        : t.owner === 'siyun' ? '<span style="font-size:9px;background:rgba(52,211,153,.15);color:var(--siyun);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">시윤</span>' : '')
+      ? (t.owner === 'minsuk' ? '<span style="font-size:9px;background:rgba(96,165,250,.15);color:var(--minsuk);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + getP1Name() + '</span>'
+        : t.owner === 'siyun' ? '<span style="font-size:9px;background:rgba(52,211,153,.15);color:var(--siyun);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + getP2Name() + '</span>' : '')
       : '';
+
     return '<div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:8px">'
       + '<div style="width:40px;height:40px;border-radius:12px;background:' + (isBuy?'rgba(239,68,68,.12)':'rgba(74,158,255,.12)') + ';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:' + color + ';flex-shrink:0">' + label + '</div>'
       + '<div style="flex:1;min-width:0">'
@@ -11978,7 +11989,8 @@ function renderStockList() {
       const evalStr = cp > 0 ? fmtVal(evalAmt) : '시세 조회 필요';
       const pnlStr  = cp > 0 ? (isUp?'+':'') + fmtVal(pnl) + ' (' + pct.toFixed(1) + '%)' : '-';
       const ownerBadge = (currentStkOwner === 'all' && s.owner)
-        ? '<span style="font-size:9px;background:' + (s.owner==='minsuk'?'rgba(96,165,250,.15)':'rgba(52,211,153,.15)') + ';color:' + (s.owner==='minsuk'?'var(--minsuk)':'var(--siyun)') + ';padding:1px 5px;border-radius:5px;font-weight:700;margin-left:5px">' + (s.owner==='minsuk'?'민석':'시윤') + '</span>' : '';
+        ? '<span style="font-size:9px;background:' + (s.owner==='minsuk'?'rgba(96,165,250,.15)':'rgba(52,211,153,.15)') + ';color:' + (s.owner==='minsuk'?'var(--minsuk)':'var(--siyun)') + ';padding:1px 5px;border-radius:5px;font-weight:700;margin-left:5px">' + (s.owner==='minsuk'?getP1Name():getP2Name()) + '</span>' : '';
+
 
       return '<div class="stock-drag-item" data-id="' + s.id + '" data-market="' + s.market + '" draggable="false" style="display:flex;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);gap:12px">'
         // 드래그 핸들
@@ -13330,9 +13342,10 @@ function renderLedgerList(txs) {
       var ownerHtml = '';
       if (t.owner !== 'common') {
         var ownerColor = t.owner === 'minsuk' ? 'var(--blue)' : 'var(--green)';
-        var ownerName = t.owner === 'minsuk' ? '나' : '파트너';
+        var ownerName = t.owner === 'minsuk' ? getP1Name() : getP2Name();
         ownerHtml = ' · <span style="color:' + ownerColor + '">' + ownerName + '</span>';
       }
+
 
       // 왼쪽 아이콘 (편집모드: 체크박스 / 일반: 컬러 도트)
       var leftIcon = '';
@@ -14399,7 +14412,7 @@ function renderPendingList() {
     const cat = allCats.find(function(c) { return c.id === t.category; }) || { label: '💡 기타', color: '#6b7280' };
     const amtWon = Math.round(t.amount * 10000);
     const isIncome = t.type === 'income';
-    const ownerLabel = t.owner === 'minsuk' ? '👨 민석' : t.owner === 'siyun' ? '👩 시윤' : '공동';
+    const ownerLabel = t.owner === 'minsuk' ? getP1Name() : t.owner === 'siyun' ? getP2Name() : getCommonName();
     const ownerColor = t.owner === 'minsuk' ? 'var(--minsuk)' : t.owner === 'siyun' ? 'var(--siyun)' : 'var(--purple)';
     return '<div onclick="togglePendingItem(' + i + ')" style="display:flex;align-items:center;gap:12px;padding:12px;background:' + (t.selected!==false?'var(--surface2)':'transparent') + ';border:1px solid ' + (t.selected!==false?'rgba(167,139,250,.4)':'var(--border)') + ';border-radius:12px;margin-bottom:8px;cursor:pointer;transition:all .2s">'
       + '<div style="width:28px;height:28px;border-radius:8px;background:' + (t.selected!==false?'var(--purple)':'var(--surface3)') + ';display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;color:#fff;font-weight:700">' + (t.selected!==false?'✓':'') + '</div>'
