@@ -3465,6 +3465,9 @@ async function loadProfile() {
 function showAuthScreen() {
   document.getElementById('auth-screen').style.display = 'block';
   document.getElementById('couple-setup-screen').style.display = 'none';
+  // 온보딩이 떠있으면 같이 숨기기 (로그인 화면이 우선)
+  var ob = document.getElementById('onboarding-overlay');
+  if (ob) ob.style.display = 'none';
 }
 
 // 커플 설정 화면 표시
@@ -3882,6 +3885,14 @@ async function loadAllDataFromSupabase() {
   initHome();
   initRealEstate();
   applyHomeCardOrder();
+
+  // ── 온보딩 체크 (Supabase 로드 완료 후 한 번만)
+  if (!load('onboarding-done', false) && assetHistory.length === 0 && ledgerTxs.length === 0) {
+    var obEl = document.getElementById('onboarding-overlay');
+    if (obEl) obEl.style.display = 'block';
+  } else {
+    store('onboarding-done', true);
+  }
 }
 
 // ── 기존 자산 카테고리 → 새 구조로 마이그레이션 (1회)
@@ -8961,16 +8972,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const splashShown = sessionStorage.getItem('splash-shown');
 
   if (splashShown) {
-    // 이미 본 경우 바로 숨김
+    // 이미 본 경우 바로 숨김 (온보딩은 Supabase 로드 후 체크)
     splash.style.display = 'none';
-    // 온보딩 체크
-    var hasData2 = load('asset-history', []).length > 0 || load('ledger-txs', []).length > 0;
-    if (!load('onboarding-done', false) && !hasData2) {
-      var ob2 = document.getElementById('onboarding-overlay');
-      if (ob2) ob2.style.display = 'block';
-    } else {
-      store('onboarding-done', true);
-    }
   } else {
     // 처음 진입 시만 표시
     sessionStorage.setItem('splash-shown', '1');
@@ -8989,14 +8992,7 @@ document.addEventListener('DOMContentLoaded', function() {
       splash.style.transform = 'scale(1.05)';
       setTimeout(function() {
         splash.style.display = 'none';
-        // 온보딩 미완료 + 기존 데이터 없는 신규 사용자만 표시
-        var hasData = load('asset-history', []).length > 0 || load('ledger-txs', []).length > 0;
-        if (!load('onboarding-done', false) && !hasData) {
-          var ob = document.getElementById('onboarding-overlay');
-          if (ob) ob.style.display = 'block';
-        } else {
-          store('onboarding-done', true);
-        }
+        // 온보딩은 Supabase 로드 완료 후 initAuth 내에서 체크
       }, 500);
     }, 1000);
   }
