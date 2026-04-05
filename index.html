@@ -94,7 +94,7 @@ body::before {
   background: none;
   pointer-events:none; z-index:0;
 }
-.app { position:relative; z-index:1; max-width:680px; margin:0 auto; padding:env(safe-area-inset-top, 0px) 0 100px; }
+.app { position:relative; z-index:1; max-width:680px; margin:0 auto; padding:0 0 100px; }
 
 /* NAV */
 .nav {
@@ -183,8 +183,10 @@ input, textarea, select {
 /* HEADER */
 .page-header { margin-bottom:16px; margin-top:8px; }
 #page-home .page-header,
+#page-goals .page-header,
 #page-ai .page-header,
 #page-input .page-header,
+#page-settings .page-header,
 #page-stocks .page-header,
 #page-ledger .page-header { margin-top:max(52px, calc(env(safe-area-inset-top, 0px) + 16px)); }
 .page-header .eyebrow { font-size:11px; color:var(--muted); font-weight:500; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
@@ -4701,27 +4703,52 @@ function renderItemView() {
   const colorMap = {
     'realestate': 'var(--blue)', 'stocks': 'var(--gold)', 'savings': 'var(--green)',
     'pension': '#a78bfa', 'deposit': '#fb923c', 'cash': 'var(--muted2)',
+    'mortgage': 'var(--red)', 'jeonse-loan': 'var(--red)',
+    'credit-loan': 'var(--red)', 'other-debt': 'var(--red)',
     'housing-debt': 'var(--red)', 'credit-debt': 'var(--red)',
     '부동산': 'var(--blue)', '금융자산': 'var(--gold)',
     '민석 금융자산': 'var(--gold)', '시윤 금융자산': 'var(--gold)',
-    '기타자산': 'var(--muted2)', '부채': 'var(--red)'
+    '기타자산': 'var(--muted2)', '부채': 'var(--red)',
+    '주식·ETF': 'var(--gold)', '저축·예금': 'var(--green)',
+    '연금': '#a78bfa', '보증금': '#fb923c', '현금·기타': 'var(--muted2)',
+    '주택담보대출': 'var(--red)', '전세자금대출': 'var(--red)',
+    '신용대출': 'var(--red)', '기타대출': 'var(--red)'
   };
   const colorHex = {
     'realestate': '#3b82f6', 'stocks': '#f59e0b', 'savings': '#22c55e',
     'pension': '#a78bfa', 'deposit': '#fb923c', 'cash': '#9ca3af',
+    'mortgage': '#ef4444', 'jeonse-loan': '#ef4444',
+    'credit-loan': '#ef4444', 'other-debt': '#ef4444',
     'housing-debt': '#ef4444', 'credit-debt': '#ef4444',
     '부동산': '#3b82f6', '금융자산': '#f59e0b',
     '민석 금융자산': '#f59e0b', '시윤 금융자산': '#f59e0b',
-    '기타자산': '#9ca3af', '부채': '#ef4444'
+    '기타자산': '#9ca3af', '부채': '#ef4444',
+    '주식·ETF': '#f59e0b', '저축·예금': '#22c55e',
+    '연금': '#a78bfa', '보증금': '#fb923c', '현금·기타': '#9ca3af',
+    '주택담보대출': '#ef4444', '전세자금대출': '#ef4444',
+    '신용대출': '#ef4444', '기타대출': '#ef4444'
   };
 
-  const catOrder = ['realestate', 'stocks', 'savings', 'pension', 'deposit', 'cash', 'housing-debt', 'credit-debt',
-    '부동산', '민석 금융자산', '시윤 금융자산', '기타자산', '부채'];
+
+  const catOrder = [
+    'realestate', 'stocks', 'savings', 'pension', 'deposit', 'cash',
+    'mortgage', 'jeonse-loan', 'credit-loan', 'other-debt',
+    'housing-debt', 'credit-debt',
+    '부동산', '민석 금융자산', '시윤 금융자산', '기타자산', '부채',
+    '주식·ETF', '저축·예금', '연금', '보증금', '현금·기타',
+    '주택담보대출', '전세자금대출', '신용대출', '기타대출'
+  ];
   const byCategory = {};
   itemKeys.forEach(function(ik) {
-    if (!byCategory[ik.category]) byCategory[ik.category] = [];
-    byCategory[ik.category].push(ik);
+    // category가 라벨 문자열인 경우 ID로 정규화
+    var normCat = normalizeCatId(ik.category);
+    // normalizeCatId 결과가 catOrder에 있으면 사용, 없으면 원본 유지
+    var finalCat = catOrder.includes(normCat) ? normCat : (catOrder.includes(ik.category) ? ik.category : normCat);
+    ik.category = finalCat;
+    if (!byCategory[finalCat]) byCategory[finalCat] = [];
+    byCategory[finalCat].push(ik);
   });
+
 
   const latestRec = assetHistory[assetHistory.length - 1];
   const months = assetHistory.map(function(r) { return r.month; });
@@ -4809,7 +4836,8 @@ function renderItemView() {
       ? (catTotal / 10000).toFixed(2) + '억'
       : catTotal > 0 ? catTotal.toLocaleString() + '만' : '';
 
-    html += '<div id="item-section-' + cat + '" style="margin-bottom:14px">';
+    html += '<div id="item-section-' + cat.replace(/[^a-zA-Z0-9가-힣_-]/g, '_') + '" style="margin-bottom:14px">';
+
     html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;padding:0 2px">'
       + '<div style="font-size:11px;font-weight:700;letter-spacing:1px;color:' + color + '">' + (CATEGORY_LABELS[cat] || cat) + '</div>'
       + (catTotalStr ? '<div style="font-size:11px;font-weight:700;color:' + color + ';opacity:.85">' + catTotalStr + '</div>' : '')
@@ -5471,10 +5499,11 @@ function confirmAddItem() {
 
   modalAssetItems.push({
     id,
-    category: cat ? cat.label : '기타자산',
+    category: _addItemCategory || (cat ? cat.label : '기타자산'),
     categoryId: _addItemCategory,
     emoji: '',
     type: _addItemType === 'debt' ? 'debt' : 'asset',
+
     name,
     amount,
     memo,
