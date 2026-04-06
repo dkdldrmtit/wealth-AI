@@ -4140,6 +4140,15 @@ function goPage(name, el) {
   const stocksFab = document.getElementById('stocks-fab-add');
   if (stocksFab) stocksFab.style.display = name === 'stocks' ? 'flex' : 'none';
 
+  // 모든 탭 page-header 상단 여백 강제 통일
+  const nextHeader = document.querySelector('#page-' + name + ' .page-header');
+  if (nextHeader) {
+    const sat = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sat')) || 0;
+    const topPad = Math.max(44, sat + 12) + 'px';
+    nextHeader.style.paddingTop = topPad;
+    nextHeader.style.marginTop = '0';
+  }
+
   if (name === 'ledger') {
     setLedgerTab(ledgerTab || 'list');
     renderLedger();
@@ -4153,6 +4162,16 @@ function goPage(name, el) {
     renderHomeCardSettingsList();
     setSettingsTab('home'); // 설정 진입 시 홈 탭 기본 표시
   }
+}
+
+// 초기 로드 시 모든 page-header 여백 통일
+function applyHeaderPadding() {
+  const sat = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sat')) || 0;
+  const topPad = Math.max(44, sat + 12) + 'px';
+  document.querySelectorAll('.page-header').forEach(function(h) {
+    h.style.paddingTop = topPad;
+    h.style.marginTop = '0';
+  });
 }
 
 function goBack() {
@@ -9056,6 +9075,7 @@ function toggleAiComment(el) {
 
 document.addEventListener('DOMContentLoaded', function() {
   fetchAiManual();
+  setTimeout(applyHeaderPadding, 100); // 초기 로드 시 모든 탭 여백 통일
 
   // ── 스플래시 스크린 (세션당 1회만)
   const splash = document.getElementById('splash-screen');
