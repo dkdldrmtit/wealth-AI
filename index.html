@@ -9455,21 +9455,22 @@ const SITUATION_GUIDES = [
 
 // AI 페르소나 가이드
 const PERSONA_GUIDE = `당신은 10년 경력 PB(프라이빗 뱅커) 출신 AI 자산관리 어드바이저입니다.
-오랜 단골 고객과 편하게 이야기 나누듯, 따뜻하고 친근하게 말해주세요.
+오랜 단골 고객과 편하게 대화하듯, 따뜻하고 친근하게 말해주세요.
 
-[말투]
-- "저라면 ~해볼 것 같아요" 처럼 조심스럽게 의견을 나누는 방식으로
-- "~도 괜찮은 방법일 수 있어요", "~쪽이 더 편하실 수도 있고요" 처럼 가볍게 제안
-- 주의사항은 "그런데 한 가지만 살짝 말씀드리면요~" 처럼 부드럽게 운을 떼기
-- 리스크는 "혹시 모르니 참고만 해두셔요" 수준으로, 겁주지 않게
-- 결정은 항상 상대방이. "어떻게 생각하세요?" 로 마무리해도 좋음
+[말투 핵심]
+- 먼저 칭찬하거나 안심시키고 시작. "~하고 계시군요!", "~정상입니다!" 처럼
+- "제 경험상 ~하는 분들이 많더라구요" 처럼 개인 경험담 톤으로 자연스럽게
+- 주의사항은 "다만~", "물론~" 으로 부드럽게 운을 떼기
+- "예를 들어 월급에서 50만원이 남는다면~" 처럼 항상 구체적인 숫자 예시 활용
+- "~말씀드린답니다", "~것 같습니다", "~하는 경우가 많은 것 같아요" 로 부드럽게 마무리
+- 부정적 상황도 긍정 프레임으로 먼저 해석. "오히려 이게 장점이 되기도 해요" 처럼
+- 구어체 자연스럽게. "말그대로", "꽉꽉", "~하더라구요" 같은 표현 OK
 
-[답변 규칙]
-- 사용자가 질문한 내용 하나에만 집중. 묻지 않은 주제는 절대 먼저 꺼내지 말 것
-- 이전 대화 흐름을 기억하고 맥락에 맞게 이어서 답변할 것
-- 장점 먼저, 주의사항은 "다만~" 으로 자연스럽게
-- 금액 제안은 보수적으로. 작은 금액부터 제안
-- 3~5문장 이내로 간결하게
+[답변 구조]
+- 먼저 공감 또는 안심 → 배경 설명 → 구체적 제안 → 주의사항(다만~) 순서
+- 사용자가 질문한 내용 하나에만 집중. 묻지 않은 주제는 꺼내지 말 것
+- 이전 대화 흐름을 기억하고 맥락에 맞게 이어서 답변
+- 금액 제안은 항상 구체적으로. "50만원 중 30만원은 ISA, 나머지 20만원은~" 처럼
 - 번호 목록은 1. 2. 3. 형식만. 이모지 최대 1개
 
 [절대 금지]
@@ -11753,7 +11754,7 @@ async function loadAiComment(force=false, useWebSearch=false) {
     }
 
     prompt = '오늘(' + todayStr + ') 기준 ' + searchTopic + '을 웹검색으로 찾아서 ' + searchGuide;
-    systemPrompt = PERSONA_GUIDE + '\n\n웹검색 결과를 바탕으로 실제 수치 포함해서 답변. 이모지 1개만 맨 앞. 명사형 어미 사용. 2~3줄로 간결하게.';
+    systemPrompt = buildSystemPrompt() + '\n\n[오늘 역할] 웹검색 결과를 바탕으로 실시간 시황을 전달. 이모지 1개만 맨 앞. 2~3줄로 간결하게. "~네요", "~것 같아요" 처럼 부드럽게.';
     tools = [{ type: 'web_search_20250305', name: 'web_search' }];
 
   } else {
@@ -11787,68 +11788,9 @@ async function loadAiComment(force=false, useWebSearch=false) {
     usedTopics.topics.push(selectedTopic.key);
     store(usedTopicsKey, usedTopics);
 
-    prompt = '고객 자산 현황:\n'
-      + '순자산 ' + netVal + (changeVal ? ' (전월대비 ' + changeVal + ')' : '') + '\n'
-      + '이달 지출 ' + Math.round(monthExpense).toLocaleString() + '만원 / 저축률 ' + saveRate + '%\n'
-      + '오늘 주제: ' + selectedTopic.guide + '\n\n'
-      + '위 주제 하나에만 집중해서 친근한 은행원 톤으로 2줄 코멘트. 부드럽게 제안하는 형태로.';
+    prompt = '오늘 주제: ' + selectedTopic.guide + '\n\n위 주제 하나에만 집중해서 2~3줄 코멘트.';
 
-    // 상황 기반 토픽 선택
-    const aiHistory = load('asset-history', []);
-    const aiLatest = aiHistory.length > 0 ? aiHistory[aiHistory.length-1] : null;
-    const aiStocks = load('stocks', []);
-    const aiGoals = load('goals', []);
-    const aiTxs = load('ledger-txs', []);
-    const aiNow = new Date();
-    const aiThisMonth = `${aiNow.getFullYear()}-${String(aiNow.getMonth()+1).padStart(2,'0')}`;
-    const aiMonthTxs = aiTxs.filter(t => (t.date||'').startsWith(aiThisMonth));
-    const aiIncome = aiMonthTxs.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0);
-    const aiExpense = Math.abs(aiMonthTxs.filter(t=>t.amount<0).reduce((s,t)=>s+t.amount,0));
-    const aiTotal = aiLatest ? (aiLatest.total||0) : 0;
-    const aiDebt = aiLatest ? (aiLatest.debt||0) : 0;
-    const aiNet = aiLatest ? (aiLatest.net||0) : 0;
-    const aiRE = aiLatest ? (aiLatest.items||[]).filter(i=>i.category==='realestate').reduce((s,i)=>s+(i.amount||0),0) : 0;
-    const aiNameStr = aiLatest ? (aiLatest.items||[]).map(i=>i.name).join(' ').toLowerCase() : '';
-
-    const aiSituationData = {
-      realestatePct: aiTotal > 0 ? Math.round((aiRE/aiTotal)*100) : 0,
-      debtRatio: aiTotal > 0 ? Math.round((aiDebt/aiTotal)*100) : 0,
-      savingsRate: aiIncome > 0 ? Math.round(((aiIncome-aiExpense)/aiIncome)*100) : 0,
-      expenseRatio: aiIncome > 0 ? Math.round((aiExpense/aiIncome)*100) : 0,
-      cashAmount: aiLatest ? (aiLatest.items||[]).filter(i=>['saving','deposit'].includes(i.category)).reduce((s,i)=>s+(i.amount||0),0) : 0,
-      hasISA: aiNameStr.includes('isa'),
-      hasIRP: aiNameStr.includes('irp') || aiNameStr.includes('연금저축') || aiNameStr.includes('퇴직'),
-      hasStocks: aiStocks.length > 0,
-      avgStockReturn: aiStocks.length > 0 ? aiStocks.reduce((s,st)=>s+(st.returnPct||0),0)/aiStocks.length : 0,
-      loanCount: aiLatest ? (aiLatest.items||[]).filter(i=>['mortgage','jeonse-loan','credit-loan','other-debt'].includes(i.category)).length : 0,
-      hasGoal: aiGoals.length > 0,
-      goalProgress: aiGoals.length > 0 ? Math.round(aiGoals.reduce((s,g)=>s+(getGoalCurrent(g)/g.target*100),0)/aiGoals.length) : 0,
-      netWorth: aiNet,
-      topCategoryPct: 0,
-      hasPartner: true,
-      month: aiNow.getMonth()+1,
-      income: aiIncome,
-    };
-
-    const topSituation = SITUATION_GUIDES
-      .filter(s => { try { return s.check(aiSituationData); } catch(e) { return false; } })
-      .sort((a,b) => b.priority - a.priority)[0];
-
-    const commentManualTips = getRelevantManualSections(
-      aiLatest ? (aiLatest.items||[]).map(i=>i.name) : [],
-      aiSituationData.debtRatio,
-      aiNow.getMonth()+1,
-      aiNet
-    );
-
-    const situationContext = topSituation
-      ? `\n오늘 집중 주제: [${topSituation.label}] — ${topSituation.guide}`
-      : '';
-    const manualContext = commentManualTips ? `\n참고 지식:\n${commentManualTips}` : '';
-
-    systemPrompt = PERSONA_GUIDE + '\n\n' +
-      '매일 하나의 주제로 부드럽게 꿀팁 제공. 단순 나열 금지. 이모지 1개만 맨 앞. 2~3줄로 간결하게. 친근한 말투 유지.' +
-      situationContext + manualContext;
+    systemPrompt = buildSystemPrompt() + '\n\n[오늘 역할] 매일 하나의 주제로 짧은 꿀팁 제공. 이모지 1개만 맨 앞. 2~3줄로 간결하게. "저라면 ~해볼 것 같아요" 처럼 부드럽게. 압박·지시형 표현 금지.';
     tools = undefined;
   }
 
@@ -12219,7 +12161,7 @@ async function generateStockAnalysis() {
 규칙:
 - 이모지로 시작하는 항목 4~5개
 - 집중도, 수익률 현황, 리스크, 한 줄 조언 포함
-- 친근한 말투, 구체적 수치 활용
+- 구체적 수치 활용
 - 투자 권유 아닌 현황 분석 위주`;
 
   try {
@@ -12230,6 +12172,7 @@ async function generateStockAnalysis() {
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 400,
+        system: buildSystemPrompt() + '\n\n[오늘 역할] 주식 포트폴리오 현황 분석. 이모지로 시작하는 항목 4~5개. 투자 권유 아닌 현황 분석 위주. 부드럽고 따뜻하게.',
         messages: [{ role: 'user', content: prompt }]
       })
     });
@@ -14663,7 +14606,7 @@ async function generateMonthlyReport() {
   const prev = prevTxs.length ? summarize(prevTxs) : null;
 
   const [cy, cm] = ledgerMonth.split('-');
-  const prompt = `당신은 부부 가계부를 분석하는 재무 어시스턴트입니다. 아래 데이터를 보고 ${parseInt(cm)}월 지출 리포트를 작성해주세요.
+  const prompt = `아래 데이터를 보고 ${parseInt(cm)}월 지출 리포트를 작성해주세요.
 
 [이번 달: ${parseInt(cm)}월]
 - 총 지출: ${Math.round(cur.totalExp*10000).toLocaleString()}원 (${cur.count}건)
@@ -14681,8 +14624,7 @@ ${prev ? `
 - 이모지로 시작하는 항목 4~5개로 구성
 - 각 항목은 1~2문장, 구체적인 수치 포함
 - 마지막 항목은 💡 로 시작하는 실용적인 절약 팁 1개
-- 친근하고 따뜻한 말투 (${getP1Name()} & ${getP2Name()} 에게 말하는 것처럼)
-
+- ${getP1Name()} & ${getP2Name()} 에게 말하는 것처럼 따뜻하게
 - 전체 150자 이내로 간결하게`;
 
   try {
@@ -14693,6 +14635,7 @@ ${prev ? `
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 400,
+        system: buildSystemPrompt() + '\n\n[오늘 역할] 이달 지출 리포트 작성. 이모지로 시작하는 항목 4~5개. 마지막은 💡 절약 팁. 부드럽고 따뜻하게.',
         messages: [{ role: 'user', content: prompt }]
       })
     });
