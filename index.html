@@ -2911,28 +2911,38 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <!-- 차트 탭 -->
   <div id="stk-content-chart" style="display:none">
 
-    <!-- 수익률 카드 (종목별 + 전체) -->
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px">
-      <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:14px">수익률</div>
+    <!-- 차트 서브 토글 -->
+    <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:14px;gap:2px">
+      <button id="stk-chart-tab-pct" onclick="setStkChartTab('pct')"
+        style="flex:1;padding:8px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s">수익률</button>
+      <button id="stk-chart-tab-alloc" onclick="setStkChartTab('alloc')"
+        style="flex:1;padding:8px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">비중</button>
+      <button id="stk-chart-tab-ai" onclick="setStkChartTab('ai')"
+        style="flex:1;padding:8px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">AI 분석</button>
+    </div>
+
+    <!-- 수익률 패널 -->
+    <div id="stk-chart-panel-pct" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px">
       <div id="stk-pct-chart"></div>
     </div>
 
-    <!-- 비중 카드 -->
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px">
-      <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:12px">포트폴리오 비중</div>
+    <!-- 비중 패널 -->
+    <div id="stk-chart-panel-alloc" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px">
       <div id="stk-donut-wrap">
         <div id="stk-donut-legend"></div>
       </div>
     </div>
 
-    <!-- AI 분석 -->
-    <div class="card" style="margin-bottom:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px">AI 포트폴리오 분석</div>
-        <button onclick="generateStockAnalysis()" id="stk-ai-btn"
-          style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;cursor:pointer">분석하기</button>
+    <!-- AI 분석 패널 -->
+    <div id="stk-chart-panel-ai" style="display:none">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px">AI 포트폴리오 분석</div>
+          <button onclick="generateStockAnalysis()" id="stk-ai-btn"
+            style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;cursor:pointer">분석하기</button>
+        </div>
+        <div id="stk-ai-content" style="font-size:12px;color:var(--muted);line-height:1.7">분석 버튼을 누르면 AI가 포트폴리오를 분석해줘요.</div>
       </div>
-      <div id="stk-ai-content" style="font-size:12px;color:var(--muted);line-height:1.7">분석 버튼을 누르면 AI가 포트폴리오를 분석해줘요.</div>
     </div>
   </div>
 
@@ -12031,19 +12041,37 @@ function setStkTab(tab) {
 }
 
 // ── 도넛 + 수익률 차트
+let currentStkChartTab = 'pct';
+
+function setStkChartTab(tab) {
+  currentStkChartTab = tab;
+  ['pct','alloc','ai'].forEach(function(t) {
+    const btn = document.getElementById('stk-chart-tab-' + t);
+    const panel = document.getElementById('stk-chart-panel-' + t);
+    const isActive = t === tab;
+    if (btn) {
+      btn.style.background = isActive ? 'var(--surface)' : 'transparent';
+      btn.style.color = isActive ? 'var(--text)' : 'var(--muted2)';
+      btn.style.fontWeight = isActive ? '700' : '500';
+    }
+    if (panel) panel.style.display = isActive ? 'block' : 'none';
+  });
+  if (tab === 'pct') renderStkPctChart();
+  if (tab === 'alloc') renderStkDonut();
+}
+
 function renderStockCharts() {
-  renderStkDonut();
-  renderStkPctChart();
+  setStkChartTab(currentStkChartTab);
 }
 
 function renderStkDonut() {
-  const legend = document.getElementById('stk-donut-legend');
-  if (!legend) return;
+  const wrap = document.getElementById('stk-donut-legend');
+  if (!wrap) return;
   const usdKrw = load('usd-krw-rate', 0);
 
   const activeStocks = getFilteredStocks().filter(function(s) { return s.currentPrice > 0; });
   if (!activeStocks.length) {
-    legend.innerHTML = '<div style="font-size:12px;color:var(--muted)">시세 갱신 후 확인하세요</div>';
+    wrap.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:16px">시세 갱신 후 확인하세요</div>';
     return;
   }
 
@@ -12053,33 +12081,110 @@ function renderStkDonut() {
     return s.currentPrice * s.qty * rate;
   };
   const totalEvalKrw = activeStocks.reduce(function(sum, s) { return sum + evalKrw(s); }, 0);
-  const sorted = [...activeStocks].sort(function(a,b) { return evalKrw(b) - evalKrw(a); });
+  const sorted = [...activeStocks].sort(function(a, b) { return evalKrw(b) - evalKrw(a); });
 
-  legend.innerHTML = sorted.map(function(s, i) {
-    const ev = evalKrw(s);
-    const pct = totalEvalKrw > 0 ? Math.round(ev / totalEvalKrw * 100) : 0;
-    const color = colors[i % colors.length];
-    const evStr = ev >= 100000000
-      ? (ev/100000000).toFixed(1)+'억원'
-      : ev >= 10000
-      ? (ev/10000).toFixed(0)+'만원'
-      : Math.round(ev).toLocaleString()+'원';
-    return '<div style="margin-bottom:10px">'
-      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
-      + '<div style="display:flex;align-items:center;gap:6px">'
-      + '<div style="width:6px;height:6px;border-radius:50%;background:' + color + ';flex-shrink:0"></div>'
-      + '<span style="font-size:12px;font-weight:600;color:var(--text)">' + s.name + '</span>'
-      + '</div>'
-      + '<div style="display:flex;align-items:center;gap:8px">'
-      + '<span style="font-size:11px;color:var(--muted)">' + evStr + '</span>'
-      + '<span style="font-size:12px;font-weight:700;color:var(--text);min-width:32px;text-align:right">' + pct + '%</span>'
-      + '</div>'
-      + '</div>'
-      + '<div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden">'
-      + '<div style="height:100%;width:' + pct + '%;background:' + color + ';border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1)"></div>'
-      + '</div>'
-      + '</div>';
+  // ── 트리맵 레이아웃 계산 (Squarified 방식 간소화)
+  const W = 320, H = 200; // 가상 캔버스 크기
+  const items = sorted.map(function(s, i) {
+    return {
+      s: s,
+      val: evalKrw(s),
+      pct: Math.round(evalKrw(s) / totalEvalKrw * 100),
+      color: colors[i % colors.length]
+    };
+  });
+
+  // 슬라이스 방식 트리맵 (단순하고 안정적)
+  function sliceLayout(items, x, y, w, h) {
+    const total = items.reduce(function(s, i) { return s + i.val; }, 0);
+    const rects = [];
+    let cx = x, cy = y;
+    const isHoriz = w >= h;
+
+    items.forEach(function(item) {
+      const ratio = item.val / total;
+      let rw, rh;
+      if (isHoriz) {
+        rw = w * ratio;
+        rh = h;
+        rects.push({ item, x: cx, y: cy, w: rw, h: rh });
+        cx += rw;
+      } else {
+        rw = w;
+        rh = h * ratio;
+        rects.push({ item, x: cx, y: cy, w: rw, h: rh });
+        cy += rh;
+      }
+    });
+    return rects;
+  }
+
+  // 2단계 분할: 상위 절반 / 하위 절반
+  const half = Math.ceil(items.length / 2);
+  const topItems = items.slice(0, half);
+  const botItems = items.slice(half);
+  const topVal = topItems.reduce(function(s, i) { return s + i.val; }, 0);
+  const botVal = botItems.reduce(function(s, i) { return s + i.val; }, 0);
+  const topH = botItems.length ? H * topVal / totalEvalKrw : H;
+  const botH = H - topH;
+
+  let rects = sliceLayout(topItems, 0, 0, W, topH);
+  if (botItems.length) {
+    rects = rects.concat(sliceLayout(botItems, 0, topH, W, botH));
+  }
+
+  // SVG 렌더링
+  const GAP = 2;
+  const svgRects = rects.map(function(r) {
+    const rx = r.x + GAP/2, ry = r.y + GAP/2;
+    const rw = Math.max(r.w - GAP, 4), rh = Math.max(r.h - GAP, 4);
+    const evStr = r.item.val >= 100000000
+      ? (r.item.val/100000000).toFixed(1)+'억'
+      : r.item.val >= 10000
+      ? (r.item.val/10000).toFixed(0)+'만'
+      : Math.round(r.item.val).toLocaleString();
+    const showName = rw > 50 && rh > 24;
+    const showVal = rw > 60 && rh > 40;
+    const fontSize = rw > 100 ? 12 : 10;
+
+    return '<rect x="' + rx.toFixed(1) + '" y="' + ry.toFixed(1)
+      + '" width="' + rw.toFixed(1) + '" height="' + rh.toFixed(1)
+      + '" rx="6" fill="' + r.item.color + '" opacity="0.85"/>'
+      + (showName
+        ? '<text x="' + (rx + rw/2).toFixed(1) + '" y="' + (ry + rh/2 - (showVal ? 8 : 0)).toFixed(1)
+          + '" text-anchor="middle" dominant-baseline="middle"'
+          + ' font-size="' + fontSize + '" font-weight="700" fill="white" font-family="Noto Sans KR">'
+          + (r.item.s.name.length > 8 ? r.item.s.name.slice(0, 7) + '…' : r.item.s.name)
+          + '</text>'
+        : '')
+      + (showVal
+        ? '<text x="' + (rx + rw/2).toFixed(1) + '" y="' + (ry + rh/2 + 10).toFixed(1)
+          + '" text-anchor="middle" dominant-baseline="middle"'
+          + ' font-size="10" fill="rgba(255,255,255,0.75)" font-family="Noto Sans KR">'
+          + r.item.pct + '%'
+          + '</text>'
+        : '');
   }).join('');
+
+  wrap.innerHTML =
+    '<svg width="100%" viewBox="0 0 ' + W + ' ' + H + '" style="border-radius:10px;overflow:hidden;display:block;margin-bottom:12px">'
+    + svgRects
+    + '</svg>'
+    // 범례
+    + '<div style="display:flex;flex-wrap:wrap;gap:8px 14px">'
+    + items.map(function(item) {
+        const evStr = item.val >= 100000000
+          ? (item.val/100000000).toFixed(1)+'억원'
+          : item.val >= 10000
+          ? (item.val/10000).toFixed(0)+'만원'
+          : Math.round(item.val).toLocaleString()+'원';
+        return '<div style="display:flex;align-items:center;gap:5px">'
+          + '<div style="width:8px;height:8px;border-radius:2px;background:' + item.color + ';flex-shrink:0"></div>'
+          + '<span style="font-size:11px;color:var(--text2)">' + item.s.name + '</span>'
+          + '<span style="font-size:11px;color:var(--muted)">' + item.pct + '%</span>'
+          + '</div>';
+      }).join('')
+    + '</div>';
 }
 
 function renderStkPctChart() {
