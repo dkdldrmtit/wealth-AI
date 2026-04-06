@@ -2858,16 +2858,18 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
 
   <!-- 기능 탭 + $ / 원 토글 -->
-  <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:16px;gap:2px;align-items:center">
-<button id="stk-tab-list" onclick="setStkTab('list')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s">종목</button>
-<button id="stk-tab-chart" onclick="setStkTab('chart')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">차트</button>
-<button id="stk-tab-history" onclick="setStkTab('history')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">거래내역</button>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+    <div style="display:flex;flex:1;background:var(--surface2);border-radius:12px;padding:4px;gap:2px">
+      <button id="stk-tab-list" onclick="setStkTab('list')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s">종목</button>
+      <button id="stk-tab-chart" onclick="setStkTab('chart')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">차트</button>
+      <button id="stk-tab-history" onclick="setStkTab('history')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">거래내역</button>
+    </div>
     <!-- 통화 토글 -->
-    <div style="display:flex;background:var(--surface2);border-radius:8px;padding:2px;gap:1px;margin-left:8px">
+    <div style="display:flex;background:var(--surface2);border-radius:8px;padding:2px;gap:1px;flex-shrink:0">
       <button id="stk-currency-krw" onclick="setStkCurrency('KRW')"
-        style="padding:4px 10px;border-radius:6px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:#1e1e1e;color:var(--text);border:0.5px solid rgba(59,130,246,0.25);transition:all .2s">원</button>
+        style="padding:5px 10px;border-radius:6px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s">원</button>
       <button id="stk-currency-usd" onclick="setStkCurrency('USD')"
-        style="padding:4px 10px;border-radius:6px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">$</button>
+        style="padding:5px 10px;border-radius:6px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">$</button>
     </div>
   </div>
 
@@ -2883,9 +2885,10 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           통합
         </button>
         <button onclick="fetchAllPrices()" id="stock-refresh-btn"
-          style="background:rgba(74,158,255,.15);border:1px solid rgba(74,158,255,.3);border-radius:8px;
-          color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer">
-          🔄 시세 갱신
+          style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;
+          color:var(--muted);display:flex;align-items:center;gap:4px;padding:5px 10px;cursor:pointer">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          <span style="font-size:11px;font-weight:600;font-family:'Noto Sans KR',sans-serif">시세</span>
         </button>
       </div>
     </div>
@@ -2907,11 +2910,10 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
   <!-- 차트 탭 -->
   <div id="stk-content-chart" style="display:none">
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:16px;margin-bottom:14px">
-      <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:14px">포트폴리오 비중</div>
-      <div id="stk-donut-wrap" style="display:flex;align-items:center;gap:16px">
-        <svg id="stk-donut-svg" width="140" height="140" viewBox="0 0 140 140" style="flex-shrink:0"></svg>
-        <div id="stk-donut-legend" style="flex:1"></div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px">
+      <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:12px">포트폴리오 비중</div>
+      <div id="stk-donut-wrap">
+        <div id="stk-donut-legend"></div>
       </div>
     </div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:16px;margin-bottom:14px">
@@ -12029,72 +12031,47 @@ function renderStockCharts() {
 }
 
 function renderStkDonut() {
-  const svg = document.getElementById('stk-donut-svg');
   const legend = document.getElementById('stk-donut-legend');
-  if (!svg || !legend) return;
+  if (!legend) return;
   const usdKrw = load('usd-krw-rate', 0);
 
   const activeStocks = getFilteredStocks().filter(function(s) { return s.currentPrice > 0; });
   if (!activeStocks.length) {
-    svg.innerHTML = '';
     legend.innerHTML = '<div style="font-size:12px;color:var(--muted)">시세 갱신 후 확인하세요</div>';
     return;
   }
 
-  const colors = ['#3b82f6','#34d399','#888888','#3b82f6','#ef4444','#ffffff','#fb923c','#60a5fa'];
-  // 원화 환산 기준으로 비중 계산
+  const colors = ['#3b82f6','#34d399','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16'];
   const evalKrw = function(s) {
     const rate = (s.market === 'US' && usdKrw) ? usdKrw : 1;
     return s.currentPrice * s.qty * rate;
   };
   const totalEvalKrw = activeStocks.reduce(function(sum, s) { return sum + evalKrw(s); }, 0);
-  const R = 54, cx = 70, cy = 70, stroke = 22;
-  const C = 2 * Math.PI * R;
-  let offset = 0;
+  const sorted = [...activeStocks].sort(function(a,b) { return evalKrw(b) - evalKrw(a); });
 
-  const segments = activeStocks.map(function(s, i) {
+  legend.innerHTML = sorted.map(function(s, i) {
     const ev = evalKrw(s);
-    const pct = ev / totalEvalKrw;
-    const dash = pct * C;
-    const seg = { s, ev, pct, dash, offset, color: colors[i % colors.length] };
-    offset += dash;
-    return seg;
-  });
-
-  const totalStr = totalEvalKrw >= 100000000
-    ? (totalEvalKrw/100000000).toFixed(1)+'억'
-    : totalEvalKrw >= 10000
-    ? (totalEvalKrw/10000).toFixed(0)+'만'
-    : Math.round(totalEvalKrw).toLocaleString();
-
-  svg.innerHTML = '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="' + stroke + '"/>'
-    + segments.map(function(seg) {
-        return '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="none"'
-          + ' stroke="' + seg.color + '" stroke-width="' + stroke + '"'
-          + ' stroke-dasharray="' + seg.dash.toFixed(2) + ' ' + (C - seg.dash).toFixed(2) + '"'
-          + ' stroke-dashoffset="' + (C/4 - seg.offset).toFixed(2) + '"'
-          + ' stroke-linecap="butt"/>';
-      }).join('')
-    + '<text x="70" y="64" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="Noto Sans KR">원화환산</text>'
-    + '<text x="70" y="80" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text)" font-family="Noto Sans KR">' + totalStr + '</text>';
-
-  legend.innerHTML = segments.map(function(seg) {
-    const pct = Math.round(seg.pct * 100);
-    const evStr = seg.ev >= 100000000
-      ? (seg.ev/100000000).toFixed(1)+'억원'
-      : seg.ev >= 10000
-      ? (seg.ev/10000).toFixed(0)+'만원'
-      : Math.round(seg.ev).toLocaleString()+'원';
-    const subStr = seg.s.market === 'US'
-      ? '$' + (seg.s.currentPrice * seg.s.qty).toFixed(2) + ' · '
-      : '';
-    return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">'
-      + '<div style="width:8px;height:8px;border-radius:2px;background:' + seg.color + ';flex-shrink:0"></div>'
-      + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + seg.s.name + '</div>'
-      + '<div style="font-size:10px;color:var(--muted)">' + subStr + evStr + '</div>'
+    const pct = totalEvalKrw > 0 ? Math.round(ev / totalEvalKrw * 100) : 0;
+    const color = colors[i % colors.length];
+    const evStr = ev >= 100000000
+      ? (ev/100000000).toFixed(1)+'억원'
+      : ev >= 10000
+      ? (ev/10000).toFixed(0)+'만원'
+      : Math.round(ev).toLocaleString()+'원';
+    return '<div style="margin-bottom:10px">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+      + '<div style="display:flex;align-items:center;gap:6px">'
+      + '<div style="width:6px;height:6px;border-radius:50%;background:' + color + ';flex-shrink:0"></div>'
+      + '<span style="font-size:12px;font-weight:600;color:var(--text)">' + s.name + '</span>'
       + '</div>'
-      + '<div style="font-size:11px;font-weight:700;color:var(--text)">' + pct + '%</div>'
+      + '<div style="display:flex;align-items:center;gap:8px">'
+      + '<span style="font-size:11px;color:var(--muted)">' + evStr + '</span>'
+      + '<span style="font-size:12px;font-weight:700;color:var(--text);min-width:32px;text-align:right">' + pct + '%</span>'
+      + '</div>'
+      + '</div>'
+      + '<div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden">'
+      + '<div style="height:100%;width:' + pct + '%;background:' + color + ';border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1)"></div>'
+      + '</div>'
       + '</div>';
   }).join('');
 }
