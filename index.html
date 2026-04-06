@@ -1274,10 +1274,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div class="siri-card-inner">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px">AI 코멘트</div>
-        <div style="display:flex;gap:6px">
-          <button onclick="loadAiComment(true, false)" style="background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.18);border-radius:20px;color:rgba(255,255,255,0.6);font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:500;padding:4px 12px;cursor:pointer;letter-spacing:0.5px">자산분석</button>
-          <button onclick="loadAiComment(true, true)" style="background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.18);border-radius:20px;color:rgba(255,255,255,0.6);font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:500;padding:4px 12px;cursor:pointer;letter-spacing:0.5px">시황</button>
-        </div>
       </div>
       <div id="ai-comment-text" style="font-size:13px;color:var(--text);line-height:1.8;letter-spacing:0.1px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer" onclick="toggleAiComment(this)">
         <div style="color:var(--muted);font-size:12px">분석 중...</div>
@@ -2735,42 +2731,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div id="excel-result-wrap" style="display:none;margin-bottom:14px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
           <div style="font-size:11px;color:var(--muted2);font-weight:500;letter-spacing:.3px">파싱 완료 — 등록할 항목을 선택하세요</div>
-          <div style="display:flex;gap:6px">
-            <button onclick="loadAiComment(true, false)" style="
-              background:rgba(255,255,255,0.05);
-              border:0.5px solid rgba(59,130,246,0.15);
-              border-radius:20px;
-              color:rgba(255,255,255,0.6);
-              font-family:'Noto Sans KR',sans-serif;
-              font-size:10px;font-weight:600;
-              padding:5px 12px;cursor:pointer;
-              letter-spacing:0.5px;
-              transition:all .2s;
-            "
-            onmouseenter="this.style.background='rgba(59,130,246,0.10)'"
-            onmouseleave="this.style.background='rgba(255,255,255,0.05)'"
-            ontouchstart="this.style.background='rgba(59,130,246,0.10)'"
-            ontouchend="this.style.background='rgba(255,255,255,0.05)'">
-              자산 분석
-            </button>
-            <button onclick="loadAiComment(true, true)" style="
-              background:rgba(74,158,255,0.08);
-              border:0.5px solid rgba(74,158,255,0.25);
-              border-radius:20px;
-              color:rgba(74,158,255,0.8);
-              font-family:'Noto Sans KR',sans-serif;
-              font-size:10px;font-weight:600;
-              padding:5px 12px;cursor:pointer;
-              letter-spacing:0.5px;
-              transition:all .2s;
-            "
-            onmouseenter="this.style.background='rgba(74,158,255,0.15)'"
-            onmouseleave="this.style.background='rgba(74,158,255,0.08)'"
-            ontouchstart="this.style.background='rgba(74,158,255,0.15)'"
-            ontouchend="this.style.background='rgba(74,158,255,0.08)'">
-              🌐 시황
-            </button>
-          </div>
+
         </div>
         <div id="excel-result-list" style="max-height:300px;overflow-y:auto"></div>
         <div id="excel-summary" style="font-size:12px;color:var(--muted);margin-top:8px;text-align:right"></div>
@@ -2877,14 +2838,14 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
 
   <!-- 총 평가금액 (토스 스타일) -->
-  <div style="margin-bottom:20px">
-    <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:6px">총 평가금액</div>
-    <div id="stock-total-val" style="font-size:32px;font-weight:900;color:var(--text);line-height:1.1">-</div>
-    <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
-      <div id="stock-total-pnl" style="font-size:15px;font-weight:700">-</div>
-      <div id="stock-total-pct" style="font-size:13px;color:var(--muted)"></div>
+  <div style="margin-bottom:16px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:16px">
+    <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:6px">총 평가금액</div>
+    <div id="stock-total-val" style="font-size:26px;font-weight:900;color:var(--text);line-height:1.1">-</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:5px">
+      <div id="stock-total-pnl" style="font-size:13px;font-weight:700">-</div>
+      <div id="stock-total-pct" style="font-size:12px;color:var(--muted)"></div>
     </div>
-    <div id="stock-rate-note" style="font-size:11px;color:var(--muted);margin-top:4px"></div>
+    <div id="stock-rate-note" style="font-size:11px;color:var(--muted);margin-top:3px"></div>
   </div>
 
   <!-- 기능 탭 + $ / 원 토글 -->
@@ -2916,9 +2877,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     </div>
     <div id="stock-list"></div>
     <button onclick="openStockAdd()"
-      style="width:100%;margin-top:8px;padding:14px;background:var(--surface);border:1px dashed var(--border2);
-      border-radius:16px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:14px;
-      font-weight:600;cursor:pointer">
+      style="width:100%;margin-top:8px;padding:12px;background:var(--surface);border:1px dashed var(--border2);
+      border-radius:12px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:13px;
+      font-weight:500;cursor:pointer">
       + 종목 추가
     </button>
     <div id="stock-proxy-notice" style="margin-top:12px;padding:12px 14px;background:rgba(240,192,64,.08);border:1px solid rgba(240,192,64,.2);border-radius:12px;font-size:12px;color:var(--muted2);line-height:1.7;display:none">
@@ -2926,13 +2887,11 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     </div>
 
     <!-- 주식 → 자산 반영 버튼 -->
-    <div style="margin-top:14px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:16px">
-      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">💼 주식 평가금액을 자산에 반영</div>
-      <div style="font-size:11px;color:var(--muted2);margin-bottom:10px;line-height:1.6">시세 갱신 후 자산 내역의 주식·ETF 항목에 자동으로 반영돼요.</div>
+    <div style="margin-top:10px">
       <button onclick="applyStocksToAsset()"
-        style="width:100%;padding:12px;background:rgba(74,158,255,.12);border:1px solid rgba(74,158,255,.25);
-        border-radius:12px;color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
-        📥 주식 평가금액 자산에 반영
+        style="width:100%;padding:11px;background:rgba(74,158,255,.08);border:0.5px solid rgba(74,158,255,.2);
+        border-radius:12px;color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer">
+        📥 평가금액 자산에 반영
       </button>
     </div>
   </div>
@@ -2940,25 +2899,23 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <!-- 차트 탭 -->
   <div id="stk-content-chart" style="display:none">
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:16px;margin-bottom:14px">
-      <div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px;margin-bottom:14px">포트폴리오 비중</div>
+      <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:14px">포트폴리오 비중</div>
       <div id="stk-donut-wrap" style="display:flex;align-items:center;gap:16px">
         <svg id="stk-donut-svg" width="140" height="140" viewBox="0 0 140 140" style="flex-shrink:0"></svg>
         <div id="stk-donut-legend" style="flex:1"></div>
       </div>
     </div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:16px;margin-bottom:14px">
-      <div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px;margin-bottom:14px">종목별 수익률</div>
+      <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:14px">종목별 수익률</div>
       <div id="stk-pct-chart"></div>
     </div>
-    <div class="siri-card" style="margin-bottom:14px">
-      <div class="siri-card-inner">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div style="font-size:11px;color:var(--text2);font-weight:500;letter-spacing:1px">AI 포트폴리오 분석</div>
-          <button onclick="generateStockAnalysis()" id="stk-ai-btn"
-            style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer">분석하기</button>
-        </div>
-        <div id="stk-ai-content" style="font-size:13px;color:var(--muted);line-height:1.7">분석 버튼을 누르면 AI가 포트폴리오를 분석해줘요.</div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px">AI 포트폴리오 분석</div>
+        <button onclick="generateStockAnalysis()" id="stk-ai-btn"
+          style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;cursor:pointer">분석하기</button>
       </div>
+      <div id="stk-ai-content" style="font-size:12px;color:var(--muted);line-height:1.7">분석 버튼을 누르면 AI가 포트폴리오를 분석해줘요.</div>
     </div>
   </div>
 
@@ -4166,7 +4123,7 @@ function goPage(name, el) {
     homeCardSettings = load('home-card-settings', null) ||
       HOME_CARD_DEFAULTS.map(function(c) { return Object.assign({}, c); });
     renderHomeCardSettingsList();
-    setSettingsTab('data'); // 설정 진입 시 계정 탭 기본 표시
+    setSettingsTab('home'); // 설정 진입 시 홈 탭 기본 표시
   }
 }
 
@@ -8923,7 +8880,7 @@ async function copyInviteCode() {
 
 
 // ── 설정 탭
-let currentSettingsTab = 'data';
+let currentSettingsTab = 'home';
 
 function setSettingsTab(tab) {
   // 홈 탭 떠날 때 저장 안 했으면 homeCardSettings 원복
