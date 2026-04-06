@@ -371,30 +371,39 @@ input, textarea, select {
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:var(--surface3); border-radius:2px; }
 /* ── AI 카드 테두리 */
-@keyframes siri-border {
-  0%   { opacity: 0.5; }
-  50%  { opacity: 1; }
-  100% { opacity: 0.5; }
+@keyframes border-flow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
+@keyframes ai-dot-pulse {
+  0%,100% { opacity:0.4; transform:scale(1); }
+  50%      { opacity:1;   transform:scale(1.6); }
+}
+@keyframes ai-fade-in  { from{opacity:0;transform:translateY(3px)} to{opacity:1;transform:translateY(0)} }
+@keyframes ai-fade-out { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(-3px)} }
 
 .siri-card {
   position: relative;
-  border-radius: 20px;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(59,130,246,0.6), rgba(59,130,246,0.2));
-  animation: siri-border 3s ease infinite;
+  border-radius: 16px;
+  padding: 2px;
+  background: linear-gradient(270deg, #3a3630, #c9a84c, #e8d9a0, #c9a84c, #3a3630);
+  background-size: 300% 300%;
+  animation: border-flow 5s ease infinite;
   margin-bottom: 14px;
+  cursor: pointer;
 }
 
 .siri-card-inner {
   background: var(--surface);
-  border-radius: 19px;
-  padding: 16px;
+  border-radius: 14px;
+  padding: 0;
+  overflow: hidden;
 }
 
 @media (prefers-color-scheme: light) {
   body:not([data-theme="dark"]) .siri-card-inner { background: #ffffff; }
-  body:not([data-theme="dark"]) .siri-card { background: linear-gradient(135deg, rgba(37,99,235,0.5), rgba(37,99,235,0.15)); }
+  body:not([data-theme="dark"]) .siri-card { background: linear-gradient(270deg, #3a3630, #c9a84c, #e8d9a0, #c9a84c, #3a3630); background-size:300% 300%; }
   .sum-box.net .val { color: #2563eb !important; }
   .sum-box.net::after { background: #2563eb !important; opacity: 0.8 !important; }
   .nav-item.active { color: #2563eb !important; filter: none !important; }
@@ -404,7 +413,7 @@ input, textarea, select {
   .active-chip { background: rgba(37,99,235,0.08) !important; color: #2563eb !important; border: 0.5px solid rgba(37,99,235,0.25) !important; }
   .inp-group input:focus, .ge-group input:focus { border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,0.08) !important; }
   #home-wealth-text { color: #999999 !important; }
-  #home-ai-text { color: #2563eb !important; filter: none !important; }
+  #home-ai-text { color: #c9a84c !important; filter: none !important; }
   .chat-send { background: #2563eb !important; }
   .goal-pct { color: #2563eb !important; }
   ::-webkit-scrollbar-thumb { background: #d4d4d4; }
@@ -680,10 +689,10 @@ body[data-theme="light"] .nav { background: rgba(255,255,255,0.97) !important; b
 body[data-theme="light"] .nav-item.active { color: #2563eb !important; filter: none !important; }
 body[data-theme="light"] .nav-item.active::before { background: #2563eb !important; box-shadow: none !important; }
 body[data-theme="light"] .sum-box.net .val { color: #2563eb !important; }
-body[data-theme="light"] #home-ai-text { color: #2563eb !important; filter: none !important; }
+body[data-theme="light"] #home-ai-text { color: #c9a84c !important; filter: none !important; }
 body[data-theme="light"] .btn-primary { background: #111111 !important; color: #ffffff !important; border: none !important; box-shadow: none !important; filter: none !important; }
 body[data-theme="light"] .siri-card-inner { background: #ffffff; }
-body[data-theme="light"] .siri-card { background: linear-gradient(135deg, rgba(37,99,235,0.5), rgba(37,99,235,0.15)); }
+body[data-theme="light"] .siri-card { background: linear-gradient(270deg, #3a3630, #c9a84c, #e8d9a0, #c9a84c, #3a3630); background-size:300% 300%; }
 body[data-theme="light"] .inp-group input:focus,
 body[data-theme="light"] .ge-group input:focus { border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,0.08) !important; }
 
@@ -1156,7 +1165,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div style="display:flex;justify-content:space-between;align-items:flex-start">
       <div>
         <h1 style="font-family:-apple-system,'SF Pro Display','Inter','Helvetica Neue',sans-serif;font-size:28px;font-weight:300;line-height:1.2;margin-bottom:4px;letter-spacing:2px;display:flex;align-items:baseline;gap:0">
-          <span id="home-wealth-text" style="color:#888888;font-weight:200;letter-spacing:2px">Wealth</span><span id="home-ai-text" style="color:#3b82f6;font-weight:600;letter-spacing:1px">AI</span>
+          <span id="home-wealth-text" style="color:#888888;font-weight:200;letter-spacing:2px">Wealth</span><span id="home-ai-text" style="color:#c9a84c;font-weight:600;letter-spacing:1px">AI</span>
         </h1>
         <div class="sub" id="home-date-sub" style="font-size:12px;color:var(--muted2);margin-top:2px"></div>
       </div>
@@ -1272,16 +1281,26 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
   <!-- ② AI 코멘트 -->
   <div data-card="ai" id="home-card-ai">
-  <div class="siri-card" id="ai-comment-card">
+  <div class="siri-card" id="ai-comment-card" onclick="toggleAiComment()">
     <div class="siri-card-inner">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px">AI 코멘트</div>
+      <!-- 티커 행 -->
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;min-height:44px">
+        <!-- 세로 AI 레이블 -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0">
+          <div id="ai-comment-dot" style="width:4px;height:4px;border-radius:50%;background:#c9a84c;animation:ai-dot-pulse 2.5s ease infinite"></div>
+          <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;color:rgba(180,155,80,0.6);text-transform:uppercase;writing-mode:vertical-rl;transform:rotate(180deg)">AI</div>
+        </div>
+        <!-- 페이드 텍스트 -->
+        <div style="flex:1;overflow:hidden;height:18px;position:relative">
+          <div id="ai-comment-ticker" style="font-size:12.5px;color:var(--text);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:absolute;width:100%;line-height:1.5;animation:ai-fade-in 0.5s ease both">분석 중...</div>
+        </div>
+        <!-- 펼치기 화살표 -->
+        <div id="ai-comment-chevron" style="font-size:10px;color:rgba(180,155,80,0.45);flex-shrink:0;transition:transform 0.3s">▾</div>
       </div>
-      <div id="ai-comment-text" style="font-size:13px;color:var(--text);line-height:1.8;letter-spacing:0.1px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer" onclick="toggleAiComment(this)">
-        <div style="color:var(--muted);font-size:12px">분석 중...</div>
-      </div>
-      <div id="ai-comment-expand" onclick="toggleAiComment(document.getElementById('ai-comment-text'))" style="display:none;margin-top:10px;cursor:pointer;opacity:0;transition:opacity 0.4s ease;pointer-events:none;text-align:center;padding:4px 0">
-        <div style="width:32px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto;transition:background .2s" id="ai-comment-handle"></div>
+      <!-- 펼쳐진 전체 텍스트 -->
+      <div id="ai-comment-expand" style="display:none;padding:0 14px 14px;border-top:0.5px solid rgba(180,155,80,0.12)">
+        <div id="ai-comment-text" style="font-size:13px;color:var(--text);line-height:1.85;padding-top:12px;font-weight:400"></div>
+        <div style="margin-top:10px;font-size:9px;color:rgba(180,155,80,0.35);letter-spacing:2px;text-transform:uppercase">M&S Wealth · AI Analysis</div>
       </div>
     </div>
   </div>
@@ -9066,28 +9085,57 @@ function saveClaudeApiKey() {
 
 
 // ── AI 코멘트 펼치기/접기
-function toggleAiComment(el) {
-  const isCollapsed = el.style.webkitLineClamp === '2';
-  const hint = document.getElementById('ai-comment-expand');
-  const handle = document.getElementById('ai-comment-handle');
+let _aiCommentExpanded = false;
+let _aiTickerTimer = null;
+let _aiTickerSentences = [];
+let _aiTickerIdx = 0;
 
-  if (isCollapsed) {
-    el.style.webkitLineClamp = 'unset';
-    el.style.overflow = 'visible';
-    if (handle) handle.style.background = 'var(--muted)';
-    if (hint) {
-      hint.style.opacity = '0';
-      setTimeout(function() { hint.style.display = 'none'; }, 300);
-    }
-  } else {
-    el.style.webkitLineClamp = '2';
-    el.style.overflow = 'hidden';
-    if (handle) handle.style.background = 'var(--border2)';
-    if (hint) {
-      hint.style.display = 'block';
-      setTimeout(function() { hint.style.opacity = '1'; }, 50);
-    }
+function toggleAiComment() {
+  _aiCommentExpanded = !_aiCommentExpanded;
+  const expand = document.getElementById('ai-comment-expand');
+  const chevron = document.getElementById('ai-comment-chevron');
+  if (expand) expand.style.display = _aiCommentExpanded ? 'block' : 'none';
+  if (chevron) chevron.style.transform = _aiCommentExpanded ? 'rotate(180deg)' : '';
+  if (!_aiCommentExpanded) _startAiTicker();
+  else _stopAiTicker();
+}
+
+function _startAiTicker() {
+  if (!_aiTickerSentences.length) return;
+  _stopAiTicker();
+  _aiTickerTimer = setInterval(function() {
+    _aiTickerIdx = (_aiTickerIdx + 1) % _aiTickerSentences.length;
+    const ticker = document.getElementById('ai-comment-ticker');
+    if (!ticker) return;
+    ticker.style.animation = 'none';
+    void ticker.offsetWidth;
+    ticker.style.animation = 'ai-fade-out 0.4s ease both';
+    setTimeout(function() {
+      ticker.textContent = _aiTickerSentences[_aiTickerIdx];
+      ticker.style.animation = 'ai-fade-in 0.5s ease both';
+    }, 400);
+  }, 3500);
+}
+
+function _stopAiTicker() {
+  if (_aiTickerTimer) { clearInterval(_aiTickerTimer); _aiTickerTimer = null; }
+}
+
+function _setAiTickerText(fullText) {
+  // 문장 분리 (마침표/느낌표/물음표 기준)
+  const sentences = fullText.match(/[^.!?。]+[.!?。]?/g) || [fullText];
+  _aiTickerSentences = sentences.map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 2; });
+  _aiTickerIdx = 0;
+  const ticker = document.getElementById('ai-comment-ticker');
+  const full = document.getElementById('ai-comment-text');
+  if (ticker) {
+    ticker.textContent = _aiTickerSentences[0] || fullText;
+    ticker.style.animation = 'none';
+    void ticker.offsetWidth;
+    ticker.style.animation = 'ai-fade-in 0.5s ease both';
   }
+  if (full) full.textContent = fullText;
+  _startAiTicker();
 }
 
 
@@ -11726,10 +11774,14 @@ async function loadAiComment(force=false, useWebSearch=false) {
 
   if (!force && cached && cached.date === todayKey && cached.text) {
     await typewriterEffect(el, cached.text, 8);
+    _setAiTickerText(cached.text);
     return;
   }
 
   // ── 로딩 스켈레톤
+  const tickerEl = document.getElementById('ai-comment-ticker');
+  if (tickerEl) tickerEl.textContent = '분석 중...';
+  _stopAiTicker();
   el.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px;padding:2px 0">'
     + '<div class="skeleton skeleton-text" style="width:90%"></div>'
     + '<div class="skeleton skeleton-text" style="width:70%"></div>'
@@ -11849,17 +11901,12 @@ async function loadAiComment(force=false, useWebSearch=false) {
 
     store(cacheKey, { date: todayKey, text: text });
     await typewriterEffect(el, text, 8);
-
-    setTimeout(function() {
-      if (el.scrollHeight > el.clientHeight + 4) {
-        const hint = document.getElementById('ai-comment-expand');
-        if (hint) hint.style.display = 'block';
-      }
-    }, 100);
+    _setAiTickerText(text);
 
   } catch(e) {
     console.error('AI 코멘트 오류:', e);
     await typewriterEffect(el, '오늘도 꾸준한 자산 관리 화이팅! 💪', 18);
+    _setAiTickerText('오늘도 꾸준한 자산 관리 화이팅!');
   }
 }
 
