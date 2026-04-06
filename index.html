@@ -2910,16 +2910,22 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
   <!-- 차트 탭 -->
   <div id="stk-content-chart" style="display:none">
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px">
+
+    <!-- 수익률 카드 (종목별 + 전체) -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px">
+      <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:14px">수익률</div>
+      <div id="stk-pct-chart"></div>
+    </div>
+
+    <!-- 비중 카드 -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px">
       <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:12px">포트폴리오 비중</div>
       <div id="stk-donut-wrap">
         <div id="stk-donut-legend"></div>
       </div>
     </div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:16px;margin-bottom:14px">
-      <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:14px">종목별 수익률</div>
-      <div id="stk-pct-chart"></div>
-    </div>
+
+    <!-- AI 분석 -->
     <div class="card" style="margin-bottom:14px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px">AI 포트폴리오 분석</div>
@@ -12084,32 +12090,66 @@ function renderStkPctChart() {
     wrap.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:16px">시세 갱신 후 확인하세요</div>';
     return;
   }
-  const sorted = [...activeStocks].sort(function(a,b) {
-    const pctA = (a.currentPrice - a.avgPrice) / a.avgPrice * 100;
-    const pctB = (b.currentPrice - b.avgPrice) / b.avgPrice * 100;
-    return pctB - pctA;
-  });
-  const maxAbs = Math.max(...sorted.map(function(s) { return Math.abs((s.currentPrice - s.avgPrice) / s.avgPrice * 100); }), 1);
 
-  wrap.innerHTML = sorted.map(function(s) {
-    const pct = (s.currentPrice - s.avgPrice) / s.avgPrice * 100;
-    const isUp = pct >= 0;
-    const barW = Math.round(Math.abs(pct) / maxAbs * 100);
-    const color = isUp ? 'var(--red)' : 'var(--blue)';
-    const pnl = (s.currentPrice - s.avgPrice) * s.qty;
-    const pnlStr = (isUp?'+':'')
-      + (s.market === 'KR' ? Math.round(pnl).toLocaleString() + '원' : '$' + pnl.toFixed(2));
-    return '<div style="margin-bottom:12px">'
-      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">'
-      + '<span style="font-size:13px;font-weight:600">' + s.name + '</span>'
-      + '<div style="text-align:right">'
-      + '<span style="font-size:13px;font-weight:800;color:' + color + '">' + (isUp?'+':'') + pct.toFixed(2) + '%</span>'
-      + '<span style="font-size:10px;color:var(--muted);margin-left:6px">' + pnlStr + '</span>'
-      + '</div></div>'
-      + '<div style="background:rgba(255,255,255,.06);border-radius:5px;height:8px;overflow:hidden">'
-      + '<div style="height:100%;border-radius:5px;width:' + barW + '%;background:' + color + ';transition:width .8s ease"></div>'
-      + '</div></div>';
-  }).join('');
+  // 전체 수익 요약
+  const usdKrw = load('usd-krw-rate', 0);
+  const totalCost = activeStocks.reduce(function(s, st) {
+    const rate = st.market === 'US' && usdKrw ? usdKrw : 1;
+    return s + st.avgPrice * st.qty * rate;
+  }, 0);
+  const totalEval = activeStocks.reduce(function(s, st) {
+    const rate = st.market === 'US' && usdKrw ? usdKrw : 1;
+    return s + st.currentPrice * st.qty * rate;
+  }, 0);
+  const totalPnl = totalEval - totalCost;
+  const totalPct = totalCost > 0 ? totalPnl / totalCost * 100 : 0;
+  const totalIsUp = totalPnl >= 0;
+  const totalColor = totalIsUp ? 'var(--red)' : 'var(--blue)';
+  const totalPnlStr = (totalIsUp ? '+' : '') + Math.round(totalPnl).toLocaleString() + '원';
+
+  // 수익률 정렬
+  const sorted = [...activeStocks].sort(function(a, b) {
+    const pa = (a.currentPrice - a.avgPrice) / a.avgPrice * 100;
+    const pb = (b.currentPrice - b.avgPrice) / b.avgPrice * 100;
+    return pb - pa;
+  });
+  const maxAbs = Math.max(...sorted.map(function(s) {
+    return Math.abs((s.currentPrice - s.avgPrice) / s.avgPrice * 100);
+  }), 1);
+
+  wrap.innerHTML =
+    // 전체 요약 행
+    '<div style="display:flex;justify-content:space-between;align-items:center;padding:0 0 12px;margin-bottom:12px;border-bottom:1px solid var(--border)">'
+    + '<span style="font-size:12px;color:var(--muted)">전체 손익</span>'
+    + '<div style="text-align:right">'
+    + '<span style="font-size:22px;font-weight:900;color:' + totalColor + '">' + (totalIsUp?'+':'') + totalPct.toFixed(2) + '%</span>'
+    + '<div style="font-size:11px;color:var(--muted);margin-top:1px">' + totalPnlStr + '</div>'
+    + '</div>'
+    + '</div>'
+    // 종목별
+    + sorted.map(function(s) {
+      const pct = (s.currentPrice - s.avgPrice) / s.avgPrice * 100;
+      const isUp = pct >= 0;
+      const barW = Math.round(Math.abs(pct) / maxAbs * 50); // 최대 50% 너비 (중앙 기준)
+      const color = isUp ? 'var(--red)' : 'var(--blue)';
+      const pnl = (s.currentPrice - s.avgPrice) * s.qty;
+      const pnlStr = (isUp?'+':'') + (s.market === 'KR' ? Math.round(pnl).toLocaleString()+'원' : '$'+pnl.toFixed(0));
+
+      return '<div style="margin-bottom:14px">'
+        + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px">'
+        + '<span style="font-size:12px;font-weight:600;color:var(--text)">' + s.name + '</span>'
+        + '<div style="display:flex;align-items:baseline;gap:6px">'
+        + '<span style="font-size:11px;color:var(--muted)">' + pnlStr + '</span>'
+        + '<span style="font-size:14px;font-weight:800;color:' + color + '">' + (isUp?'+':'') + pct.toFixed(1) + '%</span>'
+        + '</div>'
+        + '</div>'
+        // 중앙 기준 바
+        + '<div style="position:relative;height:4px;background:var(--surface2);border-radius:2px">'
+        + '<div style="position:absolute;top:0;height:100%;border-radius:2px;background:' + color + ';width:' + barW + '%;' + (isUp ? 'left:50%' : 'right:50%') + '"></div>'
+        + '<div style="position:absolute;top:-2px;left:50%;width:1px;height:8px;background:var(--border2)"></div>'
+        + '</div>'
+        + '</div>';
+    }).join('');
 }
 
 // ── AI 포트폴리오 분석
