@@ -1883,7 +1883,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 </div>
 
 <!-- ══ EDIT MODAL ══ -->
-<div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:200;overflow-y:auto;">
+<div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:500;overflow-y:auto;">
   <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 80px;">
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:18px;">
 
@@ -12519,15 +12519,17 @@ function renderStockList() {
         ? '<span style="font-size:9px;background:' + (s.owner==='minsuk'?'rgba(96,165,250,.15)':'rgba(52,211,153,.15)') + ';color:' + (s.owner==='minsuk'?'var(--minsuk)':'var(--siyun)') + ';padding:1px 5px;border-radius:5px;font-weight:700;margin-left:5px">' + (s.owner==='minsuk'?getP1Name():getP2Name()) + '</span>' : '';
 
 
-      return '<div class="stock-drag-item" data-id="' + s.id + '" data-market="' + s.market + '" draggable="false" style="display:flex;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);gap:12px">'
-        // 드래그 핸들
+      const sid = s.id;
+      return '<div style="position:relative;overflow:hidden;border-bottom:1px solid var(--border)">'
+        + '<div id="stk-edit-' + sid + '" onclick="stkCloseSwipe(\'' + sid + '\');openStockEdit(\'' + sid + '\')" style="position:absolute;right:0;top:0;bottom:0;width:72px;background:var(--blue);display:flex;align-items:center;justify-content:center;cursor:pointer;transform:translateX(100%);transition:transform .25s">'
+        + '<span style="font-size:11px;font-weight:700;color:#fff">편집</span></div>'
+        + '<div id="stk-row-' + sid + '" class="stock-drag-item" data-id="' + sid + '" data-market="' + s.market + '" draggable="false" ontouchstart="stkSwipeStart(event,\'' + sid + '\')" ontouchmove="stkSwipeMove(event,\'' + sid + '\')" ontouchend="stkSwipeEnd(event,\'' + sid + '\')" style="display:flex;align-items:center;padding:14px 0;gap:12px;background:var(--surface);position:relative;transition:transform .25s">'
         + '<div class="stock-drag-handle" style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;cursor:grab;padding:4px 6px;opacity:0.4;touch-action:none">'
         + '<div style="width:14px;height:2px;border-radius:1px;background:var(--muted)"></div>'
         + '<div style="width:14px;height:2px;border-radius:1px;background:var(--muted)"></div>'
         + '<div style="width:14px;height:2px;border-radius:1px;background:var(--muted)"></div>'
         + '</div>'
-        // 왼쪽: 종목명 + 현재가
-        + '<div onclick="openTradeModal(\'' + s.id + '\')" style="flex:1;min-width:0;cursor:pointer">'
+        + '<div onclick="openTradeModal(\'' + sid + '\')" style="flex:1;min-width:0;cursor:pointer">'
         + '<div style="display:flex;align-items:baseline;gap:7px">'
         + '<span style="font-size:14px;font-weight:700">' + s.name + ownerBadge + '</span>'
         + (cp > 0 ? '<span style="font-size:12px;color:var(--muted);font-weight:500">' + fmtPrice(cp) + '</span>' : '')
@@ -12536,16 +12538,11 @@ function renderStockList() {
         + '<span style="font-size:12px;color:var(--muted)">' + s.qty.toLocaleString() + '주</span>'
         + '<span style="font-size:10px;color:var(--muted2)">·</span>'
         + '<span style="font-size:11px;color:var(--muted2)">평단 ' + fmtPrice(s.avgPrice) + '</span>'
-        + '</div>'
-        + '</div>'
-        // 오른쪽: 평가금액 + 손익
-        + '<div onclick="openTradeModal(\'' + s.id + '\')" style="text-align:right;flex-shrink:0;cursor:pointer">'
+        + '</div></div>'
+        + '<div onclick="openTradeModal(\'' + sid + '\')" style="text-align:right;flex-shrink:0;cursor:pointer">'
         + '<div style="font-size:15px;font-weight:800;color:var(--text)">' + evalStr + '</div>'
         + (cp > 0 ? '<div style="font-size:12px;font-weight:600;color:' + pnlColor + ';margin-top:2px">' + pnlStr + '</div>' : '')
-        + '</div>'
-        // 수정 버튼
-        + '<button onclick="openStockEdit(\'' + s.id + '\')" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;padding:5px 8px;cursor:pointer;flex-shrink:0">✏️</button>'
-        + '</div>';
+        + '</div></div></div>';
     }).join('');
 
     return '<div style="margin-bottom:16px">'
@@ -16158,7 +16155,54 @@ document.addEventListener('touchstart', function(e) {
   if (_swipeOpened && !e.target.closest('#row-' + _swipeOpened) && !e.target.closest('#del-' + _swipeOpened)) {
     closeSwipe(_swipeOpened);
   }
+  if (_stkSwipeOpened && !e.target.closest('#stk-row-' + _stkSwipeOpened) && !e.target.closest('#stk-edit-' + _stkSwipeOpened)) {
+    stkCloseSwipe(_stkSwipeOpened);
+  }
 }, { passive: true });
+
+// ── 주식 종목 스와이프 (편집)
+let _stkSwipeStartX = 0;
+let _stkSwipeStartY = 0;
+let _stkSwipeOpened = null;
+
+function stkSwipeStart(e, id) {
+  _stkSwipeStartX = e.touches[0].clientX;
+  _stkSwipeStartY = e.touches[0].clientY;
+}
+function stkSwipeMove(e, id) {
+  const dx = e.touches[0].clientX - _stkSwipeStartX;
+  const dy = Math.abs(e.touches[0].clientY - _stkSwipeStartY);
+  if (dy > Math.abs(dx)) return;
+  const row = document.getElementById('stk-row-' + id);
+  const btn = document.getElementById('stk-edit-' + id);
+  if (!row || !btn) return;
+  if (dx < -5 && dx > -80) {
+    e.preventDefault();
+    row.style.transform = 'translateX(' + dx + 'px)';
+    btn.style.transform = 'translateX(' + (100 + dx / 72 * 100) + '%)';
+  }
+}
+function stkSwipeEnd(e, id) {
+  const dx = e.changedTouches[0].clientX - _stkSwipeStartX;
+  const row = document.getElementById('stk-row-' + id);
+  const btn = document.getElementById('stk-edit-' + id);
+  if (!row || !btn) return;
+  if (dx < -40) {
+    row.style.transform = 'translateX(-72px)';
+    btn.style.transform = 'translateX(0%)';
+    if (_stkSwipeOpened && _stkSwipeOpened !== id) stkCloseSwipe(_stkSwipeOpened);
+    _stkSwipeOpened = id;
+  } else {
+    stkCloseSwipe(id);
+  }
+}
+function stkCloseSwipe(id) {
+  const row = document.getElementById('stk-row-' + id);
+  const btn = document.getElementById('stk-edit-' + id);
+  if (row) row.style.transform = 'translateX(0)';
+  if (btn) btn.style.transform = 'translateX(100%)';
+  if (_stkSwipeOpened === id) _stkSwipeOpened = null;
+}
 // ── 화면 꺼짐 방지 (Wake Lock) ──
 let _wakeLock = null;
 
@@ -16307,12 +16351,14 @@ function lockScroll() {
   document.body.style.overflow = 'hidden';
   document.body.style.position = 'fixed';
   document.body.style.width = '100%';
+  document.body.style.overscrollBehavior = 'none';
   document.documentElement.style.overscrollBehavior = 'none';
 }
 function unlockScroll() {
   document.body.style.overflow = '';
   document.body.style.position = '';
   document.body.style.width = '';
+  document.body.style.overscrollBehavior = '';
   document.documentElement.style.overscrollBehavior = '';
 }
 
