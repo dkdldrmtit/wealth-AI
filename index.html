@@ -1394,7 +1394,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div class="card" onclick="goPage('ledger',document.querySelectorAll('.nav-item')[1]);setTimeout(()=>setLedgerTab('calendar'),300)" style="border-color:rgba(167,139,250,.2);padding:14px 16px;cursor:pointer">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px">주요 일정</div>
-      <button onclick="event.stopPropagation();openScheduleEdit()" style="background:none;border:none;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;padding:0">+ 추가</button>
+      <button onclick="event.stopPropagation();goPage('ledger',document.querySelectorAll('.nav-item')[1]);setTimeout(()=>{setLedgerTab('calendar');openScheduleEdit();},320)" style="background:none;border:none;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;padding:0">+ 추가</button>
     </div>
     <div id="schedule-list" style="font-size:12px"></div>
   </div>
@@ -1740,7 +1740,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
   <div class="card">
     <div class="card-title">빠른 질문</div>
-    <div class="quick-btns">
+    <div class="quick-btns" id="quick-btns">
       <button class="qbtn" onclick="quickAsk('현재 포트폴리오 분석해줘')">포트폴리오 분석</button>
       <button class="qbtn" onclick="quickAsk('부동산 비중이 너무 높지 않아?')">부동산 비중</button>
       <button class="qbtn" onclick="quickAsk('순자산 10억 목표 달성 전략 알려줘')">10억 달성 전략</button>
@@ -1761,6 +1761,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div class="chat-input-row">
       <textarea class="chat-input" id="chat-input" rows="1" placeholder="예: 포트폴리오 어떻게 생각해?" onkeydown="handleKey(event)"></textarea>
       <button class="chat-send" onclick="sendChat()">➤</button>
+    </div>
+    <div style="margin-top:10px;padding:10px 12px;background:var(--surface2);border-radius:10px;font-size:11px;color:var(--muted);line-height:1.6;text-align:center">
+      AI 답변은 참고용 의견이에요. 중요한 금융 결정은 전문가와 함께 검토해 보세요.
     </div>
   </div>
 </div>
@@ -4156,12 +4159,14 @@ function goPage(name, el) {
     setLedgerTab(ledgerTab || 'list');
     renderLedger();
   }
+  if (name === 'ai') { renderQuickButtons(); }
   if (name === 'stocks') initStocks();
   if (name === 'settings') {
     // 설정 진입 시 항상 저장된 값으로 초기화
     homeCardSettings = load('home-card-settings', null) ||
       HOME_CARD_DEFAULTS.map(function(c) { return Object.assign({}, c); });
     renderHomeCardSettingsList();
+    setSettingsTab('data'); // 설정 진입 시 계정 탭 기본 표시
   }
 }
 
@@ -7340,15 +7345,13 @@ function setWidgetTab(tab) {
     const isTodayActive = tab === 'today';
     todayTabEl.style.fontWeight = isTodayActive ? '700' : '400';
     todayTabEl.style.color = isTodayActive ? 'var(--text)' : 'var(--muted)';
-    todayTabEl.style.borderBottom = isTodayActive ? 'none' : '1px dashed var(--muted)';
-    todayTabEl.style.cursor = 'pointer';
+    todayTabEl.style.borderBottom = 'none';
   }
   if (monthTabEl) {
     const isMonthActive = tab === 'month';
     monthTabEl.style.fontWeight = isMonthActive ? '700' : '400';
     monthTabEl.style.color = isMonthActive ? 'var(--text)' : 'var(--muted)';
-    monthTabEl.style.borderBottom = isMonthActive ? 'none' : '1px dashed var(--muted)';
-    monthTabEl.style.cursor = 'pointer';
+    monthTabEl.style.borderBottom = 'none';
   }
   // 탭 전환 시 위젯 숫자 업데이트 (updateHomeWidget 내부의 setWidgetTab 호출과 분리)
   _renderWidgetContent(tab);
@@ -7492,8 +7495,8 @@ function updateHomeWidget() {
   const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
   const dailyBudget = effectiveBudget > 0 ? effectiveBudget / daysInMonth : 0;
 
-  // 탭 상태 반영
-  _renderWidgetContent(widgetTab);
+  // 탭 상태 반영 (스타일 + 금액 동시 적용)
+  setWidgetTab(widgetTab);
 
   if (widgetTab === 'today') {
     // 오늘 탭
@@ -8920,7 +8923,7 @@ async function copyInviteCode() {
 
 
 // ── 설정 탭
-let currentSettingsTab = 'home';
+let currentSettingsTab = 'data';
 
 function setSettingsTab(tab) {
   // 홈 탭 떠날 때 저장 안 했으면 homeCardSettings 원복
@@ -9067,6 +9070,8 @@ function toggleAiComment(el) {
 
 
 document.addEventListener('DOMContentLoaded', function() {
+  fetchAiManual();
+
   // ── 스플래시 스크린 (세션당 1회만)
   const splash = document.getElementById('splash-screen');
   const splashLogo = document.getElementById('splash-logo');
@@ -9339,7 +9344,224 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ── AI Chat ──
-function buildSystemPrompt() {
+
+// ═══════════════════════════════════════════════════════════════
+//  AI 지식 시스템 — 아래 상수들을 수정해 AI 동작을 커스터마이즈
+// ═══════════════════════════════════════════════════════════════
+
+// 섹션명 ↔ 키워드 매핑
+// 자산 이름 매칭 + 질문 텍스트 매칭에 모두 사용
+const MANUAL_SECTION_KEYWORDS = {
+  '청약':     ['청약', '청약통장', '분양', '가점', '예치금', '특별공급', '신혼부부'],
+  'ISA':      ['isa', '개인종합자산', '비과세'],
+  'IRP':      ['irp', '퇴직연금', '디시', 'dc형', 'db형', '세액공제', '퇴직금'],
+  '연금저축': ['연금저축', '연금펀드', '연금계좌'],
+  '부동산':   ['아파트', '부동산', '토지', '오피스텔', '빌라', '주택', '상가',
+               '취득세', '양도세', '종부세', '임대', '전세', '갭투자', '재건축', '분양권', '입주권'],
+  '대출':     ['대출', '담보', '전세자금', '신용대출', '마이너스',
+               'dsr', '주담대', '주택담보', '한도', '금리', '대환', '중도상환', '신용점수'],
+  '주식':     ['주식', '국내주식', '해외주식', 'etf', '펀드',
+               '양도세', '배당', '손익통산', '환노출', '환헤지', '수익률'],
+  '예금':     ['예금', '적금', '파킹', '저축', 'cma', 'mmf',
+               '금리', '이자', '예금자보호', '파킹통장', '금융소득'],
+  '보험':     ['보험', '실손', '종신', '연금보험', '정기보험', '청구'],
+  '연말정산': ['연말정산', '소득공제', '세액공제', '공제', '월세공제', '의료비', '교육비', '기부금'],
+  '사회초년생': ['종잣돈', '사회초년생', '첫 직장', '통장쪼개기', '비상금', '재테크 순서'],
+};
+
+// 상황별 시나리오 가이드 (수치 조건 기반)
+const SITUATION_GUIDES = [
+  { id:'high_realestate', label:'부동산 편중', priority:5,
+    check: d => d.realestatePct > 60,
+    guide:'부동산 비중이 총자산의 '+'{pct}'+'% 정도 되시는군요. 유동성 측면에서 금융자산 비중을 조금씩 늘려보시는 것도 좋은 방법이 될 것 같아요.',
+    question:'부동산 비중 줄이는 방법 알려줘' },
+  { id:'very_high_debt', label:'고위험 부채', priority:5,
+    check: d => d.debtRatio > 60,
+    guide:'부채비율이 '+'{pct}'+'% 정도 되시는데요. 저라면 금리가 높은 부채부터 순차적으로 줄여나가는 방향을 먼저 살펴보실 것 같아요.',
+    question:'부채 줄이는 전략 알려줘' },
+  { id:'high_debt', label:'부채 주의', priority:4,
+    check: d => d.debtRatio > 40 && d.debtRatio <= 60,
+    guide:'부채비율이 '+'{pct}'+'% 정도 되시는군요. DSR 한도를 고려하면 대환대출이나 조기 상환 방향을 한번 살펴보시는 것도 좋을 것 같아요.',
+    question:'대출 관리 전략 알려줘' },
+  { id:'no_isa', label:'ISA 미보유', priority:4,
+    check: d => !d.hasISA,
+    guide:'ISA 계좌가 아직 없으신 것 같아요. 연 2,000만원까지 비과세 혜택이 있는 상품이라 한번 살펴보시면 도움이 될 것 같아요.',
+    question:'ISA 계좌 어떻게 활용해?' },
+  { id:'no_irp', label:'IRP 미보유', priority:4,
+    check: d => !d.hasIRP,
+    guide:'IRP나 연금저축이 아직 없으신 것 같아요. 연말정산에서 최대 148만원 세액공제를 받을 수 있는 상품이라 검토해보시면 좋을 것 같아요.',
+    question:'IRP 세액공제 얼마나 돼?' },
+  { id:'very_low_savings', label:'저축률 위험', priority:4,
+    check: d => d.savingsRate < 10 && d.income > 0,
+    guide:'저축률이 '+'{pct}'+'% 정도 되시는군요. 지출 구조를 한번 살펴보시면 개선할 수 있는 부분을 찾으실 수 있을 것 같아요.',
+    question:'저축률 높이는 방법 알려줘' },
+  { id:'low_savings', label:'저축률 부족', priority:3,
+    check: d => d.savingsRate >= 10 && d.savingsRate < 20 && d.income > 0,
+    guide:'저축률이 '+'{pct}'+'% 정도 되시는데요. 고정비 쪽에서 조금 줄여볼 수 있는 부분이 있는지 함께 살펴보면 좋을 것 같아요.',
+    question:'지출 줄이는 방법 알려줘' },
+  { id:'high_cash', label:'현금 과다', priority:3,
+    check: d => d.cashAmount > 50000000,
+    guide:'현금성 자산이 꽤 있으시네요. 파킹통장이나 단기채권·MMF를 활용하시면 연 2% 이상 이자 수익도 기대해보실 수 있을 것 같아요.',
+    question:'현금을 어디에 굴릴까?' },
+  { id:'high_expense', label:'지출 과다', priority:3,
+    check: d => d.expenseRatio > 80 && d.income > 0,
+    guide:'지출이 수입의 '+'{pct}'+'% 정도 되시는군요. 카테고리별로 한번 살펴보시면 줄여볼 수 있는 부분을 발견하실 수도 있어요.',
+    question:'지출 패턴 분석해줘' },
+  { id:'yearend_prep', label:'연말정산 시즌', priority:4,
+    check: d => [11,12].includes(d.month),
+    guide:'연말이 다가왔네요. IRP 추가납입이나 체크카드 활용, 의료비 몰아쓰기 등 절세 방법을 지금 챙겨보시면 꽤 도움이 될 것 같아요.',
+    question:'연말정산 절세 전략 알려줘' },
+  { id:'yearend_jan', label:'연말정산 제출', priority:3,
+    check: d => d.month === 1,
+    guide:'1월은 연말정산 서류 수집 시기예요. 의료비·교육비·기부금 영수증을 미리 챙겨두시면 놓치는 공제 항목이 줄어들 거예요.',
+    question:'연말정산 서류 뭐가 필요해?' },
+  { id:'stocks_loss', label:'주식 손실', priority:3,
+    check: d => d.avgStockReturn < -20 && d.hasStocks,
+    guide:'주식 수익률이 '+'{pct}'+'% 정도 되시는군요. 손절과 추가매수 중 어느 쪽이 맞는지, 종목 펀더멘털 변화를 기준으로 함께 살펴보면 좋을 것 같아요.',
+    question:'주식 손실 어떻게 대응해?' },
+  { id:'stocks_gain', label:'주식 고수익', priority:2,
+    check: d => d.avgStockReturn > 30 && d.hasStocks,
+    guide:'주식 수익률이 '+'{pct}'+'%로 좋으시네요. 차익실현 시기와 절세 계좌 활용 방법을 함께 살펴보시면 더 효율적으로 관리하실 수 있을 것 같아요.',
+    question:'주식 차익실현 전략 알려줘' },
+  { id:'multi_loan', label:'복수 대출', priority:3,
+    check: d => d.loanCount >= 2,
+    guide:'대출이 '+'{cnt}'+'건 있으시군요. 금리가 높은 것부터 순차적으로 줄여나가는 방향을 한번 고려해보시면 좋을 것 같아요.',
+    question:'여러 대출 어떻게 줄여?' },
+  { id:'goal_far', label:'목표 달성 부진', priority:2,
+    check: d => d.goalProgress < 30 && d.hasGoal,
+    guide:'목표 달성률이 '+'{pct}'+'% 정도 되시는군요. 월 저축액을 조금 늘려보시면 목표에 더 가까워질 수 있을 것 같아요.',
+    question:'목표 달성 전략 세워줘' },
+  { id:'goal_near', label:'목표 달성 임박', priority:2,
+    check: d => d.goalProgress > 80 && d.hasGoal,
+    guide:'목표 달성률이 '+'{pct}'+'%로 거의 다 오셨네요. 지금 속도를 유지하면서 다음 목표도 슬슬 생각해보시면 좋을 것 같아요.',
+    question:'다음 재무 목표 추천해줘' },
+  { id:'low_net', label:'초기 자산 형성', priority:2,
+    check: d => d.netWorth < 100000000 && d.netWorth >= 0,
+    guide:'종잣돈을 차근차근 모으고 계신 단계 같아요. ISA와 IRP를 활용하시면 세제혜택을 챙기면서 자산을 늘려나가실 수 있을 것 같아요.',
+    question:'종잣돈 모으는 전략 알려줘' },
+  { id:'high_net', label:'고액 자산', priority:2,
+    check: d => d.netWorth > 1000000000,
+    guide:'자산 규모가 상당히 커지셨네요. 금융소득종합과세나 상속·증여 관련 절세 전략을 미리 살펴보시면 도움이 될 것 같아요.',
+    question:'고액 자산 절세 전략 알려줘' },
+  { id:'imbalanced', label:'포트폴리오 편중', priority:2,
+    check: d => d.topCategoryPct > 80,
+    guide:'특정 자산 비중이 전체의 '+'{pct}'+'% 정도 되시는군요. 분산을 조금 더 고려해보시면 리스크 관리에 도움이 될 것 같아요.',
+    question:'포트폴리오 리밸런싱 방법은?' },
+  { id:'unbalanced_owners', label:'부부 자산 불균형', priority:1,
+    check: d => d.ownerAssetDiff > 50 && d.hasPartner,
+    guide:'두 분의 자산 비율 차이가 있으시네요. 공동자산 배분과 세금 최적화 측면에서 함께 살펴보시면 좋을 것 같아요.',
+    question:'부부 자산 균형 어떻게 맞춰?' },
+];
+
+// AI 페르소나 가이드
+const PERSONA_GUIDE = `당신은 10년 경력 PB(프라이빗 뱅커) 출신 AI 자산관리 어드바이저입니다.
+오랜 단골 고객과 편하게 이야기 나누듯, 따뜻하고 친근하게 말해주세요.
+
+[말투]
+- "저라면 ~해볼 것 같아요" 처럼 조심스럽게 의견을 나누는 방식으로
+- "~도 괜찮은 방법일 수 있어요", "~쪽이 더 편하실 수도 있고요" 처럼 가볍게 제안
+- 주의사항은 "그런데 한 가지만 살짝 말씀드리면요~" 처럼 부드럽게 운을 떼기
+- 리스크는 "혹시 모르니 참고만 해두셔요" 수준으로, 겁주지 않게
+- 결정은 항상 상대방이. "어떻게 생각하세요?" 로 마무리해도 좋음
+
+[답변 규칙]
+- 사용자가 질문한 내용 하나에만 집중. 묻지 않은 주제는 절대 먼저 꺼내지 말 것
+- 이전 대화 흐름을 기억하고 맥락에 맞게 이어서 답변할 것
+- 장점 먼저, 주의사항은 "다만~" 으로 자연스럽게
+- 금액 제안은 보수적으로. 작은 금액부터 제안
+- 3~5문장 이내로 간결하게
+- 번호 목록은 1. 2. 3. 형식만. 이모지 최대 1개
+
+[절대 금지]
+- "즉시", "당장", "반드시 ~하세요", "~하셔야 합니다" (압박·지시형)
+- 자산이나 선택을 비판하거나 문제점으로 지적하는 뉘앙스
+- 마크다운 (**, ##, \`, * 등)
+- "다양한", "여러가지", "전문가와 상담하세요"`;
+
+// ai-manual.md 파싱 결과 캐시
+window._aiManualSections = {};
+
+// ai-manual.md 로드 함수
+async function fetchAiManual() {
+  try {
+    const res = await fetch('ai-manual.md');
+    if (!res.ok) return;
+    const text = await res.text();
+    window._aiManualSections = parseManualSections(text);
+  } catch(e) {
+    // 파일 없으면 조용히 실패 (AI는 기본 지식으로만 동작)
+  }
+}
+
+// 섹션 파싱: "## 섹션명\n내용..." → { '섹션명': '내용...' }
+function parseManualSections(text) {
+  const sections = {};
+  const parts = text.split(/^## /m);
+  for (const part of parts) {
+    if (!part.trim()) continue;
+    const newlineIdx = part.indexOf('\n');
+    if (newlineIdx === -1) continue;
+    const title = part.slice(0, newlineIdx).trim();
+    const content = part.slice(newlineIdx + 1).trim();
+    if (title && content) sections[title] = content;
+  }
+  return sections;
+}
+
+// 자산명 + 질문 텍스트 기반으로 관련 매뉴얼 섹션 추출
+// assetNames: 보유 자산 이름 배열 (시스템 프롬프트 빌드 시)
+// questionText: 사용자 질문 텍스트 (sendChat 시 전달, 없으면 '')
+function getRelevantManualSections(assetNames, debtRatio, month, netWorth, questionText) {
+  const sections = window._aiManualSections;
+  if (!sections || Object.keys(sections).length === 0) return '';
+
+  // 자산 이름 + 질문 텍스트 합쳐서 스캔
+  const assetStr = (assetNames || []).join(' ').toLowerCase();
+  const questionStr = (questionText || '').toLowerCase();
+  const scanStr = assetStr + ' ' + questionStr;
+
+  const matched = [];
+
+  for (const [sectionName, keywords] of Object.entries(MANUAL_SECTION_KEYWORDS)) {
+    if (!sections[sectionName]) continue;
+    // 키워드 없으면 조건부 자동 포함
+    if (keywords.length === 0) {
+      if (sectionName === '연말정산' && [11,12,1].includes(month)) {
+        matched.push(sectionName);
+      } else if (sectionName === '사회초년생' && netWorth < 50000000) {
+        matched.push(sectionName);
+      }
+      continue;
+    }
+    if (keywords.some(k => scanStr.includes(k.toLowerCase()))) {
+      matched.push(sectionName);
+    }
+  }
+
+  // 부채비율 40% 초과 시 대출 섹션 자동 추가
+  if (debtRatio > 40 && sections['대출'] && !matched.includes('대출')) {
+    matched.push('대출');
+  }
+
+  // 질문 기반 매칭은 우선순위 앞에, 자산 기반은 뒤에 — 최대 3개
+  // (질문과 직접 관련된 섹션이 먼저 들어가도록)
+  const questionMatched = [];
+  const assetMatched = [];
+  for (const s of matched) {
+    const keywords = MANUAL_SECTION_KEYWORDS[s];
+    if (keywords && keywords.some(k => questionStr.includes(k.toLowerCase()))) {
+      questionMatched.push(s);
+    } else {
+      assetMatched.push(s);
+    }
+  }
+  const ordered = [...new Set([...questionMatched, ...assetMatched])].slice(0, 3);
+  if (ordered.length === 0) return '';
+
+  return ordered.map(s => `[${s}]\n${sections[s]}`).join('\n\n');
+}
+
+function buildSystemPrompt(questionText) {
   const latest = assetHistory.length > 0 ? assetHistory[assetHistory.length-1] : null;
   const prev = assetHistory.length > 1 ? assetHistory[assetHistory.length-2] : null;
   const now = new Date();
@@ -9477,60 +9699,94 @@ function buildSystemPrompt() {
   const hasLowSaving = saveRate < 20 && income > 0;
   const hasHighExpense = expense > income * 0.8 && income > 0;
 
-  // ── 맞춤형 컨텍스트 생성
-  let customContext = '\n=== 맞춤 분석 포인트 ===\n';
+  // ── 자산 현황 참고 메모 (AI 내부 참고용, 어투에 직접 반영 금지)
+  let customContext = '';
 
   if (hasHighRealEstate) {
-    customContext += '⚠️ 부동산 편중 주의: 총자산의 ' + realEstatePct + '%가 부동산. 유동성 리스크 존재.\n';
+    customContext += '부동산 비중 ' + realEstatePct + '%. 유동성 관련 언급 고려.\n';
   }
   if (hasHighDebt) {
-    customContext += '⚠️ 부채비율 높음: ' + debtRatio + '%. DSR/LTV 관리 필요.\n';
+    customContext += '부채비율 ' + debtRatio + '%. 대출 관련 언급 고려.\n';
   }
   if (!hasISA) {
-    customContext += '💡 ISA 계좌 미보유: 연 200만원 비과세 혜택 미활용 중.\n';
+    customContext += 'ISA 미보유. 절세 혜택 자연스럽게 소개 가능.\n';
   }
   if (!hasIRP) {
-    customContext += '💡 IRP 미보유 또는 미활용: 연 700만원 세액공제 가능.\n';
+    customContext += 'IRP 미활용. 세액공제 혜택 자연스럽게 소개 가능.\n';
   }
   if (hasLowSaving) {
-    customContext += '⚠️ 저축률 ' + saveRate + '%: 권장 저축률(30%) 대비 낮음.\n';
+    customContext += '저축률 ' + saveRate + '%. 지출 관련 조언 고려.\n';
   }
   if (hasCash && cashAmt > 5000) {
-    customContext += '💡 현금성 자산 ' + (cashAmt/10000).toFixed(1) + '억 보유: 고금리 예금/파킹통장 활용 검토.\n';
+    customContext += '현금성 자산 ' + (cashAmt/10000).toFixed(1) + '억. 운용 방법 소개 가능.\n';
   }
   if (hasStocks) {
-    customContext += '📈 주식 보유: ' + stocks.map(function(s) { return s.name; }).join(', ') + '\n';
+    customContext += '주식 보유: ' + stocks.map(function(s) { return s.name; }).join(', ') + '\n';
   }
   if (hasRealEstate) {
-    customContext += '🏢 부동산 보유: 실거래가 동향 및 보유세 검토 필요.\n';
+    customContext += '부동산 보유 중.\n';
   }
   if (isYearEndSeason) {
-    customContext += '📋 연말정산 시즌: IRP/연금저축 추가납입, 신용카드 사용액 점검 필요.\n';
+    customContext += '연말정산 시즌. 절세 관련 언급 고려.\n';
   }
   if (hasHighExpense) {
-    customContext += '⚠️ 지출 과다: 수입의 ' + Math.round(expense/income*100) + '% 지출 중. 절약 필요.\n';
+    customContext += '지출이 수입의 ' + Math.round(expense/income*100) + '%. 지출 관련 조언 고려.\n';
   }
 
-  return `당신은 10년 경력의 시중은행 PB(프라이빗 뱅커) 출신 AI 자산관리 어드바이저입니다.
-실제 PB센터에서 고객을 상담하듯 전문적이고 실질적인 조언을 해주세요.
+  // 매뉴얼 팁 추출
+  const assetItemNames = latest ? latest.items.map(i => i.name) : [];
+  const manualTips = getRelevantManualSections(
+    assetItemNames,
+    debtRatio,
+    new Date().getMonth() + 1,
+    totalNet,
+    questionText || ''  // 질문 텍스트 전달 → 섹션 동적 매칭
+  );
 
-[페르소나]
-- 10년 경력 시중은행 PB 출신
-- 부동산, 금융상품, 세금, 대출 전문 지식 보유
-- 고객 자산 데이터를 보면 즉시 문제점과 기회를 파악
-- 단순 나열이 아닌 "지금 당장 해야 할 것"을 알려주는 스타일
-- 친근하지만 전문적인 말투
+  // 상황 가이드 계산용 data 객체
+  const situationData = {
+    realestatePct: totalAsset > 0 ? Math.round((realEstateAmt/totalAsset)*100) : 0,
+    debtRatio: totalAsset > 0 ? Math.round((totalDebt/totalAsset)*100) : 0,
+    savingsRate: income > 0 ? Math.round(((income-expense)/income)*100) : 0,
+    expenseRatio: income > 0 ? Math.round((expense/income)*100) : 0,
+    cashAmount: cashAmt || 0,
+    hasISA: hasISA,
+    hasIRP: hasIRP,
+    hasStocks: stocks && stocks.length > 0,
+    avgStockReturn: stocks && stocks.length > 0 ? stocks.reduce((s,st) => s + (st.returnPct||0), 0) / stocks.length : 0,
+    loanCount: latest ? latest.items.filter(i => ['mortgage','jeonse-loan','credit-loan','other-debt'].includes(i.category)).length : 0,
+    hasGoal: goals.length > 0,
+    goalProgress: goals.length > 0 ? Math.round(goals.reduce((s,g) => s + (getGoalCurrent(g)/g.target*100), 0) / goals.length) : 0,
+    netWorth: totalNet || 0,
+    topCategoryPct: 0,
+    ownerAssetDiff: 0,
+    hasPartner: true,
+    month: new Date().getMonth() + 1,
+    income: income || 0,
+  };
 
-[반드시 지켜야 할 답변 규칙]
-1. 마크다운 절대 금지 (**, ##, *, \` 등)
-2. 번호 목록은 1. 2. 3. 형식만 사용
-3. 답변은 3~5문장으로 핵심만
-4. 항상 구체적인 수치와 함께 조언
-5. "~하면 어떨까요?" 보다 "~하세요" 직접적 조언
-6. 세금/절세 관련 내용은 적극적으로 언급
-7. 자산 구성에 따라 맞춤형 조언 (부동산 많으면 부동산 관련, 주식 많으면 주식 관련)
+  // topCategoryPct 계산
+  if (totalAsset > 0 && latest) {
+    const catTotals = {};
+    for (const item of latest.items) {
+      catTotals[item.category] = (catTotals[item.category] || 0) + (item.amount || 0);
+    }
+    const maxCat = Math.max(...Object.values(catTotals));
+    situationData.topCategoryPct = Math.round((maxCat / totalAsset) * 100);
+  }
 
-[자산 현황]
+  // 트리거된 상황 가이드 (priority 순 최대 1개 — 여러 개 주입 시 AI가 여러 문제 동시 지적)
+  const triggeredSituations = SITUATION_GUIDES
+    .filter(s => { try { return s.check(situationData); } catch(e) { return false; } })
+    .sort((a,b) => b.priority - a.priority)
+    .slice(0, 1)
+    .map(s => `${s.guide}`)
+    .join('\n');
+  const situationGuides = triggeredSituations || '특별한 주의 상황 없음';
+
+  return `${PERSONA_GUIDE}
+
+[현재 자산 현황]
 ${assetStr}
 
 [이달 가계부]
@@ -9544,16 +9800,15 @@ ${upcomingStr}
 
 [주식 포트폴리오]
 ${stockStr}
-${customContext}
 
-[조언 우선순위 가이드]
-- 부채비율 40% 초과 시 → 대출 금리/상환 전략 우선
-- 부동산 60% 초과 시 → 유동성 확보 및 리밸런싱 조언
-- ISA/IRP 미보유 시 → 절세 계좌 개설 적극 권유
-- 현금 5000만원 초과 시 → 파킹통장/예금 금리 비교 안내
-- 저축률 20% 미만 시 → 지출 구조 개선 조언
-- 주식 보유 시 → 보유 종목 관련 시황/리스크 언급
-- 연말(11~1월) → 연말정산 절세 전략 우선 안내`;
+[내부 힌트 — 절대 직접 언급 금지. 사용자가 관련 질문을 했을 때만 자연스럽게 활용]
+${customContext.trim()}
+
+[참고 지식 — 관련 질문 시에만 활용]
+${manualTips || '없음'}
+
+[오늘 우선 주제 — 사용자가 먼저 물어볼 때만 활용. 먼저 꺼내지 말 것]
+${situationGuides}`;
 }
 
 let chatHistory = [];
@@ -9611,7 +9866,7 @@ async function sendChat() {
   if (sendBtn) { sendBtn.disabled = true; sendBtn.style.opacity = '0.5'; }
   input.value = '';
   addMsg('user', text);
-  const currentSystem = buildSystemPrompt(); // 매번 최신 데이터로 갱신
+  const currentSystem = buildSystemPrompt(text); // 질문 텍스트 전달 → 매뉴얼 동적 매칭
   chatHistory.push({ role: 'user', content: text });
   addTyping();
   try {
@@ -9645,6 +9900,81 @@ async function sendChat() {
 
 function quickAsk(q) { document.getElementById('chat-input').value = q; sendChat(); }
 function handleKey(e) { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } }
+
+function renderQuickButtons() {
+  const container = document.getElementById('quick-btns');
+  if (!container) return;
+
+  const assetHistory2 = load('asset-history', []);
+  const latest2 = assetHistory2.length > 0 ? assetHistory2[assetHistory2.length-1] : null;
+  const stocks2 = load('stocks', []);
+  const goals2 = load('goals', []);
+
+  // 현재 상황 데이터 계산
+  const total2 = latest2 ? latest2.total || 0 : 0;
+  const debt2 = latest2 ? latest2.debt || 0 : 0;
+  const net2 = latest2 ? latest2.net || 0 : 0;
+  const realEstate2 = latest2 ? (latest2.items||[]).filter(i=>i.category==='realestate').reduce((s,i)=>s+(i.amount||0),0) : 0;
+  const nameStr2 = latest2 ? (latest2.items||[]).map(i=>i.name).join(' ').toLowerCase() : '';
+
+  const txs2 = load('ledger-txs', []);
+  const now2 = new Date();
+  const thisMonth2 = `${now2.getFullYear()}-${String(now2.getMonth()+1).padStart(2,'0')}`;
+  const monthTxs2 = txs2.filter(t => (t.date||'').startsWith(thisMonth2));
+  const income2 = monthTxs2.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0);
+  const expense2 = Math.abs(monthTxs2.filter(t=>t.amount<0).reduce((s,t)=>s+t.amount,0));
+
+  const situationData2 = {
+    realestatePct: total2 > 0 ? Math.round((realEstate2/total2)*100) : 0,
+    debtRatio: total2 > 0 ? Math.round((debt2/total2)*100) : 0,
+    savingsRate: income2 > 0 ? Math.round(((income2-expense2)/income2)*100) : 0,
+    expenseRatio: income2 > 0 ? Math.round((expense2/income2)*100) : 0,
+    cashAmount: latest2 ? (latest2.items||[]).filter(i=>['saving','deposit'].includes(i.category)).reduce((s,i)=>s+(i.amount||0),0) : 0,
+    hasISA: nameStr2.includes('isa'),
+    hasIRP: nameStr2.includes('irp') || nameStr2.includes('연금저축') || nameStr2.includes('퇴직'),
+    hasStocks: stocks2.length > 0,
+    avgStockReturn: stocks2.length > 0 ? stocks2.reduce((s,st)=>s+(st.returnPct||0),0)/stocks2.length : 0,
+    loanCount: latest2 ? (latest2.items||[]).filter(i=>['mortgage','jeonse-loan','credit-loan','other-debt'].includes(i.category)).length : 0,
+    hasGoal: goals2.length > 0,
+    goalProgress: goals2.length > 0 ? Math.round(goals2.reduce((s,g)=>s+(getGoalCurrent(g)/g.target*100),0)/goals2.length) : 0,
+    netWorth: net2,
+    topCategoryPct: 0,
+    ownerAssetDiff: 0,
+    hasPartner: true,
+    month: now2.getMonth()+1,
+    income: income2,
+  };
+
+  // 상황 기반 버튼 (최대 4개)
+  const triggered2 = SITUATION_GUIDES
+    .filter(s => { try { return s.check(situationData2); } catch(e) { return false; } })
+    .sort((a,b) => b.priority - a.priority)
+    .slice(0, 4);
+
+  // 기본 버튼 풀
+  const defaults2 = [
+    { question:'현재 포트폴리오 분석해줘', label:'포트폴리오 분석' },
+    { question:'지금 포트폴리오에서 리스크는 뭐야?', label:'리스크 점검' },
+    { question:'순자산 늘리는 전략 알려줘', label:'순자산 전략' },
+    { question:'절세할 수 있는 방법 알려줘', label:'절세 방법' },
+    { question:'IRP 더 넣는 게 좋을까?', label:'IRP 전략' },
+    { question:'우리 부부 자산 균형은 어때?', label:'부부 자산 균형' },
+  ];
+
+  // triggered 버튼 + 기본 버튼으로 총 6개 채우기
+  const buttons2 = [];
+  for (const s of triggered2) buttons2.push({ question: s.question, label: s.label });
+  for (const d of defaults2) {
+    if (buttons2.length >= 6) break;
+    if (!buttons2.find(b => b.question === d.question)) buttons2.push(d);
+  }
+
+  container.innerHTML = buttons2.slice(0, 6).map(b =>
+    `<button class="qbtn" onclick="quickAsk('${b.question.replace(/'/g,"\\'")}')">
+      ${b.label}
+    </button>`
+  ).join('');
+}
 
 // ── 실거래가 API ──
 function saveProxyUrl() {
@@ -11423,22 +11753,21 @@ async function loadAiComment(force=false, useWebSearch=false) {
     }
 
     prompt = '오늘(' + todayStr + ') 기준 ' + searchTopic + '을 웹검색으로 찾아서 ' + searchGuide;
-    systemPrompt = '10년 경력 PB 출신 자산관리 AI. 웹검색 결과를 바탕으로 실제 수치 포함해서 답변. '
-      + '마크다운 절대 금지. 이모지 1개만 맨 앞. 명사형 어미 사용. 2~3줄로 간결하게.';
+    systemPrompt = PERSONA_GUIDE + '\n\n웹검색 결과를 바탕으로 실제 수치 포함해서 답변. 이모지 1개만 맨 앞. 명사형 어미 사용. 2~3줄로 간결하게.';
     tools = [{ type: 'web_search_20250305', name: 'web_search' }];
 
   } else {
     // 📊 자산분석 모드 - 주제 로테이션
     const ALL_TOPICS = [];
-    if (!hasISAComment) ALL_TOPICS.push({ key:'isa', guide:'ISA 계좌 미보유. 연 200만원 비과세 혜택과 개설 방법 설명.' });
-    if (!hasIRPComment) ALL_TOPICS.push({ key:'irp', guide:'IRP 미활용. 연 700만원 세액공제 가능. 납입 전략 설명.' });
-    if (debtRatioComment > 40) ALL_TOPICS.push({ key:'debt', guide:'부채비율 ' + debtRatioComment + '%. 대출 상환 전략과 금리 관리 조언.' });
-    if (isYearEnd) ALL_TOPICS.push({ key:'yearend', guide:'연말정산 시즌. IRP/연금저축 추가납입 마감임박. 절세 액션 제시.' });
-    if (hasStocksComment) ALL_TOPICS.push({ key:'stocks', guide:'주식 보유(' + stocks.map(function(s){return s.name;}).join(',') + '). 포트폴리오 리스크와 비중 점검.' });
-    if (hasRealEstateComment) ALL_TOPICS.push({ key:'realestate', guide:'부동산 보유. 보유세와 실거래가 동향 언급.' });
-    ALL_TOPICS.push({ key:'saving', guide:'저축률 ' + saveRate + '%. 월 지출 구조 개선 방법.' });
-    ALL_TOPICS.push({ key:'portfolio', guide:'전체 자산 배분 비율 점검. 리밸런싱 필요 여부.' });
-    ALL_TOPICS.push({ key:'goal', guide:'목표 달성률 기반 월 필요 저축액 역산.' });
+    if (!hasISAComment) ALL_TOPICS.push({ key:'isa', guide:'ISA 절세 혜택 소개. 연 2,000만원 비과세 상품이라 관심 가져보실 만해요.' });
+    if (!hasIRPComment) ALL_TOPICS.push({ key:'irp', guide:'IRP 세액공제 혜택 소개. 연말정산에서 최대 148만원 공제 가능해요.' });
+    if (debtRatioComment > 40) ALL_TOPICS.push({ key:'debt', guide:'대출 부담 관련 조언. 금리 낮은 방향으로 자연스럽게 안내.' });
+    if (isYearEnd) ALL_TOPICS.push({ key:'yearend', guide:'연말정산 준비 팁. 지금 챙겨두면 도움이 되는 절세 방법 안내.' });
+    if (hasStocksComment) ALL_TOPICS.push({ key:'stocks', guide:'주식 포트폴리오 관련 조언. 긍정적인 관점에서 관리 방향 제안.' });
+    if (hasRealEstateComment) ALL_TOPICS.push({ key:'realestate', guide:'부동산 관련 꿀팁. 보유세나 시장 동향을 자연스럽게 언급.' });
+    ALL_TOPICS.push({ key:'saving', guide:'저축 습관 관련 조언. 실현 가능한 작은 개선점 제안.' });
+    ALL_TOPICS.push({ key:'portfolio', guide:'전체 자산 구성 관련 조언. 긍정적인 면 먼저 언급 후 부드럽게 제안.' });
+    ALL_TOPICS.push({ key:'goal', guide:'목표 달성 관련 응원과 조언. 현재 속도를 격려하며 방향 제안.' });
 
     // 주제 로테이션
     const usedTopicsKey = 'ai-comment-used-topics';
@@ -11458,15 +11787,68 @@ async function loadAiComment(force=false, useWebSearch=false) {
     usedTopics.topics.push(selectedTopic.key);
     store(usedTopicsKey, usedTopics);
 
-    prompt = 'PB 상담 데이터:\n'
+    prompt = '고객 자산 현황:\n'
       + '순자산 ' + netVal + (changeVal ? ' (전월대비 ' + changeVal + ')' : '') + '\n'
       + '이달 지출 ' + Math.round(monthExpense).toLocaleString() + '만원 / 저축률 ' + saveRate + '%\n'
-      + '오늘 집중 포인트: ' + selectedTopic.guide + '\n\n'
-      + '위 포인트 하나에만 집중해서 PB 조언 2줄로. 구체적 수치와 지금 당장 할 수 있는 액션 포함.';
+      + '오늘 주제: ' + selectedTopic.guide + '\n\n'
+      + '위 주제 하나에만 집중해서 친근한 은행원 톤으로 2줄 코멘트. 부드럽게 제안하는 형태로.';
 
-    systemPrompt = '10년 경력 시중은행 PB 출신 AI. 매번 다른 관점으로 조언하는 스타일. '
-      + '단순 나열 금지. 하나의 주제를 깊게. 명사형 어미(~필요. ~권장. ~검토.). '
-      + '마크다운 금지. 이모지 1개만 맨 앞. 친근하지만 전문적으로.';
+    // 상황 기반 토픽 선택
+    const aiHistory = load('asset-history', []);
+    const aiLatest = aiHistory.length > 0 ? aiHistory[aiHistory.length-1] : null;
+    const aiStocks = load('stocks', []);
+    const aiGoals = load('goals', []);
+    const aiTxs = load('ledger-txs', []);
+    const aiNow = new Date();
+    const aiThisMonth = `${aiNow.getFullYear()}-${String(aiNow.getMonth()+1).padStart(2,'0')}`;
+    const aiMonthTxs = aiTxs.filter(t => (t.date||'').startsWith(aiThisMonth));
+    const aiIncome = aiMonthTxs.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0);
+    const aiExpense = Math.abs(aiMonthTxs.filter(t=>t.amount<0).reduce((s,t)=>s+t.amount,0));
+    const aiTotal = aiLatest ? (aiLatest.total||0) : 0;
+    const aiDebt = aiLatest ? (aiLatest.debt||0) : 0;
+    const aiNet = aiLatest ? (aiLatest.net||0) : 0;
+    const aiRE = aiLatest ? (aiLatest.items||[]).filter(i=>i.category==='realestate').reduce((s,i)=>s+(i.amount||0),0) : 0;
+    const aiNameStr = aiLatest ? (aiLatest.items||[]).map(i=>i.name).join(' ').toLowerCase() : '';
+
+    const aiSituationData = {
+      realestatePct: aiTotal > 0 ? Math.round((aiRE/aiTotal)*100) : 0,
+      debtRatio: aiTotal > 0 ? Math.round((aiDebt/aiTotal)*100) : 0,
+      savingsRate: aiIncome > 0 ? Math.round(((aiIncome-aiExpense)/aiIncome)*100) : 0,
+      expenseRatio: aiIncome > 0 ? Math.round((aiExpense/aiIncome)*100) : 0,
+      cashAmount: aiLatest ? (aiLatest.items||[]).filter(i=>['saving','deposit'].includes(i.category)).reduce((s,i)=>s+(i.amount||0),0) : 0,
+      hasISA: aiNameStr.includes('isa'),
+      hasIRP: aiNameStr.includes('irp') || aiNameStr.includes('연금저축') || aiNameStr.includes('퇴직'),
+      hasStocks: aiStocks.length > 0,
+      avgStockReturn: aiStocks.length > 0 ? aiStocks.reduce((s,st)=>s+(st.returnPct||0),0)/aiStocks.length : 0,
+      loanCount: aiLatest ? (aiLatest.items||[]).filter(i=>['mortgage','jeonse-loan','credit-loan','other-debt'].includes(i.category)).length : 0,
+      hasGoal: aiGoals.length > 0,
+      goalProgress: aiGoals.length > 0 ? Math.round(aiGoals.reduce((s,g)=>s+(getGoalCurrent(g)/g.target*100),0)/aiGoals.length) : 0,
+      netWorth: aiNet,
+      topCategoryPct: 0,
+      hasPartner: true,
+      month: aiNow.getMonth()+1,
+      income: aiIncome,
+    };
+
+    const topSituation = SITUATION_GUIDES
+      .filter(s => { try { return s.check(aiSituationData); } catch(e) { return false; } })
+      .sort((a,b) => b.priority - a.priority)[0];
+
+    const commentManualTips = getRelevantManualSections(
+      aiLatest ? (aiLatest.items||[]).map(i=>i.name) : [],
+      aiSituationData.debtRatio,
+      aiNow.getMonth()+1,
+      aiNet
+    );
+
+    const situationContext = topSituation
+      ? `\n오늘 집중 주제: [${topSituation.label}] — ${topSituation.guide}`
+      : '';
+    const manualContext = commentManualTips ? `\n참고 지식:\n${commentManualTips}` : '';
+
+    systemPrompt = PERSONA_GUIDE + '\n\n' +
+      '매일 하나의 주제로 부드럽게 꿀팁 제공. 단순 나열 금지. 이모지 1개만 맨 앞. 2~3줄로 간결하게. 친근한 말투 유지.' +
+      situationContext + manualContext;
     tools = undefined;
   }
 
