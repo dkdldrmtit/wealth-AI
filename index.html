@@ -2844,12 +2844,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <h1>내 주식<br>현황</h1>
   </div>
 
-  <!-- 소유자 탭 -->
-  <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:16px;gap:2px">
-    <button id="stk-owner-all" onclick="setStkOwner('all')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.10);color:#3b82f6;border:0.5px solid rgba(59,130,246,0.25);transition:all .2s">통합</button>
-    <button id="stk-owner-minsuk" onclick="setStkOwner('minsuk')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">나</button>
-    <button id="stk-owner-siyun" onclick="setStkOwner('siyun')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">배우자</button>
-  </div>
+
 
   <!-- 총 평가금액 (토스 스타일) -->
   <div style="margin-bottom:16px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:16px">
@@ -2882,6 +2877,11 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div id="stk-list-label" style="font-size:12px;color:var(--muted);font-weight:600"></div>
       <div style="display:flex;gap:6px;align-items:center">
         <div id="stock-update-time" style="font-size:10px;color:var(--muted)"></div>
+        <button id="stk-owner-toggle" onclick="cycleStkOwner()"
+          style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;
+          color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer;min-width:44px">
+          통합
+        </button>
         <button onclick="fetchAllPrices()" id="stock-refresh-btn"
           style="background:rgba(74,158,255,.15);border:1px solid rgba(74,158,255,.3);border-radius:8px;
           color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer">
@@ -11852,24 +11852,26 @@ let currentStkOwner = 'all';
 
 function setStkOwner(owner) {
   currentStkOwner = owner;
-  const configs = {
-    'all':    { bg: 'rgba(59,130,246,0.10)', color: '#3b82f6' },
-    'minsuk': { bg: 'rgba(59,130,246,0.10)', color: '#3b82f6' },
-    'siyun':  { bg: 'rgba(34,197,94,0.10)',  color: '#22c55e' }
-  };
-  ['all','minsuk','siyun'].forEach(function(o) {
-    const btn = document.getElementById('stk-owner-' + o);
-    if (!btn) return;
-    const isActive = o === owner;
-    btn.style.background = isActive ? configs[o].bg : 'transparent';
-    btn.style.color = isActive ? configs[o].color : 'var(--muted2)';
-  });
+  // 토글 버튼 텍스트 업데이트
+  const toggleBtn = document.getElementById('stk-owner-toggle');
+  if (toggleBtn) {
+    const labels = { all: '통합', minsuk: getP1Name(), siyun: getP2Name() };
+    toggleBtn.textContent = labels[owner] || '통합';
+  }
   const label = document.getElementById('stk-list-label');
   if (label) label.textContent = owner === 'all' ? '전체 종목' : owner === 'minsuk' ? getP1Name() + ' 종목' : getP2Name() + ' 종목';
   renderStockList();
   updateStockSummary();
   if (currentStkTab === 'chart') renderStockCharts();
   if (currentStkTab === 'history') renderStockHistory();
+}
+
+// 통합 → 나 → 배우자 순으로 순환
+function cycleStkOwner() {
+  const order = ['all', 'minsuk', 'siyun'];
+  const idx = order.indexOf(currentStkOwner);
+  const next = order[(idx + 1) % order.length];
+  setStkOwner(next);
 }
 
 function getFilteredStocks() {
