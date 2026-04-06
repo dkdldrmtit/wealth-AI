@@ -1650,6 +1650,28 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   +
 </button>
 
+<!-- FAB 자산추가 버튼 (자산 탭 전용) -->
+<button id="input-fab-add" onclick="openModal(null)"
+  style="display:none;position:fixed;bottom:90px;right:20px;width:58px;height:58px;border-radius:29px;
+  background:#1a1a1a;border:1px solid var(--border2);color:#fff;font-size:22px;cursor:pointer;z-index:50;
+  align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,0.4);
+  transition:transform .15s"
+  ontouchstart="this.style.transform='scale(0.88)'"
+  ontouchend="this.style.transform='scale(1)'">
+  +
+</button>
+
+<!-- FAB 종목추가 버튼 (주식 탭 전용) -->
+<button id="stocks-fab-add" onclick="openStockAdd()"
+  style="display:none;position:fixed;bottom:90px;right:20px;width:58px;height:58px;border-radius:29px;
+  background:#1a1a1a;border:1px solid var(--border2);color:#fff;font-size:22px;cursor:pointer;z-index:50;
+  align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,0.4);
+  transition:transform .15s"
+  ontouchstart="this.style.transform='scale(0.88)'"
+  ontouchend="this.style.transform='scale(1)'">
+  +
+</button>
+
 <!-- FAB 음성 입력 버튼 (홈 전용, page 밖 고정) -->
 <button id="home-fab-mic" onclick="openHomeMic()"
 
@@ -1789,7 +1811,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     </div>
   </div>
 
-  <button onclick="openModal(null)" style="width:100%;margin-bottom:16px;height:46px;border-radius:12px;background:#1e1e1e;border:0.5px solid rgba(59,130,246,0.25);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">+ 이번달 새로 기록</button>
+
 
 
   <!-- 월별 / 자산별 토글 -->
@@ -2876,12 +2898,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
     </div>
     <div id="stock-list"></div>
-    <button onclick="openStockAdd()"
-      style="width:100%;margin-top:8px;padding:12px;background:var(--surface);border:1px dashed var(--border2);
-      border-radius:12px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:13px;
-      font-weight:500;cursor:pointer">
-      + 종목 추가
-    </button>
+
     <div id="stock-proxy-notice" style="margin-top:12px;padding:12px 14px;background:rgba(240,192,64,.08);border:1px solid rgba(240,192,64,.2);border-radius:12px;font-size:12px;color:var(--muted2);line-height:1.7;display:none">
       ⚙️ 실시간 시세를 보려면 설정에서 <strong style="color:var(--text)">Cloudflare 주소</strong>를 입력해주세요.
     </div>
@@ -4111,6 +4128,14 @@ function goPage(name, el) {
   // 가계부 FAB - 가계부 내역 탭에서만 표시
   const ledgerFab = document.getElementById('ledger-fab-add');
   if (ledgerFab) ledgerFab.style.display = (name === 'ledger') ? 'flex' : 'none';
+
+  // 자산 FAB - 자산 탭에서만 표시
+  const inputFab = document.getElementById('input-fab-add');
+  if (inputFab) inputFab.style.display = name === 'input' ? 'flex' : 'none';
+
+  // 주식 FAB - 주식 종목 탭에서만 표시
+  const stocksFab = document.getElementById('stocks-fab-add');
+  if (stocksFab) stocksFab.style.display = name === 'stocks' ? 'flex' : 'none';
 
   if (name === 'ledger') {
     setLedgerTab(ledgerTab || 'list');
@@ -11962,6 +11987,9 @@ function applyStocksToAsset() {
 let currentStkTab = 'list';
 function setStkTab(tab) {
   currentStkTab = tab;
+  // 주식 FAB - 종목 탭에서만 표시
+  const stocksFab = document.getElementById('stocks-fab-add');
+  if (stocksFab) stocksFab.style.display = tab === 'list' ? 'flex' : 'none';
   ['list','chart','history'].forEach(function(t) {
     const btn = document.getElementById('stk-tab-' + t);
     const cont = document.getElementById('stk-content-' + t);
