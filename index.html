@@ -2590,7 +2590,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <!-- 날짜 -->
       <div style="margin-bottom:10px">
         <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:5px">날짜</div>
-        <input type="date" id="tx-date" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none">
+        <input type="date" id="tx-date" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none;-webkit-appearance:none;appearance:none;box-sizing:border-box">
       </div>
 
       <!-- 카테고리 -->
@@ -2881,8 +2881,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div id="stock-update-time" style="font-size:10px;color:var(--muted)"></div>
         <button id="stk-owner-toggle" onclick="cycleStkOwner()"
           style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;
-          color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer;min-width:44px">
-          통합
+          color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 8px;cursor:pointer;min-width:44px;display:flex;align-items:center;gap:3px">
+          <span id="stk-owner-toggle-text">통합</span><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.4;flex-shrink:0"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="4" y1="4" x2="21" y2="21"/></svg>
         </button>
         <button onclick="fetchAllPrices()" id="stock-refresh-btn"
           style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;
@@ -4106,6 +4106,16 @@ async function saveAppDataToSupabase(key, data) {
 let pageHistory = ['home'];
 
 function goPage(name, el) {
+  // 열린 모달 먼저 닫기
+  const modalIds = ['ledger-modal','modal-overlay','stock-modal','trade-modal','schedule-modal','budget-modal','voice-modal','sms-modal','excel-modal','home-mic-modal','pending-modal'];
+  modalIds.forEach(function(id) {
+    const m = document.getElementById(id);
+    if (m && m.style.display !== 'none') {
+      m.style.display = 'none';
+    }
+  });
+  unlockScroll();
+
   const current = pageHistory[pageHistory.length - 1];
   if (current !== name) pageHistory.push(name);
   if (pageHistory.length > 10) pageHistory.shift();
@@ -11871,10 +11881,10 @@ let currentStkOwner = 'all';
 function setStkOwner(owner) {
   currentStkOwner = owner;
   // 토글 버튼 텍스트 업데이트
-  const toggleBtn = document.getElementById('stk-owner-toggle');
-  if (toggleBtn) {
+  const toggleText = document.getElementById('stk-owner-toggle-text');
+  if (toggleText) {
     const labels = { all: '통합', minsuk: getP1Name(), siyun: getP2Name() };
-    toggleBtn.textContent = labels[owner] || '통합';
+    toggleText.textContent = labels[owner] || '통합';
   }
   const label = document.getElementById('stk-list-label');
   if (label) label.textContent = owner === 'all' ? '전체 종목' : owner === 'minsuk' ? getP1Name() + ' 종목' : getP2Name() + ' 종목';
@@ -12071,120 +12081,168 @@ function renderStkDonut() {
 
   const activeStocks = getFilteredStocks().filter(function(s) { return s.currentPrice > 0; });
   if (!activeStocks.length) {
-    wrap.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:16px">시세 갱신 후 확인하세요</div>';
+    wrap.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:24px">시세 갱신 후 확인하세요</div>';
     return;
   }
 
-  const colors = ['#3b82f6','#34d399','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16'];
   const evalKrw = function(s) {
     const rate = (s.market === 'US' && usdKrw) ? usdKrw : 1;
     return s.currentPrice * s.qty * rate;
   };
-  const totalEvalKrw = activeStocks.reduce(function(sum, s) { return sum + evalKrw(s); }, 0);
+  const totalEval = activeStocks.reduce(function(sum, s) { return sum + evalKrw(s); }, 0);
   const sorted = [...activeStocks].sort(function(a, b) { return evalKrw(b) - evalKrw(a); });
 
-  // ── 트리맵 레이아웃 계산 (Squarified 방식 간소화)
-  const W = 320, H = 200; // 가상 캔버스 크기
-  const items = sorted.map(function(s, i) {
-    return {
-      s: s,
-      val: evalKrw(s),
-      pct: Math.round(evalKrw(s) / totalEvalKrw * 100),
-      color: colors[i % colors.length]
-    };
+  // ── Squarified Treemap 알고리즘
+  const W = 340, H = 220;
+  const items = sorted.map(function(s) {
+    return { s, val: evalKrw(s), pct: evalKrw(s) / totalEval };
   });
 
-  // 슬라이스 방식 트리맵 (단순하고 안정적)
-  function sliceLayout(items, x, y, w, h) {
-    const total = items.reduce(function(s, i) { return s + i.val; }, 0);
-    const rects = [];
-    let cx = x, cy = y;
-    const isHoriz = w >= h;
+  function squarify(items, x, y, w, h) {
+    if (!items.length) return [];
+    if (items.length === 1) {
+      return [{ item: items[0], x, y, w, h }];
+    }
 
-    items.forEach(function(item) {
-      const ratio = item.val / total;
-      let rw, rh;
-      if (isHoriz) {
-        rw = w * ratio;
-        rh = h;
-        rects.push({ item, x: cx, y: cy, w: rw, h: rh });
-        cx += rw;
+    const total = items.reduce(function(s, i) { return s + i.val; }, 0);
+
+    // 가로/세로 중 긴 방향으로 슬라이스
+    const isHoriz = w >= h;
+    const rects = [];
+
+    // worst ratio 기반으로 행 분할
+    function worst(row, len) {
+      const s = row.reduce(function(acc, i) { return acc + i.val; }, 0);
+      const maxV = Math.max(...row.map(function(i) { return i.val; }));
+      const minV = Math.min(...row.map(function(i) { return i.val; }));
+      return Math.max(len * len * maxV / (s * s), s * s / (len * len * minV));
+    }
+
+    let row = [];
+    let remaining = [...items];
+    let cx = x, cy = y, cw = w, ch = h;
+
+    while (remaining.length) {
+      const len = isHoriz ? ch : cw;
+      const candidate = [...row, remaining[0]];
+      if (!row.length || worst(candidate, len) <= worst(row, len)) {
+        row.push(remaining.shift());
       } else {
-        rw = w;
-        rh = h * ratio;
-        rects.push({ item, x: cx, y: cy, w: rw, h: rh });
-        cy += rh;
+        // 현재 행 확정
+        const rowTotal = row.reduce(function(s, i) { return s + i.val; }, 0);
+        const rowFrac = rowTotal / total;
+        let pos = isHoriz ? cy : cx;
+        const rowDim = isHoriz ? cw * rowFrac : ch * rowFrac;
+
+        row.forEach(function(item) {
+          const itemFrac = item.val / rowTotal;
+          const iw = isHoriz ? rowDim : cw * itemFrac;
+          const ih = isHoriz ? ch * itemFrac : rowDim;
+          rects.push({ item, x: isHoriz ? cx : pos, y: isHoriz ? pos : cy, w: iw, h: ih });
+          pos += isHoriz ? ih : iw;
+        });
+
+        if (isHoriz) { cx += rowDim; cw -= rowDim; }
+        else { cy += rowDim; ch -= rowDim; }
+
+        // 재귀 대신 반복 재설정
+        total_remaining = remaining.reduce(function(s,i){return s+i.val;},0);
+        row = [];
       }
-    });
+    }
+
+    // 마지막 행
+    if (row.length) {
+      const rowTotal = row.reduce(function(s, i) { return s + i.val; }, 0);
+      let pos = isHoriz ? cy : cx;
+      row.forEach(function(item) {
+        const itemFrac = item.val / rowTotal;
+        const iw = isHoriz ? cw : cw * itemFrac;
+        const ih = isHoriz ? ch * itemFrac : ch;
+        rects.push({ item, x: isHoriz ? cx : pos, y: isHoriz ? pos : cy, w: iw, h: ih });
+        pos += isHoriz ? ih : iw;
+      });
+    }
     return rects;
   }
 
-  // 2단계 분할: 상위 절반 / 하위 절반
-  const half = Math.ceil(items.length / 2);
-  const topItems = items.slice(0, half);
-  const botItems = items.slice(half);
-  const topVal = topItems.reduce(function(s, i) { return s + i.val; }, 0);
-  const botVal = botItems.reduce(function(s, i) { return s + i.val; }, 0);
-  const topH = botItems.length ? H * topVal / totalEvalKrw : H;
-  const botH = H - topH;
+  const rects = squarify(items, 0, 0, W, H);
 
-  let rects = sliceLayout(topItems, 0, 0, W, topH);
-  if (botItems.length) {
-    rects = rects.concat(sliceLayout(botItems, 0, topH, W, botH));
+  // ── 블룸버그 스타일 색상: 단일 청색 계열, 비중에 따라 채도/밝기
+  // 가장 큰 셀 = 진하고 선명, 작은 셀 = 옅고 흐림
+  const maxPct = items[0].pct;
+  function getColor(pct) {
+    const ratio = pct / maxPct; // 0~1
+    // 어두운 청색(큰 비중) ~ 연한 청회색(작은 비중)
+    const r = Math.round(20 + (80 - 20) * (1 - ratio));
+    const g = Math.round(40 + (100 - 40) * (1 - ratio));
+    const b = Math.round(80 + (160 - 80) * (1 - ratio));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+  }
+  function getTextOpacity(pct) {
+    const ratio = pct / maxPct;
+    return ratio > 0.4 ? 1 : ratio > 0.15 ? 0.85 : 0.7;
   }
 
-  // SVG 렌더링
-  const GAP = 2;
-  const svgRects = rects.map(function(r) {
+  const GAP = 3;
+  const svgContent = rects.map(function(r) {
     const rx = r.x + GAP/2, ry = r.y + GAP/2;
-    const rw = Math.max(r.w - GAP, 4), rh = Math.max(r.h - GAP, 4);
+    const rw = Math.max(r.w - GAP, 2), rh = Math.max(r.h - GAP, 2);
+    const color = getColor(r.item.pct);
+    const textOp = getTextOpacity(r.item.pct);
+    const pctStr = Math.round(r.item.pct * 100) + '%';
+    const name = r.item.s.name;
+    const shortName = name.length > 7 ? name.slice(0, 6) + '…' : name;
+
+    const showName = rw > 40 && rh > 22;
+    const showPct = rw > 32 && rh > 36;
+    const showVal = rw > 60 && rh > 52;
+    const nameFontSize = rw > 80 ? 11 : 9;
+
     const evStr = r.item.val >= 100000000
       ? (r.item.val/100000000).toFixed(1)+'억'
-      : r.item.val >= 10000
-      ? (r.item.val/10000).toFixed(0)+'만'
-      : Math.round(r.item.val).toLocaleString();
-    const showName = rw > 50 && rh > 24;
-    const showVal = rw > 60 && rh > 40;
-    const fontSize = rw > 100 ? 12 : 10;
+      : (r.item.val/10000).toFixed(0)+'만';
 
-    return '<rect x="' + rx.toFixed(1) + '" y="' + ry.toFixed(1)
-      + '" width="' + rw.toFixed(1) + '" height="' + rh.toFixed(1)
-      + '" rx="6" fill="' + r.item.color + '" opacity="0.85"/>'
-      + (showName
-        ? '<text x="' + (rx + rw/2).toFixed(1) + '" y="' + (ry + rh/2 - (showVal ? 8 : 0)).toFixed(1)
-          + '" text-anchor="middle" dominant-baseline="middle"'
-          + ' font-size="' + fontSize + '" font-weight="700" fill="white" font-family="Noto Sans KR">'
-          + (r.item.s.name.length > 8 ? r.item.s.name.slice(0, 7) + '…' : r.item.s.name)
-          + '</text>'
-        : '')
-      + (showVal
-        ? '<text x="' + (rx + rw/2).toFixed(1) + '" y="' + (ry + rh/2 + 10).toFixed(1)
-          + '" text-anchor="middle" dominant-baseline="middle"'
-          + ' font-size="10" fill="rgba(255,255,255,0.75)" font-family="Noto Sans KR">'
-          + r.item.pct + '%'
-          + '</text>'
-        : '');
+    const centerX = (rx + rw/2).toFixed(1);
+    const baseY = (ry + rh/2).toFixed(1);
+
+    let texts = '';
+    if (showName && showPct && showVal) {
+      texts = '<text x="' + centerX + '" y="' + (ry + rh/2 - 12).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle" font-size="' + nameFontSize + '" font-weight="600" fill="rgba(255,255,255,' + textOp + ')" font-family="Noto Sans KR">' + shortName + '</text>'
+        + '<text x="' + centerX + '" y="' + baseY + '" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="900" fill="rgba(255,255,255,' + textOp + ')" font-family="Noto Sans KR">' + pctStr + '</text>'
+        + '<text x="' + centerX + '" y="' + (ry + rh/2 + 14).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="rgba(255,255,255,' + (textOp*0.6).toFixed(2) + ')" font-family="Noto Sans KR">' + evStr + '</text>';
+    } else if (showName && showPct) {
+      texts = '<text x="' + centerX + '" y="' + (ry + rh/2 - 7).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle" font-size="' + nameFontSize + '" font-weight="600" fill="rgba(255,255,255,' + textOp + ')" font-family="Noto Sans KR">' + shortName + '</text>'
+        + '<text x="' + centerX + '" y="' + (ry + rh/2 + 7).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="900" fill="rgba(255,255,255,' + textOp + ')" font-family="Noto Sans KR">' + pctStr + '</text>';
+    } else if (showName) {
+      texts = '<text x="' + centerX + '" y="' + baseY + '" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="rgba(255,255,255,' + textOp + ')" font-family="Noto Sans KR">' + pctStr + '</text>';
+    }
+
+    return '<rect x="' + rx.toFixed(1) + '" y="' + ry.toFixed(1) + '" width="' + rw.toFixed(1) + '" height="' + rh.toFixed(1) + '" rx="4" fill="' + color + '"/>'
+      + texts;
+  }).join('');
+
+  // 범례
+  const legend = sorted.map(function(s, i) {
+    const ev = evalKrw(s);
+    const pct = Math.round(ev / totalEval * 100);
+    const color = getColor(ev / totalEval);
+    const evStr = ev >= 100000000
+      ? (ev/100000000).toFixed(1)+'억원'
+      : (ev/10000).toFixed(0)+'만원';
+    return '<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:0.5px solid var(--border)">'
+      + '<div style="width:10px;height:10px;border-radius:2px;background:' + color + ';flex-shrink:0"></div>'
+      + '<span style="font-size:11px;font-weight:600;flex:1;color:var(--text)">' + s.name + '</span>'
+      + '<span style="font-size:11px;color:var(--muted)">' + evStr + '</span>'
+      + '<span style="font-size:12px;font-weight:800;color:var(--text);min-width:30px;text-align:right">' + pct + '%</span>'
+      + '</div>';
   }).join('');
 
   wrap.innerHTML =
-    '<svg width="100%" viewBox="0 0 ' + W + ' ' + H + '" style="border-radius:10px;overflow:hidden;display:block;margin-bottom:12px">'
-    + svgRects
+    '<svg width="100%" viewBox="0 0 ' + W + ' ' + H + '" style="border-radius:8px;overflow:hidden;display:block;margin-bottom:14px;background:#0f1a2e">'
+    + svgContent
     + '</svg>'
-    // 범례
-    + '<div style="display:flex;flex-wrap:wrap;gap:8px 14px">'
-    + items.map(function(item) {
-        const evStr = item.val >= 100000000
-          ? (item.val/100000000).toFixed(1)+'억원'
-          : item.val >= 10000
-          ? (item.val/10000).toFixed(0)+'만원'
-          : Math.round(item.val).toLocaleString()+'원';
-        return '<div style="display:flex;align-items:center;gap:5px">'
-          + '<div style="width:8px;height:8px;border-radius:2px;background:' + item.color + ';flex-shrink:0"></div>'
-          + '<span style="font-size:11px;color:var(--text2)">' + item.s.name + '</span>'
-          + '<span style="font-size:11px;color:var(--muted)">' + item.pct + '%</span>'
-          + '</div>';
-      }).join('')
-    + '</div>';
+    + '<div>' + legend + '</div>';
 }
 
 function renderStkPctChart() {
@@ -16249,11 +16307,13 @@ function lockScroll() {
   document.body.style.overflow = 'hidden';
   document.body.style.position = 'fixed';
   document.body.style.width = '100%';
+  document.documentElement.style.overscrollBehavior = 'none';
 }
 function unlockScroll() {
   document.body.style.overflow = '';
   document.body.style.position = '';
   document.body.style.width = '';
+  document.documentElement.style.overscrollBehavior = '';
 }
 
 /* ══ 계산기 키패드 ══ */
