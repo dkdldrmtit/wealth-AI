@@ -2556,57 +2556,96 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 </div>
 
 <!-- ══ 거래 입력 모달 ══ -->
-<div id="ledger-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto" class="modal-backdrop-in">
-  <div style="max-width:680px;margin:0 auto;padding:max(8px,env(safe-area-inset-top,8px)) 16px 40px">
-    <div class="modal-slide-up" style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:16px">
+<div id="ledger-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);z-index:300;" class="modal-backdrop-in" onclick="if(event.target===this)closeLedgerAdd()">
+  <div style="position:absolute;bottom:0;left:0;right:0;max-width:680px;margin:0 auto;padding:0" class="modal-slide-up">
+    <div style="background:var(--surface);border-radius:24px 24px 0 0;border:1px solid var(--border2);border-bottom:none;padding:12px 16px max(24px,env(safe-area-inset-bottom,24px));max-height:92dvh;overflow-y:auto">
+      <!-- 핸들 바 -->
+      <div style="width:36px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto 14px;"></div>
+
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <div id="ledger-modal-title" style="font-family:'Playfair Display',serif;font-size:20px;color:var(--text);font-weight:700">거래 추가</div>
         <button onclick="closeLedgerAdd()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer">✕</button>
       </div>
 
-      <!-- ── Phase 1: 계산기 ── -->
+      <!-- ── Phase 1: 계산기 (바텀시트 스타일) ── -->
       <div id="ledger-phase-calc">
-        <!-- 지출/수입 토글 -->
-        <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:10px">
-          <button id="type-expense" onclick="setTxType('expense')" style="flex:1;padding:10px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:var(--surface3);color:var(--text);transition:all .2s">지출</button>
-          <button id="type-income" onclick="setTxType('income')" style="flex:1;padding:10px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">수입</button>
+
+        <!-- 상단 컨텍스트 영역: 지금 무엇을 입력하는지 인지 -->
+        <div style="padding:0 0 12px;border-bottom:1px solid var(--border);margin-bottom:14px">
+          <!-- 수입/지출 토글 (뱅크샐러드 스타일 탭) -->
+          <div style="display:flex;justify-content:center;gap:0;background:var(--surface2);border-radius:10px;padding:3px;margin-bottom:14px">
+            <button id="type-expense" onclick="setTxType('expense')"
+              style="flex:1;padding:9px 16px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--red);transition:all .2s;box-shadow:0 1px 4px rgba(0,0,0,0.15)">
+              지출
+            </button>
+            <button id="type-income" onclick="setTxType('income')"
+              style="flex:1;padding:9px 16px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">
+              수입
+            </button>
+          </div>
+
+          <!-- 금액 대형 표시 (이미지처럼 중앙 정렬 + 밑줄) -->
+          <div style="position:relative;padding:0 4px 10px;border-bottom:2px solid var(--green)">
+            <div id="calc-expression" style="display:none;font-size:12px;color:var(--muted);font-weight:500;margin-bottom:2px;text-align:right"></div>
+            <div style="display:flex;align-items:baseline;justify-content:flex-end;gap:4px;min-height:44px">
+              <span id="calc-display-num" style="font-size:38px;font-weight:900;color:var(--text);letter-spacing:-1px;font-variant-numeric:tabular-nums">0</span>
+              <span style="font-size:20px;color:var(--muted);font-weight:400;margin-bottom:2px">원</span>
+            </div>
+            <div id="tx-amount-preview" style="font-size:11px;color:var(--muted);height:16px;text-align:right"></div>
+          </div>
+
+          <input type="hidden" id="tx-amount" value="">
+
+          <!-- 분류 / 카테고리 / 거래처 미리보기 행 -->
+          <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+            <div id="calc-context-type" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:rgba(239,68,68,0.10);border:1px solid rgba(239,68,68,0.25);border-radius:20px;font-size:12px;font-weight:700;color:var(--red)">
+              지출
+            </div>
+            <div style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;font-size:12px;color:var(--muted2)">
+              카테고리
+            </div>
+            <div style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;font-size:12px;color:var(--muted2)">
+              거래처
+            </div>
+          </div>
         </div>
 
-        <!-- 금액 -->
-        <div style="background:var(--surface2);border-radius:16px;padding:12px 12px;margin-bottom:10px;position:relative">
-          <div id="tx-type-label" style="font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:12px;color:var(--red);text-align:center">지출 금액</div>
-          <!-- 금액 디스플레이 -->
-          <div style="text-align:right;background:var(--surface3);border-radius:12px;padding:8px 14px 4px;margin-bottom:2px">
-            <div id="calc-expression" style="display:none;font-size:12px;color:var(--muted);font-weight:500;margin-bottom:2px;text-align:right"></div>
-            <span id="calc-display-num" style="font-size:26px;font-weight:900;color:var(--text)">0</span>
-            <span style="font-size:16px;color:var(--muted);font-weight:600;margin-left:4px">원</span>
-          </div>
-          <div id="tx-amount-preview" style="font-size:11px;color:var(--muted);margin-bottom:10px;height:16px;text-align:right"></div>
-          <input type="hidden" id="tx-amount" value="">
-          <!-- 계산기 키패드 (4열: 숫자 + 연산자) -->
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px">
-            <button type="button" onclick="calcInput('1')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:19px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">1</button>
-            <button type="button" onclick="calcInput('2')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:19px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">2</button>
-            <button type="button" onclick="calcInput('3')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:19px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">3</button>
-            <button type="button" onclick="calcOp('÷')" style="height:44px;background:rgba(99,102,241,0.10);border:0.5px solid rgba(99,102,241,0.25);border-radius:12px;color:#818cf8;font-size:19px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">÷</button>
-            <button type="button" onclick="calcInput('4')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:19px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">4</button>
-            <button type="button" onclick="calcInput('5')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:19px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">5</button>
-            <button type="button" onclick="calcInput('6')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:19px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">6</button>
-            <button type="button" onclick="calcOp('×')" style="height:44px;background:rgba(99,102,241,0.10);border:0.5px solid rgba(99,102,241,0.25);border-radius:12px;color:#818cf8;font-size:19px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">×</button>
-            <button type="button" onclick="calcInput('7')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:19px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">7</button>
-            <button type="button" onclick="calcInput('8')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:19px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">8</button>
-            <button type="button" onclick="calcInput('9')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:19px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">9</button>
-            <button type="button" onclick="calcOp('-')" style="height:44px;background:rgba(99,102,241,0.10);border:0.5px solid rgba(99,102,241,0.25);border-radius:12px;color:#818cf8;font-size:19px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">−</button>
-            <button type="button" onclick="calcInput('00')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:16px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">00</button>
-            <button type="button" onclick="calcInput('0')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:19px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">0</button>
-            <button type="button" onclick="calcInputThousand()" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:13px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">+1000</button>
-            <button type="button" onclick="calcOp('+')" style="height:44px;background:rgba(99,102,241,0.10);border:0.5px solid rgba(99,102,241,0.25);border-radius:12px;color:#818cf8;font-size:19px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">+</button>
-            <button type="button" onclick="calcDel()" style="grid-column:span 2;height:44px;background:rgba(239,68,68,0.10);border:0.5px solid rgba(239,68,68,0.22);border-radius:12px;color:var(--red);font-size:18px;cursor:pointer;-webkit-tap-highlight-color:transparent">⌫</button>
-            <button type="button" onclick="confirmCalcAmount()" style="grid-column:span 2;height:44px;background:var(--accent);border:none;border-radius:12px;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">완료</button>
-          </div>
+        <!-- 키패드 영역 -->
+        <!-- 3열 숫자 + 우측 연산자 열 -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr) 56px;gap:5px">
+
+          <!-- 1행 -->
+          <button type="button" onclick="calcInput('1')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">1</button>
+          <button type="button" onclick="calcInput('2')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">2</button>
+          <button type="button" onclick="calcInput('3')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">3</button>
+          <button type="button" onclick="calcDel()" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--muted2);font-size:20px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">⌫</button>
+
+          <!-- 2행 -->
+          <button type="button" onclick="calcInput('4')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">4</button>
+          <button type="button" onclick="calcInput('5')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">5</button>
+          <button type="button" onclick="calcInput('6')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">6</button>
+          <button type="button" onclick="calcOp('+')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--muted2);font-size:20px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">+</button>
+
+          <!-- 3행 -->
+          <button type="button" onclick="calcInput('7')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">7</button>
+          <button type="button" onclick="calcInput('8')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">8</button>
+          <button type="button" onclick="calcInput('9')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">9</button>
+          <button type="button" onclick="calcOp('-')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--muted2);font-size:20px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">−</button>
+
+          <!-- 4행: 0 / 00 / ,000 + 확인 -->
+          <button type="button" onclick="calcInput('0')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">0</button>
+          <button type="button" onclick="calcInput('00')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:18px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">00</button>
+          <button type="button" onclick="calcInputThousand()" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:16px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">,000</button>
+          <button type="button" onclick="confirmCalcAmount()"
+            style="height:52px;background:var(--green);border:none;border-radius:10px;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s"
+            ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">
+            확인
+          </button>
+
         </div>
       </div>
+
 
       <!-- ── Phase 2: 상세 입력 ── -->
       <div id="ledger-phase-detail" style="display:none">
@@ -15856,20 +15895,45 @@ function closeLedgerAdd() {
 
 function setTxType(type) {
   currentTxType = type;
+  const isExp = type === 'expense';
   const expBtn = document.getElementById('type-expense');
   const incBtn = document.getElementById('type-income');
-  const lbl = document.getElementById('tx-type-label');
-  if (expBtn) { expBtn.style.background = type==='expense'?'var(--surface3)':'transparent'; expBtn.style.color = type==='expense'?'var(--text)':'var(--muted2)'; expBtn.style.fontWeight = type==='expense'?'700':'600'; }
-  if (incBtn) { incBtn.style.background = type==='income'?'var(--surface3)':'transparent'; incBtn.style.color = type==='income'?'var(--text)':'var(--muted2)'; incBtn.style.fontWeight = type==='income'?'700':'600'; }
-  if (lbl) { lbl.textContent = type==='expense'?'지출 금액':'수입 금액'; lbl.style.color = type==='expense'?'var(--red)':'var(--green)'; }
+  if (expBtn) {
+    expBtn.style.background = isExp ? 'var(--surface)' : 'transparent';
+    expBtn.style.color = isExp ? 'var(--red)' : 'var(--muted2)';
+    expBtn.style.fontWeight = isExp ? '700' : '600';
+    expBtn.style.boxShadow = isExp ? '0 1px 4px rgba(0,0,0,0.15)' : 'none';
+  }
+  if (incBtn) {
+    incBtn.style.background = !isExp ? 'var(--surface)' : 'transparent';
+    incBtn.style.color = !isExp ? 'var(--blue)' : 'var(--muted2)';
+    incBtn.style.fontWeight = !isExp ? '700' : '600';
+    incBtn.style.boxShadow = !isExp ? '0 1px 4px rgba(0,0,0,0.15)' : 'none';
+  }
+
+  // 금액 밑줄 색상 변경
+  const underline = document.querySelector('#ledger-phase-calc [style*="border-bottom: 2px solid"]') ||
+    document.querySelector('#ledger-phase-calc [style*="border-bottom:2px solid"]');
+  if (underline) underline.style.borderBottomColor = isExp ? 'var(--green)' : 'var(--blue)';
+
+  // 컨텍스트 배지 업데이트
+  const ctxBadge = document.getElementById('calc-context-type');
+  if (ctxBadge) {
+    ctxBadge.textContent = isExp ? '지출' : '수입';
+    ctxBadge.style.background = isExp ? 'rgba(239,68,68,0.10)' : 'rgba(59,130,246,0.10)';
+    ctxBadge.style.borderColor = isExp ? 'rgba(239,68,68,0.25)' : 'rgba(59,130,246,0.25)';
+    ctxBadge.style.color = isExp ? 'var(--red)' : 'var(--blue)';
+  }
+
   // Phase 2 배지 동기화
   const badge = document.getElementById('detail-type-badge');
   const memoLabel = document.getElementById('tx-memo-label');
-  if (badge) { badge.textContent = type==='expense'?'지출':'수입'; badge.style.color = type==='expense'?'var(--red)':'var(--green)'; }
-  if (memoLabel) memoLabel.textContent = type==='expense'?'지출처 (선택)':'입금처 (선택)';
+  if (badge) { badge.textContent = isExp ? '지출' : '수입'; badge.style.color = isExp ? 'var(--red)' : 'var(--green)'; }
+  if (memoLabel) memoLabel.textContent = isExp ? '지출처 (선택)' : '입금처 (선택)';
   selectedCategory = CATEGORIES[type][0].id;
   renderCategoryBtns(type);
 }
+
 
 function setTxOwner(owner) {
   currentTxOwner = owner;
