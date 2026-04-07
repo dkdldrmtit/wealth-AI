@@ -2586,30 +2586,35 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div style="background:var(--surface2);border-radius:16px;padding:12px 12px;margin-bottom:10px;position:relative">
           <div id="tx-type-label" style="font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:12px;color:var(--red);text-align:center">지출 금액</div>
           <!-- 금액 디스플레이 -->
-          <div style="text-align:right;background:var(--surface3);border-radius:12px;padding:10px 14px;margin-bottom:4px">
+          <div style="text-align:right;background:var(--surface3);border-radius:12px;padding:8px 14px 4px;margin-bottom:2px">
+            <div id="calc-expression" style="display:none;font-size:12px;color:var(--muted);font-weight:500;margin-bottom:2px;text-align:right"></div>
             <span id="calc-display-num" style="font-size:26px;font-weight:900;color:var(--text)">0</span>
             <span style="font-size:16px;color:var(--muted);font-weight:600;margin-left:4px">원</span>
           </div>
-          <div id="tx-amount-preview" style="font-size:11px;color:var(--muted);margin-bottom:12px;height:16px;text-align:right"></div>
+          <div id="tx-amount-preview" style="font-size:11px;color:var(--muted);margin-bottom:10px;height:16px;text-align:right"></div>
           <input type="hidden" id="tx-amount" value="">
-          <!-- 계산기 키패드 -->
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
-            <button type="button" onclick="calcInput('1')" style="height:46px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">1</button>
-            <button type="button" onclick="calcInput('2')" style="height:46px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">2</button>
-            <button type="button" onclick="calcInput('3')" style="height:46px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">3</button>
-            <button type="button" onclick="calcInput('4')" style="height:46px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">4</button>
-            <button type="button" onclick="calcInput('5')" style="height:46px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">5</button>
-            <button type="button" onclick="calcInput('6')" style="height:46px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">6</button>
-            <button type="button" onclick="calcInput('7')" style="height:46px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">7</button>
-            <button type="button" onclick="calcInput('8')" style="height:46px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">8</button>
-            <button type="button" onclick="calcInput('9')" style="height:46px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">9</button>
-            <button type="button" onclick="calcInput('0')" style="grid-column:span 2;height:46px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">0</button>
-            <button type="button" onclick="calcDel()" style="height:46px;background:rgba(239,68,68,0.10);border:0.5px solid rgba(239,68,68,0.22);border-radius:12px;color:var(--red);font-size:18px;cursor:pointer;-webkit-tap-highlight-color:transparent">⌫</button>
+          <!-- 계산기 키패드 (4열: 숫자 + 연산자) -->
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px">
+            <button type="button" onclick="calcInput('1')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:19px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">1</button>
+            <button type="button" onclick="calcInput('2')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:19px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">2</button>
+            <button type="button" onclick="calcInput('3')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:19px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">3</button>
+            <button type="button" onclick="calcOp('÷')" style="height:44px;background:rgba(99,102,241,0.10);border:0.5px solid rgba(99,102,241,0.25);border-radius:12px;color:#818cf8;font-size:19px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">÷</button>
+            <button type="button" onclick="calcInput('4')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:19px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">4</button>
+            <button type="button" onclick="calcInput('5')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:19px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">5</button>
+            <button type="button" onclick="calcInput('6')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:19px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">6</button>
+            <button type="button" onclick="calcOp('×')" style="height:44px;background:rgba(99,102,241,0.10);border:0.5px solid rgba(99,102,241,0.25);border-radius:12px;color:#818cf8;font-size:19px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">×</button>
+            <button type="button" onclick="calcInput('7')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:19px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">7</button>
+            <button type="button" onclick="calcInput('8')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:19px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">8</button>
+            <button type="button" onclick="calcInput('9')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:19px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">9</button>
+            <button type="button" onclick="calcOp('-')" style="height:44px;background:rgba(99,102,241,0.10);border:0.5px solid rgba(99,102,241,0.25);border-radius:12px;color:#818cf8;font-size:19px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">−</button>
+            <button type="button" onclick="calcInput('00')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:16px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">00</button>
+            <button type="button" onclick="calcInput('0')" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:19px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent">0</button>
+            <button type="button" onclick="calcInputThousand()" style="height:44px;background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:13px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">+1000</button>
+            <button type="button" onclick="calcOp('+')" style="height:44px;background:rgba(99,102,241,0.10);border:0.5px solid rgba(99,102,241,0.25);border-radius:12px;color:#818cf8;font-size:19px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent">+</button>
+            <button type="button" onclick="calcDel()" style="grid-column:span 2;height:44px;background:rgba(239,68,68,0.10);border:0.5px solid rgba(239,68,68,0.22);border-radius:12px;color:var(--red);font-size:18px;cursor:pointer;-webkit-tap-highlight-color:transparent">⌫</button>
+            <button type="button" onclick="confirmCalcAmount()" style="grid-column:span 2;height:44px;background:var(--accent);border:none;border-radius:12px;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">완료</button>
           </div>
         </div>
-
-        <!-- 완료 버튼 -->
-        <button id="calc-confirm-btn" onclick="confirmCalcAmount()" style="width:100%;padding:15px;border-radius:14px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;cursor:pointer;background:var(--accent);color:#fff;transition:opacity .2s">완료</button>
       </div>
 
       <!-- ── Phase 2: 상세 입력 ── -->
@@ -14603,6 +14608,11 @@ function _showDetailPhase() {
 
 // 완료 버튼: Phase 1 → Phase 2 전환
 function confirmCalcAmount() {
+  // 연산자 pending이면 계산 먼저
+  if (calcOperator !== null) {
+    _calcCompute();
+    updateCalcDisplay();
+  }
   const num = parseInt(calcRawValue || '0', 10);
   if (!num || num <= 0) { showToast('❗ 금액을 입력해주세요'); return; }
   _showDetailPhase();
@@ -16497,23 +16507,82 @@ function unlockScroll() {
 
 /* ══ 계산기 키패드 ══ */
 let calcRawValue = '';
+let calcOperator = null;
+let calcFirstValue = 0;
+
 function calcInput(d) {
-  if (calcRawValue.length >= 9) return;
-  if (calcRawValue === '' && d === '0') return;
-  calcRawValue += d;
+  if (d === '00') {
+    if (calcRawValue === '') return;
+    calcRawValue += '00';
+  } else {
+    if (calcRawValue.length >= 9) return;
+    if (calcRawValue === '' && d === '0') return;
+    calcRawValue += d;
+  }
+  if (calcRawValue.length > 9) calcRawValue = calcRawValue.slice(0, 9);
   updateCalcDisplay();
 }
+
+function calcInputThousand() {
+  if (calcRawValue === '') { calcRawValue = '1000'; }
+  else { calcRawValue += '000'; }
+  if (calcRawValue.length > 9) calcRawValue = calcRawValue.slice(0, 9);
+  updateCalcDisplay();
+}
+
+function calcOp(op) {
+  const num = parseInt(calcRawValue || '0', 10);
+  if (calcOperator !== null && calcRawValue !== '') {
+    _calcCompute();
+  } else {
+    calcFirstValue = num;
+    calcRawValue = '';
+  }
+  calcOperator = op;
+  updateCalcDisplay();
+}
+
+function _calcCompute() {
+  const a = calcFirstValue;
+  const b = parseInt(calcRawValue || '0', 10);
+  let result = 0;
+  if (calcOperator === '+') result = a + b;
+  else if (calcOperator === '-') result = Math.max(0, a - b);
+  else if (calcOperator === '×') result = a * b;
+  else if (calcOperator === '÷') result = b !== 0 ? Math.round(a / b) : a;
+  calcRawValue = String(Math.min(result, 999999999));
+  calcOperator = null;
+  calcFirstValue = 0;
+}
+
 function calcDel() {
-  calcRawValue = calcRawValue.slice(0, -1);
+  if (calcRawValue === '' && calcOperator !== null) {
+    // 연산자 취소
+    calcRawValue = String(calcFirstValue);
+    calcOperator = null;
+    calcFirstValue = 0;
+  } else {
+    calcRawValue = calcRawValue.slice(0, -1);
+  }
   updateCalcDisplay();
 }
+
 function updateCalcDisplay() {
   const num = parseInt(calcRawValue || '0', 10);
   const dispEl = document.getElementById('calc-display-num');
   const previewEl = document.getElementById('tx-amount-preview');
+  const exprEl = document.getElementById('calc-expression');
   const hiddenEl = document.getElementById('tx-amount');
   if (dispEl) dispEl.textContent = num.toLocaleString('ko-KR');
   if (hiddenEl) hiddenEl.value = calcRawValue || '';
+  if (exprEl) {
+    if (calcOperator) {
+      exprEl.textContent = calcFirstValue.toLocaleString('ko-KR') + ' ' + calcOperator;
+      exprEl.style.display = 'block';
+    } else {
+      exprEl.style.display = 'none';
+    }
+  }
   if (previewEl) {
     if (num >= 10000) {
       const man = Math.floor(num / 10000);
@@ -16525,9 +16594,10 @@ function updateCalcDisplay() {
   }
 }
 
-
 function resetCalcPad() {
   calcRawValue = '';
+  calcOperator = null;
+  calcFirstValue = 0;
   updateCalcDisplay();
 }
 
