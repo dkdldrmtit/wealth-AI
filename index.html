@@ -117,7 +117,7 @@ body::before {
   -webkit-tap-highlight-color: transparent;
 }
 .nav-item .icon { width:22px; height:22px; line-height:1; display:block; }
-.nav-item.active { color: var(--blue); filter: none; }
+.nav-item.active { color: #b8b8b6; filter: none; }
 /* 활성 탭 상단 마커 */
 * {
   -webkit-tap-highlight-color: transparent;
@@ -141,7 +141,7 @@ input, textarea, select {
   position: absolute;
   top: 0; left: 50%; transform: translateX(-50%);
   width: 24px; height: 2px;
-  background: var(--blue);
+  background: linear-gradient(90deg, rgba(184,154,80,0.6), #b8b8b6, rgba(184,154,80,0.6));
   border-radius: 0 0 3px 3px;
 }
 /* 탭 누를 때 튕기는 효과 */
@@ -410,8 +410,8 @@ input, textarea, select {
   body:not([data-theme="dark"]) .siri-card { background: linear-gradient(270deg, #3a3630, #c9a84c, #e8d9a0, #c9a84c, #3a3630); background-size:300% 300%; }
   .sum-box.net .val { color: #2563eb !important; }
   .sum-box.net::after { background: #2563eb !important; opacity: 0.8 !important; }
-  .nav-item.active { color: #2563eb !important; filter: none !important; }
-  .nav-item.active::before { background: #2563eb !important; }
+  .nav-item.active { color: #484846 !important; filter: none !important; }
+  .nav-item.active::before { background: linear-gradient(90deg, rgba(154,120,56,0.5), #7a7876, rgba(154,120,56,0.5)) !important; box-shadow: none !important; }
   .page-header h1 { filter: none !important; color: #111111 !important; }
   .btn-primary { background: #111111 !important; color: #ffffff !important; border: none !important; }
   .active-chip { background: rgba(37,99,235,0.08) !important; color: #2563eb !important; border: 0.5px solid rgba(37,99,235,0.25) !important; }
@@ -690,8 +690,8 @@ button:active {
   }
 }
 body[data-theme="light"] .nav { background: rgba(255,255,255,0.97) !important; border-top: 1px solid rgba(0,0,0,0.07) !important; }
-body[data-theme="light"] .nav-item.active { color: #2563eb !important; filter: none !important; }
-body[data-theme="light"] .nav-item.active::before { background: #2563eb !important; box-shadow: none !important; }
+body[data-theme="light"] .nav-item.active { color: #484846 !important; filter: none !important; }
+body[data-theme="light"] .nav-item.active::before { background: linear-gradient(90deg, rgba(154,120,56,0.5), #7a7876, rgba(154,120,56,0.5)) !important; box-shadow: none !important; }
 body[data-theme="light"] .sum-box.net .val { color: #2563eb !important; }
 body[data-theme="light"] #home-ai-text { color: #a8874a !important; filter: none !important; }
 body[data-theme="light"] .btn-primary { background: #111111 !important; color: #ffffff !important; border: none !important; box-shadow: none !important; filter: none !important; }
@@ -1166,11 +1166,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 <!-- ══ HOME ══ -->
 <div class="page active" id="page-home">
   <div class="page-header" style="display:flex;justify-content:flex-end;align-items:center;padding-bottom:0;margin-bottom:0">
-    <button id="theme-toggle-btn" onclick="toggleTheme()"
-      style="background:none;border:none;color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:14px;transition:color .2s"
-      ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
-      🌙
-    </button>
     <button onclick="goPage('settings',{classList:{add:()=>{},remove:()=>{}}})"
       style="background:none;border:none;color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s"
       ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
@@ -1990,9 +1985,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <h1>앱<br>설정</h1>
     </div>
     <button id="theme-toggle-btn-settings" onclick="toggleTheme()"
-      style="background:none;border:none;color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:15px;transition:color .2s;flex-shrink:0;margin-bottom:6px"
+      style="background:none;border:none;color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s;flex-shrink:0;margin-bottom:6px"
       ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
-      🌙
+      <svg id="theme-icon-settings" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
     </button>
   </div>
 
@@ -6222,8 +6217,14 @@ function renderSchedules() {
     const [y, m, d] = str.split('-').map(Number);
     return new Date(y, m - 1, d);
   }
-  const sorted = [...schedules].map((s,i) => ({...s, origIdx:i})).sort((a,b) => parseLocalDate(a.date)-parseLocalDate(b.date));
-
+  const sorted = [...schedules]
+    .map((s,i) => ({...s, origIdx:i}))
+    .filter(function(s) {
+      const d = parseLocalDate(s.date);
+      const diff = Math.round((d - today) / 86400000);
+      return diff >= 0; // 오늘 포함 미래만
+    })
+    .sort((a,b) => parseLocalDate(a.date)-parseLocalDate(b.date));
 
   if (!sorted.length) {
     list.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:12px 0">+ 추가 버튼으로 일정을 등록해보세요!</div>';
@@ -7661,19 +7662,22 @@ let _themeMode = load('theme-mode', 'system');
 function applyTheme(mode) {
   _themeMode = mode;
   store('theme-mode', mode);
-  const btns = [document.getElementById('theme-toggle-btn'), document.getElementById('theme-toggle-btn-settings')];
+  const sunSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+  const moonSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  const autoSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l4 2"/></svg>';
+  const iconEl = document.getElementById('theme-icon-settings');
   if (mode === 'dark') {
     document.documentElement.style.setProperty('color-scheme', 'dark');
     document.body.setAttribute('data-theme', 'dark');
-    btns.forEach(function(b) { if (b) b.textContent = '☀️'; });
+    if (iconEl) iconEl.outerHTML = sunSvg.replace('>', ' id="theme-icon-settings">');
   } else if (mode === 'light') {
     document.documentElement.style.setProperty('color-scheme', 'light');
     document.body.setAttribute('data-theme', 'light');
-    btns.forEach(function(b) { if (b) b.textContent = '🌙'; });
+    if (iconEl) iconEl.outerHTML = moonSvg.replace('>', ' id="theme-icon-settings">');
   } else {
     document.documentElement.style.removeProperty('color-scheme');
     document.body.removeAttribute('data-theme');
-    btns.forEach(function(b) { if (b) b.textContent = '🌓'; });
+    if (iconEl) iconEl.outerHTML = autoSvg.replace('>', ' id="theme-icon-settings">');
   }
 }
 
@@ -14027,12 +14031,12 @@ function renderGoalGauge() {
     const isFirst = idx === 0;
 
     // 색상 단계
-    const gaugeColor = pct >= 100 ? '#60a5fa'
-      : pct >= 70 ? '#22c55e'
-      : pct >= 40 ? '#fbbf24'
-      : '#ef4444';
+    const gaugeColor = pct >= 100 ? '#b89a50'
+      : pct >= 70 ? '#9a9890'
+      : pct >= 40 ? '#787876'
+      : '#606060';
 
-    const gaugeGlow = pct >= 100 ? 'rgba(96,165,250,0.4)'
+    const gaugeGlow = pct >= 100 ? 'rgba(184,154,80,0.3)'
       : pct >= 70 ? 'rgba(74,222,128,0.4)'
       : pct >= 40 ? 'rgba(251,191,36,0.3)'
       : 'rgba(239,68,68,0.3)';
