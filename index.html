@@ -181,7 +181,6 @@ input, textarea, select {
 
 /* HEADER */
 .page-header { margin-bottom:16px; margin-top:8px; }
-#page-home .page-header,
 #page-goals .page-header,
 #page-ai .page-header,
 #page-input .page-header,
@@ -190,6 +189,11 @@ input, textarea, select {
 #page-ledger .page-header {
   margin-top: 0 !important;
   padding-top: max(44px, calc(env(safe-area-inset-top, 0px) + 12px));
+}
+#page-home .page-header {
+  margin-top: 0 !important;
+  padding-top: max(12px, calc(env(safe-area-inset-top, 0px) + 4px));
+  margin-bottom: 0;
 }
 .page-header .eyebrow { font-size:11px; color:var(--muted); font-weight:500; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
 .page-header h1 {
@@ -1161,39 +1165,17 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
 <!-- ══ HOME ══ -->
 <div class="page active" id="page-home">
-  <div class="page-header">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start">
-      <div>
-        <h1 style="font-family:-apple-system,'SF Pro Display','Inter','Helvetica Neue',sans-serif;font-size:28px;font-weight:300;line-height:1.2;margin-bottom:4px;letter-spacing:2px;display:flex;align-items:baseline;gap:0">
-          <span id="home-wealth-text" style="color:#888888;font-weight:200;letter-spacing:2px">Wealth</span><span id="home-ai-text" style="color:#a8874a;font-weight:600;letter-spacing:1px">AI</span>
-        </h1>
-        <div class="sub" id="home-date-sub" style="font-size:12px;color:var(--muted2);margin-top:2px"></div>
-      </div>
-
-      <!-- 우측 상단 버튼 그룹 -->
-      <div style="display:flex;flex-direction:row;align-items:center;gap:4px;margin-top:2px">
-        <button onclick="syncLoad()"
-          style="background:none;border:none;color:var(--muted);width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s"
-          ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-        </button>
-        <button onclick="goPage('goals',{classList:{add:()=>{},remove:()=>{}}})"
-          style="background:none;border:none;color:var(--muted);width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s"
-          ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-        </button>
-        <button id="theme-toggle-btn" onclick="toggleTheme()"
-          style="background:none;border:none;color:var(--muted);width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:15px;transition:color .2s"
-          ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
-          🌙
-        </button>
-        <button onclick="goPage('settings',{classList:{add:()=>{},remove:()=>{}}})"
-          style="background:none;border:none;color:var(--muted);width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s"
-          ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-        </button>
-      </div>
-    </div>
+  <div class="page-header" style="display:flex;justify-content:flex-end;align-items:center;padding-bottom:0;margin-bottom:0">
+    <button id="theme-toggle-btn" onclick="toggleTheme()"
+      style="background:none;border:none;color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:14px;transition:color .2s"
+      ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
+      🌙
+    </button>
+    <button onclick="goPage('settings',{classList:{add:()=>{},remove:()=>{}}})"
+      style="background:none;border:none;color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s"
+      ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    </button>
   </div>
 
   <!-- 카드 순서 앵커 -->
@@ -1809,9 +1791,16 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
 <!-- ══ INPUT ══ -->
 <div class="page" id="page-input">
-  <div class="page-header">
-    <div class="eyebrow">자산 관리</div>
-    <h1>자산<br>기록</h1>
+  <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-end">
+    <div>
+      <div class="eyebrow">자산 관리</div>
+      <h1>자산<br>기록</h1>
+    </div>
+    <button onclick="goPage('goals',{classList:{add:()=>{},remove:()=>{}}})"
+      style="background:none;border:none;color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s;flex-shrink:0;margin-bottom:6px"
+      ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+    </button>
   </div>
   <!-- 순자산 변화 그래프 -->
   <div class="card" style="margin-bottom:14px;cursor:pointer" onclick="openModal(null)">
@@ -1995,9 +1984,16 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
 <!-- ══ SETTINGS ══ -->
 <div class="page" id="page-settings">
-  <div class="page-header">
-    <div class="eyebrow">설정</div>
-    <h1>앱<br>설정</h1>
+  <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-end">
+    <div>
+      <div class="eyebrow">설정</div>
+      <h1>앱<br>설정</h1>
+    </div>
+    <button id="theme-toggle-btn-settings" onclick="toggleTheme()"
+      style="background:none;border:none;color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:15px;transition:color .2s;flex-shrink:0;margin-bottom:6px"
+      ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
+      🌙
+    </button>
   </div>
 
   <!-- 설정 탭 내비 -->
@@ -7665,19 +7661,19 @@ let _themeMode = load('theme-mode', 'system');
 function applyTheme(mode) {
   _themeMode = mode;
   store('theme-mode', mode);
-  const btn = document.getElementById('theme-toggle-btn');
+  const btns = [document.getElementById('theme-toggle-btn'), document.getElementById('theme-toggle-btn-settings')];
   if (mode === 'dark') {
     document.documentElement.style.setProperty('color-scheme', 'dark');
     document.body.setAttribute('data-theme', 'dark');
-    if (btn) btn.textContent = '☀️';
+    btns.forEach(function(b) { if (b) b.textContent = '☀️'; });
   } else if (mode === 'light') {
     document.documentElement.style.setProperty('color-scheme', 'light');
     document.body.setAttribute('data-theme', 'light');
-    if (btn) btn.textContent = '🌙';
+    btns.forEach(function(b) { if (b) b.textContent = '🌙'; });
   } else {
     document.documentElement.style.removeProperty('color-scheme');
     document.body.removeAttribute('data-theme');
-    if (btn) btn.textContent = '🌓';
+    btns.forEach(function(b) { if (b) b.textContent = '🌓'; });
   }
 }
 
