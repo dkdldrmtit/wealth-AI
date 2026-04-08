@@ -2700,23 +2700,25 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         </div>
         <div id="tx-amount-preview" style="font-size:11px;color:var(--muted);min-height:14px"></div>
       </div>
-      <!-- 키패드: 3열 숫자 + 우측 연산자/확인 -->
+      <!-- 키패드: 3열 숫자 + 우측 사칙연산 + 하단 ⌫/확인 -->
       <div style="display:grid;grid-template-columns:repeat(3,1fr) 58px;gap:5px">
-        <button type="button" onclick="calcInput('1')" class="calc-key-num">1</button>
-        <button type="button" onclick="calcInput('2')" class="calc-key-num">2</button>
-        <button type="button" onclick="calcInput('3')" class="calc-key-num">3</button>
-        <button type="button" onclick="calcDel()" class="calc-key-op">⌫</button>
-        <button type="button" onclick="calcInput('4')" class="calc-key-num">4</button>
-        <button type="button" onclick="calcInput('5')" class="calc-key-num">5</button>
-        <button type="button" onclick="calcInput('6')" class="calc-key-num">6</button>
-        <button type="button" onclick="calcOp('+')" class="calc-key-op">+</button>
         <button type="button" onclick="calcInput('7')" class="calc-key-num">7</button>
         <button type="button" onclick="calcInput('8')" class="calc-key-num">8</button>
         <button type="button" onclick="calcInput('9')" class="calc-key-num">9</button>
+        <button type="button" onclick="calcOp('÷')" class="calc-key-op">÷</button>
+        <button type="button" onclick="calcInput('4')" class="calc-key-num">4</button>
+        <button type="button" onclick="calcInput('5')" class="calc-key-num">5</button>
+        <button type="button" onclick="calcInput('6')" class="calc-key-num">6</button>
+        <button type="button" onclick="calcOp('×')" class="calc-key-op">×</button>
+        <button type="button" onclick="calcInput('1')" class="calc-key-num">1</button>
+        <button type="button" onclick="calcInput('2')" class="calc-key-num">2</button>
+        <button type="button" onclick="calcInput('3')" class="calc-key-num">3</button>
         <button type="button" onclick="calcOp('-')" class="calc-key-op">−</button>
         <button type="button" onclick="calcInput('0')" class="calc-key-num">0</button>
         <button type="button" onclick="calcInput('00')" class="calc-key-num" style="font-size:16px">00</button>
         <button type="button" onclick="calcInputThousand()" class="calc-key-num" style="font-size:13px">,000</button>
+        <button type="button" onclick="calcOp('+')" class="calc-key-op">+</button>
+        <button type="button" onclick="calcDel()" class="calc-key-op" style="grid-column:span 3">⌫</button>
         <button type="button" onclick="confirmCalcAmount()" class="calc-key-confirm">확인</button>
       </div>
     </div>
@@ -14666,7 +14668,7 @@ function closeCalcSheet() {
   document.getElementById('ledger-calc-sheet').style.display = 'none';
 }
 
-// 확인 버튼: 계산기 서브시트 닫고 금액 확정
+/// 확인 버튼: 계산기 서브시트 닫고 금액 확정
 function confirmCalcAmount() {
   if (calcOperator !== null) {
     _calcCompute();
@@ -15930,9 +15932,15 @@ function setTxOwner(owner) {
   const msBtn = document.getElementById('tx-owner-ms');
   const syBtn = document.getElementById('tx-owner-sy');
   const cmBtn = document.getElementById('tx-owner-cm');
-  if (msBtn) { msBtn.style.background = owner==='minsuk'?'var(--surface3)':'transparent'; msBtn.style.color = owner==='minsuk'?'var(--text)':'var(--muted2)'; msBtn.style.fontWeight = owner==='minsuk'?'700':'600'; }
-  if (syBtn) { syBtn.style.background = owner==='siyun'?'var(--surface3)':'transparent'; syBtn.style.color = owner==='siyun'?'var(--text)':'var(--muted2)'; syBtn.style.fontWeight = owner==='siyun'?'700':'600'; }
-  if (cmBtn) { cmBtn.style.background = owner==='common'?'var(--surface3)':'transparent'; cmBtn.style.color = owner==='common'?'var(--text)':'var(--muted2)'; cmBtn.style.fontWeight = owner==='common'?'700':'600'; }
+  [['minsuk',msBtn],['siyun',syBtn],['common',cmBtn]].forEach(function(pair) {
+    const active = owner === pair[0];
+    const btn = pair[1];
+    if (!btn) return;
+    btn.style.background = active ? 'var(--accent)' : 'transparent';
+    btn.style.borderColor = active ? 'var(--accent)' : 'var(--border2)';
+    btn.style.color = active ? '#fff' : 'var(--muted2)';
+    btn.style.fontWeight = active ? '700' : '600';
+  });
 }
 
 function renderCategoryBtns(type) {
