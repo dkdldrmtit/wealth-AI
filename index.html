@@ -515,7 +515,50 @@ body[data-theme="light"] {
   animation: modalFadeIn .25s ease both;
 }
 
-/* ── 2. 카드 탭 피드백 통일 ── */
+/* ── 계산기 서브시트 키 ── */
+.calc-key-num {
+  height: 50px;
+  background: var(--surface3);
+  border: none;
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: opacity .1s;
+}
+.calc-key-num:active { opacity: 0.45; }
+.calc-key-op {
+  height: 50px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  color: var(--acc-bright);
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity .1s;
+}
+.calc-key-op:active { opacity: 0.45; }
+.calc-key-confirm {
+  height: 50px;
+  background: var(--accent);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity .1s;
+}
+.calc-key-confirm:active { opacity: 0.65; }
+
+
 .card {
   transition: transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s ease;
 }
@@ -2573,141 +2616,108 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 </div>
 
 <!-- ══ 거래 입력 모달 ══ -->
-<div id="ledger-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);z-index:300;" class="modal-backdrop-in" onclick="if(event.target===this)closeLedgerAdd()">
-  <div style="position:absolute;bottom:0;left:0;right:0;max-width:680px;margin:0 auto;padding:0" class="modal-slide-up">
-    <div style="background:var(--surface);border-radius:24px 24px 0 0;border:1px solid var(--border2);border-bottom:none;padding:12px 16px max(24px,env(safe-area-inset-bottom,24px));max-height:92dvh;overflow-y:auto">
+<div id="ledger-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);z-index:300;" class="modal-backdrop-in" onclick="if(event.target===this)closeLedgerAdd()">
+  <div style="position:absolute;bottom:0;left:0;right:0;max-width:680px;margin:0 auto" class="modal-slide-up">
+    <div style="background:var(--surface);border-radius:24px 24px 0 0;border:1px solid var(--border2);border-bottom:none;padding:12px 20px max(28px,env(safe-area-inset-bottom,28px));max-height:92dvh;overflow-y:auto">
       <!-- 핸들 바 -->
-      <div style="width:36px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto 14px;"></div>
+      <div style="width:36px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto 16px"></div>
 
-
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <!-- 헤더 -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
         <div id="ledger-modal-title" style="font-family:'Playfair Display',serif;font-size:20px;color:var(--text);font-weight:700">거래 추가</div>
         <button onclick="closeLedgerAdd()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer">✕</button>
       </div>
 
-      <!-- ── Phase 1: 계산기 (바텀시트 스타일) ── -->
-      <div id="ledger-phase-calc">
+      <!-- 금액 표시 (탭 → 계산기 서브시트) -->
+      <button onclick="openCalcSheet()" style="width:100%;text-align:left;background:none;border:none;padding:6px 0 4px;cursor:pointer;display:flex;align-items:baseline;gap:6px;-webkit-tap-highlight-color:transparent">
+        <span id="main-amount-display" style="font-size:42px;font-weight:900;color:var(--text);letter-spacing:-1.5px;font-variant-numeric:tabular-nums;line-height:1.1">0</span>
+        <span style="font-size:22px;color:var(--muted);font-weight:400">원</span>
+        <span style="font-size:16px;color:var(--muted2);margin-left:2px">✏️</span>
+      </button>
+      <div id="main-amount-preview" style="font-size:11px;color:var(--muted);min-height:16px;margin-bottom:18px"></div>
+      <input type="hidden" id="tx-amount" value="">
 
-        <!-- 상단 컨텍스트 영역: 지금 무엇을 입력하는지 인지 -->
-        <div style="padding:0 0 12px;border-bottom:1px solid var(--border);margin-bottom:14px">
-          <!-- 수입/지출 토글 (뱅크샐러드 스타일 탭) -->
-          <div style="display:flex;justify-content:center;gap:0;background:var(--surface2);border-radius:10px;padding:3px;margin-bottom:14px">
-            <button id="type-expense" onclick="setTxType('expense')"
-              style="flex:1;padding:9px 16px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--red);transition:all .2s;box-shadow:0 1px 4px rgba(0,0,0,0.15)">
-              지출
-            </button>
-            <button id="type-income" onclick="setTxType('income')"
-              style="flex:1;padding:9px 16px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">
-              수입
-            </button>
-          </div>
-
-          <!-- 금액 대형 표시 (이미지처럼 중앙 정렬 + 밑줄) -->
-          <div style="position:relative;padding:0 4px 10px;border-bottom:2px solid var(--green)">
-            <div id="calc-expression" style="display:none;font-size:12px;color:var(--muted);font-weight:500;margin-bottom:2px;text-align:right"></div>
-            <div style="display:flex;align-items:baseline;justify-content:flex-end;gap:4px;min-height:44px">
-              <span id="calc-display-num" style="font-size:38px;font-weight:900;color:var(--text);letter-spacing:-1px;font-variant-numeric:tabular-nums">0</span>
-              <span style="font-size:20px;color:var(--muted);font-weight:400;margin-bottom:2px">원</span>
-            </div>
-            <div id="tx-amount-preview" style="font-size:11px;color:var(--muted);height:16px;text-align:right"></div>
-          </div>
-
-          <input type="hidden" id="tx-amount" value="">
-
-          <!-- 분류 / 카테고리 / 거래처 미리보기 행 -->
-          <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
-            <div id="calc-context-type" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:rgba(239,68,68,0.10);border:1px solid rgba(239,68,68,0.25);border-radius:20px;font-size:12px;font-weight:700;color:var(--red)">
-              지출
-            </div>
-            <div style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;font-size:12px;color:var(--muted2)">
-              카테고리
-            </div>
-            <div style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;font-size:12px;color:var(--muted2)">
-              거래처
-            </div>
-          </div>
-        </div>
-
-        <!-- 키패드 영역 -->
-        <!-- 3열 숫자 + 우측 연산자 열 -->
-        <div style="display:grid;grid-template-columns:repeat(3,1fr) 56px;gap:5px">
-
-          <!-- 1행 -->
-          <button type="button" onclick="calcInput('1')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">1</button>
-          <button type="button" onclick="calcInput('2')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">2</button>
-          <button type="button" onclick="calcInput('3')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">3</button>
-          <button type="button" onclick="calcDel()" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--muted2);font-size:20px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">⌫</button>
-
-          <!-- 2행 -->
-          <button type="button" onclick="calcInput('4')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">4</button>
-          <button type="button" onclick="calcInput('5')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">5</button>
-          <button type="button" onclick="calcInput('6')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">6</button>
-          <button type="button" onclick="calcOp('+')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--muted2);font-size:20px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">+</button>
-
-          <!-- 3행 -->
-          <button type="button" onclick="calcInput('7')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">7</button>
-          <button type="button" onclick="calcInput('8')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">8</button>
-          <button type="button" onclick="calcInput('9')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">9</button>
-          <button type="button" onclick="calcOp('-')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--muted2);font-size:20px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">−</button>
-
-          <!-- 4행: 0 / 00 / ,000 + 확인 -->
-          <button type="button" onclick="calcInput('0')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:20px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">0</button>
-          <button type="button" onclick="calcInput('00')" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:18px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">00</button>
-          <button type="button" onclick="calcInputThousand()" style="height:52px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:16px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s" ontouchstart="this.style.opacity='.5'" ontouchend="this.style.opacity='1'">,000</button>
-          <button type="button" onclick="confirmCalcAmount()"
-            style="height:52px;background:var(--green);border:none;border-radius:10px;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .1s"
-            ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">
-            확인
-          </button>
-
+      <!-- 분류 -->
+      <div style="display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0">분류</span>
+        <div style="display:flex;gap:8px">
+          <button id="type-expense" onclick="setTxType('expense')" style="padding:7px 18px;border-radius:20px;border:1.5px solid;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s">지출</button>
+          <button id="type-income" onclick="setTxType('income')" style="padding:7px 18px;border-radius:20px;border:1.5px solid;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s">수입</button>
         </div>
       </div>
 
-
-      <!-- ── Phase 2: 상세 입력 ── -->
-      <div id="ledger-phase-detail" style="display:none">
-        <!-- 금액 요약 + 수정 버튼 -->
-        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:14px;padding:12px 14px;margin-bottom:12px">
-          <div>
-            <div id="detail-type-badge" style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--red);margin-bottom:2px">지출</div>
-            <div style="display:flex;align-items:baseline;gap:4px">
-              <span id="detail-amount-display" style="font-size:22px;font-weight:900;color:var(--text)">0</span>
-              <span style="font-size:13px;color:var(--muted);font-weight:600">원</span>
-            </div>
-          </div>
-          <button onclick="backToCalcPhase()" style="background:var(--surface3);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;padding:7px 12px;cursor:pointer">금액 수정</button>
+      <!-- 누구 -->
+      <div style="display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0">누구</span>
+        <div style="display:flex;gap:6px">
+          <button id="tx-owner-cm" onclick="setTxOwner('common')" style="padding:6px 14px;border-radius:16px;border:1px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;color:var(--muted2);cursor:pointer;transition:all .2s">공동</button>
+          <button id="tx-owner-ms" onclick="setTxOwner('minsuk')" style="padding:6px 14px;border-radius:16px;border:1px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;color:var(--muted2);cursor:pointer;transition:all .2s">나</button>
+          <button id="tx-owner-sy" onclick="setTxOwner('siyun')" style="padding:6px 14px;border-radius:16px;border:1px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;color:var(--muted2);cursor:pointer;transition:all .2s">배우자</button>
         </div>
+      </div>
 
-        <!-- 누구 -->
-        <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:10px">
-          <button id="tx-owner-cm" onclick="setTxOwner('common')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">공동</button>
-          <button id="tx-owner-ms" onclick="setTxOwner('minsuk')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">나</button>
-          <button id="tx-owner-sy" onclick="setTxOwner('siyun')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">배우자</button>
-        </div>
+      <!-- 카테고리 -->
+      <div style="padding:13px 0;border-bottom:1px solid var(--border)">
+        <div style="font-size:12px;color:var(--muted2);margin-bottom:9px">카테고리</div>
+        <div id="category-btns" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+      </div>
 
-        <!-- 카테고리 -->
-        <div style="margin-bottom:10px">
-          <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">카테고리</div>
-          <div id="category-btns" style="display:flex;flex-wrap:wrap;gap:6px"></div>
-        </div>
+      <!-- 거래처 -->
+      <div style="display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)">
+        <span id="tx-memo-label" style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0">거래처</span>
+        <input type="text" id="tx-memo" placeholder="입력하세요"
+          style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;outline:none">
+      </div>
 
-        <!-- 날짜 -->
-        <div style="margin-bottom:10px">
-          <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:5px">날짜</div>
-          <input type="date" id="tx-date" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none;-webkit-appearance:none;appearance:none;box-sizing:border-box">
-        </div>
+      <!-- 날짜 -->
+      <div style="display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0">날짜</span>
+        <input type="date" id="tx-date"
+          style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;outline:none;-webkit-appearance:none;appearance:none">
+      </div>
 
-        <!-- 지출처/입금처 -->
-        <div style="margin-bottom:12px">
-          <div id="tx-memo-label" style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:5px">지출처 (선택)</div>
-          <input type="text" id="tx-memo" placeholder="예: 스타벅스"
-            style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none">
-        </div>
+      <!-- 저장 / 삭제 -->
+      <div style="display:flex;gap:10px;margin-top:18px">
+        <button id="tx-delete-btn" onclick="deleteTxFromEdit()" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);border-radius:14px;color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;padding:14px 18px;cursor:pointer;flex-shrink:0">🗑️</button>
+        <button class="btn-primary" onclick="saveTx()" style="flex:1;font-size:15px;font-weight:700;border-radius:14px;padding:16px">저장</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-        <div style="display:flex;gap:10px">
-          <button id="tx-delete-btn" onclick="deleteTxFromEdit()" style="display:none;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:12px;color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:14px 16px;cursor:pointer">🗑️ 삭제</button>
-          <button class="btn-primary" onclick="saveTx()">저장</button>
+<!-- ══ 계산기 서브시트 ══ -->
+<div id="ledger-calc-sheet" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:400;" onclick="if(event.target===this)closeCalcSheet()">
+  <div id="ledger-calc-inner" style="position:absolute;bottom:0;left:0;right:0;max-width:680px;margin:0 auto" class="modal-slide-up">
+    <div style="background:var(--surface2);border-radius:20px 20px 0 0;border:1px solid var(--border2);border-bottom:none;padding:10px 14px max(28px,env(safe-area-inset-bottom,28px))">
+      <!-- 핸들 -->
+      <div style="width:32px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto 12px"></div>
+      <!-- 수식 + 금액 표시 -->
+      <div style="text-align:right;padding:2px 4px 10px">
+        <div id="calc-expression" style="display:none;font-size:13px;color:var(--muted);margin-bottom:2px"></div>
+        <div style="display:flex;align-items:baseline;justify-content:flex-end;gap:4px">
+          <span id="calc-display-num" style="font-size:30px;font-weight:900;color:var(--text);letter-spacing:-1px;font-variant-numeric:tabular-nums">0</span>
+          <span style="font-size:15px;color:var(--muted);font-weight:400">원</span>
         </div>
+        <div id="tx-amount-preview" style="font-size:11px;color:var(--muted);min-height:14px"></div>
+      </div>
+      <!-- 키패드: 3열 숫자 + 우측 연산자/확인 -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr) 58px;gap:5px">
+        <button type="button" onclick="calcInput('1')" class="calc-key-num">1</button>
+        <button type="button" onclick="calcInput('2')" class="calc-key-num">2</button>
+        <button type="button" onclick="calcInput('3')" class="calc-key-num">3</button>
+        <button type="button" onclick="calcDel()" class="calc-key-op">⌫</button>
+        <button type="button" onclick="calcInput('4')" class="calc-key-num">4</button>
+        <button type="button" onclick="calcInput('5')" class="calc-key-num">5</button>
+        <button type="button" onclick="calcInput('6')" class="calc-key-num">6</button>
+        <button type="button" onclick="calcOp('+')" class="calc-key-op">+</button>
+        <button type="button" onclick="calcInput('7')" class="calc-key-num">7</button>
+        <button type="button" onclick="calcInput('8')" class="calc-key-num">8</button>
+        <button type="button" onclick="calcInput('9')" class="calc-key-num">9</button>
+        <button type="button" onclick="calcOp('-')" class="calc-key-op">−</button>
+        <button type="button" onclick="calcInput('0')" class="calc-key-num">0</button>
+        <button type="button" onclick="calcInput('00')" class="calc-key-num" style="font-size:16px">00</button>
+        <button type="button" onclick="calcInputThousand()" class="calc-key-num" style="font-size:13px">,000</button>
+        <button type="button" onclick="confirmCalcAmount()" class="calc-key-confirm">확인</button>
       </div>
     </div>
   </div>
@@ -14630,58 +14640,41 @@ function openLedgerAdd(type) {
   document.getElementById('tx-amount').value = '';
   document.getElementById('tx-memo').value = '';
   document.getElementById('tx-amount').dataset.raw = '';
-  document.getElementById('tx-amount-preview').textContent = '';
+  document.getElementById('main-amount-preview').textContent = '';
+  document.getElementById('main-amount-display').textContent = '0';
   setTxType(type || 'expense');
   setTxOwner('common');
-  // Phase 1(계산기)로 초기화
-  document.getElementById('ledger-phase-calc').style.display = 'block';
-  document.getElementById('ledger-phase-detail').style.display = 'none';
   document.getElementById('ledger-modal-title').textContent = '거래 추가';
   document.getElementById('tx-delete-btn').style.display = 'none';
-  // slide-up 애니메이션 재시작
   const modal = document.getElementById('ledger-modal');
   modal.style.display = 'block';
   const inner = modal.querySelector('.modal-slide-up');
   if (inner) { inner.style.animation = 'none'; void inner.offsetWidth; inner.style.animation = ''; }
   lockScroll();
 }
-// Phase 전환 헬퍼: 상세 입력 화면 표시
-function _showDetailPhase() {
-  const num = parseInt(calcRawValue || '0', 10);
-  const detailAmt = document.getElementById('detail-amount-display');
-  const detailBadge = document.getElementById('detail-type-badge');
-  const memoLabel = document.getElementById('tx-memo-label');
-  if (detailAmt) detailAmt.textContent = num.toLocaleString('ko-KR');
-  if (detailBadge) {
-    detailBadge.textContent = currentTxType === 'expense' ? '지출' : '수입';
-    detailBadge.style.color = currentTxType === 'expense' ? 'var(--red)' : 'var(--green)';
-  }
-  if (memoLabel) memoLabel.textContent = currentTxType === 'expense' ? '지출처 (선택)' : '입금처 (선택)';
-  document.getElementById('ledger-phase-calc').style.display = 'none';
-  document.getElementById('ledger-phase-detail').style.display = 'block';
+
+// 계산기 서브시트 열기
+function openCalcSheet() {
+  const sheet = document.getElementById('ledger-calc-sheet');
+  sheet.style.display = 'block';
+  const inner = document.getElementById('ledger-calc-inner');
+  if (inner) { inner.style.animation = 'none'; void inner.offsetWidth; inner.style.animation = ''; }
 }
 
-// 완료 버튼: Phase 1 → Phase 2 전환
+// 계산기 서브시트 닫기
+function closeCalcSheet() {
+  document.getElementById('ledger-calc-sheet').style.display = 'none';
+}
+
+// 확인 버튼: 계산기 서브시트 닫고 금액 확정
 function confirmCalcAmount() {
-  // 연산자 pending이면 계산 먼저
   if (calcOperator !== null) {
     _calcCompute();
     updateCalcDisplay();
   }
   const num = parseInt(calcRawValue || '0', 10);
   if (!num || num <= 0) { showToast('❗ 금액을 입력해주세요'); return; }
-  _showDetailPhase();
-  // 지출처/입금처 자동 포커스
-  setTimeout(function() {
-    const memo = document.getElementById('tx-memo');
-    if (memo) memo.focus();
-  }, 100);
-}
-
-// 금액 수정 버튼: Phase 2 → Phase 1 복귀
-function backToCalcPhase() {
-  document.getElementById('ledger-phase-detail').style.display = 'none';
-  document.getElementById('ledger-phase-calc').style.display = 'block';
+  closeCalcSheet();
 }
 
 // ── 음성 입력 파싱 ──
@@ -15894,11 +15887,11 @@ function confirmSmsImport() {
 
 function closeLedgerAdd() {
   document.getElementById('ledger-modal').style.display = 'none';
+  document.getElementById('ledger-calc-sheet').style.display = 'none';
   unlockScroll();
   editingTxId = null;
   document.getElementById('tx-delete-btn').style.display = 'none';
   document.getElementById('ledger-modal-title').textContent = '거래 추가';
-  // 스크롤 위치 복원
   setTimeout(function() {
     const listWrap = document.getElementById('ltab-content-list');
     if (listWrap && _ledgerScrollY > 0) {
@@ -15916,37 +15909,17 @@ function setTxType(type) {
   const expBtn = document.getElementById('type-expense');
   const incBtn = document.getElementById('type-income');
   if (expBtn) {
-    expBtn.style.background = isExp ? 'var(--surface)' : 'transparent';
-    expBtn.style.color = isExp ? 'var(--red)' : 'var(--muted2)';
-    expBtn.style.fontWeight = isExp ? '700' : '600';
-    expBtn.style.boxShadow = isExp ? '0 1px 4px rgba(0,0,0,0.15)' : 'none';
+    expBtn.style.background = isExp ? 'rgba(217,85,85,0.12)' : 'transparent';
+    expBtn.style.borderColor = isExp ? 'var(--up)' : 'var(--border2)';
+    expBtn.style.color = isExp ? 'var(--up)' : 'var(--muted2)';
   }
   if (incBtn) {
-    incBtn.style.background = !isExp ? 'var(--surface)' : 'transparent';
+    incBtn.style.background = !isExp ? 'rgba(59,130,246,0.10)' : 'transparent';
+    incBtn.style.borderColor = !isExp ? 'var(--blue)' : 'var(--border2)';
     incBtn.style.color = !isExp ? 'var(--blue)' : 'var(--muted2)';
-    incBtn.style.fontWeight = !isExp ? '700' : '600';
-    incBtn.style.boxShadow = !isExp ? '0 1px 4px rgba(0,0,0,0.15)' : 'none';
   }
-
-  // 금액 밑줄 색상 변경
-  const underline = document.querySelector('#ledger-phase-calc [style*="border-bottom: 2px solid"]') ||
-    document.querySelector('#ledger-phase-calc [style*="border-bottom:2px solid"]');
-  if (underline) underline.style.borderBottomColor = isExp ? 'var(--green)' : 'var(--blue)';
-
-  // 컨텍스트 배지 업데이트
-  const ctxBadge = document.getElementById('calc-context-type');
-  if (ctxBadge) {
-    ctxBadge.textContent = isExp ? '지출' : '수입';
-    ctxBadge.style.background = isExp ? 'rgba(239,68,68,0.10)' : 'rgba(59,130,246,0.10)';
-    ctxBadge.style.borderColor = isExp ? 'rgba(239,68,68,0.25)' : 'rgba(59,130,246,0.25)';
-    ctxBadge.style.color = isExp ? 'var(--red)' : 'var(--blue)';
-  }
-
-  // Phase 2 배지 동기화
-  const badge = document.getElementById('detail-type-badge');
   const memoLabel = document.getElementById('tx-memo-label');
-  if (badge) { badge.textContent = isExp ? '지출' : '수입'; badge.style.color = isExp ? 'var(--red)' : 'var(--green)'; }
-  if (memoLabel) memoLabel.textContent = isExp ? '지출처 (선택)' : '입금처 (선택)';
+  if (memoLabel) memoLabel.textContent = isExp ? '거래처' : '입금처';
   selectedCategory = CATEGORIES[type][0].id;
   renderCategoryBtns(type);
 }
@@ -16024,7 +15997,6 @@ let _ledgerScrollY = 0;
 function openTxEdit(id) {
   const tx = ledgerTxs.find(t => t.id === id);
   if (!tx) return;
-  // 현재 스크롤 위치 저장
   const listWrap = document.getElementById('ltab-content-list');
   _ledgerScrollY = listWrap ? listWrap.scrollTop : window.scrollY;
   editingTxId = id;
@@ -16034,15 +16006,15 @@ function openTxEdit(id) {
   updateCalcDisplay();
   document.getElementById('tx-date').value = tx.date;
   document.getElementById('tx-memo').value = tx.memo || '';
-  // 카테고리가 해당 타입에 실제로 존재하는지 검증
   const validCat = CATEGORIES[tx.type].find(c => c.id === tx.category);
   selectedCategory = validCat ? tx.category : CATEGORIES[tx.type][0].id;
   renderCategoryBtns(tx.type);
   document.getElementById('ledger-modal-title').textContent = '거래 편집';
   document.getElementById('tx-delete-btn').style.display = 'block';
-  // 편집 시 Phase 2 바로 진입
-  _showDetailPhase();
-  document.getElementById('ledger-modal').style.display = 'block';
+  const modal = document.getElementById('ledger-modal');
+  modal.style.display = 'block';
+  const inner = modal.querySelector('.modal-slide-up');
+  if (inner) { inner.style.animation = 'none'; void inner.offsetWidth; inner.style.animation = ''; }
   lockScroll();
 }
 
@@ -16653,8 +16625,13 @@ function updateCalcDisplay() {
   const previewEl = document.getElementById('tx-amount-preview');
   const exprEl = document.getElementById('calc-expression');
   const hiddenEl = document.getElementById('tx-amount');
+  const mainDisp = document.getElementById('main-amount-display');
+  const mainPreview = document.getElementById('main-amount-preview');
+
   if (dispEl) dispEl.textContent = num.toLocaleString('ko-KR');
+  if (mainDisp) mainDisp.textContent = num.toLocaleString('ko-KR');
   if (hiddenEl) hiddenEl.value = calcRawValue || '';
+
   if (exprEl) {
     if (calcOperator) {
       exprEl.textContent = calcFirstValue.toLocaleString('ko-KR') + ' ' + calcOperator;
@@ -16663,15 +16640,14 @@ function updateCalcDisplay() {
       exprEl.style.display = 'none';
     }
   }
-  if (previewEl) {
-    if (num >= 10000) {
-      const man = Math.floor(num / 10000);
-      const rem = num % 10000;
-      previewEl.textContent = rem > 0 ? man + '만 ' + rem.toLocaleString() + '원' : man + '만원';
-    } else {
-      previewEl.textContent = '';
-    }
-  }
+
+  const preview = num >= 10000 ? (function() {
+    const man = Math.floor(num / 10000);
+    const rem = num % 10000;
+    return rem > 0 ? man + '만 ' + rem.toLocaleString() + '원' : man + '만원';
+  })() : '';
+  if (previewEl) previewEl.textContent = preview;
+  if (mainPreview) mainPreview.textContent = preview;
 }
 
 function resetCalcPad() {
