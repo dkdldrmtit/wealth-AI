@@ -2639,7 +2639,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <!-- 금액 표시 (탭 → 계산기 서브시트) -->
       <button onclick="openCalcSheet()" style="width:100%;text-align:left;background:none;border:none;padding:6px 0 4px;cursor:pointer;display:flex;align-items:baseline;gap:6px;-webkit-tap-highlight-color:transparent">
         <span id="main-amount-display" style="font-size:42px;font-weight:900;color:var(--text);letter-spacing:-1.5px;font-variant-numeric:tabular-nums;line-height:1.1">0</span>
-        <span style="font-size:22px;color:var(--muted);font-weight:400">원</span>
+        <span id="main-amount-unit" style="font-size:22px;color:var(--muted);font-weight:400">원</span>
         <span style="font-size:16px;color:var(--muted2);margin-left:2px">✏️</span>
       </button>
       <div id="main-amount-preview" style="font-size:11px;color:var(--muted);min-height:16px;margin-bottom:18px"></div>
@@ -16645,21 +16645,27 @@ function updateCalcDisplay() {
   const hiddenEl = document.getElementById('tx-amount');
   const mainDisp = document.getElementById('main-amount-display');
   const mainPreview = document.getElementById('main-amount-preview');
+  const mainUnit = document.getElementById('main-amount-unit');
 
   if (hiddenEl) hiddenEl.value = calcRawValue || '';
 
   // 메인 모달에 수식 포함 표시 (이미지2 스타일)
   if (mainDisp) {
+    let text;
     if (calcOperator) {
-      mainDisp.textContent = calcFirstValue.toLocaleString('ko-KR') + ' ' + calcOperator +
+      text = calcFirstValue.toLocaleString('ko-KR') + ' ' + calcOperator +
         (calcRawValue ? ' ' + num.toLocaleString('ko-KR') : '');
     } else {
-      mainDisp.textContent = num.toLocaleString('ko-KR');
+      text = num.toLocaleString('ko-KR');
     }
+    mainDisp.textContent = text;
+    // 글자 수에 따라 폰트 크기 축소
+    mainDisp.style.fontSize = text.length > 14 ? '24px' : text.length > 10 ? '32px' : '42px';
+    // 수식 중에는 '원' 단위 숨김
+    if (mainUnit) mainUnit.style.display = calcOperator ? 'none' : '';
   }
 
   // 만원 단위 미리보기 (연산자 없을 때만)
-  const displayNum = calcOperator ? calcFirstValue : num;
   const preview = !calcOperator && num >= 10000 ? (function() {
     const man = Math.floor(num / 10000);
     const rem = num % 10000;
