@@ -16601,7 +16601,9 @@ function calcOp(op) {
   const num = parseInt(calcRawValue || '0', 10);
   if (calcOperator !== null && calcRawValue !== '') {
     // 두 번째 피연산자 입력됨 → 계산 후 새 연산자
-    _calcCompute();
+    _calcCompute(); // 결과가 calcRawValue에 저장됨
+    calcFirstValue = parseInt(calcRawValue || '0', 10); // 결과를 첫 번째 피연산자로 이동
+    calcRawValue = '';
     calcOperator = op;
   } else if (calcOperator !== null) {
     // 연산자만 변경 (첫 번째 피연산자 유지)
