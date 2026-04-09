@@ -515,48 +515,56 @@ body[data-theme="light"] {
   animation: modalFadeIn .25s ease both;
 }
 
-/* ── 계산기 서브시트 키 ── */
-.calc-key-num {
-  height: 50px;
-  background: var(--surface3);
+/* ── 계산기 서브시트 키 (flat / 격자선 스타일) ── */
+.calc-flat-num {
+  height: 54px;
+  background: var(--surface2);
   border: none;
-  border-radius: 10px;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
   color: var(--text);
-  font-size: 20px;
-  font-weight: 500;
+  font-size: 22px;
+  font-weight: 400;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   font-family: 'Noto Sans KR', sans-serif;
-  transition: opacity .1s;
+  transition: opacity .08s;
 }
-.calc-key-num:active { opacity: 0.45; }
-.calc-key-op {
-  height: 50px;
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: 10px;
-  color: var(--acc-bright);
+.calc-flat-num:active { opacity: 0.45; }
+.calc-flat-op {
+  flex: 1;
+  width: 100%;
+  min-height: 54px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
   font-size: 20px;
-  font-weight: 600;
+  font-weight: 400;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: opacity .1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity .08s;
 }
-.calc-key-op:active { opacity: 0.45; }
-.calc-key-confirm {
-  height: 50px;
+.calc-flat-op:active { opacity: 0.45; }
+.calc-flat-confirm {
+  height: 54px;
+  grid-column: span 3;
   background: var(--accent);
   border: none;
-  border-radius: 10px;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
   color: #fff;
   font-family: 'Noto Sans KR', sans-serif;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: opacity .1s;
+  transition: opacity .08s;
 }
-.calc-key-confirm:active { opacity: 0.65; }
+.calc-flat-confirm:active { opacity: 0.65; }
 
 
 .card {
@@ -2686,41 +2694,38 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 </div>
 
 <!-- ══ 계산기 서브시트 ══ -->
-<div id="ledger-calc-sheet" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:400;" onclick="if(event.target===this)closeCalcSheet()">
+<div id="ledger-calc-sheet" style="display:none;position:fixed;inset:0;z-index:400;background:transparent" onclick="if(event.target===this)closeCalcSheet()">
   <div id="ledger-calc-inner" style="position:absolute;bottom:0;left:0;right:0;max-width:680px;margin:0 auto" class="modal-slide-up">
-    <div style="background:var(--surface2);border-radius:20px 20px 0 0;border:1px solid var(--border2);border-bottom:none;padding:10px 14px max(28px,env(safe-area-inset-bottom,28px))">
-      <!-- 핸들 -->
-      <div style="width:32px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto 12px"></div>
-      <!-- 수식 + 금액 표시 -->
-      <div style="text-align:right;padding:2px 4px 10px">
-        <div id="calc-expression" style="display:none;font-size:13px;color:var(--muted);margin-bottom:2px"></div>
-        <div style="display:flex;align-items:baseline;justify-content:flex-end;gap:4px">
-          <span id="calc-display-num" style="font-size:30px;font-weight:900;color:var(--text);letter-spacing:-1px;font-variant-numeric:tabular-nums">0</span>
-          <span style="font-size:15px;color:var(--muted);font-weight:400">원</span>
+    <div style="border-top:1px solid var(--border)">
+      <!-- 키패드: 숫자 3열(5행) + 연산자 열(5행) -->
+      <div style="display:flex">
+        <!-- 숫자 그리드 -->
+        <div style="flex:1;display:grid;grid-template-columns:repeat(3,1fr)">
+          <button type="button" onclick="calcInput('1')" class="calc-flat-num">1</button>
+          <button type="button" onclick="calcInput('2')" class="calc-flat-num">2</button>
+          <button type="button" onclick="calcInput('3')" class="calc-flat-num" style="border-right:none">3</button>
+          <button type="button" onclick="calcInput('4')" class="calc-flat-num">4</button>
+          <button type="button" onclick="calcInput('5')" class="calc-flat-num">5</button>
+          <button type="button" onclick="calcInput('6')" class="calc-flat-num" style="border-right:none">6</button>
+          <button type="button" onclick="calcInput('7')" class="calc-flat-num">7</button>
+          <button type="button" onclick="calcInput('8')" class="calc-flat-num">8</button>
+          <button type="button" onclick="calcInput('9')" class="calc-flat-num" style="border-right:none">9</button>
+          <button type="button" onclick="calcInput('0')" class="calc-flat-num">0</button>
+          <button type="button" onclick="calcInput('00')" class="calc-flat-num" style="font-size:18px">00</button>
+          <button type="button" onclick="calcInputThousand()" class="calc-flat-num" style="font-size:14px;border-right:none">,000</button>
+          <button type="button" onclick="confirmCalcAmount()" class="calc-flat-confirm">확인</button>
         </div>
-        <div id="tx-amount-preview" style="font-size:11px;color:var(--muted);min-height:14px"></div>
+        <!-- 연산자 열 -->
+        <div style="width:72px;background:var(--surface3);border-left:1px solid var(--border);display:flex;flex-direction:column">
+          <button type="button" onclick="calcDel()" class="calc-flat-op">⌫</button>
+          <button type="button" onclick="calcOp('+')" class="calc-flat-op">+</button>
+          <button type="button" onclick="calcOp('-')" class="calc-flat-op">−</button>
+          <button type="button" onclick="calcOp('×')" class="calc-flat-op">×</button>
+          <button type="button" onclick="calcOp('÷')" class="calc-flat-op" style="border-bottom:none">÷</button>
+        </div>
       </div>
-      <!-- 키패드: 3열 숫자 + 우측 사칙연산 + 하단 ⌫/확인 -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr) 58px;gap:5px">
-        <button type="button" onclick="calcInput('7')" class="calc-key-num">7</button>
-        <button type="button" onclick="calcInput('8')" class="calc-key-num">8</button>
-        <button type="button" onclick="calcInput('9')" class="calc-key-num">9</button>
-        <button type="button" onclick="calcOp('÷')" class="calc-key-op">÷</button>
-        <button type="button" onclick="calcInput('4')" class="calc-key-num">4</button>
-        <button type="button" onclick="calcInput('5')" class="calc-key-num">5</button>
-        <button type="button" onclick="calcInput('6')" class="calc-key-num">6</button>
-        <button type="button" onclick="calcOp('×')" class="calc-key-op">×</button>
-        <button type="button" onclick="calcInput('1')" class="calc-key-num">1</button>
-        <button type="button" onclick="calcInput('2')" class="calc-key-num">2</button>
-        <button type="button" onclick="calcInput('3')" class="calc-key-num">3</button>
-        <button type="button" onclick="calcOp('-')" class="calc-key-op">−</button>
-        <button type="button" onclick="calcInput('0')" class="calc-key-num">0</button>
-        <button type="button" onclick="calcInput('00')" class="calc-key-num" style="font-size:16px">00</button>
-        <button type="button" onclick="calcInputThousand()" class="calc-key-num" style="font-size:13px">,000</button>
-        <button type="button" onclick="calcOp('+')" class="calc-key-op">+</button>
-        <button type="button" onclick="calcDel()" class="calc-key-op" style="grid-column:span 3">⌫</button>
-        <button type="button" onclick="confirmCalcAmount()" class="calc-key-confirm">확인</button>
-      </div>
+      <!-- safe area -->
+      <div style="background:var(--surface2);height:max(0px,env(safe-area-inset-bottom,0px))"></div>
     </div>
   </div>
 </div>
@@ -14653,6 +14658,8 @@ function openLedgerAdd(type) {
   const inner = modal.querySelector('.modal-slide-up');
   if (inner) { inner.style.animation = 'none'; void inner.offsetWidth; inner.style.animation = ''; }
   lockScroll();
+  // 메인 모달 애니메이션 시작 후 계산기 서브시트 자동 오픈
+  setTimeout(openCalcSheet, 60);
 }
 
 // 계산기 서브시트 열기
@@ -16593,12 +16600,18 @@ function calcInputThousand() {
 function calcOp(op) {
   const num = parseInt(calcRawValue || '0', 10);
   if (calcOperator !== null && calcRawValue !== '') {
+    // 두 번째 피연산자 입력됨 → 계산 후 새 연산자
     _calcCompute();
+    calcOperator = op;
+  } else if (calcOperator !== null) {
+    // 연산자만 변경 (첫 번째 피연산자 유지)
+    calcOperator = op;
   } else {
+    // 첫 번째 피연산자 확정
     calcFirstValue = num;
     calcRawValue = '';
+    calcOperator = op;
   }
-  calcOperator = op;
   updateCalcDisplay();
 }
 
@@ -16629,32 +16642,29 @@ function calcDel() {
 
 function updateCalcDisplay() {
   const num = parseInt(calcRawValue || '0', 10);
-  const dispEl = document.getElementById('calc-display-num');
-  const previewEl = document.getElementById('tx-amount-preview');
-  const exprEl = document.getElementById('calc-expression');
   const hiddenEl = document.getElementById('tx-amount');
   const mainDisp = document.getElementById('main-amount-display');
   const mainPreview = document.getElementById('main-amount-preview');
 
-  if (dispEl) dispEl.textContent = num.toLocaleString('ko-KR');
-  if (mainDisp) mainDisp.textContent = num.toLocaleString('ko-KR');
   if (hiddenEl) hiddenEl.value = calcRawValue || '';
 
-  if (exprEl) {
+  // 메인 모달에 수식 포함 표시 (이미지2 스타일)
+  if (mainDisp) {
     if (calcOperator) {
-      exprEl.textContent = calcFirstValue.toLocaleString('ko-KR') + ' ' + calcOperator;
-      exprEl.style.display = 'block';
+      mainDisp.textContent = calcFirstValue.toLocaleString('ko-KR') + ' ' + calcOperator +
+        (calcRawValue ? ' ' + num.toLocaleString('ko-KR') : '');
     } else {
-      exprEl.style.display = 'none';
+      mainDisp.textContent = num.toLocaleString('ko-KR');
     }
   }
 
-  const preview = num >= 10000 ? (function() {
+  // 만원 단위 미리보기 (연산자 없을 때만)
+  const displayNum = calcOperator ? calcFirstValue : num;
+  const preview = !calcOperator && num >= 10000 ? (function() {
     const man = Math.floor(num / 10000);
     const rem = num % 10000;
     return rem > 0 ? man + '만 ' + rem.toLocaleString() + '원' : man + '만원';
   })() : '';
-  if (previewEl) previewEl.textContent = preview;
   if (mainPreview) mainPreview.textContent = preview;
 }
 
