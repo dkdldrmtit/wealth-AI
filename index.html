@@ -14048,7 +14048,7 @@ function saveStock() {
   const accountType = currentStockAccType;
   const broker = (document.getElementById('stock-broker-input').value || '').trim();
   if (!name || !ticker) { showToast('❗ 종목명과 티커를 입력해주세요'); return; }
-  if (qty <= 0) { showToast('❗ 보유 수량을 입력해주세요'); return; }
+  if (!editingStockId && qty <= 0) { showToast('❗ 보유 수량을 입력해주세요'); return; }
   if (!accountType) { showToast('❗ 계좌종류를 선택해주세요'); return; }
   if (editingStockId) {
     const idx = stocks.findIndex(s => s.id === editingStockId);
