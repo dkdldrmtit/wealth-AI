@@ -12962,14 +12962,44 @@ function renderStkPctChart() {
   const totalColor = totalIsUp ? 'var(--red)' : 'var(--blue)';
   const totalPnlStr = (totalIsUp ? '+' : '') + Math.round(stats.pnl).toLocaleString() + '원';
 
+  // 최고 수익/손실 종목
+  const sorted4stats = [...activeStocks].sort(function(a, b) {
+    const pctA = a.avgPrice > 0 ? (a.currentPrice - a.avgPrice) / a.avgPrice * 100 : 0;
+    const pctB = b.avgPrice > 0 ? (b.currentPrice - b.avgPrice) / b.avgPrice * 100 : 0;
+    return pctB - pctA;
+  });
+  const topGainer = sorted4stats[0];
+  const topLoser = sorted4stats[sorted4stats.length - 1];
+  const topGainerPct = topGainer && topGainer.avgPrice > 0 ? (topGainer.currentPrice - topGainer.avgPrice) / topGainer.avgPrice * 100 : 0;
+  const topLoserPct = topLoser && topLoser.avgPrice > 0 ? (topLoser.currentPrice - topLoser.avgPrice) / topLoser.avgPrice * 100 : 0;
+
+  const statsRowHtml = activeStocks.length >= 2
+    ? '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'
+      + '<div style="padding:8px 10px;background:rgba(239,68,68,.07);border:0.5px solid rgba(239,68,68,.15);border-radius:8px">'
+      + '<div style="font-size:9px;color:var(--muted);margin-bottom:3px">최고 수익</div>'
+      + '<div style="font-size:11px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + topGainer.name + '</div>'
+      + '<div style="font-size:12px;font-weight:800;color:var(--red);margin-top:1px">+' + topGainerPct.toFixed(1) + '%</div>'
+      + '</div>'
+      + '<div style="padding:8px 10px;background:rgba(74,158,255,.07);border:0.5px solid rgba(74,158,255,.15);border-radius:8px">'
+      + '<div style="font-size:9px;color:var(--muted);margin-bottom:3px">최저 수익</div>'
+      + '<div style="font-size:11px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + topLoser.name + '</div>'
+      + '<div style="font-size:12px;font-weight:800;color:var(--blue);margin-top:1px">' + (topLoserPct >= 0 ? '+' : '') + topLoserPct.toFixed(1) + '%</div>'
+      + '</div>'
+      + '</div>'
+    : '';
+
   wrap.innerHTML =
     '<div style="display:flex;justify-content:space-between;align-items:center;padding:0 0 12px;margin-bottom:12px;border-bottom:1px solid var(--border)">'
+    + '<div>'
     + '<span style="font-size:12px;color:var(--muted)">전체 손익</span>'
+    + '<div style="font-size:11px;color:var(--muted2);margin-top:2px">투자 ' + Math.round(stats.cost).toLocaleString() + '원</div>'
+    + '</div>'
     + '<div style="text-align:right">'
     + '<span style="font-size:22px;font-weight:900;color:' + totalColor + '">' + (totalIsUp?'+':'') + stats.pct.toFixed(2) + '%</span>'
     + '<div style="font-size:11px;color:var(--muted);margin-top:1px">' + totalPnlStr + '</div>'
     + '</div>'
     + '</div>'
+    + statsRowHtml
     + _renderStockRows(activeStocks);
 
   // 나 vs 배우자 비교 (통합 보기일 때만)
