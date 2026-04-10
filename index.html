@@ -12246,11 +12246,22 @@ function setStkOwner(owner) {
   }
   const ownerBtn = document.getElementById('stk-owner-toggle');
   if (ownerBtn) {
-    var isFiltered = (owner !== 'all');
-    ownerBtn.style.color = isFiltered ? 'var(--text)' : 'var(--muted2)';
-    ownerBtn.style.fontWeight = isFiltered ? '700' : '600';
-    ownerBtn.style.borderColor = 'var(--border2)';
-    ownerBtn.style.background = 'var(--surface2)';
+    if (owner === 'minsuk') {
+      ownerBtn.style.color = 'var(--minsuk)';
+      ownerBtn.style.borderColor = 'rgba(59,130,246,.5)';
+      ownerBtn.style.background = 'rgba(59,130,246,.1)';
+      ownerBtn.style.fontWeight = '700';
+    } else if (owner === 'siyun') {
+      ownerBtn.style.color = 'var(--siyun)';
+      ownerBtn.style.borderColor = 'rgba(34,197,94,.5)';
+      ownerBtn.style.background = 'rgba(34,197,94,.1)';
+      ownerBtn.style.fontWeight = '700';
+    } else {
+      ownerBtn.style.color = 'var(--muted2)';
+      ownerBtn.style.borderColor = 'var(--border2)';
+      ownerBtn.style.background = 'var(--surface2)';
+      ownerBtn.style.fontWeight = '600';
+    }
   }
   const label = document.getElementById('stk-list-label');
   if (label) label.textContent = owner === 'all' ? '전체 종목' : owner === 'minsuk' ? getP1Name() + ' 종목' : getP2Name() + ' 종목';
@@ -13162,7 +13173,29 @@ function renderStockHistory() {
   // 날짜순 정렬
   const sorted = visibleTrades.sort(function(a,b) { return b.date.localeCompare(a.date); });
 
-  wrap.innerHTML = sorted.map(function(t) {
+  // 매수/매도 합산 (원화 기준)
+  const usdKrwH = load('usd-krw-rate', 0);
+  let totalBuyKrw = 0, totalSellKrw = 0, buyCount = 0, sellCount = 0;
+  sorted.forEach(function(t) {
+    const rate = t.market === 'US' && usdKrwH ? usdKrwH : t.market === 'KR' ? 1 : 0;
+    const amt = t.price * t.qty * (rate || 1);
+    if (t.type === 'buy') { totalBuyKrw += amt; buyCount++; }
+    else { totalSellKrw += amt; sellCount++; }
+  });
+  const summaryHtml = sorted.length > 0
+    ? '<div style="display:flex;gap:8px;margin-bottom:10px">'
+      + (buyCount > 0 ? '<div style="flex:1;padding:10px 12px;background:rgba(239,68,68,.07);border:0.5px solid rgba(239,68,68,.2);border-radius:10px">'
+        + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">총 매수 (' + buyCount + '건)</div>'
+        + '<div style="font-size:13px;font-weight:800;color:var(--red)">-' + Math.round(totalBuyKrw).toLocaleString() + '원</div>'
+        + '</div>' : '')
+      + (sellCount > 0 ? '<div style="flex:1;padding:10px 12px;background:rgba(74,158,255,.07);border:0.5px solid rgba(74,158,255,.2);border-radius:10px">'
+        + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">총 매도 (' + sellCount + '건)</div>'
+        + '<div style="font-size:13px;font-weight:800;color:var(--blue)">+' + Math.round(totalSellKrw).toLocaleString() + '원</div>'
+        + '</div>' : '')
+      + '</div>'
+    : '';
+
+  wrap.innerHTML = summaryHtml + sorted.map(function(t) {
     const isBuy = t.type === 'buy';
     const color = isBuy ? 'var(--red)' : 'var(--blue)';
     const label = isBuy ? '매수' : '매도';
