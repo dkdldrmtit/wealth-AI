@@ -3256,7 +3256,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
         <div>
           <div id="trade-modal-title" style="font-family:'Playfair Display',serif;font-size:20px;color:var(--text);font-weight:300">거래 입력</div>
-          <div id="trade-modal-acct" style="display:none;margin-top:5px;display:flex;gap:5px;align-items:center;flex-wrap:wrap"></div>
+          <div id="trade-modal-acct" style="display:none;margin-top:5px;gap:5px;align-items:center;flex-wrap:wrap"></div>
         </div>
         <button onclick="closeTradeModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer;flex-shrink:0">✕</button>
       </div>
@@ -7295,8 +7295,8 @@ function renderCoupleCard() {
   // 헤더 배지
   var winnerBadge = document.getElementById('couple-winner-badge');
   if (winnerBadge) {
-    if (msWins) { winnerBadge.textContent = '민석 절약 중'; winnerBadge.style.color = 'var(--text2)'; }
-    else if (syWins) { winnerBadge.textContent = '시윤 절약 중'; winnerBadge.style.color = 'var(--text2)'; }
+    if (msWins) { winnerBadge.textContent = getP1Name() + ' 절약 중'; winnerBadge.style.color = 'var(--text2)'; }
+    else if (syWins) { winnerBadge.textContent = getP2Name() + ' 절약 중'; winnerBadge.style.color = 'var(--text2)'; }
     else if (msExp > 0 || syExp > 0) { winnerBadge.textContent = '동점'; winnerBadge.style.color = 'var(--muted)'; }
     else { winnerBadge.textContent = ''; }
   }
@@ -7364,8 +7364,8 @@ function renderCoupleCard() {
   if (commentEl) {
     if (msExp > 0 && syExp > 0) {
       var diff = Math.abs(msExp - syExp);
-      if (msWins) commentEl.textContent = '민석이 ' + fmtExp(diff) + ' 덜 썼어요';
-      else if (syWins) commentEl.textContent = '시윤이 ' + fmtExp(diff) + ' 덜 썼어요';
+      if (msWins) commentEl.textContent = getP1Name() + '이 ' + fmtExp(diff) + ' 덜 썼어요';
+      else if (syWins) commentEl.textContent = getP2Name() + '이 ' + fmtExp(diff) + ' 덜 썼어요';
       else commentEl.textContent = '이달 지출이 동일해요';
     } else if (msExp > 0) {
       commentEl.textContent = getP2Name() + '의 이달 지출을 기록해 주세요';
@@ -7524,6 +7524,11 @@ function renderHomeStockRankList() {
       + 'color:' + (s.owner === 'minsuk' ? 'var(--minsuk)' : 'var(--siyun)') + ';'
       + 'border:0.5px solid ' + (s.owner === 'minsuk' ? 'rgba(59,130,246,.3)' : 'rgba(34,197,94,.3)') + '">'
       + (s.owner === 'minsuk' ? getP1Name() : getP2Name()) + '</span>';
+    const acctBadge = s.accountType
+      ? '<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:6px;margin-left:4px;'
+        + 'background:rgba(201,168,76,.10);color:var(--gold);border:0.5px solid rgba(201,168,76,.25)">'
+        + s.accountType + '</span>'
+      : '';
 
     let mainVal, subVal, borderColor;
     if (homeStockRankTab === 'pct') {
@@ -7543,7 +7548,7 @@ function renderHomeStockRankList() {
     return '<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface2);border-radius:12px;border-left:3px solid ' + borderColor + '">'
       + '<div style="width:20px;height:20px;border-radius:50%;background:var(--surface3);color:var(--muted2);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + medals[rank] + '</div>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:12px;font-weight:700;display:flex;align-items:center">' + s.name + ownerBadge + '</div>'
+      + '<div style="font-size:12px;font-weight:700;display:flex;align-items:center;flex-wrap:wrap;gap:2px">' + s.name + ownerBadge + acctBadge + '</div>'
       + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + s.qty.toLocaleString() + '주</div>'
       + '</div>'
       + '<div style="text-align:right;flex-shrink:0">'
