@@ -3107,10 +3107,17 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px">나 vs 배우자 비교</div>
       <div id="stk-owner-compare-content"></div>
     </div>
+
+    <!-- 계좌종류별 비중 -->
+    <div id="stk-accttype-breakdown" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-top:10px">
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px">계좌종류별 비중</div>
+      <div id="stk-accttype-breakdown-content"></div>
+    </div>
   </div>
 
   <!-- 거래내역 탭 -->
   <div id="stk-content-history" style="display:none">
+    <div id="stk-history-filters" style="margin-bottom:10px"></div>
     <div id="stk-assetHistory-list"></div>
   </div>
 </div>
@@ -3240,9 +3247,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
 
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <div id="trade-modal-title" style="font-family:'Playfair Display',serif;font-size:20px;color:var(--text);font-weight:300">거래 입력</div>
-        <button onclick="closeTradeModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer">✕</button>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+        <div>
+          <div id="trade-modal-title" style="font-family:'Playfair Display',serif;font-size:20px;color:var(--text);font-weight:300">거래 입력</div>
+          <div id="trade-modal-acct" style="display:none;margin-top:5px;display:flex;gap:5px;align-items:center;flex-wrap:wrap"></div>
+        </div>
+        <button onclick="closeTradeModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer;flex-shrink:0">✕</button>
       </div>
 
       <!-- 매수/매도 -->
@@ -12977,6 +12987,57 @@ function renderStkPctChart() {
     + '<div><div style="font-size:10px;font-weight:700;color:var(--minsuk);margin-bottom:6px">' + getP1Name() + ' TOP</div>' + topRows(msStocks) + '</div>'
     + '<div><div style="font-size:10px;font-weight:700;color:var(--siyun);margin-bottom:6px">' + getP2Name() + ' TOP</div>' + topRows(syStocks) + '</div>'
     + '</div>';
+
+  // 계좌종류별 비중
+  const acctBreakEl = document.getElementById('stk-accttype-breakdown');
+  const acctBreakContent = document.getElementById('stk-accttype-breakdown-content');
+  if (acctBreakEl && acctBreakContent) {
+    // 계좌종류별 평가금액 집계
+    const usdKrw2 = load('usd-krw-rate', 0);
+    const acctMap = {};
+    activeStocks.forEach(function(s) {
+      const key = s.accountType || '미분류';
+      if (!acctMap[key]) acctMap[key] = { eval: 0, cost: 0, count: 0 };
+      const rate = s.market === 'US' && usdKrw2 ? usdKrw2 : s.market === 'KR' ? 1 : 0;
+      if (!rate) return;
+      acctMap[key].eval += s.currentPrice * s.qty * rate;
+      acctMap[key].cost += s.avgPrice * s.qty * rate;
+      acctMap[key].count++;
+    });
+    const entries = Object.entries(acctMap).sort(function(a, b) { return b[1].eval - a[1].eval; });
+    if (entries.length <= 1) {
+      acctBreakEl.style.display = 'none';
+    } else {
+      acctBreakEl.style.display = 'block';
+      const totalEvalAll = entries.reduce(function(sum, e) { return sum + e[1].eval; }, 0);
+      const acctColors = { 'ISA': 'var(--blue)', 'IRP': 'var(--gold)', '연금저축': 'var(--green)', '미분류': 'var(--muted2)' };
+      acctBreakContent.innerHTML = entries.map(function(e) {
+        const accType = e[0], d = e[1];
+        const pct = totalEvalAll > 0 ? d.eval / totalEvalAll * 100 : 0;
+        const pnl = d.eval - d.cost;
+        const pnlPct = d.cost > 0 ? pnl / d.cost * 100 : 0;
+        const pnlColor = pnl > 0 ? 'var(--red)' : pnl < 0 ? 'var(--blue)' : 'var(--muted)';
+        const accentColor = acctColors[accType] || 'var(--muted2)';
+        const evalStr = d.eval >= 100000000 ? (d.eval / 100000000).toFixed(1) + '억' : Math.round(d.eval / 10000).toLocaleString() + '만원';
+        return '<div style="margin-bottom:14px">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">'
+          + '<div style="display:flex;align-items:center;gap:7px">'
+          + '<span style="font-size:12px;font-weight:700;color:' + accentColor + '">' + accType + '</span>'
+          + '<span style="font-size:10px;color:var(--muted2)">' + d.count + '종목</span>'
+          + '</div>'
+          + '<div style="text-align:right">'
+          + '<span style="font-size:13px;font-weight:800;color:var(--text)">' + evalStr + '</span>'
+          + '<span style="font-size:10px;color:' + pnlColor + ';margin-left:6px">' + (pnl>=0?'+':'') + pnlPct.toFixed(1) + '%</span>'
+          + '</div>'
+          + '</div>'
+          + '<div style="height:6px;border-radius:3px;background:var(--surface2);overflow:hidden">'
+          + '<div style="height:100%;border-radius:3px;background:' + accentColor + ';width:' + pct.toFixed(1) + '%;transition:width .4s ease;opacity:0.8"></div>'
+          + '</div>'
+          + '<div style="font-size:10px;color:var(--muted2);margin-top:3px">' + pct.toFixed(1) + '%</div>'
+          + '</div>';
+      }).join('');
+    }
+  }
 }
 
 // ── AI 포트폴리오 분석
@@ -13044,9 +13105,12 @@ async function generateStockAnalysis() {
   btn.disabled = false;
 }
 
+var stkHistoryAccFilter = 'all'; // 'all' | accountType string
+
 // ── 거래내역 렌더링
 function renderStockHistory() {
   const wrap = document.getElementById('stk-assetHistory-list');
+  const filtersWrap = document.getElementById('stk-history-filters');
   if (!wrap) return;
 
   const filtered = getFilteredStocks();
@@ -13059,12 +13123,44 @@ function renderStockHistory() {
   });
 
   if (!allTrades.length) {
+    if (filtersWrap) filtersWrap.innerHTML = '';
     wrap.innerHTML = '<div style="text-align:center;padding:40px 0;color:var(--muted)"><div style="font-size:36px;margin-bottom:10px">📋</div><div style="font-size:14px;font-weight:600">거래 내역이 없어요</div><div style="font-size:12px;margin-top:4px">매수/매도 버튼으로 거래를 기록해보세요</div></div>';
     return;
   }
 
+  // 계좌종류 필터 칩 렌더
+  if (filtersWrap) {
+    const acctTypes = [...new Set(allTrades.map(function(t) { return t.accountType || ''; }).filter(Boolean))];
+    if (acctTypes.length > 1) {
+      const mkChip = function(label, active) {
+        return '<button onclick="stkHistoryAccFilter=\'' + label + '\';renderStockHistory()"'
+          + ' style="padding:5px 12px;border-radius:16px;border:1.5px solid ' + (active?'var(--gold)':'var(--border2)') + ';'
+          + 'background:' + (active?'rgba(201,168,76,.12)':'transparent') + ';'
+          + 'color:' + (active?'var(--gold)':'var(--muted2)') + ';'
+          + 'font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:700;cursor:pointer">' + label + '</button>';
+      };
+      const allActive = stkHistoryAccFilter === 'all';
+      const allChip = '<button onclick="stkHistoryAccFilter=\'all\';renderStockHistory()"'
+        + ' style="padding:5px 12px;border-radius:16px;border:1.5px solid ' + (allActive?'var(--text)':'var(--border2)') + ';'
+        + 'background:' + (allActive?'var(--surface2)':'transparent') + ';'
+        + 'color:' + (allActive?'var(--text)':'var(--muted2)') + ';'
+        + 'font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:700;cursor:pointer">전체</button>';
+      filtersWrap.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:6px">'
+        + allChip
+        + acctTypes.map(function(t) { return mkChip(t, stkHistoryAccFilter === t); }).join('')
+        + '</div>';
+    } else {
+      filtersWrap.innerHTML = '';
+    }
+  }
+
+  // 필터 적용
+  const visibleTrades = stkHistoryAccFilter === 'all'
+    ? allTrades
+    : allTrades.filter(function(t) { return (t.accountType || '') === stkHistoryAccFilter; });
+
   // 날짜순 정렬
-  const sorted = allTrades.sort(function(a,b) { return b.date.localeCompare(a.date); });
+  const sorted = visibleTrades.sort(function(a,b) { return b.date.localeCompare(a.date); });
 
   wrap.innerHTML = sorted.map(function(t) {
     const isBuy = t.type === 'buy';
@@ -13870,6 +13966,19 @@ function openTradeModal(id) {
   const s = stocks.find(s => s.id === id);
   if (!s) return;
   document.getElementById('trade-modal-title').textContent = s.name;
+  // 계좌 정보 배지
+  const acctEl = document.getElementById('trade-modal-acct');
+  if (acctEl) {
+    const badges = [];
+    if (s.accountType) badges.push('<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:rgba(201,168,76,.12);color:var(--gold);border:0.5px solid rgba(201,168,76,.3)">' + s.accountType + '</span>');
+    if (s.broker) badges.push('<span style="font-size:10px;color:var(--muted2);border:0.5px solid var(--border2);border-radius:7px;padding:2px 7px">' + s.broker + '</span>');
+    if (s.owner) {
+      const isMs = s.owner === 'minsuk';
+      badges.push('<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:' + (isMs?'rgba(59,130,246,.12)':'rgba(34,197,94,.12)') + ';color:' + (isMs?'var(--minsuk)':'var(--siyun)') + ';border:0.5px solid ' + (isMs?'rgba(59,130,246,.3)':'rgba(34,197,94,.3)') + '">' + (isMs?getP1Name():getP2Name()) + '</span>');
+    }
+    acctEl.innerHTML = badges.join('');
+    acctEl.style.display = badges.length ? 'flex' : 'none';
+  }
   document.getElementById('trade-qty').value = '';
   document.getElementById('trade-price').value = '';
   const currency = document.getElementById('trade-currency');
