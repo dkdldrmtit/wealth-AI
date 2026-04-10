@@ -8980,7 +8980,7 @@ function renderHomeCardSettingsList() {
       + '<div class="hcs-handle" style="color:var(--muted);font-size:16px;flex-shrink:0;padding:4px 6px;line-height:1;cursor:grab;touch-action:none">☰</div>'
       + '<div style="flex:1;min-width:0">'
       + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + card.label + '</div>'
-      + (card.desc ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + card.desc + '</div>' : '')
+      + (card.desc ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + (card.id === 'couple' ? getP1Name() + ' vs ' + getP2Name() + ' 지출 비교' : card.desc) + '</div>' : '')
       + '</div>'
       + '<button onclick="toggleHomeCardVisible(' + i + ')" style="background:none;border:none;font-size:16px;cursor:pointer;flex-shrink:0;padding:4px 6px;opacity:' + (card.visible?'1':'0.3') + ';transition:opacity .2s">' + (card.visible?'◉':'◎') + '</button>'
       + '</div>';
@@ -15751,21 +15751,21 @@ function renderOwnerCompare(txs) {
   wrap.innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
       <div style="background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.15);border-radius:12px;padding:10px;text-align:center">
-        <div style="font-size:10px;color:var(--minsuk);font-weight:700;margin-bottom:5px">👨 민석</div>
+        <div style="font-size:10px;color:var(--minsuk);font-weight:700;margin-bottom:5px">👨 ${getP1Name()}</div>
         <div style="font-size:14px;font-weight:900;color:var(--red)">${(msExp*10000).toLocaleString()}원</div>
         <div style="font-size:9px;color:var(--muted)">지출</div>
         <div style="font-size:12px;font-weight:700;color:var(--blue);margin-top:4px">${(msInc*10000).toLocaleString()}원</div>
         <div style="font-size:9px;color:var(--muted)">수입</div>
       </div>
       <div style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.15);border-radius:12px;padding:10px;text-align:center">
-        <div style="font-size:10px;color:var(--siyun);font-weight:700;margin-bottom:5px">👩 시윤</div>
+        <div style="font-size:10px;color:var(--siyun);font-weight:700;margin-bottom:5px">👩 ${getP2Name()}</div>
         <div style="font-size:14px;font-weight:900;color:var(--red)">${(syExp*10000).toLocaleString()}원</div>
         <div style="font-size:9px;color:var(--muted)">지출</div>
         <div style="font-size:12px;font-weight:700;color:var(--blue);margin-top:4px">${(syInc*10000).toLocaleString()}원</div>
         <div style="font-size:9px;color:var(--muted)">수입</div>
       </div>
       <div style="background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.15);border-radius:12px;padding:10px;text-align:center">
-        <div style="font-size:10px;color:var(--purple);font-weight:700;margin-bottom:5px">공동</div>
+        <div style="font-size:10px;color:var(--purple);font-weight:700;margin-bottom:5px">${getCommonName()}</div>
         <div style="font-size:14px;font-weight:900;color:var(--red)">${(cmExp*10000).toLocaleString()}원</div>
         <div style="font-size:9px;color:var(--muted)">지출</div>
         <div style="font-size:12px;font-weight:700;color:var(--blue);margin-top:4px">${(cmInc*10000).toLocaleString()}원</div>
@@ -15779,9 +15779,9 @@ function renderOwnerCompare(txs) {
       <div style="background:var(--purple);flex:1"></div>
     </div>
     <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:10px">
-      <span style="color:var(--minsuk)">민석 ${msPct}%</span>
-      <span style="color:var(--siyun)">시윤 ${syPct}%</span>
-      <span style="color:var(--purple)">공동 ${cmPct}%</span>
+      <span style="color:var(--minsuk)">${getP1Name()} ${msPct}%</span>
+      <span style="color:var(--siyun)">${getP2Name()} ${syPct}%</span>
+      <span style="color:var(--purple)">${getCommonName()} ${cmPct}%</span>
     </div>`;
 }
 
@@ -16788,7 +16788,7 @@ async function runHomeMicParser(text) {
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 150,
-        system: '사용자의 자연어 지출/수입 내용을 JSON 배열로만 응답. 다른 텍스트 절대 금지.\n카테고리: ' + catList + '\n소유자: "민석"→minsuk, "시윤"→siyun, 언급없거나 "공동/우리/같이"→common\n형식: [{"type":"expense","amount":원단위숫자,"memo":"내용","category":"id","owner":"common|minsuk|siyun"}]',
+        system: '사용자의 자연어 지출/수입 내용을 JSON 배열로만 응답. 다른 텍스트 절대 금지.\n카테고리: ' + catList + '\n소유자: "' + getP1Name() + '"→minsuk, "' + getP2Name() + '"→siyun, 언급없거나 "공동/우리/같이"→common\n형식: [{"type":"expense","amount":원단위숫자,"memo":"내용","category":"id","owner":"common|minsuk|siyun"}]',
         messages: [{ role: 'user', content: '오늘(' + todayStr + ') ' + text }]
       })
     });
