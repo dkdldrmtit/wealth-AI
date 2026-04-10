@@ -12748,16 +12748,21 @@ function renderStkDonut() {
 
   const rects = squarify(items, 0, 0, W, H);
 
-  // ── 블룸버그 스타일 색상: 단일 청색 계열, 비중에 따라 채도/밝기
-  // 가장 큰 셀 = 진하고 선명, 작은 셀 = 옅고 흐림
+  // ── 블룸버그 스타일 색상: 수익/손실 여부로 적/청, 비중으로 채도
   const maxPct = items[0].pct;
-  function getColor(pct) {
-    const ratio = pct / maxPct; // 0~1
-    // 어두운 청색(큰 비중) ~ 연한 청회색(작은 비중)
-    const r = Math.round(20 + (80 - 20) * (1 - ratio));
-    const g = Math.round(40 + (100 - 40) * (1 - ratio));
-    const b = Math.round(80 + (160 - 80) * (1 - ratio));
-    return 'rgb(' + r + ',' + g + ',' + b + ')';
+  function getColor(s, pct) {
+    const ratio = Math.min(pct / maxPct, 1);
+    const pnlPct = s.avgPrice > 0 ? (s.currentPrice - s.avgPrice) / s.avgPrice : 0;
+    const isUp = pnlPct >= 0;
+    // intensity: 0.3~1.0 based on weight ratio
+    const intensity = 0.3 + ratio * 0.7;
+    if (isUp) {
+      // red tones: deeper red = bigger weight
+      return 'rgba(' + Math.round(180 * intensity) + ',' + Math.round(30 * intensity) + ',' + Math.round(30 * intensity) + ',' + (0.6 + intensity * 0.4).toFixed(2) + ')';
+    } else {
+      // blue tones: deeper blue = bigger weight
+      return 'rgba(' + Math.round(20 * intensity) + ',' + Math.round(60 * intensity) + ',' + Math.round(180 * intensity) + ',' + (0.6 + intensity * 0.4).toFixed(2) + ')';
+    }
   }
   function getTextOpacity(pct) {
     const ratio = pct / maxPct;
@@ -12768,7 +12773,7 @@ function renderStkDonut() {
   const svgContent = rects.map(function(r) {
     const rx = r.x + GAP/2, ry = r.y + GAP/2;
     const rw = Math.max(r.w - GAP, 2), rh = Math.max(r.h - GAP, 2);
-    const color = getColor(r.item.pct);
+    const color = getColor(r.item.s, r.item.pct);
     const textOp = getTextOpacity(r.item.pct);
     const pctStr = Math.round(r.item.pct * 100) + '%';
     const name = r.item.s.name;
@@ -12779,9 +12784,9 @@ function renderStkDonut() {
     const showVal = rw > 60 && rh > 52;
     const nameFontSize = rw > 80 ? 11 : 9;
 
-    const evStr = r.item.val >= 100000000
-      ? (r.item.val/100000000).toFixed(1)+'억'
-      : (r.item.val/10000).toFixed(0)+'만';
+    const s = r.item.s;
+    const pnlPct = s.avgPrice > 0 ? ((s.currentPrice - s.avgPrice) / s.avgPrice * 100) : 0;
+    const pnlStr2 = (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(1) + '%';
 
     const centerX = (rx + rw/2).toFixed(1);
     const baseY = (ry + rh/2).toFixed(1);
@@ -12789,37 +12794,40 @@ function renderStkDonut() {
     let texts = '';
     if (showName && showPct && showVal) {
       texts = '<text x="' + centerX + '" y="' + (ry + rh/2 - 12).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle" font-size="' + nameFontSize + '" font-weight="600" fill="rgba(255,255,255,' + textOp + ')" font-family="Noto Sans KR">' + shortName + '</text>'
-        + '<text x="' + centerX + '" y="' + baseY + '" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="900" fill="rgba(255,255,255,' + textOp + ')" font-family="Noto Sans KR">' + pctStr + '</text>'
-        + '<text x="' + centerX + '" y="' + (ry + rh/2 + 14).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="rgba(255,255,255,' + (textOp*0.6).toFixed(2) + ')" font-family="Noto Sans KR">' + evStr + '</text>';
+        + '<text x="' + centerX + '" y="' + baseY + '" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="900" fill="rgba(255,255,255,' + textOp + ')" font-family="Noto Sans KR">' + pnlStr2 + '</text>'
+        + '<text x="' + centerX + '" y="' + (ry + rh/2 + 14).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="rgba(255,255,255,' + (textOp*0.6).toFixed(2) + ')" font-family="Noto Sans KR">' + pctStr + '</text>';
     } else if (showName && showPct) {
       texts = '<text x="' + centerX + '" y="' + (ry + rh/2 - 7).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle" font-size="' + nameFontSize + '" font-weight="600" fill="rgba(255,255,255,' + textOp + ')" font-family="Noto Sans KR">' + shortName + '</text>'
-        + '<text x="' + centerX + '" y="' + (ry + rh/2 + 7).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="900" fill="rgba(255,255,255,' + textOp + ')" font-family="Noto Sans KR">' + pctStr + '</text>';
+        + '<text x="' + centerX + '" y="' + (ry + rh/2 + 7).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="900" fill="rgba(255,255,255,' + textOp + ')" font-family="Noto Sans KR">' + pnlStr2 + '</text>';
     } else if (showName) {
-      texts = '<text x="' + centerX + '" y="' + baseY + '" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="rgba(255,255,255,' + textOp + ')" font-family="Noto Sans KR">' + pctStr + '</text>';
+      texts = '<text x="' + centerX + '" y="' + baseY + '" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="rgba(255,255,255,' + textOp + ')" font-family="Noto Sans KR">' + pnlStr2 + '</text>';
     }
 
     return '<rect x="' + rx.toFixed(1) + '" y="' + ry.toFixed(1) + '" width="' + rw.toFixed(1) + '" height="' + rh.toFixed(1) + '" rx="4" fill="' + color + '"/>'
       + texts;
   }).join('');
 
-  // 범례
-  const legend = sorted.map(function(s, i) {
+  // 범례 (수익/손실 P&L 색상 포함)
+  const legend = sorted.map(function(s) {
     const ev = evalKrw(s);
-    const pct = Math.round(ev / totalEval * 100);
-    const color = getColor(ev / totalEval);
+    const pctWeight = ev / totalEval;
+    const color = getColor(s, pctWeight);
+    const pctStr = Math.round(pctWeight * 100) + '%';
     const evStr = ev >= 100000000
       ? (ev/100000000).toFixed(1)+'억원'
       : (ev/10000).toFixed(0)+'만원';
+    const pnlPct = s.avgPrice > 0 ? ((s.currentPrice - s.avgPrice) / s.avgPrice * 100) : 0;
+    const pnlColor = pnlPct >= 0 ? 'var(--red)' : 'var(--blue)';
     return '<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:0.5px solid var(--border)">'
       + '<div style="width:10px;height:10px;border-radius:2px;background:' + color + ';flex-shrink:0"></div>'
       + '<span style="font-size:11px;font-weight:600;flex:1;color:var(--text)">' + s.name + '</span>'
       + '<span style="font-size:11px;color:var(--muted)">' + evStr + '</span>'
-      + '<span style="font-size:12px;font-weight:800;color:var(--text);min-width:30px;text-align:right">' + pct + '%</span>'
+      + '<span style="font-size:11px;font-weight:700;color:' + pnlColor + ';min-width:40px;text-align:right">' + (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(1) + '%</span>'
       + '</div>';
   }).join('');
 
   wrap.innerHTML =
-    '<svg width="100%" viewBox="0 0 ' + W + ' ' + H + '" style="border-radius:8px;overflow:hidden;display:block;margin-bottom:14px;background:#0f1a2e">'
+    '<svg width="100%" viewBox="0 0 ' + W + ' ' + H + '" style="border-radius:8px;overflow:hidden;display:block;margin-bottom:14px;background:#111">'
     + svgContent
     + '</svg>'
     + '<div>' + legend + '</div>';
