@@ -13232,6 +13232,11 @@ function renderStockHistory() {
       + '</div>'
     : '';
 
+  if (!sorted.length) {
+    wrap.innerHTML = '<div style="text-align:center;padding:32px 0;color:var(--muted)"><div style="font-size:28px;margin-bottom:8px">🔍</div><div style="font-size:13px;font-weight:600">' + stkHistoryAccFilter + ' 거래 내역이 없어요</div></div>';
+    return;
+  }
+
   wrap.innerHTML = summaryHtml + sorted.map(function(t) {
     const isBuy = t.type === 'buy';
     const color = isBuy ? 'var(--red)' : 'var(--blue)';
@@ -13457,8 +13462,13 @@ function renderStockList() {
         + '</div>';
 
       // body는 항상 DOM에 존재, CSS Grid로 펼치기/접기 애니메이션
+      var unclassifiedNotice = accType === '미분류'
+        ? '<div style="margin:0 0 6px;padding:8px 10px;background:rgba(240,192,64,.06);border:0.5px solid rgba(240,192,64,.2);border-radius:8px;font-size:11px;color:var(--muted2);line-height:1.6">'
+          + '💡 종목을 편집해 계좌종류를 설정하면 계좌별 자산 연동이 가능해요</div>'
+        : '';
       var body = '<div id="acc-body-' + domId + '" class="acc-body' + (isExpanded ? ' acc-body-open' : '') + '">'
         + '<div style="padding:0 8px 8px">'
+        + unclassifiedNotice
         + list.map(function(s) { return stockRowHtml(s, false, accType); }).join('')
         + '</div>'
         + '</div>';
