@@ -2995,6 +2995,11 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div id="stk-list-label" style="font-size:12px;color:var(--muted);font-weight:600"></div>
       <div style="display:flex;gap:6px;align-items:center">
         <div id="stock-update-time" style="font-size:10px;color:var(--muted)"></div>
+        <button id="stk-group-toggle" onclick="toggleStkGroupMode()"
+          style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;
+          color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 8px;cursor:pointer;transition:all .2s">
+          <span id="stk-group-toggle-text">합산</span>
+        </button>
         <button id="stk-owner-toggle" onclick="cycleStkOwner()"
           style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;
           color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 8px;cursor:pointer;min-width:44px;display:flex;align-items:center;gap:3px">
@@ -3061,59 +3066,88 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
 </div>
 
-<!-- ══ 종목 추가/편집 모달 ══ -->
-<div id="stock-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto">
-  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
-    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
+<!-- ══ 종목 추가/편집 모달 (바텀시트) ══ -->
+<div id="stock-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);z-index:300" onclick="if(event.target===this)closeStockModal()">
+  <div style="position:absolute;bottom:0;left:0;right:0;max-width:680px;margin:0 auto">
+    <div style="background:var(--surface);border-radius:24px 24px 0 0;border:1px solid var(--border2);border-bottom:none;padding:12px 20px max(28px,env(safe-area-inset-bottom,28px));max-height:92dvh;overflow-y:auto">
 
+      <!-- 핸들 바 -->
+      <div style="width:36px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto 16px"></div>
+
+      <!-- 헤더 -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
-        <div id="stock-modal-title" style="font-family:'Playfair Display',serif;font-size:22px;color:var(--text);font-weight:300">종목 추가</div>
+        <div id="stock-modal-title" style="font-family:'Playfair Display',serif;font-size:20px;color:var(--text);font-weight:700">종목 추가</div>
         <button onclick="closeStockModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer">✕</button>
       </div>
 
-      <!-- 소유자 선택 -->
-      <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:16px;gap:2px">
-        <button id="stock-owner-ms" onclick="setStockOwner('minsuk')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:var(--minsuk);color:#fff;transition:all .2s">나</button>
-        <button id="stock-owner-sy" onclick="setStockOwner('siyun')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">배우자</button>
-
-      </div>
-
-      <!-- 국내/해외 토글 -->
-      <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:16px">
-        <button id="market-kr" onclick="setMarket('KR')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:#1a1a1a;color:var(--text);border:1px solid var(--border2)">국내</button>
-        <button id="market-us" onclick="setMarket('US')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2)">해외</button>
-      </div>
-
-      <!-- 종목 검색 -->
-      <div style="margin-bottom:14px">
-        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">종목명 / 티커</div>
-        <input type="text" id="stock-name-input" placeholder="예: 삼성전자 / AAPL"
-          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none">
-        <div style="margin-top:6px">
-          <input type="text" id="stock-ticker-input" placeholder="티커코드 예: 005930 / AAPL"
-            style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none">
-          <div style="font-size:10px;color:var(--muted);margin-top:4px">국내: 종목코드 6자리 / 해외: 티커 (AAPL, TSLA 등)</div>
+      <!-- 소유자 행 -->
+      <div style="display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0">소유자</span>
+        <div style="display:flex;gap:8px">
+          <button id="stock-owner-ms" onclick="setStockOwner('minsuk')" style="padding:7px 18px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted2);transition:all .2s">나</button>
+          <button id="stock-owner-sy" onclick="setStockOwner('siyun')" style="padding:7px 18px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted2);transition:all .2s">배우자</button>
         </div>
       </div>
 
-      <!-- 보유수량 -->
-      <div style="margin-bottom:14px">
-        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">보유 수량 (주)</div>
+      <!-- 시장 행 -->
+      <div style="display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0">시장</span>
+        <div style="display:flex;gap:8px">
+          <button id="market-kr" onclick="setMarket('KR')" style="padding:7px 18px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted2);transition:all .2s">🇰🇷 국내</button>
+          <button id="market-us" onclick="setMarket('US')" style="padding:7px 18px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted2);transition:all .2s">🇺🇸 해외</button>
+        </div>
+      </div>
+
+      <!-- 종목명 행 -->
+      <div style="display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0">종목명</span>
+        <input type="text" id="stock-name-input" placeholder="예: 삼성전자 / AAPL"
+          style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;outline:none">
+      </div>
+
+      <!-- 티커 행 -->
+      <div style="display:flex;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0;padding-top:1px">티커</span>
+        <div style="flex:1">
+          <input type="text" id="stock-ticker-input" placeholder="005930 / AAPL"
+            style="width:100%;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;outline:none">
+          <div style="font-size:10px;color:var(--muted);margin-top:3px">국내: 종목코드 6자리 · 해외: 티커 (AAPL, TSLA 등)</div>
+        </div>
+      </div>
+
+      <!-- 수량 행 -->
+      <div style="display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0">수량</span>
         <input type="number" id="stock-qty-input" placeholder="0" inputmode="decimal"
-          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none"
+          style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;outline:none"
           oninput="calcAvgFromInputs()">
+        <span style="font-size:12px;color:var(--muted2);flex-shrink:0">주</span>
       </div>
 
-      <!-- 평단가 -->
-      <div style="margin-bottom:20px">
-        <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">평균 매수가 <span id="stock-currency-label" style="color:var(--muted)">(원)</span></div>
+      <!-- 평단가 행 -->
+      <div style="display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0">평단가</span>
         <input type="number" id="stock-avg-input" placeholder="0" inputmode="decimal"
-          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none">
+          style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;outline:none">
+        <span id="stock-currency-label" style="font-size:12px;color:var(--muted2);flex-shrink:0">원</span>
       </div>
 
-      <div style="display:flex;gap:10px">
-        <button id="stock-delete-btn" onclick="deleteStock()" style="display:none;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:12px;color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:14px 16px;cursor:pointer">🗑️</button>
-        <button class="btn-primary" onclick="saveStock()" style="flex:1">저장</button>
+      <!-- 계좌 행 -->
+      <div style="padding:13px 0;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;margin-bottom:9px">
+          <span style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0">계좌</span>
+          <input type="text" id="stock-account-input" placeholder="선택사항 (예: 신한 ISA)"
+            style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;outline:none"
+            oninput="onStockAccountInput()">
+        </div>
+        <div id="stock-broker-chips" style="display:flex;flex-wrap:wrap;gap:6px;padding-left:68px;margin-bottom:6px"></div>
+        <div id="stock-acctype-chips" style="display:flex;flex-wrap:wrap;gap:6px;padding-left:68px"></div>
+      </div>
+
+      <!-- 저장 / 삭제 -->
+      <div style="display:flex;gap:10px;margin-top:18px">
+        <button id="stock-delete-btn" onclick="deleteStock()" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);border-radius:14px;color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;padding:14px 18px;cursor:pointer;flex-shrink:0">🗑️</button>
+        <button class="btn-primary" onclick="saveStock()" style="flex:1;font-size:15px;font-weight:700;border-radius:14px;padding:16px">저장</button>
       </div>
     </div>
   </div>
@@ -12077,6 +12111,96 @@ function getFilteredStocks() {
   });
 }
 
+// ── 합산/계좌별 그룹 모드
+let stkGroupMode = 'merged'; // 'merged' | 'account'
+
+function toggleStkGroupMode() {
+  stkGroupMode = stkGroupMode === 'merged' ? 'account' : 'merged';
+  const txt = document.getElementById('stk-group-toggle-text');
+  const btn = document.getElementById('stk-group-toggle');
+  if (txt) txt.textContent = stkGroupMode === 'account' ? '계좌별' : '합산';
+  if (btn) {
+    btn.style.color = stkGroupMode === 'account' ? 'var(--gold)' : 'var(--muted2)';
+    btn.style.borderColor = stkGroupMode === 'account' ? 'var(--gold)' : 'var(--border2)';
+    btn.style.background = stkGroupMode === 'account' ? 'rgba(201,168,76,.08)' : 'var(--surface2)';
+  }
+  renderStockList();
+}
+
+function groupStocksByTicker(list) {
+  var map = {};
+  list.forEach(function(s) {
+    var key = s.market + '|' + s.ticker + '|' + (s.owner || '');
+    if (!map[key]) {
+      map[key] = Object.assign({}, s, { _entries: [s] });
+    } else {
+      var g = map[key];
+      var newQty = g.qty + s.qty;
+      g.avgPrice = (g.avgPrice * g.qty + s.avgPrice * s.qty) / newQty;
+      g.qty = newQty;
+      g.currentPrice = s.currentPrice || g.currentPrice;
+      g._entries.push(s);
+    }
+  });
+  return Object.values(map);
+}
+
+// ── 계좌 입력 칩
+var currentStockBroker = '';
+var currentStockAccType = '';
+var STOCK_BROKERS   = ['신한', 'KB', '미래에셋', '삼성', '한투', '키움', '토스', '카카오'];
+var STOCK_ACC_TYPES = ['일반', 'ISA', 'IRP', '연금저축'];
+
+function renderStockAccountChips() {
+  var bw = document.getElementById('stock-broker-chips');
+  var aw = document.getElementById('stock-acctype-chips');
+  if (!bw || !aw) return;
+  function mkChip(label, active, fn) {
+    return '<button type="button" onclick="' + fn + '"'
+      + ' style="padding:5px 12px;border-radius:16px;'
+      + 'border:1.5px solid ' + (active ? 'var(--gold)' : 'var(--border2)') + ';'
+      + 'background:' + (active ? 'rgba(201,168,76,.12)' : 'transparent') + ';'
+      + 'color:' + (active ? 'var(--gold)' : 'var(--muted2)') + ';'
+      + 'font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:700;'
+      + 'cursor:pointer;transition:all .2s">' + label + '</button>';
+  }
+  bw.innerHTML = STOCK_BROKERS.map(function(b) {
+    return mkChip(b, currentStockBroker === b, 'selectStockBroker(\'' + b + '\')');
+  }).join('');
+  aw.innerHTML = STOCK_ACC_TYPES.map(function(t) {
+    return mkChip(t, currentStockAccType === t, 'selectStockAccType(\'' + t + '\')');
+  }).join('');
+}
+
+function selectStockBroker(broker) {
+  currentStockBroker = currentStockBroker === broker ? '' : broker;
+  _syncStockAccountInput();
+}
+function selectStockAccType(type) {
+  currentStockAccType = currentStockAccType === type ? '' : type;
+  _syncStockAccountInput();
+}
+function _syncStockAccountInput() {
+  var val = [currentStockBroker, currentStockAccType].filter(Boolean).join(' ');
+  var el = document.getElementById('stock-account-input');
+  if (el) el.value = val;
+  renderStockAccountChips();
+}
+function onStockAccountInput() {
+  var val = (document.getElementById('stock-account-input') || {}).value || '';
+  currentStockBroker  = STOCK_BROKERS.find(function(b) { return val.includes(b); }) || '';
+  currentStockAccType = STOCK_ACC_TYPES.find(function(t) { return val.includes(t); }) || '';
+  renderStockAccountChips();
+}
+function _resetStockAccount(account) {
+  var val = account || '';
+  var el = document.getElementById('stock-account-input');
+  if (el) el.value = val;
+  currentStockBroker  = STOCK_BROKERS.find(function(b) { return val.includes(b); }) || '';
+  currentStockAccType = STOCK_ACC_TYPES.find(function(t) { return val.includes(t); }) || '';
+  renderStockAccountChips();
+}
+
 function calcAvgFromInputs() {
   // 수량/평단 입력 시 미리보기 (현재는 단순 패스)
   // 필요 시 확장 가능
@@ -12089,8 +12213,18 @@ function setStockOwner(owner) {
   currentStockOwner = owner;
   const msBtn = document.getElementById('stock-owner-ms');
   const syBtn = document.getElementById('stock-owner-sy');
-  if (msBtn) { msBtn.style.background = owner === 'minsuk' ? 'var(--minsuk)' : 'transparent'; msBtn.style.color = owner === 'minsuk' ? '#fff' : 'var(--muted2)'; }
-  if (syBtn) { syBtn.style.background = owner === 'siyun' ? 'var(--siyun)' : 'transparent'; syBtn.style.color = owner === 'siyun' ? '#000' : 'var(--muted2)'; }
+  if (msBtn) {
+    msBtn.style.background = owner === 'minsuk' ? 'rgba(59,130,246,.15)' : 'transparent';
+    msBtn.style.borderColor = owner === 'minsuk' ? 'var(--blue)' : 'var(--border2)';
+    msBtn.style.color = owner === 'minsuk' ? 'var(--blue)' : 'var(--muted2)';
+    msBtn.textContent = getP1Name();
+  }
+  if (syBtn) {
+    syBtn.style.background = owner === 'siyun' ? 'rgba(34,197,94,.15)' : 'transparent';
+    syBtn.style.borderColor = owner === 'siyun' ? 'var(--green)' : 'var(--border2)';
+    syBtn.style.color = owner === 'siyun' ? 'var(--green)' : 'var(--muted2)';
+    syBtn.textContent = getP2Name();
+  }
 }
 
 // ── 통화 토글 (원화/달러)
@@ -12649,8 +12783,10 @@ function renderStockList() {
   const usdKrw = load('usd-krw-rate', 0);
   const showKrw = currentStkCurrency === 'KRW';
 
-  const domestic = filtered.filter(function(s) { return s.market === 'KR'; });
-  const foreign  = filtered.filter(function(s) { return s.market === 'US'; });
+  const allDomestic = filtered.filter(function(s) { return s.market === 'KR'; });
+  const allForeign  = filtered.filter(function(s) { return s.market === 'US'; });
+  const domestic = stkGroupMode === 'merged' ? groupStocksByTicker(allDomestic) : allDomestic;
+  const foreign  = stkGroupMode === 'merged' ? groupStocksByTicker(allForeign)  : allForeign;
 
   function renderSection(list, title, market) {
     if (!list.length) return '';
@@ -12679,27 +12815,50 @@ function renderStockList() {
       const ownerBadge = (currentStkOwner === 'all' && s.owner)
         ? '<span style="font-size:9px;background:' + (s.owner==='minsuk'?'rgba(96,165,250,.15)':'rgba(52,211,153,.15)') + ';color:' + (s.owner==='minsuk'?'var(--minsuk)':'var(--siyun)') + ';padding:1px 5px;border-radius:5px;font-weight:700;margin-left:5px">' + (s.owner==='minsuk'?getP1Name():getP2Name()) + '</span>' : '';
 
+      // 계좌 배지: 합산 모드엔 N계좌 표시, 계좌별 모드엔 계좌명 표시
+      const acctBadge = (stkGroupMode === 'merged' && s._entries && s._entries.length > 1)
+        ? '<span style="font-size:9px;background:rgba(201,168,76,.12);color:var(--gold);padding:1px 6px;border-radius:5px;font-weight:700;margin-left:5px">' + s._entries.length + '계좌</span>'
+        : (stkGroupMode === 'account' && s.account)
+        ? '<span style="font-size:9px;background:rgba(201,168,76,.12);color:var(--gold);padding:1px 6px;border-radius:5px;font-weight:700;margin-left:5px">' + s.account + '</span>'
+        : '';
 
+      // 합산 모드에서 계좌별 소계 표시 (여러 계좌인 경우)
+      const subAccounts = (stkGroupMode === 'merged' && s._entries && s._entries.length > 1)
+        ? '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">'
+          + s._entries.map(function(e) {
+              return '<span style="font-size:10px;color:var(--muted2)">'
+                + (e.account ? e.account : '미분류') + ' ' + e.qty.toLocaleString() + '주</span>';
+            }).join('<span style="font-size:10px;color:var(--muted2);margin:0 1px">·</span>')
+          + '</div>'
+        : '';
+
+      const isMergedMulti = stkGroupMode === 'merged' && s._entries && s._entries.length > 1;
       const sid = s.id;
+      const dragHandle = !isMergedMulti
+        ? '<div class="stock-drag-handle" style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;cursor:grab;padding:4px 6px;opacity:0.4;touch-action:none">'
+          + '<div style="width:14px;height:2px;border-radius:1px;background:var(--muted)"></div>'
+          + '<div style="width:14px;height:2px;border-radius:1px;background:var(--muted)"></div>'
+          + '<div style="width:14px;height:2px;border-radius:1px;background:var(--muted)"></div>'
+          + '</div>'
+        : '<div style="width:26px;flex-shrink:0"></div>';
+
       return '<div style="position:relative;overflow:hidden;border-bottom:1px solid var(--border)">'
         + '<div id="stk-edit-' + sid + '" onclick="stkCloseSwipe(\'' + sid + '\');openStockEdit(\'' + sid + '\')" style="position:absolute;right:0;top:0;bottom:0;width:72px;background:var(--blue);display:flex;align-items:center;justify-content:center;cursor:pointer;transform:translateX(100%);transition:transform .25s">'
         + '<span style="font-size:11px;font-weight:700;color:#fff">편집</span></div>'
         + '<div id="stk-row-' + sid + '" class="stock-drag-item" data-id="' + sid + '" data-market="' + s.market + '" draggable="false" ontouchstart="stkSwipeStart(event,\'' + sid + '\')" ontouchmove="stkSwipeMove(event,\'' + sid + '\')" ontouchend="stkSwipeEnd(event,\'' + sid + '\')" style="display:flex;align-items:center;padding:14px 0;gap:12px;background:var(--surface);position:relative;transition:transform .25s">'
-        + '<div class="stock-drag-handle" style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;cursor:grab;padding:4px 6px;opacity:0.4;touch-action:none">'
-        + '<div style="width:14px;height:2px;border-radius:1px;background:var(--muted)"></div>'
-        + '<div style="width:14px;height:2px;border-radius:1px;background:var(--muted)"></div>'
-        + '<div style="width:14px;height:2px;border-radius:1px;background:var(--muted)"></div>'
-        + '</div>'
+        + dragHandle
         + '<div onclick="openTradeModal(\'' + sid + '\')" style="flex:1;min-width:0;cursor:pointer">'
-        + '<div style="display:flex;align-items:baseline;gap:7px">'
-        + '<span style="font-size:14px;font-weight:700">' + s.name + ownerBadge + '</span>'
+        + '<div style="display:flex;align-items:baseline;gap:7px;flex-wrap:wrap">'
+        + '<span style="font-size:14px;font-weight:700">' + s.name + ownerBadge + acctBadge + '</span>'
         + (cp > 0 ? '<span style="font-size:12px;color:var(--muted);font-weight:500">' + fmtPrice(cp) + '</span>' : '')
         + '</div>'
         + '<div style="display:flex;align-items:center;gap:6px;margin-top:2px">'
         + '<span style="font-size:12px;color:var(--muted)">' + s.qty.toLocaleString() + '주</span>'
         + '<span style="font-size:10px;color:var(--muted2)">·</span>'
         + '<span style="font-size:11px;color:var(--muted2)">평단 ' + fmtPrice(s.avgPrice) + '</span>'
-        + '</div></div>'
+        + '</div>'
+        + subAccounts
+        + '</div>'
         + '<div onclick="openTradeModal(\'' + sid + '\')" style="text-align:right;flex-shrink:0;cursor:pointer">'
         + '<div style="font-size:15px;font-weight:800;color:var(--text)">' + evalStr + '</div>'
         + (cp > 0 ? '<div style="font-size:12px;font-weight:600;color:' + pnlColor + ';margin-top:2px">' + pnlStr + '</div>' : '')
@@ -12980,28 +13139,31 @@ function setMarket(market) {
   const kr = document.getElementById('market-kr');
   const us = document.getElementById('market-us');
   const lbl = document.getElementById('stock-currency-label');
-  if (kr) { kr.style.background = market === 'KR' ? 'var(--blue)' : 'transparent'; kr.style.color = market === 'KR' ? '#fff' : 'var(--muted2)'; }
-  if (us) { us.style.background = market === 'US' ? 'var(--blue)' : 'transparent'; us.style.color = market === 'US' ? '#fff' : 'var(--muted2)'; }
-  if (lbl) lbl.textContent = market === 'KR' ? '(원)' : '($)';
+  if (kr) {
+    kr.style.background = market === 'KR' ? 'rgba(59,130,246,.15)' : 'transparent';
+    kr.style.borderColor = market === 'KR' ? 'var(--blue)' : 'var(--border2)';
+    kr.style.color = market === 'KR' ? 'var(--blue)' : 'var(--muted2)';
+  }
+  if (us) {
+    us.style.background = market === 'US' ? 'rgba(34,197,94,.15)' : 'transparent';
+    us.style.borderColor = market === 'US' ? 'var(--green)' : 'var(--border2)';
+    us.style.color = market === 'US' ? 'var(--green)' : 'var(--muted2)';
+  }
+  if (lbl) lbl.textContent = market === 'KR' ? '원' : '$';
 }
 
 function openStockAdd() {
   editingStockId = null;
   document.getElementById('stock-modal-title').textContent = '종목 추가';
-  const msBtn = document.getElementById('stock-owner-ms');
-  const syBtn = document.getElementById('stock-owner-sy');
-  if (msBtn) msBtn.textContent = getP1Name();
-  if (syBtn) syBtn.textContent = getP2Name();
-
   document.getElementById('stock-name-input').value = '';
   document.getElementById('stock-ticker-input').value = '';
   document.getElementById('stock-qty-input').value = '';
   document.getElementById('stock-avg-input').value = '';
   document.getElementById('stock-delete-btn').style.display = 'none';
   setMarket('KR');
-  // 현재 소유자 탭 기준으로 기본값 설정 (통합이면 민석 기본)
   const defaultOwner = currentStkOwner === 'siyun' ? 'siyun' : 'minsuk';
   setStockOwner(defaultOwner);
+  _resetStockAccount('');
   document.getElementById('stock-modal').style.display = 'block';
   lockScroll();
 }
@@ -13017,6 +13179,8 @@ function openStockEdit(id) {
   document.getElementById('stock-avg-input').value = s.avgPrice;
   document.getElementById('stock-delete-btn').style.display = 'block';
   setMarket(s.market);
+  setStockOwner(s.owner || 'minsuk');
+  _resetStockAccount(s.account || '');
   document.getElementById('stock-modal').style.display = 'block';
   lockScroll();
 }
@@ -13032,16 +13196,17 @@ function saveStock() {
   const ticker = document.getElementById('stock-ticker-input').value.trim().toUpperCase();
   const qty = parseFloat(document.getElementById('stock-qty-input').value) || 0;
   const avgPrice = parseFloat(document.getElementById('stock-avg-input').value) || 0;
+  const account = (document.getElementById('stock-account-input').value || '').trim();
   if (!name || !ticker) { showToast('❗ 종목명과 티커를 입력해주세요'); return; }
   if (qty <= 0) { showToast('❗ 보유 수량을 입력해주세요'); return; }
   if (editingStockId) {
     const idx = stocks.findIndex(s => s.id === editingStockId);
     if (idx >= 0) {
-      stocks[idx] = { ...stocks[idx], name, ticker, market: currentMarket, qty, avgPrice, owner: currentStockOwner };
+      stocks[idx] = { ...stocks[idx], name, ticker, market: currentMarket, qty, avgPrice, owner: currentStockOwner, account };
     }
     showToast('✅ 종목이 수정됐어요!');
   } else {
-    stocks.push({ id: Date.now().toString(), name, ticker, market: currentMarket, qty, avgPrice, owner: currentStockOwner, currentPrice: 0, trades: [] });
+    stocks.push({ id: Date.now().toString(), name, ticker, market: currentMarket, qty, avgPrice, owner: currentStockOwner, currentPrice: 0, trades: [], account });
     showToast('✅ 종목이 추가됐어요!');
   }
   store('stocks', stocks);
