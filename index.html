@@ -843,6 +843,9 @@ body[data-theme="light"] .ge-group input:focus { border-color: #2563eb !importan
 .acc-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s ease; }
 .acc-body > div { overflow: hidden; min-height: 0; }
 .acc-body-open { grid-template-rows: 1fr; }
+/* ── 계좌별 뷰 카드 ── */
+.acc-card { background: var(--surface2); border-radius: 16px; overflow: hidden; margin-bottom: 10px; }
+.acc-card .stock-drag-item:last-child { border-bottom: none !important; }
 
 /* ══ 스플래시 스크린 ══ */
 @keyframes splashDot {
@@ -3070,6 +3073,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           <div style="margin-top:10px;font-size:9px;color:rgba(180,155,80,0.35);letter-spacing:2px;text-transform:uppercase">M&S Wealth · AI Analysis</div>
         </div>
       </div>
+    </div>
+
+    <!-- 포트폴리오 비중 트리맵 -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px">포트폴리오 비중</div>
+      <div id="stk-donut-legend"></div>
     </div>
 
     <!-- 수익률 / 수익금액 정렬 토글 + 나 vs 배우자 비교 -->
@@ -12607,6 +12616,7 @@ let currentStkChartTab = 'pct';
 function setStkChartTab(tab) { /* deprecated - no sub tabs */ }
 
 function renderStockCharts() {
+  renderStkDonut();
   renderStkPctChart();
 }
 
@@ -13220,42 +13230,47 @@ function renderStockList() {
       });
       var pct = (totalEval - totalPnl) > 0 ? totalPnl / (totalEval - totalPnl) * 100 : 0;
       var pnlColor = totalPnl > 0 ? 'var(--red)' : totalPnl < 0 ? 'var(--blue)' : 'var(--muted)';
-      var evalDisp = hasPrices ? Math.round(totalEval).toLocaleString() + '원' : '시세 조회 필요';
+      var evalDisp = hasPrices ? Math.round(totalEval).toLocaleString() + '원' : '–';
       var pnlDisp  = hasPrices ? (totalPnl>=0?'+':'') + Math.round(totalPnl).toLocaleString() + '원 (' + pct.toFixed(1) + '%)' : '';
       var domId = accType.replace(/['"]/g, '').replace(/\s+/g, '-');
-      var chevron  = '<svg id="acc-chevron-' + domId + '" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3;transform:rotate(' + (isExpanded?'180':'0') + 'deg);transition:transform .25s ease"><polyline points="6 9 12 15 18 9"/></svg>';
+      var chevron  = '<svg id="acc-chevron-' + domId + '" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(' + (isExpanded?'180':'0') + 'deg);transition:transform .25s ease"><polyline points="6 9 12 15 18 9"/></svg>';
+
+      // 계좌종류별 액센트 컬러
+      var accentColor = accType === 'ISA' ? 'var(--blue)'
+        : accType === 'IRP' ? 'var(--gold)'
+        : accType === '연금저축' ? 'var(--green)' : 'var(--muted2)';
 
       var header = '<div class="acc-type-item" data-acctype="' + safeKey + '" draggable="false"'
-        + ' style="display:flex;align-items:center;padding:13px 0;gap:8px;user-select:none;'
-        + 'position:sticky;top:0;z-index:10;background:var(--surface)">'
-        + '<div class="acc-type-drag-handle" style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;cursor:grab;padding:4px 6px;opacity:0.35;touch-action:none">'
-        + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
-        + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
-        + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
+        + ' style="display:flex;align-items:center;padding:14px 16px;gap:10px;user-select:none">'
+        + '<div class="acc-type-drag-handle" style="display:flex;flex-direction:column;gap:2.5px;flex-shrink:0;cursor:grab;padding:4px 2px;opacity:0.3;touch-action:none">'
+        + '<div style="width:12px;height:2px;border-radius:1px;background:var(--muted)"></div>'
+        + '<div style="width:12px;height:2px;border-radius:1px;background:var(--muted)"></div>'
+        + '<div style="width:12px;height:2px;border-radius:1px;background:var(--muted)"></div>'
         + '</div>'
         + '<div onclick="toggleAccTypeExpand(\'' + safeKey + '\')" style="flex:1;cursor:pointer;min-width:0">'
-        + '<div style="display:flex;align-items:center;gap:6px">'
-        + '<span style="font-size:15px;font-weight:800;color:var(--text)">' + accType + '</span>'
-        + '<span style="font-size:10px;color:var(--muted2);background:var(--surface2);border-radius:8px;padding:1px 7px">' + list.length + '종목</span>'
+        + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">'
+        + '<span style="font-size:15px;font-weight:900;color:var(--text)">' + accType + '</span>'
+        + '<span style="font-size:10px;color:var(--muted2);background:rgba(255,255,255,0.05);border-radius:8px;padding:1px 7px;border:0.5px solid var(--border2)">' + list.length + '종목</span>'
         + '</div>'
-        + (hasPrices ? '<div style="font-size:11px;color:' + pnlColor + ';margin-top:3px">' + pnlDisp + '</div>' : '')
+        + (hasPrices ? '<div style="font-size:11px;color:' + pnlColor + '">' + pnlDisp + '</div>' : '')
         + '</div>'
-        + '<div onclick="toggleAccTypeExpand(\'' + safeKey + '\')" style="text-align:right;flex-shrink:0;cursor:pointer;align-self:center">'
+        + '<div onclick="toggleAccTypeExpand(\'' + safeKey + '\')" style="text-align:right;flex-shrink:0;cursor:pointer">'
         + '<div style="font-size:15px;font-weight:800;color:var(--text)">' + evalDisp + '</div>'
         + '</div>'
-        + '<div onclick="toggleAccTypeExpand(\'' + safeKey + '\')" style="flex-shrink:0;cursor:pointer;align-self:flex-end;padding-bottom:4px">'
+        + '<div onclick="toggleAccTypeExpand(\'' + safeKey + '\')" style="flex-shrink:0;cursor:pointer;color:' + accentColor + ';opacity:0.6;display:flex;align-items:center">'
         + chevron
         + '</div>'
         + '</div>';
 
       // body는 항상 DOM에 존재, CSS Grid로 펼치기/접기 애니메이션
       var body = '<div id="acc-body-' + domId + '" class="acc-body' + (isExpanded ? ' acc-body-open' : '') + '">'
-        + '<div style="padding-left:4px;border-left:1.5px solid var(--border);margin-left:20px;margin-bottom:6px">'
+        + '<div style="padding:0 8px 8px">'
         + list.map(function(s) { return stockRowHtml(s, false, accType); }).join('')
         + '</div>'
         + '</div>';
 
-      return '<div style="border-bottom:1px solid var(--border)">' + header + body + '</div>';
+      return '<div class="acc-card" style="border:1px solid var(--border);border-top:2px solid ' + accentColor + '">'
+        + header + body + '</div>';
     }).join('');
 
     wrap.innerHTML = html || '<div style="text-align:center;padding:32px;color:var(--muted)">종목이 없어요</div>';
