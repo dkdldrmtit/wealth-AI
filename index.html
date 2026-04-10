@@ -1255,11 +1255,13 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
 <!-- ══ HOME ══ -->
 <div class="page active" id="page-home">
-  <div class="page-header" style="display:flex;justify-content:flex-end;align-items:center;padding-bottom:0;margin-bottom:0">
-    <button onclick="goPage('settings',{classList:{add:()=>{},remove:()=>{}}})"
-      style="background:none;border:none;color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s"
-      ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+  <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;padding-bottom:0;margin-bottom:0">
+    <div id="home-greeting" style="font-size:13px;font-weight:600;color:var(--muted)"></div>
+    <button onclick="goPage('ai',{classList:{add:()=>{},remove:()=>{}}})"
+      style="background:rgba(180,155,80,0.10);border:1px solid rgba(180,155,80,0.20);color:var(--gold);width:auto;height:28px;padding:0 10px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:20px;gap:5px;transition:all .2s;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700"
+      ontouchstart="this.style.background='rgba(180,155,80,0.20)'" ontouchend="this.style.background='rgba(180,155,80,0.10)'">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/></svg>
+      AI 상담
     </button>
   </div>
 
@@ -1396,7 +1398,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
   <!-- ② -2 주식 포트폴리오 요약 -->
   <div data-card="stocks-summary" id="home-card-stocks-summary">
-  <div class="card" style="border-color:rgba(74,158,255,.2);cursor:pointer" onclick="goPage('stocks',document.querySelectorAll('.nav-item')[4])">
+  <div class="card" style="border-color:rgba(74,158,255,.2);cursor:pointer" onclick="goPage('stocks',document.querySelectorAll('.nav-item')[3])">
 
     <!-- 헤더 -->
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
@@ -1421,12 +1423,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
     <!-- 민석/시윤 분리 -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-      <div onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[4]);setTimeout(()=>setStkOwner('minsuk'),300)" style="background:var(--surface2);border-radius:12px;padding:10px;cursor:pointer">
+      <div onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>setStkOwner('minsuk'),300)" style="background:var(--surface2);border-radius:12px;padding:10px;cursor:pointer">
         <div id="home-stock-ms-label" style="font-size:10px;color:var(--minsuk);font-weight:600;margin-bottom:6px">나 ›</div>
         <div id="home-stock-ms-val" style="font-size:14px;font-weight:800;color:var(--text)">-</div>
         <div id="home-stock-ms-pnl" style="font-size:11px;font-weight:600;margin-top:2px">-</div>
       </div>
-      <div onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[4]);setTimeout(()=>setStkOwner('siyun'),300)" style="background:var(--surface2);border-radius:12px;padding:10px;cursor:pointer">
+      <div onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>setStkOwner('siyun'),300)" style="background:var(--surface2);border-radius:12px;padding:10px;cursor:pointer">
         <div id="home-stock-sy-label" style="font-size:10px;color:var(--siyun);font-weight:600;margin-bottom:6px">배우자 ›</div>
         <div id="home-stock-sy-val" style="font-size:14px;font-weight:800;color:var(--text)">-</div>
         <div id="home-stock-sy-pnl" style="font-size:11px;font-weight:600;margin-top:2px">-</div>
@@ -1496,7 +1498,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div style="margin-bottom:14px">
 
     <!-- 순자산 대형 표시 -->
-    <div onclick="goPage('input',document.querySelectorAll('.nav-item')[3])" style="cursor:pointer;padding:20px 4px 8px">
+    <div onclick="goPage('input',document.querySelectorAll('.nav-item')[2])" style="cursor:pointer;padding:20px 4px 8px">
       <div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">순자산</div>
       <div style="display:flex;align-items:flex-start;gap:6px">
         <div style="display:flex;align-items:baseline;gap:6px;flex:1">
@@ -1508,16 +1510,16 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     </div>
 
     <!-- 총자산 / 부채 -->
-    <div style="margin-top:10px;cursor:pointer" onclick="goPage('input',document.querySelectorAll('.nav-item')[3])">
+    <div style="margin-top:10px;cursor:pointer" onclick="goPage('input',document.querySelectorAll('.nav-item')[2])">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin-bottom:8px">
-        <div onclick="event.stopPropagation();goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('asset'),50)" style="cursor:pointer">
+        <div onclick="event.stopPropagation();goPage('input',document.querySelectorAll('.nav-item')[2]);setTimeout(()=>scrollToAssetSection('asset'),50)" style="cursor:pointer">
           <div style="font-size:9px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:3px">총자산</div>
           <div style="display:flex;align-items:baseline;gap:2px">
             <span id="h-total" style="font-size:14px;font-weight:800;color:var(--text)">—</span>
             <span style="font-size:9px;color:var(--muted)">억</span>
           </div>
         </div>
-        <div onclick="event.stopPropagation();goPage('input',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>scrollToAssetSection('debt'),50)" style="text-align:right;cursor:pointer">
+        <div onclick="event.stopPropagation();goPage('input',document.querySelectorAll('.nav-item')[2]);setTimeout(()=>scrollToAssetSection('debt'),50)" style="text-align:right;cursor:pointer">
           <div style="font-size:9px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:3px">부채</div>
           <div style="display:flex;align-items:baseline;gap:2px;justify-content:flex-end">
             <span id="h-debt" style="font-size:14px;font-weight:800;color:var(--red)">—</span>
@@ -1603,7 +1605,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
   <div data-card="chart" id="home-card-chart">
 
-  <div class="card" onclick="goPage('input',document.querySelectorAll('.nav-item')[3])" style="cursor:pointer">
+  <div class="card" onclick="goPage('input',document.querySelectorAll('.nav-item')[2])" style="cursor:pointer">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div class="card-title" style="margin-bottom:0;color:var(--muted)">순자산 변화 추이</div>
       <div style="display:flex;align-items:center;gap:10px">
@@ -2310,6 +2312,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         </div>
         <!-- 우측 상단 아이콘 버튼들 -->
         <div style="display:flex;align-items:center;gap:2px;margin-top:8px">
+          <button onclick="goPage('ai',{classList:{add:()=>{},remove:()=>{}}})"
+            style="background:rgba(180,155,80,0.10);border:1px solid rgba(180,155,80,0.20);color:var(--gold);height:28px;padding:0 10px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:20px;gap:4px;transition:all .2s;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;margin-right:4px"
+            ontouchstart="this.style.background='rgba(180,155,80,0.20)'" ontouchend="this.style.background='rgba(180,155,80,0.10)'">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/></svg>
+            AI
+          </button>
           <button onclick="openVoiceParser()"
             style="background:none;border:none;color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px"
             ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
@@ -2978,8 +2986,18 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 <!-- ══ STOCKS ══ -->
 <div class="page" id="page-stocks">
   <div class="page-header">
-    <div class="eyebrow">주식 포트폴리오</div>
-    <h1>내 주식<br>현황</h1>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div class="eyebrow">주식 포트폴리오</div>
+        <h1>내 주식<br>현황</h1>
+      </div>
+      <button onclick="goPage('ai',{classList:{add:()=>{},remove:()=>{}}})"
+        style="background:rgba(180,155,80,0.10);border:1px solid rgba(180,155,80,0.20);color:var(--gold);height:28px;padding:0 10px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:20px;gap:4px;transition:all .2s;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;margin-top:8px;flex-shrink:0"
+        ontouchstart="this.style.background='rgba(180,155,80,0.20)'" ontouchend="this.style.background='rgba(180,155,80,0.10)'">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/></svg>
+        AI
+      </button>
+    </div>
   </div>
 
 
@@ -3686,15 +3704,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </svg>
       <span>가계부</span>
     </div>
-    <div class="nav-item" onclick="goPage('ai',this)">
-      <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-        <circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/>
-        <circle cx="12" cy="10" r="1" fill="currentColor" stroke="none"/>
-        <circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/>
-      </svg>
-      <span>AI</span>
-    </div>
     <div class="nav-item" onclick="goPage('input',this)">
       <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <line x1="12" y1="20" x2="12" y2="10"/>
@@ -3709,6 +3718,13 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <polyline points="16 7 22 7 22 13"/>
       </svg>
       <span>주식</span>
+    </div>
+    <div class="nav-item" onclick="goPage('settings',this)">
+      <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+      </svg>
+      <span>설정</span>
     </div>
   </div>
 </nav>
@@ -4371,7 +4387,7 @@ function goPage(name, el) {
   if (pageHistory.length > 10) pageHistory.shift();
 
   // 탭 순서 정의 (왼쪽→오른쪽)
-  const PAGE_ORDER = ['home','ledger','ai','input','stocks'];
+  const PAGE_ORDER = ['home','ledger','input','stocks','settings'];
   const prevIdx = PAGE_ORDER.indexOf(current);
   const nextIdx = PAGE_ORDER.indexOf(name);
   const animClass = nextIdx > prevIdx ? 'page-anim-left' : nextIdx < prevIdx ? 'page-anim-right' : 'page-anim-up';
@@ -4384,12 +4400,20 @@ function goPage(name, el) {
   const nextPage = document.getElementById('page-' + name);
   nextPage.classList.add('active', animClass);
 
-  if (el && el.classList) {
+  // 네비 탭 하이라이트: el이 실제 DOM 요소이면 그것을 활성화, 아니면 page name으로 인덱스 추론
+  const _navPageOrder = ['home','ledger','input','stocks','settings'];
+  const _navItems = document.querySelectorAll('.nav-item');
+  const _navIdx = _navPageOrder.indexOf(name);
+  if (el && el.tagName) {
+    // 실제 nav 버튼이 전달된 경우
     el.classList.add('active');
     el.classList.remove('bounce');
     void el.offsetWidth;
     el.classList.add('bounce');
     setTimeout(function() { el.classList.remove('bounce'); }, 450);
+  } else if (_navIdx >= 0 && _navItems[_navIdx]) {
+    // 내부 링크로 설정/홈/자산 등에 진입한 경우 자동 하이라이트
+    _navItems[_navIdx].classList.add('active');
   }
 
   // 홈 FAB - 홈에서만 표시
@@ -4449,8 +4473,8 @@ function goBack() {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + prev).classList.add('active');
-  // 해당 nav 아이템 활성화
-  const pages = ['home','goals','ledger','ai','input','stocks'];
+  // 해당 nav 아이템 활성화 (ai/goals는 nav에 없으므로 -1 반환 → 아무것도 활성화 안 함)
+  const pages = ['home','ledger','input','stocks','settings'];
   const navItems = document.querySelectorAll('.nav-item');
   const idx = pages.indexOf(prev);
   if (idx >= 0 && navItems[idx]) navItems[idx].classList.add('active');
@@ -9500,6 +9524,14 @@ function applyPartnerNamesToUI() {
   if (pnlMs) pnlMs.textContent = p1;
   if (pnlSy) { pnlSy.textContent = p2; pnlSy.style.display = p2 ? '' : 'none'; }
 
+  // 홈 그리팅
+  const greetEl = document.getElementById('home-greeting');
+  if (greetEl) {
+    const h = new Date().getHours();
+    const timeStr = h < 6 ? '새벽이에요' : h < 12 ? '좋은 아침이에요' : h < 18 ? '안녕하세요' : h < 22 ? '좋은 저녁이에요' : '밤이 깊었네요';
+    greetEl.textContent = p1 + ', ' + timeStr + ' 👋';
+  }
+
   // 홈 부부 대결 카드
   renderCoupleCard();
   renderHomeLedgerSummary();
@@ -12113,7 +12145,7 @@ function renderMiniChart() {
     // 월 레이블 (하단)
     if (showLabel || data.length <= 12) {
       svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + (H-4) + '" text-anchor="middle" fill="#6b7280" font-size="8" font-family="Noto Sans KR"'
-        + ' style="cursor:pointer" onclick="goPage(\'input\',document.querySelectorAll(\'.nav-item\')[3]);setTimeout(function(){openAssetDetail(\'' + p.r.month + '\')},300)">';
+        + ' style="cursor:pointer" onclick="goPage(\'input\',document.querySelectorAll(\'.nav-item\')[2]);setTimeout(function(){openAssetDetail(\'' + p.r.month + '\')},300)">';
       svgHtml += (data.length > 12 ? yr.slice(2)+'/' : '') + parseInt(mo) + '월</text>';
     }
   });
