@@ -4540,13 +4540,19 @@ function closeRecurringModal() {
 
 function setRecurOwner(owner) {
   _recurOwner = owner;
+  const colorMap = {
+    minsuk: { bg: 'rgba(59,130,246,.15)', border: 'rgba(59,130,246,.4)', color: 'var(--blue)' },
+    siyun:  { bg: 'rgba(34,197,94,.15)',  border: 'rgba(34,197,94,.4)',  color: 'var(--green)' },
+    common: { bg: 'rgba(20,184,166,.15)', border: 'var(--teal)',          color: 'var(--teal)' }
+  };
   ['minsuk','siyun','common'].forEach(function(o) {
     const btn = document.getElementById('recur-owner-' + o);
     if (!btn) return;
     if (o === owner) {
-      btn.style.borderColor = 'var(--teal)';
-      btn.style.background = 'rgba(20,184,166,.15)';
-      btn.style.color = 'var(--teal)';
+      const s = colorMap[o];
+      btn.style.borderColor = s.border;
+      btn.style.background = s.bg;
+      btn.style.color = s.color;
       btn.style.fontWeight = '700';
     } else {
       btn.style.borderColor = 'var(--border)';
@@ -5893,12 +5899,18 @@ function selectAddItemPreset(name) {
 
 function setAddItemOwner(owner) {
   _addItemOwner = owner;
+  const colorMap = {
+    common: { bg: 'var(--surface)', color: 'var(--text)' },
+    minsuk: { bg: 'rgba(59,130,246,.12)', color: 'var(--blue)' },
+    siyun:  { bg: 'rgba(34,197,94,.12)',  color: 'var(--green)' }
+  };
   ['common', 'minsuk', 'siyun'].forEach(function(o) {
     const btn = document.getElementById('add-owner-' + o);
     if (!btn) return;
     const isActive = o === owner;
-    btn.style.background = isActive ? 'var(--surface)' : 'transparent';
-    btn.style.color = isActive ? 'var(--text)' : 'var(--muted2)';
+    const s = colorMap[o] || colorMap.common;
+    btn.style.background = isActive ? s.bg : 'transparent';
+    btn.style.color = isActive ? s.color : 'var(--muted2)';
     btn.style.fontWeight = isActive ? '700' : '600';
   });
 }
@@ -9419,6 +9431,12 @@ function applyPartnerNamesToUI() {
   if (addSy) { addSy.textContent = p2; addSy.style.display = p2 ? '' : 'none'; }
   if (addCm) addCm.textContent = cm;
 
+  // 아파트 모달 소유자 버튼
+  const aptMs = document.getElementById('apt-owner-minsuk');
+  const aptSy = document.getElementById('apt-owner-siyun');
+  if (aptMs) aptMs.textContent = p1;
+  if (aptSy) { aptSy.textContent = p2; aptSy.style.display = p2 ? '' : 'none'; }
+
   // 홈 부부 대결 카드
   renderCoupleCard();
   renderHomeLedgerSummary();
@@ -10997,12 +11015,18 @@ function closeAptModal() {
 // ── 소유자 설정 ──
 function setAptOwner(owner) {
   _aptModalOwner = owner;
+  const colorMap = {
+    common: { bg: 'var(--surface)', color: 'var(--text)' },
+    minsuk: { bg: 'rgba(59,130,246,.12)', color: 'var(--blue)' },
+    siyun:  { bg: 'rgba(34,197,94,.12)',  color: 'var(--green)' }
+  };
   ['common','minsuk','siyun'].forEach(function(o) {
     const btn = document.getElementById('apt-owner-' + o);
     if (!btn) return;
     const isActive = o === owner;
-    btn.style.background = isActive ? 'var(--surface)' : 'transparent';
-    btn.style.color = isActive ? 'var(--text)' : 'var(--muted2)';
+    const s = colorMap[o] || colorMap.common;
+    btn.style.background = isActive ? s.bg : 'transparent';
+    btn.style.color = isActive ? s.color : 'var(--muted2)';
     btn.style.fontWeight = isActive ? '700' : '600';
   });
 }
