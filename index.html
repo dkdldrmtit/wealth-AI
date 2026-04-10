@@ -12852,19 +12852,15 @@ function renderStockList() {
     var brokerNote = s.broker ? '<span style="font-size:10px;color:var(--muted2);margin-left:4px">(' + s.broker + ')</span>' : '';
 
     var sid = s.id;
-    return '<div style="position:relative;overflow:hidden;border-bottom:1px solid var(--border)">'
-      + '<div id="stk-edit-' + sid + '" onclick="stkCloseSwipe(\'' + sid + '\');openStockEdit(\'' + sid + '\')" '
-      + 'style="position:absolute;right:0;top:0;bottom:0;width:72px;background:var(--blue);display:flex;align-items:center;justify-content:center;cursor:pointer;transform:translateX(100%);transition:transform .25s">'
-      + '<span style="font-size:11px;font-weight:700;color:#fff">편집</span></div>'
+    return '<div style="border-bottom:1px solid var(--border)">'
       + '<div id="stk-row-' + sid + '" class="stock-drag-item" data-id="' + sid + '" data-market="' + s.market + '" draggable="false"'
-      + ' ontouchstart="stkSwipeStart(event,\'' + sid + '\')" ontouchmove="stkSwipeMove(event,\'' + sid + '\')" ontouchend="stkSwipeEnd(event,\'' + sid + '\')"'
-      + ' style="display:flex;align-items:center;padding:13px 0;gap:10px;background:var(--surface);position:relative;transition:transform .25s">'
+      + ' style="display:flex;align-items:center;padding:13px 0;padding-right:2px;gap:10px;background:var(--surface)">'
       + '<div class="stock-drag-handle" style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;cursor:grab;padding:4px 6px;opacity:0.35;touch-action:none">'
       + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
       + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
       + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
       + '</div>'
-      + '<div onclick="openTradeModal(\'' + sid + '\')" style="flex:1;min-width:0;cursor:pointer">'
+      + '<div onclick="openStockEdit(\'' + sid + '\')" style="flex:1;min-width:0;cursor:pointer">'
       + '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">'
       + '<span style="font-size:14px;font-weight:700">' + s.name + '</span>' + ownerBadge + acctBadge
       + (cp > 0 ? '<span style="font-size:11px;color:var(--muted)">' + fmtAmt(cp, isUS) + '</span>' : '')
@@ -12875,7 +12871,7 @@ function renderStockList() {
       + '<span style="font-size:11px;color:var(--muted2)">평단 ' + fmtAmt(s.avgPrice, isUS) + '</span>'
       + brokerNote
       + '</div></div>'
-      + '<div onclick="openTradeModal(\'' + sid + '\')" style="text-align:right;flex-shrink:0;cursor:pointer">'
+      + '<div onclick="openTradeModal(\'' + sid + '\')" style="text-align:right;flex-shrink:0;cursor:pointer;padding-left:8px">'
       + '<div style="font-size:15px;font-weight:800;color:var(--text)">' + evalStr + '</div>'
       + (cp > 0 ? '<div style="font-size:12px;font-weight:600;color:' + pnlColor + ';margin-top:2px">' + pnlStr + '</div>' : '')
       + '</div></div></div>';
@@ -12932,7 +12928,7 @@ function renderStockList() {
         + '</div>';
 
       var body = isExpanded
-        ? '<div style="padding-left:8px;border-left:2px solid var(--border2);margin-left:6px;margin-bottom:8px">'
+        ? '<div style="padding-left:8px;padding-right:2px;border-left:2px solid var(--border2);margin-left:6px;margin-bottom:8px">'
           + list.map(function(s) { return stockRowHtml(s, false); }).join('')
           + '</div>'
         : '';
@@ -16615,54 +16611,7 @@ document.addEventListener('touchstart', function(e) {
   if (_swipeOpened && !e.target.closest('#row-' + _swipeOpened) && !e.target.closest('#del-' + _swipeOpened)) {
     closeSwipe(_swipeOpened);
   }
-  if (_stkSwipeOpened && !e.target.closest('#stk-row-' + _stkSwipeOpened) && !e.target.closest('#stk-edit-' + _stkSwipeOpened)) {
-    stkCloseSwipe(_stkSwipeOpened);
-  }
 }, { passive: true });
-
-// ── 주식 종목 스와이프 (편집)
-let _stkSwipeStartX = 0;
-let _stkSwipeStartY = 0;
-let _stkSwipeOpened = null;
-
-function stkSwipeStart(e, id) {
-  _stkSwipeStartX = e.touches[0].clientX;
-  _stkSwipeStartY = e.touches[0].clientY;
-}
-function stkSwipeMove(e, id) {
-  const dx = e.touches[0].clientX - _stkSwipeStartX;
-  const dy = Math.abs(e.touches[0].clientY - _stkSwipeStartY);
-  if (dy > Math.abs(dx)) return;
-  const row = document.getElementById('stk-row-' + id);
-  const btn = document.getElementById('stk-edit-' + id);
-  if (!row || !btn) return;
-  if (dx < -5 && dx > -80) {
-    e.preventDefault();
-    row.style.transform = 'translateX(' + dx + 'px)';
-    btn.style.transform = 'translateX(' + (100 + dx / 72 * 100) + '%)';
-  }
-}
-function stkSwipeEnd(e, id) {
-  const dx = e.changedTouches[0].clientX - _stkSwipeStartX;
-  const row = document.getElementById('stk-row-' + id);
-  const btn = document.getElementById('stk-edit-' + id);
-  if (!row || !btn) return;
-  if (dx < -40) {
-    row.style.transform = 'translateX(-72px)';
-    btn.style.transform = 'translateX(0%)';
-    if (_stkSwipeOpened && _stkSwipeOpened !== id) stkCloseSwipe(_stkSwipeOpened);
-    _stkSwipeOpened = id;
-  } else {
-    stkCloseSwipe(id);
-  }
-}
-function stkCloseSwipe(id) {
-  const row = document.getElementById('stk-row-' + id);
-  const btn = document.getElementById('stk-edit-' + id);
-  if (row) row.style.transform = 'translateX(0)';
-  if (btn) btn.style.transform = 'translateX(100%)';
-  if (_stkSwipeOpened === id) _stkSwipeOpened = null;
-}
 // ── 화면 꺼짐 방지 (Wake Lock) ──
 let _wakeLock = null;
 
