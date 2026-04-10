@@ -8029,7 +8029,7 @@ function updateFilterBadges() {
     badges.push({ text: periodLabels[ledgerPeriodFilter] || ledgerPeriodFilter, clear: function(){ setLedgerPeriod('month'); } });
   }
   if (ledgerFilterOwner !== 'all') {
-    const ownerLabels = { 'common':'공동', 'minsuk':'나', 'siyun':'파트너' };
+    const ownerLabels = { 'common': getCommonName(), 'minsuk': getP1Name(), 'siyun': getP2Name() };
     badges.push({ text: ownerLabels[ledgerFilterOwner], clear: function(){ setLedgerFilterOwner('all'); } });
   }
   if (ledgerCatFilter.length > 0) {
@@ -9432,32 +9432,42 @@ function applyPartnerNamesToUI() {
   if (addCm) addCm.textContent = cm;
 
   // 아파트 모달 소유자 버튼
+  const aptCm = document.getElementById('apt-owner-common');
   const aptMs = document.getElementById('apt-owner-minsuk');
   const aptSy = document.getElementById('apt-owner-siyun');
+  if (aptCm) aptCm.textContent = cm;
   if (aptMs) aptMs.textContent = p1;
   if (aptSy) { aptSy.textContent = p2; aptSy.style.display = p2 ? '' : 'none'; }
 
   // 음성입력 모달 소유자 버튼
+  const voiceCm = document.getElementById('voice-owner-cm');
   const voiceMs = document.getElementById('voice-owner-ms');
   const voiceSy = document.getElementById('voice-owner-sy');
+  if (voiceCm) voiceCm.textContent = cm;
   if (voiceMs) voiceMs.textContent = p1;
   if (voiceSy) { voiceSy.textContent = p2; voiceSy.style.display = p2 ? '' : 'none'; }
 
   // SMS 파서 모달 소유자 버튼
+  const smsCm = document.getElementById('sms-owner-cm');
   const smsMs = document.getElementById('sms-owner-ms');
   const smsSy = document.getElementById('sms-owner-sy');
+  if (smsCm) smsCm.textContent = cm;
   if (smsMs) smsMs.textContent = p1;
   if (smsSy) { smsSy.textContent = p2; smsSy.style.display = p2 ? '' : 'none'; }
 
   // 엑셀 업로드 모달 소유자 버튼
+  const excelCm = document.getElementById('excel-owner-joint');
   const excelMs = document.getElementById('excel-owner-minsuk');
   const excelSy = document.getElementById('excel-owner-siyun');
+  if (excelCm) excelCm.textContent = cm;
   if (excelMs) excelMs.textContent = p1;
   if (excelSy) { excelSy.textContent = p2; excelSy.style.display = p2 ? '' : 'none'; }
 
   // 홈 마이크 모달 소유자 버튼
+  const hmCm = document.getElementById('hm-owner-cm');
   const hmMs = document.getElementById('hm-owner-ms');
   const hmSy = document.getElementById('hm-owner-sy');
+  if (hmCm) hmCm.textContent = cm;
   if (hmMs) hmMs.textContent = p1;
   if (hmSy) { hmSy.textContent = p2; hmSy.style.display = p2 ? '' : 'none'; }
 
@@ -9468,8 +9478,10 @@ function applyPartnerNamesToUI() {
   if (stkModalSy) { stkModalSy.textContent = p2; stkModalSy.style.display = p2 ? '' : 'none'; }
 
   // 정기지출 추가 모달 소유자 버튼
+  const recurCm = document.getElementById('recur-owner-common');
   const recurMs = document.getElementById('recur-owner-minsuk');
   const recurSy = document.getElementById('recur-owner-siyun');
+  if (recurCm) recurCm.textContent = cm;
   if (recurMs) recurMs.textContent = p1;
   if (recurSy) { recurSy.textContent = p2; recurSy.style.display = p2 ? '' : 'none'; }
 
@@ -11770,7 +11782,7 @@ function renderAptPresets(presetsWrap) {
     + '</div>'
     + aptList.map(function(apt) {
         const isDuplicate = alreadyLinked.includes(apt.id);
-        const ownerLabel = apt.owner === 'minsuk' ? p1 : apt.owner === 'siyun' ? p2 : '공동';
+        const ownerLabel = apt.owner === 'minsuk' ? p1 : apt.owner === 'siyun' ? p2 : getCommonName();
         const priceStr = apt.cache ? (apt.cache.price/10000).toFixed(2) + '억' : '미조회';
         const fetchedStr = apt.cache ? apt.cache.fetchedAt : '';
 
@@ -12737,7 +12749,7 @@ function applyStocksToAsset() {
       updated++;
       const linkLabel = linkVal.startsWith('acct:') ? linkVal.slice(5)
         : linkVal === 'KR' ? '국내' : linkVal === 'US' ? '해외' : '전체';
-      const ownerLabel = owner === 'minsuk' ? getP1Name() : owner === 'siyun' ? getP2Name() : '공동';
+      const ownerLabel = owner === 'minsuk' ? getP1Name() : owner === 'siyun' ? getP2Name() : getCommonName();
       msgs.push(ownerLabel + ' ' + linkLabel + ' ' + (evalMan >= 10000 ? (evalMan/10000).toFixed(2) + '억' : evalMan.toLocaleString() + '만'));
     }
   });
@@ -14608,7 +14620,7 @@ function renderCalDayDetail(dateStr) {
         + '<div style="width:8px;height:8px;border-radius:50%;background:#60a5fa;flex-shrink:0"></div>'
         + '<div style="flex:1">'
         + '<div style="font-size:13px;font-weight:700;color:var(--text)">🔄 ' + escHtml(r.name) + '</div>'
-        + '<div style="font-size:11px;color:var(--muted);margin-top:2px">정기지출 · ' + (r.owner==='minsuk'?getP1Name():r.owner==='siyun'?getP2Name():'공동') + '</div>'
+        + '<div style="font-size:11px;color:var(--muted);margin-top:2px">정기지출 · ' + (r.owner==='minsuk'?getP1Name():r.owner==='siyun'?getP2Name():getCommonName()) + '</div>'
         + '</div>'
         + '<span style="font-size:13px;font-weight:800;color:#ef4444">-' + Math.round(r.amount * 10000).toLocaleString() + '원</span>'
         + '</div>';
