@@ -1063,7 +1063,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <!-- 탭 -->
     <div style="display:flex;background:#111111;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:4px;margin-bottom:28px;gap:3px">
       <button id="auth-tab-login" onclick="setAuthTab('login')"
-        style="flex:1;padding:11px;border-radius:11px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.15);color:#3b82f6;border:0.5px solid rgba(59,130,246,0.25);transition:all .2s">
+        style="flex:1;padding:11px;border-radius:11px;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.15);color:#3b82f6;border:0.5px solid rgba(59,130,246,0.25);transition:all .2s">
         로그인
       </button>
       <button id="auth-tab-signup" onclick="setAuthTab('signup')"
@@ -1239,8 +1239,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <input id="recur-amount-input" type="number" placeholder="금액 (원 단위, 예: 17000)" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:11px 13px;outline:none">
       <div style="font-size:12px;color:var(--muted)">소유자</div>
       <div style="display:flex;gap:8px">
-        <button onclick="setRecurOwner('minsuk')" id="recur-owner-minsuk" style="flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer" id="recur-label-minsuk">나</button>
-        <button onclick="setRecurOwner('siyun')" id="recur-owner-siyun" style="flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer" id="recur-label-siyun">배우자</button>
+        <button onclick="setRecurOwner('minsuk')" id="recur-owner-minsuk" style="flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer">나</button>
+        <button onclick="setRecurOwner('siyun')" id="recur-owner-siyun" style="flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer">배우자</button>
         <button onclick="setRecurOwner('common')" id="recur-owner-common" style="flex:1;padding:9px;border-radius:10px;border:1px solid var(--teal);background:rgba(20,184,166,.15);color:var(--teal);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">공동</button>
       </div>
     </div>
@@ -2084,7 +2084,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <!-- 설정 탭 내비 -->
   <div style="display:flex;background:var(--surface2);border-radius:14px;padding:4px;margin-bottom:20px;gap:2px">
     <button id="stab-home" onclick="setSettingsTab('home')"
-      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.10);color:var(--text);border:0.5px solid rgba(59,130,246,0.25)">홈</button>
+      style="flex:1;padding:8px 4px;border-radius:9px;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.10);color:var(--text);border:0.5px solid rgba(59,130,246,0.25)">홈</button>
     <button id="stab-apt" onclick="setSettingsTab('apt')"
       style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">부동산</button>
     <button id="stab-cat" onclick="setSettingsTab('cat')"
@@ -2765,7 +2765,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
       <!-- 소유자 선택 -->
       <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:16px;gap:2px">
-        <button id="voice-owner-cm" onclick="setVoiceOwner('common')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.10);color:var(--text);border:0.5px solid rgba(59,130,246,0.25);transition:all .2s">공동</button>
+        <button id="voice-owner-cm" onclick="setVoiceOwner('common')" style="flex:1;padding:9px;border-radius:9px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.10);color:var(--text);border:0.5px solid rgba(59,130,246,0.25);transition:all .2s">공동</button>
         <button id="voice-owner-ms" onclick="setVoiceOwner('minsuk')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">나</button>
         <button id="voice-owner-sy" onclick="setVoiceOwner('siyun')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">배우자</button>
 
@@ -2864,7 +2864,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="margin-bottom:14px">
         <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:8px">지출 주체</div>
         <div style="display:flex;background:var(--surface2);border-radius:10px;padding:3px;gap:2px">
-          <button id="excel-owner-joint" onclick="setExcelOwner('joint')" style="flex:1;padding:7px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.10);color:var(--text);border:0.5px solid rgba(59,130,246,0.25)">공동</button>
+          <button id="excel-owner-joint" onclick="setExcelOwner('joint')" style="flex:1;padding:7px;border-radius:8px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.10);color:var(--text);border:0.5px solid rgba(59,130,246,0.25)">공동</button>
           <button id="excel-owner-minsuk" onclick="setExcelOwner('minsuk')" style="flex:1;padding:7px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2)">나</button>
           <button id="excel-owner-siyun" onclick="setExcelOwner('siyun')" style="flex:1;padding:7px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2)">배우자</button>
         </div>
@@ -2914,7 +2914,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
       <!-- 소유자 선택 -->
       <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:14px;gap:2px">
-        <button id="sms-owner-cm" onclick="setSmsOwner('common')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:#2a2a2a;color:var(--text);border:0.5px solid rgba(59,130,246,0.25);transition:all .2s">공동</button>
+        <button id="sms-owner-cm" onclick="setSmsOwner('common')" style="flex:1;padding:9px;border-radius:9px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.10);color:var(--text);border:0.5px solid rgba(59,130,246,0.25);transition:all .2s">공동</button>
         <button id="sms-owner-ms" onclick="setSmsOwner('minsuk')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">나</button>
         <button id="sms-owner-sy" onclick="setSmsOwner('siyun')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">배우자</button>
 
@@ -3263,7 +3263,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
       <!-- 매수/매도 -->
       <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:16px">
-        <button id="trade-buy" onclick="setTradeType('buy')" style="flex:1;padding:10px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:rgba(34,197,94,0.10);color:#22c55e;border:0.5px solid rgba(34,197,94,0.25)">매수</button>
+        <button id="trade-buy" onclick="setTradeType('buy')" style="flex:1;padding:10px;border-radius:9px;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:var(--blue);color:#fff;border:0.5px solid rgba(59,130,246,.5)">매수</button>
         <button id="trade-sell" onclick="setTradeType('sell')" style="flex:1;padding:10px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2)">매도</button>
       </div>
 
@@ -9437,6 +9437,42 @@ function applyPartnerNamesToUI() {
   if (aptMs) aptMs.textContent = p1;
   if (aptSy) { aptSy.textContent = p2; aptSy.style.display = p2 ? '' : 'none'; }
 
+  // 음성입력 모달 소유자 버튼
+  const voiceMs = document.getElementById('voice-owner-ms');
+  const voiceSy = document.getElementById('voice-owner-sy');
+  if (voiceMs) voiceMs.textContent = p1;
+  if (voiceSy) { voiceSy.textContent = p2; voiceSy.style.display = p2 ? '' : 'none'; }
+
+  // SMS 파서 모달 소유자 버튼
+  const smsMs = document.getElementById('sms-owner-ms');
+  const smsSy = document.getElementById('sms-owner-sy');
+  if (smsMs) smsMs.textContent = p1;
+  if (smsSy) { smsSy.textContent = p2; smsSy.style.display = p2 ? '' : 'none'; }
+
+  // 엑셀 업로드 모달 소유자 버튼
+  const excelMs = document.getElementById('excel-owner-minsuk');
+  const excelSy = document.getElementById('excel-owner-siyun');
+  if (excelMs) excelMs.textContent = p1;
+  if (excelSy) { excelSy.textContent = p2; excelSy.style.display = p2 ? '' : 'none'; }
+
+  // 홈 마이크 모달 소유자 버튼
+  const hmMs = document.getElementById('hm-owner-ms');
+  const hmSy = document.getElementById('hm-owner-sy');
+  if (hmMs) hmMs.textContent = p1;
+  if (hmSy) { hmSy.textContent = p2; hmSy.style.display = p2 ? '' : 'none'; }
+
+  // 주식 추가/편집 모달 소유자 버튼
+  const stkModalMs = document.getElementById('stock-owner-ms');
+  const stkModalSy = document.getElementById('stock-owner-sy');
+  if (stkModalMs) stkModalMs.textContent = p1;
+  if (stkModalSy) { stkModalSy.textContent = p2; stkModalSy.style.display = p2 ? '' : 'none'; }
+
+  // 정기지출 추가 모달 소유자 버튼
+  const recurMs = document.getElementById('recur-owner-minsuk');
+  const recurSy = document.getElementById('recur-owner-siyun');
+  if (recurMs) recurMs.textContent = p1;
+  if (recurSy) { recurSy.textContent = p2; recurSy.style.display = p2 ? '' : 'none'; }
+
   // 홈 부부 대결 카드
   renderCoupleCard();
   renderHomeLedgerSummary();
@@ -14200,8 +14236,16 @@ function setTradeType(type) {
   currentTradeType = type;
   const buyBtn = document.getElementById('trade-buy');
   const sellBtn = document.getElementById('trade-sell');
-  if (buyBtn) { buyBtn.style.background = type === 'buy' ? 'var(--blue)' : 'transparent'; buyBtn.style.color = type === 'buy' ? '#fff' : 'var(--muted2)'; }
-  if (sellBtn) { sellBtn.style.background = type === 'sell' ? 'var(--red)' : 'transparent'; sellBtn.style.color = type === 'sell' ? '#fff' : 'var(--muted2)'; }
+  if (buyBtn) {
+    buyBtn.style.background = type === 'buy' ? 'var(--blue)' : 'transparent';
+    buyBtn.style.color = type === 'buy' ? '#fff' : 'var(--muted2)';
+    buyBtn.style.border = type === 'buy' ? '0.5px solid rgba(59,130,246,.5)' : '0.5px solid transparent';
+  }
+  if (sellBtn) {
+    sellBtn.style.background = type === 'sell' ? 'var(--red)' : 'transparent';
+    sellBtn.style.color = type === 'sell' ? '#fff' : 'var(--muted2)';
+    sellBtn.style.border = type === 'sell' ? '0.5px solid rgba(239,68,68,.5)' : '0.5px solid transparent';
+  }
   updateTradePreview();
 }
 
