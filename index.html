@@ -3110,7 +3110,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
     <!-- 나 vs 배우자 비교 -->
     <div id="stk-owner-compare" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-top:10px">
-      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px">나 vs 배우자 비교</div>
+      <div id="stk-owner-compare-title" style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px">비교</div>
       <div id="stk-owner-compare-content"></div>
     </div>
 
@@ -9403,6 +9403,22 @@ function applyPartnerNamesToUI() {
   if (stkMs) stkMs.textContent = '👤 ' + p1;
   if (stkSy) { stkSy.textContent = p2 ? '👤 ' + p2 : ''; stkSy.style.display = p2 ? '' : 'none'; }
 
+  // 가계부 필터 소유자 버튼
+  const lfMs = document.getElementById('lf-owner-minsuk');
+  const lfSy = document.getElementById('lf-owner-siyun');
+  const lfCm = document.getElementById('lf-owner-common');
+  if (lfMs) lfMs.textContent = p1;
+  if (lfSy) { lfSy.textContent = p2; lfSy.style.display = p2 ? '' : 'none'; }
+  if (lfCm) lfCm.textContent = cm;
+
+  // 자산 항목 추가 모달 소유자 버튼
+  const addMs = document.getElementById('add-owner-minsuk');
+  const addSy = document.getElementById('add-owner-siyun');
+  const addCm = document.getElementById('add-owner-common');
+  if (addMs) addMs.textContent = p1;
+  if (addSy) { addSy.textContent = p2; addSy.style.display = p2 ? '' : 'none'; }
+  if (addCm) addCm.textContent = cm;
+
   // 홈 부부 대결 카드
   renderCoupleCard();
   renderHomeLedgerSummary();
@@ -13069,6 +13085,8 @@ function renderStkPctChart() {
   }
 
   compareEl.style.display = 'block';
+  const compareTitleEl = document.getElementById('stk-owner-compare-title');
+  if (compareTitleEl) compareTitleEl.textContent = getP1Name() + ' vs ' + getP2Name() + ' 비교';
 
   function ownerCard(ownerStocks, name, colorVar, bgVar) {
     if (!ownerStocks.length) return '';
