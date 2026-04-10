@@ -3210,7 +3210,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         </div>
         <div id="stock-acctype-chips" style="display:flex;flex-wrap:wrap;gap:6px;padding-left:68px"></div>
         <!-- 커스텀 추가 입력 -->
-        <div id="stock-acctype-add-row" style="display:none;padding-left:68px;margin-top:8px;display:flex;gap:6px;align-items:center">
+        <div id="stock-acctype-add-row" style="display:none;padding-left:68px;margin-top:8px;gap:6px;align-items:center">
           <input type="text" id="stock-acctype-add-input" placeholder="새 계좌종류 이름"
             style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:12px;padding:7px 10px;outline:none"
             onkeydown="if(event.key==='Enter')confirmAddAccType()">
@@ -15813,12 +15813,19 @@ function closeVoiceParser() {
 
 function setVoiceOwner(owner) {
   voiceOwner = owner;
+  const styles = {
+    cm: { bg: 'rgba(59,130,246,.10)', color: 'var(--text)', border: 'rgba(59,130,246,.25)' },
+    ms: { bg: 'rgba(59,130,246,.15)', color: 'var(--blue)', border: 'rgba(59,130,246,.35)' },
+    sy: { bg: 'rgba(34,197,94,.15)', color: 'var(--green)', border: 'rgba(34,197,94,.35)' }
+  };
   ['cm','ms','sy'].forEach(function(k) {
     const btn = document.getElementById('voice-owner-' + k);
     if (!btn) return;
     const isActive = (k==='cm'&&owner==='common')||(k==='ms'&&owner==='minsuk')||(k==='sy'&&owner==='siyun');
-    btn.style.background = isActive ? 'var(--teal)' : 'transparent';
-    btn.style.color = isActive ? '#3b82f6' : 'var(--muted2)';
+    btn.style.background = isActive ? styles[k].bg : 'transparent';
+    btn.style.color = isActive ? styles[k].color : 'var(--muted2)';
+    btn.style.border = isActive ? '0.5px solid ' + styles[k].border : '0.5px solid transparent';
+    btn.style.fontWeight = isActive ? '700' : '600';
   });
 }
 
@@ -16361,11 +16368,20 @@ function setExcelCardType(type) {
 
 function setExcelOwner(owner) {
   excelOwner = owner;
+  const colorMap = {
+    joint:  { bg: 'rgba(59,130,246,.10)', color: 'var(--text)',  border: 'rgba(59,130,246,.25)' },
+    minsuk: { bg: 'rgba(59,130,246,.15)', color: 'var(--blue)',  border: 'rgba(59,130,246,.35)' },
+    siyun:  { bg: 'rgba(34,197,94,.15)', color: 'var(--green)', border: 'rgba(34,197,94,.35)' }
+  };
   ['joint','minsuk','siyun'].forEach(function(o) {
     const btn = document.getElementById('excel-owner-' + o);
     if (!btn) return;
-    btn.style.background = o === owner ? 'var(--gold)' : 'transparent';
-    btn.style.color = o === owner ? '#000' : 'var(--muted2)';
+    const isActive = o === owner;
+    const s = colorMap[o];
+    btn.style.background = isActive ? s.bg : 'transparent';
+    btn.style.color = isActive ? s.color : 'var(--muted2)';
+    btn.style.border = isActive ? '0.5px solid ' + s.border : '0.5px solid transparent';
+    btn.style.fontWeight = isActive ? '700' : '600';
   });
 }
 
@@ -16615,12 +16631,19 @@ function closeHomeMic() {
 
 function setHomeMicOwner(owner) {
   homeMicOwner = owner;
+  const styles = {
+    cm: { bg: 'rgba(59,130,246,.10)', color: 'var(--text)', border: 'rgba(59,130,246,.25)' },
+    ms: { bg: 'rgba(59,130,246,.15)', color: 'var(--blue)', border: 'rgba(59,130,246,.35)' },
+    sy: { bg: 'rgba(34,197,94,.15)', color: 'var(--green)', border: 'rgba(34,197,94,.35)' }
+  };
   ['cm','ms','sy'].forEach(function(k) {
     const btn = document.getElementById('hm-owner-' + k);
     if (!btn) return;
     const isActive = (k==='cm'&&owner==='common')||(k==='ms'&&owner==='minsuk')||(k==='sy'&&owner==='siyun');
-    btn.style.background = isActive ? 'var(--teal)' : 'transparent';
-    btn.style.color = isActive ? '#3b82f6' : 'var(--muted2)';
+    btn.style.background = isActive ? styles[k].bg : 'transparent';
+    btn.style.color = isActive ? styles[k].color : 'var(--muted2)';
+    btn.style.border = isActive ? '0.5px solid ' + styles[k].border : '0.5px solid transparent';
+    btn.style.fontWeight = isActive ? '700' : '600';
   });
 }
 
@@ -16761,12 +16784,19 @@ function closeSmsParser() {
 
 function setSmsOwner(owner) {
   smsOwner = owner;
+  const styles = {
+    cm: { bg: 'rgba(59,130,246,.10)', color: 'var(--text)', border: 'rgba(59,130,246,.25)' },
+    ms: { bg: 'rgba(59,130,246,.15)', color: 'var(--blue)', border: 'rgba(59,130,246,.35)' },
+    sy: { bg: 'rgba(34,197,94,.15)', color: 'var(--green)', border: 'rgba(34,197,94,.35)' }
+  };
   ['cm','ms','sy'].forEach(function(k) {
     const btn = document.getElementById('sms-owner-' + k);
     if (!btn) return;
     const isActive = (k==='cm'&&owner==='common')||(k==='ms'&&owner==='minsuk')||(k==='sy'&&owner==='siyun');
-    btn.style.background = isActive ? 'var(--purple)' : 'transparent';
-    btn.style.color = isActive ? '#fff' : 'var(--muted2)';
+    btn.style.background = isActive ? styles[k].bg : 'transparent';
+    btn.style.color = isActive ? styles[k].color : 'var(--muted2)';
+    btn.style.border = isActive ? '0.5px solid ' + styles[k].border : '0.5px solid transparent';
+    btn.style.fontWeight = isActive ? '700' : '600';
   });
 }
 
@@ -17031,15 +17061,27 @@ function setTxOwner(owner) {
   const msBtn = document.getElementById('tx-owner-ms');
   const syBtn = document.getElementById('tx-owner-sy');
   const cmBtn = document.getElementById('tx-owner-cm');
-  [['minsuk',msBtn],['siyun',syBtn],['common',cmBtn]].forEach(function(pair) {
-    const active = owner === pair[0];
-    const btn = pair[1];
-    if (!btn) return;
-    btn.style.background = active ? 'var(--accent)' : 'transparent';
-    btn.style.borderColor = active ? 'var(--accent)' : 'var(--border2)';
-    btn.style.color = active ? '#fff' : 'var(--muted2)';
-    btn.style.fontWeight = active ? '700' : '600';
-  });
+  if (msBtn) {
+    const active = owner === 'minsuk';
+    msBtn.style.background = active ? 'rgba(59,130,246,.15)' : 'transparent';
+    msBtn.style.borderColor = active ? 'var(--blue)' : 'var(--border2)';
+    msBtn.style.color = active ? 'var(--blue)' : 'var(--muted2)';
+    msBtn.style.fontWeight = active ? '700' : '600';
+  }
+  if (syBtn) {
+    const active = owner === 'siyun';
+    syBtn.style.background = active ? 'rgba(34,197,94,.15)' : 'transparent';
+    syBtn.style.borderColor = active ? 'var(--green)' : 'var(--border2)';
+    syBtn.style.color = active ? 'var(--green)' : 'var(--muted2)';
+    syBtn.style.fontWeight = active ? '700' : '600';
+  }
+  if (cmBtn) {
+    const active = owner === 'common';
+    cmBtn.style.background = active ? 'var(--surface2)' : 'transparent';
+    cmBtn.style.borderColor = active ? 'var(--border)' : 'var(--border2)';
+    cmBtn.style.color = active ? 'var(--text)' : 'var(--muted2)';
+    cmBtn.style.fontWeight = active ? '700' : '600';
+  }
 }
 
 function renderCategoryBtns(type) {
