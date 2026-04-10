@@ -13041,7 +13041,7 @@ function renderStockHistory() {
   filtered.forEach(function(s) {
     if (!s.trades) return;
     s.trades.forEach(function(t) {
-      allTrades.push({ ...t, stockName: s.name, market: s.market, owner: s.owner });
+      allTrades.push({ ...t, stockName: s.name, market: s.market, owner: s.owner, accountType: s.accountType, broker: s.broker });
     });
   });
 
@@ -13060,15 +13060,27 @@ function renderStockHistory() {
     const priceStr = t.market === 'KR' ? t.price.toLocaleString() + '원' : '$' + t.price.toFixed(2);
     const totalStr = t.market === 'KR' ? Math.round(t.price * t.qty).toLocaleString() + '원' : '$' + (t.price * t.qty).toFixed(2);
     const ownerBadge = currentStkOwner === 'all'
-      ? (t.owner === 'minsuk' ? '<span style="font-size:9px;background:rgba(96,165,250,.15);color:var(--minsuk);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + getP1Name() + '</span>'
-        : t.owner === 'siyun' ? '<span style="font-size:9px;background:rgba(52,211,153,.15);color:var(--siyun);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + getP2Name() + '</span>' : '')
+      ? (t.owner === 'minsuk'
+          ? '<span style="font-size:9px;background:rgba(59,130,246,.12);color:var(--minsuk);border:0.5px solid rgba(59,130,246,.3);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + getP1Name() + '</span>'
+          : t.owner === 'siyun'
+          ? '<span style="font-size:9px;background:rgba(34,197,94,.12);color:var(--siyun);border:0.5px solid rgba(34,197,94,.3);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + getP2Name() + '</span>'
+          : '')
+      : '';
+    const acctBadge = t.accountType
+      ? '<span style="font-size:9px;background:rgba(201,168,76,.1);color:var(--gold);border:0.5px solid rgba(201,168,76,.25);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + t.accountType + '</span>'
+      : '';
+    const brokerBadge = t.broker
+      ? '<span style="font-size:10px;color:var(--muted2);border:0.5px solid var(--border2);border-radius:6px;padding:1px 5px;margin-left:4px">' + t.broker + '</span>'
       : '';
 
     return '<div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:8px">'
       + '<div style="width:40px;height:40px;border-radius:12px;background:' + (isBuy?'rgba(239,68,68,.12)':'rgba(74,158,255,.12)') + ';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:' + color + ';flex-shrink:0">' + label + '</div>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:13px;font-weight:700;display:flex;align-items:center">' + t.stockName + ownerBadge + '</div>'
-      + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + t.date + ' · ' + t.qty + '주 @ ' + priceStr + '</div>'
+      + '<div style="font-size:13px;font-weight:700;display:flex;align-items:center;flex-wrap:wrap;gap:2px">' + t.stockName + ownerBadge + acctBadge + '</div>'
+      + '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:3px">'
+      + '<span style="font-size:11px;color:var(--muted)">' + t.date + ' · ' + t.qty + '주 @ ' + priceStr + '</span>'
+      + brokerBadge
+      + '</div>'
       + '</div>'
       + '<div style="text-align:right;flex-shrink:0">'
       + '<div style="font-size:14px;font-weight:800;color:' + color + '">' + (isBuy?'-':'+') + totalStr + '</div>'
@@ -13152,16 +13164,19 @@ function renderStockList() {
     var pnlStr  = cp > 0 ? (isUp?'+':'') + fmtAmt(pnl, isUS) + ' (' + pct.toFixed(1) + '%)' : '-';
 
     var ownerBadge = (currentStkOwner === 'all' && s.owner)
-      ? '<span style="font-size:9px;background:' + (s.owner==='minsuk'?'rgba(96,165,250,.15)':'rgba(52,211,153,.15)')
-        + ';color:' + (s.owner==='minsuk'?'var(--minsuk)':'var(--siyun)')
-        + ';padding:1px 5px;border-radius:5px;font-weight:700;margin-left:5px">'
+      ? '<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;margin-left:4px;flex-shrink:0;'
+        + 'background:' + (s.owner==='minsuk'?'rgba(59,130,246,.12)':'rgba(34,197,94,.12)') + ';'
+        + 'color:' + (s.owner==='minsuk'?'var(--minsuk)':'var(--siyun)') + ';'
+        + 'border:0.5px solid ' + (s.owner==='minsuk'?'rgba(59,130,246,.3)':'rgba(34,197,94,.3)') + '">'
         + (s.owner==='minsuk'?getP1Name():getP2Name()) + '</span>' : '';
 
     // 종목별 모드에서 계좌종류 배지, 증권사 텍스트
     var acctBadge = (showAccBadge && s.accountType)
-      ? '<span style="font-size:9px;background:rgba(201,168,76,.12);color:var(--gold);padding:1px 6px;border-radius:5px;font-weight:700;margin-left:5px">' + s.accountType + '</span>'
+      ? '<span style="font-size:9px;background:rgba(201,168,76,.12);color:var(--gold);padding:1px 6px;border-radius:5px;font-weight:700;margin-left:5px;flex-shrink:0">' + s.accountType + '</span>'
       : '';
-    var brokerNote = s.broker ? '<span style="font-size:10px;color:var(--muted2);margin-left:4px">(' + s.broker + ')</span>' : '';
+    var brokerNote = s.broker
+      ? '<span style="font-size:10px;color:var(--muted2);border:0.5px solid var(--border2);border-radius:6px;padding:1px 5px;margin-left:4px;flex-shrink:0">' + s.broker + '</span>'
+      : '';
 
     var sid = s.id;
     var isSoldOut = (s.qty === 0);
