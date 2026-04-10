@@ -12895,6 +12895,7 @@ function _stockPnlDisplay(s) {
 }
 
 function _renderStockRows(list) {
+  const usdKrw = load('usd-krw-rate', 0);
   const sorted = [...list].sort(function(a, b) {
     if (stkSortMode === 'amt') {
       return _stockPnlKrw(b) - _stockPnlKrw(a);
@@ -12908,31 +12909,47 @@ function _renderStockRows(list) {
     : Math.max(...sorted.map(function(s) { return Math.abs(_stockPnlKrw(s)); }), 1);
 
   return sorted.map(function(s) {
-    const pct = (s.currentPrice - s.avgPrice) / s.avgPrice * 100;
+    const pct    = (s.currentPrice - s.avgPrice) / s.avgPrice * 100;
     const pnlKrw = _stockPnlKrw(s);
-    const isUp = pct >= 0;
-    const color = isUp ? 'var(--red)' : 'var(--blue)';
+    const isUp   = pct >= 0;
     const pnlStr = _stockPnlDisplay(s);
     const barVal = stkSortMode === 'amt' ? Math.abs(pnlKrw) : Math.abs(pct);
-    const barW = Math.round(barVal / maxAbs * 50);
+    const barW   = Math.round(barVal / maxAbs * 50);
+
+    // 그라데이션: 비율에 비례해 색상 강도 조절 (0.25 ~ 1.0)
+    const ratio   = Math.min(barVal / maxAbs, 1);
+    const alpha   = (0.28 + ratio * 0.72).toFixed(2);
+    const barColor  = isUp ? 'rgba(239,68,68,' + alpha + ')' : 'rgba(74,158,255,' + alpha + ')';
+    const textColor = isUp ? 'rgba(239,68,68,' + Math.max(alpha, 0.6) + ')' : 'rgba(74,158,255,' + Math.max(alpha, 0.6) + ')';
+
+    // 평가금액 (원화 환산)
+    const evalKrw = s.currentPrice * s.qty * (s.market === 'US' && usdKrw ? usdKrw : 1);
+    const evalStr = evalKrw >= 100000000
+      ? (evalKrw / 100000000).toFixed(1) + '억'
+      : evalKrw >= 10000
+      ? Math.round(evalKrw / 10000).toLocaleString() + '만원'
+      : Math.round(evalKrw).toLocaleString() + '원';
 
     const acctBadge = s.accountType
       ? '<span style="font-size:9px;background:rgba(201,168,76,.12);color:var(--gold);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:5px;border:0.5px solid rgba(201,168,76,.25)">' + s.accountType + '</span>'
       : '';
 
     return '<div style="margin-bottom:14px">'
-      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">'
+      + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px">'
+      + '<div style="min-width:0">'
       + '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:2px">'
       + '<span style="font-size:12px;font-weight:600;color:var(--text)">' + s.name + '</span>'
       + acctBadge
       + '</div>'
-      + '<div style="display:flex;align-items:baseline;gap:6px;flex-shrink:0">'
+      + '<div style="font-size:10px;color:var(--muted2);margin-top:2px">평가 ' + evalStr + '</div>'
+      + '</div>'
+      + '<div style="display:flex;align-items:baseline;gap:6px;flex-shrink:0;padding-left:8px">'
       + '<span style="font-size:11px;color:var(--muted)">' + pnlStr + '</span>'
-      + '<span style="font-size:14px;font-weight:800;color:' + color + '">' + (isUp?'+':'') + pct.toFixed(1) + '%</span>'
+      + '<span style="font-size:14px;font-weight:800;color:' + textColor + '">' + (isUp?'+':'') + pct.toFixed(1) + '%</span>'
       + '</div>'
       + '</div>'
       + '<div style="position:relative;height:4px;background:var(--surface2);border-radius:2px">'
-      + '<div style="position:absolute;top:0;height:100%;border-radius:2px;background:' + color + ';width:' + barW + '%;' + (isUp ? 'left:50%' : 'right:50%') + '"></div>'
+      + '<div style="position:absolute;top:0;height:100%;border-radius:2px;background:' + barColor + ';width:' + barW + '%;' + (isUp ? 'left:50%' : 'right:50%') + '"></div>'
       + '<div style="position:absolute;top:-2px;left:50%;width:1px;height:8px;background:var(--border2)"></div>'
       + '</div>'
       + '</div>';
