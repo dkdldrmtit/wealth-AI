@@ -7503,7 +7503,11 @@ function renderHomeStockRankList() {
     const isUp = pct >= 0;
     const pctColor = isUp ? 'var(--red)' : 'var(--blue)';
     const pnlColor = pnl >= 0 ? 'var(--red)' : 'var(--blue)';
-    const ownerBadge = '<span style="font-size:9px;color:' + (s.owner === 'minsuk' ? 'var(--minsuk)' : 'var(--siyun)') + ';margin-left:4px">' + (s.owner === 'minsuk' ? getP1Name() : getP2Name()) + '</span>';
+    const ownerBadge = '<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:6px;margin-left:4px;'
+      + 'background:' + (s.owner === 'minsuk' ? 'rgba(59,130,246,.12)' : 'rgba(34,197,94,.12)') + ';'
+      + 'color:' + (s.owner === 'minsuk' ? 'var(--minsuk)' : 'var(--siyun)') + ';'
+      + 'border:0.5px solid ' + (s.owner === 'minsuk' ? 'rgba(59,130,246,.3)' : 'rgba(34,197,94,.3)') + '">'
+      + (s.owner === 'minsuk' ? getP1Name() : getP2Name()) + '</span>';
 
     let mainVal, subVal, borderColor;
     if (homeStockRankTab === 'pct') {
