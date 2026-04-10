@@ -12882,9 +12882,16 @@ function _stockPnlKrw(s) {
 }
 
 function _stockPnlDisplay(s) {
-  const pnl = (s.currentPrice - s.avgPrice) * s.qty;
-  const isUp = pnl >= 0;
-  return (isUp ? '+' : '') + (s.market === 'KR' ? Math.round(pnl).toLocaleString() + '원' : '$' + pnl.toFixed(0));
+  const usdKrw = load('usd-krw-rate', 0);
+  const pnlKrw = _stockPnlKrw(s);
+  const isUp = pnlKrw >= 0;
+  const krwStr = (isUp ? '+' : '') + Math.round(pnlKrw).toLocaleString() + '원';
+  if (s.market === 'US') {
+    const pnlUsd = (s.currentPrice - s.avgPrice) * s.qty;
+    const usdStr = (pnlUsd >= 0 ? '+' : '') + '$' + Math.abs(pnlUsd).toFixed(0);
+    return krwStr + '<span style="font-size:9px;color:var(--muted);margin-left:3px">(' + usdStr + ')</span>';
+  }
+  return krwStr;
 }
 
 function _renderStockRows(list) {
@@ -12952,28 +12959,43 @@ function renderStkPctChart() {
   const totalColor = totalIsUp ? 'var(--red)' : 'var(--blue)';
   const totalPnlStr = (totalIsUp ? '+' : '') + Math.round(stats.pnl).toLocaleString() + '원';
 
-  // 최고 수익/손실 종목
+  // 최고/최저 종목 — stkSortMode 에 따라 수익률 or 수익금액 기준
+  const isByAmt = stkSortMode === 'amt';
   const sorted4stats = [...activeStocks].sort(function(a, b) {
-    const pctA = a.avgPrice > 0 ? (a.currentPrice - a.avgPrice) / a.avgPrice * 100 : 0;
-    const pctB = b.avgPrice > 0 ? (b.currentPrice - b.avgPrice) / b.avgPrice * 100 : 0;
-    return pctB - pctA;
+    return isByAmt
+      ? _stockPnlKrw(b) - _stockPnlKrw(a)
+      : (b.avgPrice > 0 ? (b.currentPrice - b.avgPrice) / b.avgPrice * 100 : 0)
+        - (a.avgPrice > 0 ? (a.currentPrice - a.avgPrice) / a.avgPrice * 100 : 0);
   });
   const topGainer = sorted4stats[0];
-  const topLoser = sorted4stats[sorted4stats.length - 1];
+  const topLoser  = sorted4stats[sorted4stats.length - 1];
   const topGainerPct = topGainer && topGainer.avgPrice > 0 ? (topGainer.currentPrice - topGainer.avgPrice) / topGainer.avgPrice * 100 : 0;
-  const topLoserPct = topLoser && topLoser.avgPrice > 0 ? (topLoser.currentPrice - topLoser.avgPrice) / topLoser.avgPrice * 100 : 0;
+  const topLoserPct  = topLoser  && topLoser.avgPrice  > 0 ? (topLoser.currentPrice  - topLoser.avgPrice)  / topLoser.avgPrice  * 100 : 0;
+  const topGainerKrw = topGainer ? _stockPnlKrw(topGainer) : 0;
+  const topLoserKrw  = topLoser  ? _stockPnlKrw(topLoser)  : 0;
+
+  function fmtKrwCompact(v) {
+    const abs = Math.abs(v);
+    if (abs >= 100000000) return (v >= 0 ? '+' : '-') + (abs / 100000000).toFixed(1) + '억';
+    if (abs >= 10000)     return (v >= 0 ? '+' : '-') + (abs / 10000).toFixed(0) + '만';
+    return (v >= 0 ? '+' : '') + Math.round(v).toLocaleString() + '원';
+  }
 
   const statsRowHtml = activeStocks.length >= 2
     ? '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'
       + '<div style="padding:8px 10px;background:rgba(239,68,68,.07);border:0.5px solid rgba(239,68,68,.15);border-radius:8px">'
-      + '<div style="font-size:9px;color:var(--muted);margin-bottom:3px">최고 수익</div>'
+      + '<div style="font-size:9px;color:var(--muted);margin-bottom:3px">' + (isByAmt ? '최고 수익금액' : '최고 수익률') + '</div>'
       + '<div style="font-size:11px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + topGainer.name + '</div>'
-      + '<div style="font-size:12px;font-weight:800;color:var(--red);margin-top:1px">+' + topGainerPct.toFixed(1) + '%</div>'
+      + '<div style="font-size:12px;font-weight:800;color:var(--red);margin-top:1px">'
+        + (isByAmt ? fmtKrwCompact(topGainerKrw) : (topGainerPct >= 0 ? '+' : '') + topGainerPct.toFixed(1) + '%')
+      + '</div>'
       + '</div>'
       + '<div style="padding:8px 10px;background:rgba(74,158,255,.07);border:0.5px solid rgba(74,158,255,.15);border-radius:8px">'
-      + '<div style="font-size:9px;color:var(--muted);margin-bottom:3px">최저 수익</div>'
+      + '<div style="font-size:9px;color:var(--muted);margin-bottom:3px">' + (isByAmt ? '최저 수익금액' : '최저 수익률') + '</div>'
       + '<div style="font-size:11px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + topLoser.name + '</div>'
-      + '<div style="font-size:12px;font-weight:800;color:var(--blue);margin-top:1px">' + (topLoserPct >= 0 ? '+' : '') + topLoserPct.toFixed(1) + '%</div>'
+      + '<div style="font-size:12px;font-weight:800;color:var(--blue);margin-top:1px">'
+        + (isByAmt ? fmtKrwCompact(topLoserKrw) : (topLoserPct >= 0 ? '+' : '') + topLoserPct.toFixed(1) + '%')
+      + '</div>'
       + '</div>'
       + '</div>'
     : '';
