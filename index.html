@@ -14249,7 +14249,7 @@ function renderCalDayDetail(dateStr) {
         + '<div style="width:8px;height:8px;border-radius:50%;background:#60a5fa;flex-shrink:0"></div>'
         + '<div style="flex:1">'
         + '<div style="font-size:13px;font-weight:700;color:var(--text)">🔄 ' + escHtml(r.name) + '</div>'
-        + '<div style="font-size:11px;color:var(--muted);margin-top:2px">정기지출 · ' + (r.owner==='minsuk'?'민석':r.owner==='siyun'?'시윤':'공동') + '</div>'
+        + '<div style="font-size:11px;color:var(--muted);margin-top:2px">정기지출 · ' + (r.owner==='minsuk'?getP1Name():r.owner==='siyun'?getP2Name():'공동') + '</div>'
         + '</div>'
         + '<span style="font-size:13px;font-weight:800;color:#ef4444">-' + Math.round(r.amount * 10000).toLocaleString() + '원</span>'
         + '</div>';
