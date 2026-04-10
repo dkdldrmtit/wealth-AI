@@ -94,6 +94,13 @@
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 html { overscroll-behavior-y: none; }
+/* 다크/라이트 전환 부드럽게 */
+*, *::before, *::after {
+  transition: background-color .25s ease, border-color .25s ease, color .15s ease;
+}
+/* 애니메이션 요소는 transition 덮어쓰지 않도록 예외 처리 */
+.stock-drag-item, .acc-body, .acc-type-item,
+button, input, svg, svg * { transition: none; }
 body {
   background: var(--bg);
   color: var(--text);
@@ -3139,8 +3146,15 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)">
         <span style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0">평단가</span>
         <input type="number" id="stock-avg-input" placeholder="0" inputmode="decimal"
-          style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;outline:none">
+          style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;outline:none"
+          oninput="calcAvgFromInputs()">
         <span id="stock-currency-label" style="font-size:12px;color:var(--muted2);flex-shrink:0">원</span>
+      </div>
+
+      <!-- 총 매입금액 미리보기 (수량×평단가 자동 계산) -->
+      <div id="stock-total-preview" style="display:none;padding:10px 0 10px 68px;border-bottom:1px solid var(--border)">
+        <span style="font-size:11px;color:var(--muted)">총 매입금액 </span>
+        <span id="stock-total-preview-val" style="font-size:14px;font-weight:800;color:var(--text)"></span>
       </div>
 
       <!-- 계좌종류 행 (필수) -->
@@ -12156,7 +12170,7 @@ function getFilteredStocks() {
 }
 
 // ── 계좌별/종목별 보기 모드
-var stkViewMode = 'account'; // 'account' | 'stock'
+var stkViewMode = load('stk-view-mode', 'account'); // 'account' | 'stock'
 var expandedAccTypes = new Set();   // 계좌별 뷰: 펼쳐진 계좌종류
 var expandedStockGroups = new Set(); // 종목별 뷰: 펼쳐진 종목 그룹
 
@@ -12176,6 +12190,7 @@ function _applyViewToggleStyle() {
 
 function setStkViewMode(mode) {
   stkViewMode = mode;
+  store('stk-view-mode', mode);
   _applyViewToggleStyle();
   renderStockList();
 }
@@ -12344,7 +12359,20 @@ function _resetStockModal(s) {
 }
 
 function calcAvgFromInputs() {
-  // 수량/평단 입력 시 미리보기 (현재는 단순 패스)
+  var qty = parseFloat(document.getElementById('stock-qty-input').value) || 0;
+  var avg = parseFloat(document.getElementById('stock-avg-input').value) || 0;
+  var preview = document.getElementById('stock-total-preview');
+  var previewVal = document.getElementById('stock-total-preview-val');
+  if (!preview || !previewVal) return;
+  if (qty > 0 && avg > 0) {
+    var total = qty * avg;
+    var isUS = (document.getElementById('stock-currency-label').textContent === '$');
+    var str = isUS ? '$' + total.toLocaleString(undefined, {maximumFractionDigits:2}) : Math.round(total).toLocaleString() + '원';
+    previewVal.textContent = str;
+    preview.style.display = 'block';
+  } else {
+    preview.style.display = 'none';
+  }
 }
 
 // ── 주식 소유자 설정 (모달)
@@ -12941,9 +12969,13 @@ function renderStockList() {
     var brokerNote = s.broker ? '<span style="font-size:10px;color:var(--muted2);margin-left:4px">(' + s.broker + ')</span>' : '';
 
     var sid = s.id;
+    var isSoldOut = (s.qty === 0);
+    var soldBadge = isSoldOut
+      ? '<span style="font-size:9px;background:rgba(128,128,128,.15);color:var(--muted2);padding:1px 6px;border-radius:5px;font-weight:700;margin-left:5px">전량매도</span>'
+      : '';
     return '<div style="border-bottom:1px solid var(--border)">'
       + '<div id="stk-row-' + sid + '" class="stock-drag-item" data-id="' + sid + '" data-market="' + s.market + '"' + (scope ? ' data-scope="' + scope + '"' : '') + ' draggable="false"'
-      + ' style="display:flex;align-items:center;padding:13px 0;padding-right:8px;gap:10px;background:var(--surface)">'
+      + ' style="display:flex;align-items:center;padding:13px 0;padding-right:8px;gap:10px;background:var(--surface);' + (isSoldOut ? 'opacity:0.45;' : '') + '">'
       + '<div class="stock-drag-handle" style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;cursor:grab;padding:4px 6px;opacity:0.35;touch-action:none">'
       + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
       + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
@@ -12951,7 +12983,7 @@ function renderStockList() {
       + '</div>'
       + '<div onclick="openStockEdit(\'' + sid + '\')" style="flex:1;min-width:0;cursor:pointer">'
       + '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">'
-      + '<span style="font-size:14px;font-weight:700">' + s.name + '</span>' + ownerBadge + acctBadge
+      + '<span style="font-size:14px;font-weight:700">' + s.name + '</span>' + ownerBadge + acctBadge + soldBadge
       + (cp > 0 ? '<span style="font-size:11px;color:var(--muted)">' + fmtAmt(cp, isUS) + '</span>' : '')
       + '</div>'
       + '<div style="display:flex;align-items:center;gap:5px;margin-top:2px">'
@@ -12961,8 +12993,8 @@ function renderStockList() {
       + brokerNote
       + '</div></div>'
       + '<div onclick="openTradeModal(\'' + sid + '\')" style="text-align:right;flex-shrink:0;cursor:pointer;padding-left:8px">'
-      + '<div style="font-size:15px;font-weight:800;color:var(--text)">' + evalStr + '</div>'
-      + (cp > 0 ? '<div style="font-size:12px;font-weight:600;color:' + pnlColor + ';margin-top:2px">' + pnlStr + '</div>' : '')
+      + '<div id="stk-eval-' + sid + '" style="font-size:15px;font-weight:800;color:var(--text)">' + evalStr + '</div>'
+      + '<div id="stk-pnl-' + sid + '" style="font-size:12px;font-weight:600;color:' + pnlColor + ';margin-top:2px' + (cp > 0 ? '' : ';display:none') + '">' + (cp > 0 ? pnlStr : '') + '</div>'
       + '</div></div></div>';
   }
 
@@ -13242,7 +13274,10 @@ function initStockDragDrop() {
       ptrClone.style.display = '';
       var target = el ? el.closest('.stock-drag-item') : null;
       clearHL();
-      if (target && target !== ptrSrc && sameScope(target, ptrSrc)) target.classList.add('drag-over');
+      if (target && target !== ptrSrc && sameScope(target, ptrSrc)) {
+        target.classList.add('drag-over');
+        haptic('selection');
+      }
     });
 
     handle.addEventListener('pointerup', function(e) {
@@ -13283,6 +13318,7 @@ function initStockDragDrop() {
       if (dragSrc && dragSrc !== this && sameScope(dragSrc, this)) {
         clearHL();
         this.classList.add('drag-over');
+        haptic('selection');
       }
     });
     item.addEventListener('drop', function(e) {
@@ -13340,7 +13376,7 @@ function initAccTypeDragDrop() {
       ptrCloneAcc.style.display = '';
       var target = el ? el.closest('.acc-type-item') : null;
       clearAccHL();
-      if (target && target !== ptrSrcAcc) target.classList.add('drag-over');
+      if (target && target !== ptrSrcAcc) { target.classList.add('drag-over'); haptic('selection'); }
     });
 
     handle.addEventListener('pointerup', function(e) {
@@ -13376,7 +13412,7 @@ function initAccTypeDragDrop() {
     });
     item.addEventListener('dragover', function(e) {
       e.preventDefault();
-      if (dragSrcAcc && dragSrcAcc !== this.dataset.acctype) this.classList.add('drag-over');
+      if (dragSrcAcc && dragSrcAcc !== this.dataset.acctype) { this.classList.add('drag-over'); haptic('selection'); }
     });
     item.addEventListener('dragleave', function() { this.classList.remove('drag-over'); });
     item.addEventListener('drop', function(e) {
@@ -13424,6 +13460,28 @@ function updateStockSummary() {
   }
 }
 
+// ── 종목 행 부분 DOM 갱신 (fetchAllPrices 중 가격 실시간 반영)
+function _updateStockRowDOM(s, usdKrw) {
+  var cp = s.currentPrice || 0;
+  if (!cp) return;
+  var isUS = s.market === 'US';
+  var showKrw = currentStkCurrency === 'KRW';
+  function fmt(val) {
+    if (!isUS) return Math.round(val).toLocaleString() + '원';
+    if (showKrw && usdKrw) return Math.round(val * usdKrw).toLocaleString() + '원';
+    return '$' + val.toFixed(2);
+  }
+  var evalAmt = cp * s.qty;
+  var pnl = (cp - s.avgPrice) * s.qty;
+  var pct = s.avgPrice > 0 ? ((cp - s.avgPrice) / s.avgPrice * 100) : 0;
+  var pnlColor = pnl > 0 ? 'var(--red)' : pnl < 0 ? 'var(--blue)' : 'var(--muted)';
+  var pnlStr = (pnl >= 0 ? '+' : '') + fmt(pnl) + ' (' + pct.toFixed(1) + '%)';
+  var evalEl = document.getElementById('stk-eval-' + s.id);
+  var pnlEl  = document.getElementById('stk-pnl-' + s.id);
+  if (evalEl) evalEl.textContent = fmt(evalAmt);
+  if (pnlEl)  { pnlEl.textContent = pnlStr; pnlEl.style.color = pnlColor; pnlEl.style.display = ''; }
+}
+
 // ── 시세 갱신
 async function fetchAllPrices() {
   const proxyUrl = load('cloudflare-proxy', '');
@@ -13433,22 +13491,6 @@ async function fetchAllPrices() {
     return;
   }
   if (btn) { btn.classList.add('refreshing'); btn.disabled = true; }
-    // 스켈레톤 로딩 표시
-  const stockListEl = document.getElementById('stock-list');
-  if (stockListEl && stocks.length > 0) {
-    stockListEl.innerHTML = stocks.map(function() {
-      return '<div style="display:flex;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);gap:12px">'
-        + '<div style="flex:1">'
-        + '<div class="skeleton skeleton-text" style="width:60%;margin-bottom:8px"></div>'
-        + '<div class="skeleton skeleton-text" style="width:40%"></div>'
-        + '</div>'
-        + '<div style="text-align:right">'
-        + '<div class="skeleton skeleton-text" style="width:80px;margin-bottom:8px"></div>'
-        + '<div class="skeleton skeleton-text" style="width:60px"></div>'
-        + '</div>'
-        + '</div>';
-    }).join('');
-  }
 
   // 해외 주식 있으면 환율 먼저 조회
   const hasUS = stocks.some(function(s) { return s.market === 'US'; });
@@ -13475,6 +13517,8 @@ async function fetchAllPrices() {
       if (json?.price) {
         s.currentPrice = json.price;
         updated++;
+        // 부분 DOM 갱신: 해당 종목 행만 즉시 업데이트
+        _updateStockRowDOM(s, usdKrw);
       }
     } catch(e) { console.log('Price fetch error:', s.ticker, e); }
     if (timeEl) timeEl.textContent = updated + '/' + total;
@@ -13518,6 +13562,8 @@ function openStockAdd() {
   document.getElementById('stock-qty-input').value = '';
   document.getElementById('stock-avg-input').value = '';
   document.getElementById('stock-delete-btn').style.display = 'none';
+  const prev = document.getElementById('stock-total-preview');
+  if (prev) prev.style.display = 'none';
   setMarket('KR');
   const defaultOwner = currentStkOwner === 'siyun' ? 'siyun' : 'minsuk';
   setStockOwner(defaultOwner);
@@ -13579,6 +13625,10 @@ async function deleteStock() {
   const ok = await showConfirm('이 종목을 삭제할까요?', '삭제');
   if (!ok) return;
   stocks = stocks.filter(s => s.id !== editingStockId);
+  // 빈 계좌 그룹 정리: 남아있는 계좌종류에 없는 항목 제거
+  const existingAccTypes = new Set(stocks.map(s => s.accountType).filter(Boolean));
+  stockAccTypeOrder = stockAccTypeOrder.filter(t => existingAccTypes.has(t));
+  store('stk-acc-order', stockAccTypeOrder);
   store('stocks', stocks);
   renderStockList();
   closeStockModal();
