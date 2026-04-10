@@ -2997,11 +2997,13 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div id="stk-list-label" style="font-size:12px;color:var(--muted);font-weight:600"></div>
       <div style="display:flex;gap:6px;align-items:center">
         <div id="stock-update-time" style="font-size:10px;color:var(--muted)"></div>
-        <button id="stk-view-toggle" onclick="toggleStkViewMode()"
-          style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;
-          color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 8px;cursor:pointer;transition:all .2s">
-          <span id="stk-view-toggle-text">계좌별</span>
-        </button>
+        <!-- 뷰 토글: 세그먼트 컨트롤 -->
+        <div id="stk-view-seg" style="display:flex;background:var(--surface2);border-radius:8px;padding:2px;gap:1px;flex-shrink:0">
+          <button id="stk-view-acc" onclick="setStkViewMode('account')"
+            style="padding:5px 9px;border-radius:6px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;background:var(--surface);color:var(--text)">계좌별</button>
+          <button id="stk-view-stk" onclick="setStkViewMode('stock')"
+            style="padding:5px 9px;border-radius:6px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:500;cursor:pointer;transition:all .15s;background:transparent;color:var(--muted2)">종목별</button>
+        </div>
         <button id="stk-owner-toggle" onclick="cycleStkOwner()"
           style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;
           color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 8px;cursor:pointer;min-width:44px;display:flex;align-items:center;gap:3px">
@@ -12117,13 +12119,11 @@ function setStkOwner(owner) {
   }
   const ownerBtn = document.getElementById('stk-owner-toggle');
   if (ownerBtn) {
-    if (owner === 'minsuk') {
-      ownerBtn.style.color = 'var(--blue)'; ownerBtn.style.borderColor = 'var(--blue)'; ownerBtn.style.background = 'rgba(59,130,246,.08)';
-    } else if (owner === 'siyun') {
-      ownerBtn.style.color = 'var(--green)'; ownerBtn.style.borderColor = 'var(--green)'; ownerBtn.style.background = 'rgba(34,197,94,.08)';
-    } else {
-      ownerBtn.style.color = 'var(--text)'; ownerBtn.style.borderColor = 'var(--border2)'; ownerBtn.style.background = 'var(--surface2)';
-    }
+    var isFiltered = (owner !== 'all');
+    ownerBtn.style.color = isFiltered ? 'var(--text)' : 'var(--muted2)';
+    ownerBtn.style.fontWeight = isFiltered ? '700' : '600';
+    ownerBtn.style.borderColor = 'var(--border2)';
+    ownerBtn.style.background = 'var(--surface2)';
   }
   const label = document.getElementById('stk-list-label');
   if (label) label.textContent = owner === 'all' ? '전체 종목' : owner === 'minsuk' ? getP1Name() + ' 종목' : getP2Name() + ' 종목';
@@ -12154,15 +12154,23 @@ var expandedAccTypes = new Set();   // 계좌별 뷰: 펼쳐진 계좌종류
 var expandedStockGroups = new Set(); // 종목별 뷰: 펼쳐진 종목 그룹
 
 function _applyViewToggleStyle() {
-  var txt = document.getElementById('stk-view-toggle-text');
-  var btn = document.getElementById('stk-view-toggle');
-  if (txt) txt.textContent = stkViewMode === 'account' ? '계좌별' : '종목별';
-  if (btn) {
+  var accBtn = document.getElementById('stk-view-acc');
+  var stkBtn = document.getElementById('stk-view-stk');
+  if (accBtn) {
     var isAcc = stkViewMode === 'account';
-    btn.style.color = isAcc ? 'var(--blue)' : 'var(--gold)';
-    btn.style.borderColor = isAcc ? 'var(--blue)' : 'var(--gold)';
-    btn.style.background = isAcc ? 'rgba(59,130,246,.08)' : 'rgba(201,168,76,.08)';
+    accBtn.style.background  = isAcc ? 'var(--surface)' : 'transparent';
+    accBtn.style.color       = isAcc ? 'var(--text)'    : 'var(--muted2)';
+    accBtn.style.fontWeight  = isAcc ? '700' : '500';
+    stkBtn.style.background  = isAcc ? 'transparent'    : 'var(--surface)';
+    stkBtn.style.color       = isAcc ? 'var(--muted2)'  : 'var(--text)';
+    stkBtn.style.fontWeight  = isAcc ? '500' : '700';
   }
+}
+
+function setStkViewMode(mode) {
+  stkViewMode = mode;
+  _applyViewToggleStyle();
+  renderStockList();
 }
 
 function toggleStockGroupExpand(key) {
@@ -12919,7 +12927,7 @@ function renderStockList() {
     var sid = s.id;
     return '<div style="border-bottom:1px solid var(--border)">'
       + '<div id="stk-row-' + sid + '" class="stock-drag-item" data-id="' + sid + '" data-market="' + s.market + '" draggable="false"'
-      + ' style="display:flex;align-items:center;padding:13px 0;padding-right:2px;gap:10px;background:var(--surface)">'
+      + ' style="display:flex;align-items:center;padding:13px 0;padding-right:8px;gap:10px;background:var(--surface)">'
       + '<div class="stock-drag-handle" style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;cursor:grab;padding:4px 6px;opacity:0.35;touch-action:none">'
       + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
       + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
@@ -12993,7 +13001,7 @@ function renderStockList() {
         + '</div>';
 
       var body = isExpanded
-        ? '<div style="padding-left:8px;padding-right:6px;border-left:2px solid var(--border2);margin-left:6px;margin-right:2px;margin-bottom:8px">'
+        ? '<div style="padding-left:8px;padding-right:10px;border-left:2px solid var(--border2);margin-left:6px;margin-right:2px;margin-bottom:8px">'
           + list.map(function(s) { return stockRowHtml(s, false); }).join('')
           + '</div>'
         : '';
@@ -13042,18 +13050,28 @@ function renderStockList() {
     var pnlColor = totalPnl > 0 ? 'var(--red)' : totalPnl < 0 ? 'var(--blue)' : 'var(--muted)';
     var evalStr = hasPrices ? fmtAmt(totalEval, isUS) : '시세 조회 필요';
     var pnlStr  = hasPrices ? (totalPnl >= 0 ? '+' : '') + fmtAmt(totalPnl, isUS) + ' (' + pct.toFixed(1) + '%)' : '-';
-    var nBadge = '<span style="font-size:9px;background:rgba(201,168,76,.12);color:var(--gold);padding:1px 6px;border-radius:5px;font-weight:700;margin-left:5px">' + ss.length + '계좌</span>';
+    // 미니멀 배지: 소형 점선 텍스트로 N계좌 표시
+    var nBadge = '<span style="font-size:9px;color:var(--muted2);margin-left:5px">·&nbsp;' + ss.length + '계좌</span>';
     var ownerBadge = (currentStkOwner === 'all' && group.owner)
       ? '<span style="font-size:9px;background:' + (group.owner==='minsuk'?'rgba(96,165,250,.15)':'rgba(52,211,153,.15)')
         + ';color:' + (group.owner==='minsuk'?'var(--minsuk)':'var(--siyun)')
         + ';padding:1px 5px;border-radius:5px;font-weight:700;margin-left:5px">'
         + (group.owner==='minsuk'?getP1Name():getP2Name()) + '</span>' : '';
-    var arrow = isExp ? '▼' : '▶';
     var gk = group.key.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    var firstId = ss[0].id;
+    var groupIds = ss.map(function(s) { return s.id; }).join(',');
+    // 작은 chevron (펼치기 표시) - 우측 숫자 아래
+    var chevron = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:2px 0 0 auto;opacity:0.3;transform:rotate(' + (isExp?'180':'0') + 'deg)">'
+      + '<polyline points="6 9 12 15 18 9"/></svg>';
 
-    var header = '<div onclick="toggleStockGroupExpand(\'' + gk + '\')" style="display:flex;align-items:center;padding:13px 0;cursor:pointer;gap:10px;border-bottom:1px solid var(--border)">'
-      + '<span style="font-size:10px;color:var(--muted2)">' + arrow + '</span>'
-      + '<div style="flex:1;min-width:0">'
+    var header = '<div class="stock-drag-item" id="stk-row-' + firstId + '" data-id="' + firstId + '" data-market="' + group.market + '" data-group-ids="' + groupIds + '" draggable="false"'
+      + ' style="display:flex;align-items:center;padding:13px 0;padding-right:2px;gap:10px;background:var(--surface);border-bottom:1px solid var(--border)">'
+      + '<div class="stock-drag-handle" style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;cursor:grab;padding:4px 6px;opacity:0.35;touch-action:none">'
+      + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
+      + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
+      + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
+      + '</div>'
+      + '<div onclick="toggleStockGroupExpand(\'' + gk + '\')" style="flex:1;min-width:0;cursor:pointer">'
       + '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:3px">'
       + '<span style="font-size:14px;font-weight:700">' + group.name + '</span>' + nBadge + ownerBadge
       + (cp0 > 0 ? '<span style="font-size:11px;color:var(--muted)">' + fmtAmt(cp0, isUS) + '</span>' : '')
@@ -13063,9 +13081,10 @@ function renderStockList() {
       + '<span style="font-size:10px;color:var(--muted2)">·</span>'
       + '<span style="font-size:11px;color:var(--muted2)">평단 ' + fmtAmt(avgPrice, isUS) + '</span>'
       + '</div></div>'
-      + '<div style="text-align:right;flex-shrink:0;padding-left:8px">'
+      + '<div onclick="toggleStockGroupExpand(\'' + gk + '\')" style="text-align:right;flex-shrink:0;cursor:pointer;padding-left:8px">'
       + '<div style="font-size:15px;font-weight:800;color:var(--text)">' + evalStr + '</div>'
       + (hasPrices ? '<div style="font-size:12px;font-weight:600;color:' + pnlColor + ';margin-top:2px">' + pnlStr + '</div>' : '')
+      + chevron
       + '</div></div>';
 
     if (!isExp) return header;
@@ -13077,9 +13096,9 @@ function renderStockList() {
       var pCol = pnl2 > 0 ? 'var(--red)' : pnl2 < 0 ? 'var(--blue)' : 'var(--muted)';
       var acc  = s.accountType || '미분류';
       var brk  = s.broker ? ' · ' + s.broker : '';
-      return '<div onclick="openStockEdit(\'' + s.id + '\')" style="display:flex;align-items:center;padding:10px 0;border-top:1px solid var(--border);cursor:pointer;gap:8px">'
+      return '<div onclick="openStockEdit(\'' + s.id + '\')" style="display:flex;align-items:center;padding:10px 8px 10px 4px;border-top:1px solid var(--border);cursor:pointer;gap:8px">'
         + '<div style="flex:1;min-width:0">'
-        + '<div style="font-size:12px;font-weight:700;color:var(--gold)">' + acc
+        + '<div style="font-size:12px;font-weight:600;color:var(--text)">' + acc
         + '<span style="color:var(--muted2);font-weight:400">' + brk + '</span></div>'
         + '<div style="font-size:11px;color:var(--muted);margin-top:1px">' + s.qty.toLocaleString() + '주 · 평단 ' + fmtAmt(s.avgPrice, isUS) + '</div>'
         + '</div>'
@@ -13091,7 +13110,7 @@ function renderStockList() {
     }).join('');
 
     return header
-      + '<div style="padding-left:10px;padding-right:6px;background:rgba(201,168,76,.03);border-left:2px solid rgba(201,168,76,.25);margin-left:4px;margin-bottom:4px">'
+      + '<div style="padding-left:6px;padding-right:8px;border-left:1px solid var(--border);margin-left:14px;margin-right:2px;margin-bottom:2px">'
       + body + '</div>';
   }
 
@@ -13182,15 +13201,22 @@ function initStockDragDrop() {
         showToast('❗ 같은 시장 종목끼리만 순서를 바꿀 수 있어요');
         return;
       }
-      const srcId = dragSrc.dataset.id;
-      const dstId = this.dataset.id;
-      const srcIdx = stocks.findIndex(function(s) { return s.id === srcId; });
-      const dstIdx = stocks.findIndex(function(s) { return s.id === dstId; });
-      if (srcIdx < 0 || dstIdx < 0) return;
-      // 순서 변경
-      const tmp = stocks[srcIdx];
-      stocks[srcIdx] = stocks[dstIdx];
-      stocks[dstIdx] = tmp;
+      // 그룹 드래그 지원: data-group-ids가 있으면 복수 이동
+      const srcIds = dragSrc.dataset.groupIds ? dragSrc.dataset.groupIds.split(',') : [dragSrc.dataset.id];
+      const dstId  = this.dataset.id;
+      const dstIsGroup = !!this.dataset.groupIds;
+      const anchorId = dstIsGroup ? this.dataset.groupIds.split(',')[0] : dstId;
+      // 이동할 스톡 객체 추출 (원래 순서 유지)
+      const moving = srcIds.map(function(id) { return stocks.find(function(s) { return s.id === id; }); }).filter(Boolean);
+      // 원래 위치에서 제거
+      srcIds.forEach(function(id) {
+        const idx = stocks.findIndex(function(s) { return s.id === id; });
+        if (idx >= 0) stocks.splice(idx, 1);
+      });
+      // 앵커 위치 앞에 삽입
+      const dstIdx = stocks.findIndex(function(s) { return s.id === anchorId; });
+      if (dstIdx >= 0) stocks.splice(dstIdx, 0, ...moving);
+      else stocks.push(...moving);
       store('stocks', stocks);
       renderStockList();
       haptic('light');
@@ -13246,18 +13272,19 @@ function initStockDragDrop() {
       const el = document.elementFromPoint(touch.clientX, touch.clientY);
       const target = el ? el.closest('.stock-drag-item') : null;
       if (target && target !== touchItem && target.dataset.market === touchItem.dataset.market) {
-        const srcId = touchItem.dataset.id;
-        const dstId = target.dataset.id;
-        const srcIdx = stocks.findIndex(function(s) { return s.id === srcId; });
-        const dstIdx = stocks.findIndex(function(s) { return s.id === dstId; });
-        if (srcIdx >= 0 && dstIdx >= 0) {
-          const tmp = stocks[srcIdx];
-          stocks[srcIdx] = stocks[dstIdx];
-          stocks[dstIdx] = tmp;
-          store('stocks', stocks);
-          renderStockList();
-          haptic('light');
-        }
+        const srcIds = touchItem.dataset.groupIds ? touchItem.dataset.groupIds.split(',') : [touchItem.dataset.id];
+        const anchorId = (target.dataset.groupIds ? target.dataset.groupIds.split(',')[0] : target.dataset.id);
+        const moving = srcIds.map(function(id) { return stocks.find(function(s) { return s.id === id; }); }).filter(Boolean);
+        srcIds.forEach(function(id) {
+          const idx = stocks.findIndex(function(s) { return s.id === id; });
+          if (idx >= 0) stocks.splice(idx, 1);
+        });
+        const dstIdx = stocks.findIndex(function(s) { return s.id === anchorId; });
+        if (dstIdx >= 0) stocks.splice(dstIdx, 0, ...moving);
+        else stocks.push(...moving);
+        store('stocks', stocks);
+        renderStockList();
+        haptic('light');
       }
       touchItem = null;
     }, { passive: true });
