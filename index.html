@@ -3084,15 +3084,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
     </div>
 
-    <!-- 포트폴리오 비중 트리맵 -->
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:10px">
-      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px">포트폴리오 비중</div>
-      <div id="stk-donut-legend"></div>
-    </div>
-
     <!-- 수익률 / 수익금액 정렬 토글 + 나 vs 배우자 비교 -->
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <span style="font-size:13px;font-weight:700;color:var(--text)">종목별 손익</span>
         <div style="display:flex;gap:6px">
           <button id="stk-sort-pct" onclick="setStkSort('pct')"
@@ -3104,6 +3098,21 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
                    font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;
                    background:transparent;border:1px solid var(--border2);color:var(--muted2)">수익금액</button>
         </div>
+      </div>
+      <!-- 소유자 필터 -->
+      <div style="display:flex;gap:6px;margin-bottom:14px">
+        <button id="pnl-owner-all" onclick="setPnlOwner('all')"
+          style="padding:4px 12px;border-radius:16px;font-family:'Noto Sans KR',sans-serif;
+                 font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;
+                 background:rgba(59,130,246,.15);border:1.5px solid var(--blue);color:var(--blue)">전체</button>
+        <button id="pnl-owner-ms" onclick="setPnlOwner('minsuk')"
+          style="padding:4px 12px;border-radius:16px;font-family:'Noto Sans KR',sans-serif;
+                 font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;
+                 background:transparent;border:1.5px solid var(--border2);color:var(--muted2)">나</button>
+        <button id="pnl-owner-sy" onclick="setPnlOwner('siyun')"
+          style="padding:4px 12px;border-radius:16px;font-family:'Noto Sans KR',sans-serif;
+                 font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;
+                 background:transparent;border:1.5px solid var(--border2);color:var(--muted2)">배우자</button>
       </div>
       <div id="stk-pct-chart"></div>
     </div>
@@ -9485,6 +9494,12 @@ function applyPartnerNamesToUI() {
   if (recurMs) recurMs.textContent = p1;
   if (recurSy) { recurSy.textContent = p2; recurSy.style.display = p2 ? '' : 'none'; }
 
+  // 종목별 손익 소유자 필터 버튼
+  const pnlMs = document.getElementById('pnl-owner-ms');
+  const pnlSy = document.getElementById('pnl-owner-sy');
+  if (pnlMs) pnlMs.textContent = p1;
+  if (pnlSy) { pnlSy.textContent = p2; pnlSy.style.display = p2 ? '' : 'none'; }
+
   // 홈 부부 대결 카드
   renderCoupleCard();
   renderHomeLedgerSummary();
@@ -12807,190 +12822,26 @@ let currentStkChartTab = 'pct';
 function setStkChartTab(tab) { /* deprecated - no sub tabs */ }
 
 function renderStockCharts() {
-  renderStkDonut();
   renderStkPctChart();
 }
 
-function renderStkDonut() {
-  const wrap = document.getElementById('stk-donut-legend');
-  if (!wrap) return;
-  const usdKrw = load('usd-krw-rate', 0);
-
-  const activeStocks = getFilteredStocks().filter(function(s) { return s.currentPrice > 0; });
-  if (!activeStocks.length) {
-    wrap.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:24px">시세 갱신 후 확인하세요</div>';
-    return;
-  }
-
-  const evalKrw = function(s) {
-    const rate = (s.market === 'US' && usdKrw) ? usdKrw : 1;
-    return s.currentPrice * s.qty * rate;
-  };
-  const totalEval = activeStocks.reduce(function(sum, s) { return sum + evalKrw(s); }, 0);
-  const sorted = [...activeStocks].sort(function(a, b) { return evalKrw(b) - evalKrw(a); });
-
-  // ── Squarified Treemap 알고리즘
-  const W = 340, H = 220;
-  const items = sorted.map(function(s) {
-    return { s, val: evalKrw(s), pct: evalKrw(s) / totalEval };
-  });
-
-  function squarify(items, x, y, w, h) {
-    if (!items.length) return [];
-    if (items.length === 1) {
-      return [{ item: items[0], x, y, w, h }];
-    }
-
-    const total = items.reduce(function(s, i) { return s + i.val; }, 0);
-
-    // 가로/세로 중 긴 방향으로 슬라이스
-    const isHoriz = w >= h;
-    const rects = [];
-
-    // worst ratio 기반으로 행 분할
-    function worst(row, len) {
-      const s = row.reduce(function(acc, i) { return acc + i.val; }, 0);
-      const maxV = Math.max(...row.map(function(i) { return i.val; }));
-      const minV = Math.min(...row.map(function(i) { return i.val; }));
-      return Math.max(len * len * maxV / (s * s), s * s / (len * len * minV));
-    }
-
-    let row = [];
-    let remaining = [...items];
-    let cx = x, cy = y, cw = w, ch = h;
-
-    while (remaining.length) {
-      const len = isHoriz ? ch : cw;
-      const candidate = [...row, remaining[0]];
-      if (!row.length || worst(candidate, len) <= worst(row, len)) {
-        row.push(remaining.shift());
-      } else {
-        // 현재 행 확정
-        const rowTotal = row.reduce(function(s, i) { return s + i.val; }, 0);
-        const rowFrac = rowTotal / total;
-        let pos = isHoriz ? cy : cx;
-        const rowDim = isHoriz ? cw * rowFrac : ch * rowFrac;
-
-        row.forEach(function(item) {
-          const itemFrac = item.val / rowTotal;
-          const iw = isHoriz ? rowDim : cw * itemFrac;
-          const ih = isHoriz ? ch * itemFrac : rowDim;
-          rects.push({ item, x: isHoriz ? cx : pos, y: isHoriz ? pos : cy, w: iw, h: ih });
-          pos += isHoriz ? ih : iw;
-        });
-
-        if (isHoriz) { cx += rowDim; cw -= rowDim; }
-        else { cy += rowDim; ch -= rowDim; }
-
-        // 재귀 대신 반복 재설정
-        total_remaining = remaining.reduce(function(s,i){return s+i.val;},0);
-        row = [];
-      }
-    }
-
-    // 마지막 행
-    if (row.length) {
-      const rowTotal = row.reduce(function(s, i) { return s + i.val; }, 0);
-      let pos = isHoriz ? cy : cx;
-      row.forEach(function(item) {
-        const itemFrac = item.val / rowTotal;
-        const iw = isHoriz ? cw : cw * itemFrac;
-        const ih = isHoriz ? ch * itemFrac : ch;
-        rects.push({ item, x: isHoriz ? cx : pos, y: isHoriz ? pos : cy, w: iw, h: ih });
-        pos += isHoriz ? ih : iw;
-      });
-    }
-    return rects;
-  }
-
-  const rects = squarify(items, 0, 0, W, H);
-
-  // ── 블룸버그 스타일 색상: 수익/손실 여부로 적/청, 비중으로 채도
-  const maxPct = items[0].pct;
-  function getColor(s, pct) {
-    const ratio = Math.min(pct / maxPct, 1);
-    const pnlPct = s.avgPrice > 0 ? (s.currentPrice - s.avgPrice) / s.avgPrice : 0;
-    const isUp = pnlPct >= 0;
-    // intensity: 0.3~1.0 based on weight ratio
-    const intensity = 0.3 + ratio * 0.7;
-    if (isUp) {
-      // red tones: deeper red = bigger weight
-      return 'rgba(' + Math.round(180 * intensity) + ',' + Math.round(30 * intensity) + ',' + Math.round(30 * intensity) + ',' + (0.6 + intensity * 0.4).toFixed(2) + ')';
-    } else {
-      // blue tones: deeper blue = bigger weight
-      return 'rgba(' + Math.round(20 * intensity) + ',' + Math.round(60 * intensity) + ',' + Math.round(180 * intensity) + ',' + (0.6 + intensity * 0.4).toFixed(2) + ')';
-    }
-  }
-  function getTextOpacity(pct) {
-    const ratio = pct / maxPct;
-    return ratio > 0.4 ? 1 : ratio > 0.15 ? 0.85 : 0.7;
-  }
-
-  const GAP = 3;
-  const svgContent = rects.map(function(r) {
-    const rx = r.x + GAP/2, ry = r.y + GAP/2;
-    const rw = Math.max(r.w - GAP, 2), rh = Math.max(r.h - GAP, 2);
-    const color = getColor(r.item.s, r.item.pct);
-    const textOp = getTextOpacity(r.item.pct);
-    const pctStr = Math.round(r.item.pct * 100) + '%';
-    const name = r.item.s.name;
-    const shortName = name.length > 7 ? name.slice(0, 6) + '…' : name;
-
-    const showName = rw > 40 && rh > 22;
-    const showPct = rw > 32 && rh > 36;
-    const showVal = rw > 60 && rh > 52;
-    const nameFontSize = rw > 80 ? 11 : 9;
-
-    const s = r.item.s;
-    const pnlPct = s.avgPrice > 0 ? ((s.currentPrice - s.avgPrice) / s.avgPrice * 100) : 0;
-    const pnlStr2 = (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(1) + '%';
-
-    const centerX = (rx + rw/2).toFixed(1);
-    const baseY = (ry + rh/2).toFixed(1);
-
-    let texts = '';
-    if (showName && showPct && showVal) {
-      texts = '<text x="' + centerX + '" y="' + (ry + rh/2 - 12).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle" font-size="' + nameFontSize + '" font-weight="600" fill="rgba(255,255,255,' + textOp + ')" font-family="Noto Sans KR">' + shortName + '</text>'
-        + '<text x="' + centerX + '" y="' + baseY + '" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="900" fill="rgba(255,255,255,' + textOp + ')" font-family="Noto Sans KR">' + pnlStr2 + '</text>'
-        + '<text x="' + centerX + '" y="' + (ry + rh/2 + 14).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="rgba(255,255,255,' + (textOp*0.6).toFixed(2) + ')" font-family="Noto Sans KR">' + pctStr + '</text>';
-    } else if (showName && showPct) {
-      texts = '<text x="' + centerX + '" y="' + (ry + rh/2 - 7).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle" font-size="' + nameFontSize + '" font-weight="600" fill="rgba(255,255,255,' + textOp + ')" font-family="Noto Sans KR">' + shortName + '</text>'
-        + '<text x="' + centerX + '" y="' + (ry + rh/2 + 7).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="900" fill="rgba(255,255,255,' + textOp + ')" font-family="Noto Sans KR">' + pnlStr2 + '</text>';
-    } else if (showName) {
-      texts = '<text x="' + centerX + '" y="' + baseY + '" text-anchor="middle" dominant-baseline="middle" font-size="9" fill="rgba(255,255,255,' + textOp + ')" font-family="Noto Sans KR">' + pnlStr2 + '</text>';
-    }
-
-    return '<rect x="' + rx.toFixed(1) + '" y="' + ry.toFixed(1) + '" width="' + rw.toFixed(1) + '" height="' + rh.toFixed(1) + '" rx="4" fill="' + color + '"/>'
-      + texts;
-  }).join('');
-
-  // 범례 (수익/손실 P&L 색상 포함)
-  const legend = sorted.map(function(s) {
-    const ev = evalKrw(s);
-    const pctWeight = ev / totalEval;
-    const color = getColor(s, pctWeight);
-    const pctStr = Math.round(pctWeight * 100) + '%';
-    const evStr = ev >= 100000000
-      ? (ev/100000000).toFixed(1)+'억원'
-      : (ev/10000).toFixed(0)+'만원';
-    const pnlPct = s.avgPrice > 0 ? ((s.currentPrice - s.avgPrice) / s.avgPrice * 100) : 0;
-    const pnlColor = pnlPct >= 0 ? 'var(--red)' : 'var(--blue)';
-    return '<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:0.5px solid var(--border)">'
-      + '<div style="width:10px;height:10px;border-radius:2px;background:' + color + ';flex-shrink:0"></div>'
-      + '<span style="font-size:11px;font-weight:600;flex:1;color:var(--text)">' + s.name + '</span>'
-      + '<span style="font-size:11px;color:var(--muted)">' + evStr + '</span>'
-      + '<span style="font-size:11px;font-weight:700;color:' + pnlColor + ';min-width:40px;text-align:right">' + (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(1) + '%</span>'
-      + '</div>';
-  }).join('');
-
-  wrap.innerHTML =
-    '<svg width="100%" viewBox="0 0 ' + W + ' ' + H + '" style="border-radius:8px;overflow:hidden;display:block;margin-bottom:14px;background:#111">'
-    + svgContent
-    + '</svg>'
-    + '<div>' + legend + '</div>';
-}
 
 var stkSortMode = 'pct'; // 'pct' | 'amt'
+var pnlOwnerFilter = 'all'; // 'all' | 'minsuk' | 'siyun'
+
+function setPnlOwner(owner) {
+  pnlOwnerFilter = owner;
+  var ownerMap = { all: 'all', ms: 'minsuk', sy: 'siyun' };
+  ['all', 'ms', 'sy'].forEach(function(k) {
+    var btn = document.getElementById('pnl-owner-' + k);
+    if (!btn) return;
+    var active = ownerMap[k] === owner;
+    btn.style.background = active ? 'rgba(59,130,246,.15)' : 'transparent';
+    btn.style.borderColor = active ? 'var(--blue)' : 'var(--border2)';
+    btn.style.color = active ? 'var(--blue)' : 'var(--muted2)';
+  });
+  renderStkPctChart();
+}
 
 function setStkSort(mode) {
   stkSortMode = mode;
@@ -13084,9 +12935,13 @@ function _renderStockRows(list) {
 function renderStkPctChart() {
   const wrap = document.getElementById('stk-pct-chart');
   if (!wrap) return;
-  const activeStocks = getFilteredStocks().filter(function(s) { return s.currentPrice > 0; });
+  let activeStocks = getFilteredStocks().filter(function(s) { return s.currentPrice > 0; });
+  // 소유자 필터 적용
+  if (pnlOwnerFilter !== 'all') {
+    activeStocks = activeStocks.filter(function(s) { return s.owner === pnlOwnerFilter; });
+  }
   if (!activeStocks.length) {
-    wrap.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:16px">시세 갱신 후 확인하세요</div>';
+    wrap.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:16px">' + (pnlOwnerFilter !== 'all' ? '해당 소유자 종목이 없어요' : '시세 갱신 후 확인하세요') + '</div>';
     const compareEl = document.getElementById('stk-owner-compare');
     if (compareEl) compareEl.style.display = 'none';
     return;
@@ -13123,19 +12978,43 @@ function renderStkPctChart() {
       + '</div>'
     : '';
 
+  // 이전 값 저장 (애니메이션 시작점)
+  const prevPct  = parseFloat(wrap.dataset.pct  || '0');
+  const prevPnl  = parseFloat(wrap.dataset.pnl  || '0');
+  const prevCost = parseFloat(wrap.dataset.cost || '0');
+
   wrap.innerHTML =
     '<div style="display:flex;justify-content:space-between;align-items:center;padding:0 0 12px;margin-bottom:12px;border-bottom:1px solid var(--border)">'
     + '<div>'
     + '<span style="font-size:12px;color:var(--muted)">전체 손익</span>'
-    + '<div style="font-size:11px;color:var(--muted2);margin-top:2px">투자 ' + Math.round(stats.cost).toLocaleString() + '원</div>'
+    + '<div style="font-size:11px;color:var(--muted2);margin-top:2px">투자 <span id="pnl-stat-cost"></span></div>'
     + '</div>'
     + '<div style="text-align:right">'
-    + '<span style="font-size:22px;font-weight:900;color:' + totalColor + '">' + (totalIsUp?'+':'') + stats.pct.toFixed(2) + '%</span>'
-    + '<div style="font-size:11px;color:var(--muted);margin-top:1px">' + totalPnlStr + '</div>'
+    + '<span id="pnl-stat-pct" style="font-size:22px;font-weight:900;color:' + totalColor + '"></span>'
+    + '<div id="pnl-stat-pnl" style="font-size:11px;color:var(--muted);margin-top:1px"></div>'
     + '</div>'
     + '</div>'
     + statsRowHtml
     + _renderStockRows(activeStocks);
+
+  // 숫자 애니메이션 적용
+  wrap.dataset.pct  = stats.pct;
+  wrap.dataset.pnl  = stats.pnl;
+  wrap.dataset.cost = stats.cost;
+
+  const pctEl  = document.getElementById('pnl-stat-pct');
+  const pnlEl  = document.getElementById('pnl-stat-pnl');
+  const costEl = document.getElementById('pnl-stat-cost');
+
+  animateNumber(pctEl, prevPct, stats.pct, 500, function(v) {
+    return (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
+  });
+  animateNumber(pnlEl, prevPnl, stats.pnl, 500, function(v) {
+    return (v >= 0 ? '+' : '') + Math.round(v).toLocaleString() + '원';
+  });
+  animateNumber(costEl, prevCost, stats.cost, 500, function(v) {
+    return Math.round(v).toLocaleString() + '원';
+  });
 
   // 나 vs 배우자 비교 (통합 보기일 때만)
   const compareEl = document.getElementById('stk-owner-compare');
@@ -14082,19 +13961,22 @@ async function fetchAllPrices() {
   const total = stocks.length;
   const timeEl = document.getElementById('stock-update-time');
   if (timeEl) timeEl.textContent = '0/' + total;
-  for (const s of stocks) {
-    try {
-      const res = await fetch(proxyUrl + '/stock?ticker=' + encodeURIComponent(s.ticker) + '&market=' + s.market);
-      const json = await res.json();
-      if (json?.price) {
-        s.currentPrice = json.price;
-        updated++;
-        // 부분 DOM 갱신: 해당 종목 행만 즉시 업데이트
-        _updateStockRowDOM(s, usdKrw);
-      }
-    } catch(e) { console.log('Price fetch error:', s.ticker, e); }
+  // 병렬 시세 조회: Promise.allSettled로 전 종목 동시 fetch
+  const results = await Promise.allSettled(
+    stocks.map(function(s) {
+      return fetch(proxyUrl + '/stock?ticker=' + encodeURIComponent(s.ticker) + '&market=' + s.market)
+        .then(function(r) { return r.json(); })
+        .then(function(json) { return { s: s, json: json }; });
+    })
+  );
+  results.forEach(function(r) {
+    if (r.status === 'fulfilled' && r.value.json?.price) {
+      r.value.s.currentPrice = r.value.json.price;
+      updated++;
+      _updateStockRowDOM(r.value.s, usdKrw);
+    }
     if (timeEl) timeEl.textContent = updated + '/' + total;
-  }
+  });
 
   // 환율 저장
   if (usdKrw) stocks._usdKrw = usdKrw;
