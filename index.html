@@ -832,6 +832,10 @@ body[data-theme="light"] .ge-group input:focus { border-color: #2563eb !importan
 .acc-type-item.drag-over { background: rgba(59,130,246,0.04) !important; }
 @keyframes spin-icon { to { transform: rotate(360deg); } }
 #stock-refresh-btn.refreshing svg { animation: spin-icon .8s linear infinite; }
+/* ── 아코디언 슬라이드 (CSS Grid trick) ── */
+.acc-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s ease; }
+.acc-body > div { overflow: hidden; min-height: 0; }
+.acc-body-open { grid-template-rows: 1fr; }
 
 /* ══ 스플래시 스크린 ══ */
 @keyframes splashDot {
@@ -12179,7 +12183,12 @@ function setStkViewMode(mode) {
 function toggleStockGroupExpand(key) {
   if (expandedStockGroups.has(key)) expandedStockGroups.delete(key);
   else expandedStockGroups.add(key);
-  renderStockList();
+  var isOpen = expandedStockGroups.has(key);
+  var safeId = key.replace(/['"]/g, '').replace(/[\s|]/g, '-');
+  var bodyEl = document.getElementById('sg-body-' + safeId);
+  var chevronEl = document.getElementById('sg-chevron-' + safeId);
+  if (bodyEl) bodyEl.classList.toggle('acc-body-open', isOpen);
+  if (chevronEl) chevronEl.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
 }
 
 function toggleStkViewMode() {
@@ -12189,12 +12198,14 @@ function toggleStkViewMode() {
 }
 
 function toggleAccTypeExpand(accType) {
-  if (expandedAccTypes.has(accType)) {
-    expandedAccTypes.delete(accType);
-  } else {
-    expandedAccTypes.add(accType);
-  }
-  renderStockList();
+  if (expandedAccTypes.has(accType)) expandedAccTypes.delete(accType);
+  else expandedAccTypes.add(accType);
+  var isOpen = expandedAccTypes.has(accType);
+  var safeId = accType.replace(/['"]/g, '').replace(/\s+/g, '-');
+  var bodyEl = document.getElementById('acc-body-' + safeId);
+  var chevronEl = document.getElementById('acc-chevron-' + safeId);
+  if (bodyEl) bodyEl.classList.toggle('acc-body-open', isOpen);
+  if (chevronEl) chevronEl.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
 }
 
 var stockAccTypeOrder = load('stk-acc-order', []); // 계좌별 뷰 그룹 순서
@@ -12994,10 +13005,12 @@ function renderStockList() {
       var pnlColor = totalPnl > 0 ? 'var(--red)' : totalPnl < 0 ? 'var(--blue)' : 'var(--muted)';
       var evalDisp = hasPrices ? Math.round(totalEval).toLocaleString() + '원' : '시세 조회 필요';
       var pnlDisp  = hasPrices ? (totalPnl>=0?'+':'') + Math.round(totalPnl).toLocaleString() + '원 (' + pct.toFixed(1) + '%)' : '';
-      var chevron  = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3;transform:rotate(' + (isExpanded?'180':'0') + 'deg)"><polyline points="6 9 12 15 18 9"/></svg>';
+      var domId = accType.replace(/['"]/g, '').replace(/\s+/g, '-');
+      var chevron  = '<svg id="acc-chevron-' + domId + '" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3;transform:rotate(' + (isExpanded?'180':'0') + 'deg);transition:transform .25s ease"><polyline points="6 9 12 15 18 9"/></svg>';
 
       var header = '<div class="acc-type-item" data-acctype="' + safeKey + '" draggable="false"'
-        + ' style="display:flex;align-items:center;padding:13px 0;gap:8px;user-select:none">'
+        + ' style="display:flex;align-items:center;padding:13px 0;gap:8px;user-select:none;'
+        + 'position:sticky;top:0;z-index:10;background:var(--surface)">'
         + '<div class="acc-type-drag-handle" style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;cursor:grab;padding:4px 6px;opacity:0.35;touch-action:none">'
         + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
         + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
@@ -13018,11 +13031,12 @@ function renderStockList() {
         + '</div>'
         + '</div>';
 
-      var body = isExpanded
-        ? '<div style="padding-left:4px;border-left:1.5px solid var(--border);margin-left:20px;margin-bottom:6px">'
-          + list.map(function(s) { return stockRowHtml(s, false, accType); }).join('')
-          + '</div>'
-        : '';
+      // body는 항상 DOM에 존재, CSS Grid로 펼치기/접기 애니메이션
+      var body = '<div id="acc-body-' + domId + '" class="acc-body' + (isExpanded ? ' acc-body-open' : '') + '">'
+        + '<div style="padding-left:4px;border-left:1.5px solid var(--border);margin-left:20px;margin-bottom:6px">'
+        + list.map(function(s) { return stockRowHtml(s, false, accType); }).join('')
+        + '</div>'
+        + '</div>';
 
       return '<div style="border-bottom:1px solid var(--border)">' + header + body + '</div>';
     }).join('');
@@ -13078,10 +13092,11 @@ function renderStockList() {
         + ';padding:1px 5px;border-radius:5px;font-weight:700;margin-left:5px">'
         + (group.owner==='minsuk'?getP1Name():getP2Name()) + '</span>' : '';
     var gk = group.key.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    var sgDomId = group.key.replace(/['"]/g, '').replace(/[\s|]/g, '-');
     var firstId = ss[0].id;
     var groupIds = ss.map(function(s) { return s.id; }).join(',');
     // 작은 chevron (펼치기 표시) - 우측 숫자 아래
-    var chevron = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:2px 0 0 auto;opacity:0.3;transform:rotate(' + (isExp?'180':'0') + 'deg)">'
+    var chevron = '<svg id="sg-chevron-' + sgDomId + '" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:2px 0 0 auto;opacity:0.3;transform:rotate(' + (isExp?'180':'0') + 'deg);transition:transform .25s ease">'
       + '<polyline points="6 9 12 15 18 9"/></svg>';
 
     var header = '<div class="stock-drag-item" id="stk-row-' + firstId + '" data-id="' + firstId + '" data-market="' + group.market + '" data-group-ids="' + groupIds + '" draggable="false"'
@@ -13107,9 +13122,8 @@ function renderStockList() {
       + chevron
       + '</div></div>';
 
-    if (!isExp) return header;
-
-    var body = ss.map(function(s) {
+    // 계좌 목록은 항상 DOM에, CSS Grid로 애니메이션
+    var bodyContent = ss.map(function(s) {
       var cp = s.currentPrice || 0;
       var pnl2 = (cp - s.avgPrice) * s.qty;
       var pc2  = s.avgPrice > 0 ? ((cp - s.avgPrice) / s.avgPrice * 100) : 0;
@@ -13131,8 +13145,10 @@ function renderStockList() {
     }).join('');
 
     return header
+      + '<div id="sg-body-' + sgDomId + '" class="acc-body' + (isExp ? ' acc-body-open' : '') + '">'
       + '<div style="padding-left:6px;padding-right:8px;border-left:1px solid var(--border);margin-left:14px;margin-right:2px;margin-bottom:2px">'
-      + body + '</div>';
+      + bodyContent + '</div>'
+      + '</div>';
   }
 
   function renderSection(list, title, market) {
@@ -13173,156 +13189,180 @@ function moveStock(id, market, dir) {
 
 // ── 드래그앤드롭 초기화
 function initStockDragDrop() {
-  let dragSrc = null;
+  var dragSrc = null;   // native DnD (mouse)
+  var ptrSrc  = null;   // pointer drag (touch/pen)
+  var ptrClone = null;
+
+  function sameScope(a, b) {
+    var sa = a.dataset.scope || a.dataset.market;
+    var sb = b.dataset.scope || b.dataset.market;
+    return sa === sb;
+  }
+  function clearHL() {
+    document.querySelectorAll('.stock-drag-item').forEach(function(el) { el.classList.remove('drag-over'); });
+  }
+  function doMove(srcEl, dstEl) {
+    var srcIds = srcEl.dataset.groupIds ? srcEl.dataset.groupIds.split(',') : [srcEl.dataset.id];
+    var anchorId = dstEl.dataset.groupIds ? dstEl.dataset.groupIds.split(',')[0] : dstEl.dataset.id;
+    var moving = srcIds.map(function(id) { return stocks.find(function(s) { return s.id === id; }); }).filter(Boolean);
+    srcIds.forEach(function(id) { var i = stocks.findIndex(function(s) { return s.id === id; }); if (i >= 0) stocks.splice(i, 1); });
+    var di = stocks.findIndex(function(s) { return s.id === anchorId; });
+    if (di >= 0) stocks.splice(di, 0, ...moving); else stocks.push(...moving);
+    store('stocks', stocks);
+    renderStockList();
+    haptic('light');
+  }
 
   document.querySelectorAll('.stock-drag-item').forEach(function(item) {
-    const handle = item.querySelector('.stock-drag-handle');
+    var handle = item.querySelector('.stock-drag-handle');
 
-    // PC: 핸들에서만 draggable 활성화
-    handle.addEventListener('mousedown', function() {
-      item.setAttribute('draggable', 'true');
+    // ── Pointer Events (통합: mouse + touch + pen) ──
+    handle.addEventListener('pointerdown', function(e) {
+      if (e.pointerType === 'mouse') {
+        item.setAttribute('draggable', 'true');
+        return;
+      }
+      // touch / pen: 클론 드래그
+      e.preventDefault();
+      handle.setPointerCapture(e.pointerId);
+      ptrSrc = item;
+      ptrClone = item.cloneNode(true);
+      ptrClone.style.cssText = 'position:fixed;left:16px;right:16px;z-index:9999;opacity:0.85;pointer-events:none;'
+        + 'background:var(--surface2);border-radius:12px;padding:0 14px;box-shadow:0 8px 32px rgba(0,0,0,0.4);'
+        + 'top:' + item.getBoundingClientRect().top + 'px';
+      document.body.appendChild(ptrClone);
+      item.style.opacity = '0.3';
     });
-    document.addEventListener('mouseup', function() {
+
+    handle.addEventListener('pointermove', function(e) {
+      if (e.pointerType === 'mouse' || !ptrSrc) return;
+      ptrClone.style.top = (e.clientY - 30) + 'px';
+      ptrClone.style.display = 'none';
+      var el = document.elementFromPoint(e.clientX, e.clientY);
+      ptrClone.style.display = '';
+      var target = el ? el.closest('.stock-drag-item') : null;
+      clearHL();
+      if (target && target !== ptrSrc && sameScope(target, ptrSrc)) target.classList.add('drag-over');
+    });
+
+    handle.addEventListener('pointerup', function(e) {
+      if (e.pointerType === 'mouse') { item.setAttribute('draggable', 'false'); return; }
+      if (!ptrSrc) return;
+      if (ptrClone) { document.body.removeChild(ptrClone); ptrClone = null; }
+      ptrSrc.style.opacity = '';
+      clearHL();
+      var el = document.elementFromPoint(e.clientX, e.clientY);
+      var target = el ? el.closest('.stock-drag-item') : null;
+      if (target && target !== ptrSrc && sameScope(target, ptrSrc)) doMove(ptrSrc, target);
+      ptrSrc = null;
+    });
+
+    handle.addEventListener('pointercancel', function() {
+      if (ptrClone) { document.body.removeChild(ptrClone); ptrClone = null; }
+      if (ptrSrc) { ptrSrc.style.opacity = ''; ptrSrc = null; }
+      clearHL();
       item.setAttribute('draggable', 'false');
     });
 
+    // ── Native DnD (mouse 전용) ──
     item.addEventListener('dragstart', function(e) {
       dragSrc = this;
       this.classList.add('dragging');
       e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', this.dataset.id);
+      e.dataTransfer.setData('text/plain', this.dataset.id || '');
     });
-
     item.addEventListener('dragend', function() {
       this.classList.remove('dragging');
-      document.querySelectorAll('.stock-drag-item').forEach(function(el) {
-        el.classList.remove('drag-over');
-      });
+      item.setAttribute('draggable', 'false');
+      clearHL();
       dragSrc = null;
     });
-
-    // scope가 있으면 scope 기준, 없으면 market 기준
-    function sameScope(a, b) {
-      var sa = a.dataset.scope || a.dataset.market;
-      var sb = b.dataset.scope || b.dataset.market;
-      return sa === sb;
-    }
     item.addEventListener('dragover', function(e) {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
       if (dragSrc && dragSrc !== this && sameScope(dragSrc, this)) {
-        document.querySelectorAll('.stock-drag-item').forEach(function(el) { el.classList.remove('drag-over'); });
+        clearHL();
         this.classList.add('drag-over');
       }
     });
-
     item.addEventListener('drop', function(e) {
       e.preventDefault();
       if (!dragSrc || dragSrc === this) return;
-      if (!sameScope(dragSrc, this)) {
-        showToast('❗ 같은 시장(또는 계좌) 내에서만 순서를 바꿀 수 있어요');
-        return;
-      }
-      // 그룹 드래그 지원: data-group-ids가 있으면 복수 이동
-      const srcIds = dragSrc.dataset.groupIds ? dragSrc.dataset.groupIds.split(',') : [dragSrc.dataset.id];
-      const dstId  = this.dataset.id;
-      const dstIsGroup = !!this.dataset.groupIds;
-      const anchorId = dstIsGroup ? this.dataset.groupIds.split(',')[0] : dstId;
-      // 이동할 스톡 객체 추출 (원래 순서 유지)
-      const moving = srcIds.map(function(id) { return stocks.find(function(s) { return s.id === id; }); }).filter(Boolean);
-      // 원래 위치에서 제거
-      srcIds.forEach(function(id) {
-        const idx = stocks.findIndex(function(s) { return s.id === id; });
-        if (idx >= 0) stocks.splice(idx, 1);
-      });
-      // 앵커 위치 앞에 삽입
-      const dstIdx = stocks.findIndex(function(s) { return s.id === anchorId; });
-      if (dstIdx >= 0) stocks.splice(dstIdx, 0, ...moving);
-      else stocks.push(...moving);
-      store('stocks', stocks);
-      renderStockList();
-      haptic('light');
+      if (!sameScope(dragSrc, this)) { showToast('❗ 같은 시장(또는 계좌) 내에서만 순서를 바꿀 수 있어요'); return; }
+      doMove(dragSrc, this);
     });
-
-    // 터치 지원 (iOS)
-    let touchStartY = 0;
-    let touchItem = null;
-    let touchClone = null;
-
-    handle.addEventListener('touchstart', function(e) {
-      touchItem = this.closest('.stock-drag-item');
-      touchStartY = e.touches[0].clientY;
-      // 클론 생성
-      touchClone = touchItem.cloneNode(true);
-      touchClone.style.cssText = 'position:fixed;left:16px;right:16px;z-index:9999;opacity:0.85;pointer-events:none;background:var(--surface2);border-radius:12px;padding:0 14px;box-shadow:0 8px 32px rgba(0,0,0,0.4)';
-      touchClone.style.top = this.getBoundingClientRect().top + 'px';
-      document.body.appendChild(touchClone);
-      this.style.opacity = '0.3';
-    }, { passive: true });
-
-    handle.addEventListener('touchmove', function(e) {
-      if (!touchClone) return;
-      e.preventDefault();
-      e.stopPropagation();
-      const touch = e.touches[0];
-      touchClone.style.top = (touch.clientY - 30) + 'px';
-      // 아래에 있는 요소 찾기
-      touchClone.style.display = 'none';
-      const el = document.elementFromPoint(touch.clientX, touch.clientY);
-      touchClone.style.display = '';
-      const target = el ? el.closest('.stock-drag-item') : null;
-      document.querySelectorAll('.stock-drag-item').forEach(function(el) {
-        el.classList.remove('drag-over');
-      });
-      if (target && target !== touchItem && sameScope(target, touchItem)) {
-        target.classList.add('drag-over');
-      }
-    }, { passive: false });
-
-
-    handle.addEventListener('touchend', function(e) {
-      if (!touchClone || !touchItem) return;
-      // 클론 제거
-      document.body.removeChild(touchClone);
-      touchClone = null;
-      touchItem.style.opacity = '';
-      document.querySelectorAll('.stock-drag-item').forEach(function(el) {
-        el.classList.remove('drag-over');
-      });
-      // 드롭 위치 찾기
-      const touch = e.changedTouches[0];
-      const el = document.elementFromPoint(touch.clientX, touch.clientY);
-      const target = el ? el.closest('.stock-drag-item') : null;
-      const tScopeA = touchItem.dataset.scope || touchItem.dataset.market;
-      const tScopeB = target ? (target.dataset.scope || target.dataset.market) : null;
-      if (target && target !== touchItem && tScopeA === tScopeB) {
-        const srcIds = touchItem.dataset.groupIds ? touchItem.dataset.groupIds.split(',') : [touchItem.dataset.id];
-        const anchorId = (target.dataset.groupIds ? target.dataset.groupIds.split(',')[0] : target.dataset.id);
-        const moving = srcIds.map(function(id) { return stocks.find(function(s) { return s.id === id; }); }).filter(Boolean);
-        srcIds.forEach(function(id) {
-          const idx = stocks.findIndex(function(s) { return s.id === id; });
-          if (idx >= 0) stocks.splice(idx, 1);
-        });
-        const dstIdx = stocks.findIndex(function(s) { return s.id === anchorId; });
-        if (dstIdx >= 0) stocks.splice(dstIdx, 0, ...moving);
-        else stocks.push(...moving);
-        store('stocks', stocks);
-        renderStockList();
-        haptic('light');
-      }
-      touchItem = null;
-    }, { passive: true });
   });
 }
 
 // ── 계좌 그룹 헤더 드래그앤드롭
 function initAccTypeDragDrop() {
-  let dragSrcAcc = null;
+  var dragSrcAcc = null;
+  var ptrSrcAcc  = null;
+  var ptrCloneAcc = null;
+
+  function clearAccHL() {
+    document.querySelectorAll('.acc-type-item').forEach(function(el) { el.classList.remove('drag-over'); });
+  }
+  function doAccMove(srcType, dstType) {
+    var order = Array.from(document.querySelectorAll('.acc-type-item')).map(function(el) { return el.dataset.acctype; });
+    var si = order.indexOf(srcType), di = order.indexOf(dstType);
+    if (si < 0 || di < 0) return;
+    order.splice(si, 1); order.splice(di, 0, srcType);
+    stockAccTypeOrder = order;
+    store('stk-acc-order', stockAccTypeOrder);
+    renderStockList();
+    haptic('light');
+  }
+
   document.querySelectorAll('.acc-type-item').forEach(function(item) {
     var handle = item.querySelector('.acc-type-drag-handle');
     if (!handle) return;
-    handle.addEventListener('mousedown', function() { item.setAttribute('draggable', 'true'); });
-    document.addEventListener('mouseup', function() { item.setAttribute('draggable', 'false'); });
+
+    // ── Pointer Events (통합) ──
+    handle.addEventListener('pointerdown', function(e) {
+      if (e.pointerType === 'mouse') { item.setAttribute('draggable', 'true'); return; }
+      e.preventDefault();
+      handle.setPointerCapture(e.pointerId);
+      ptrSrcAcc = item;
+      ptrCloneAcc = item.cloneNode(true);
+      ptrCloneAcc.style.cssText = 'position:fixed;left:16px;right:16px;z-index:9999;opacity:0.85;pointer-events:none;'
+        + 'background:var(--surface2);border-radius:12px;padding:0 14px;box-shadow:0 8px 32px rgba(0,0,0,.4);'
+        + 'top:' + item.getBoundingClientRect().top + 'px';
+      document.body.appendChild(ptrCloneAcc);
+      item.style.opacity = '0.3';
+    });
+
+    handle.addEventListener('pointermove', function(e) {
+      if (e.pointerType === 'mouse' || !ptrSrcAcc) return;
+      ptrCloneAcc.style.top = (e.clientY - 30) + 'px';
+      ptrCloneAcc.style.display = 'none';
+      var el = document.elementFromPoint(e.clientX, e.clientY);
+      ptrCloneAcc.style.display = '';
+      var target = el ? el.closest('.acc-type-item') : null;
+      clearAccHL();
+      if (target && target !== ptrSrcAcc) target.classList.add('drag-over');
+    });
+
+    handle.addEventListener('pointerup', function(e) {
+      if (e.pointerType === 'mouse') { item.setAttribute('draggable', 'false'); return; }
+      if (!ptrSrcAcc) return;
+      if (ptrCloneAcc) { document.body.removeChild(ptrCloneAcc); ptrCloneAcc = null; }
+      ptrSrcAcc.style.opacity = '';
+      clearAccHL();
+      var el = document.elementFromPoint(e.clientX, e.clientY);
+      var target = el ? el.closest('.acc-type-item') : null;
+      if (target && target !== ptrSrcAcc) doAccMove(ptrSrcAcc.dataset.acctype, target.dataset.acctype);
+      ptrSrcAcc = null;
+    });
+
+    handle.addEventListener('pointercancel', function() {
+      if (ptrCloneAcc) { document.body.removeChild(ptrCloneAcc); ptrCloneAcc = null; }
+      if (ptrSrcAcc) { ptrSrcAcc.style.opacity = ''; ptrSrcAcc = null; }
+      clearAccHL();
+      item.setAttribute('draggable', 'false');
+    });
+
+    // ── Native DnD (mouse 전용) ──
     item.addEventListener('dragstart', function(e) {
       dragSrcAcc = this.dataset.acctype;
       this.style.opacity = '0.5';
@@ -13330,7 +13370,8 @@ function initAccTypeDragDrop() {
     });
     item.addEventListener('dragend', function() {
       this.style.opacity = '';
-      document.querySelectorAll('.acc-type-item').forEach(function(el) { el.classList.remove('drag-over'); });
+      item.setAttribute('draggable', 'false');
+      clearAccHL();
       dragSrcAcc = null;
     });
     item.addEventListener('dragover', function(e) {
@@ -13342,46 +13383,8 @@ function initAccTypeDragDrop() {
       e.preventDefault();
       this.classList.remove('drag-over');
       if (!dragSrcAcc || dragSrcAcc === this.dataset.acctype) return;
-      var order = Array.from(document.querySelectorAll('.acc-type-item')).map(function(el) { return el.dataset.acctype; });
-      var si = order.indexOf(dragSrcAcc), di = order.indexOf(this.dataset.acctype);
-      if (si < 0 || di < 0) return;
-      order.splice(si, 1); order.splice(di, 0, dragSrcAcc);
-      stockAccTypeOrder = order;
-      store('stk-acc-order', stockAccTypeOrder);
-      renderStockList(); haptic('light');
+      doAccMove(dragSrcAcc, this.dataset.acctype);
     });
-    // 터치 지원
-    var tchSrc = null, tchClone = null;
-    handle.addEventListener('touchstart', function(e) {
-      tchSrc = item;
-      tchClone = item.cloneNode(true);
-      tchClone.style.cssText = 'position:fixed;left:16px;right:16px;z-index:9999;opacity:0.85;pointer-events:none;background:var(--surface2);border-radius:12px;padding:0 14px;box-shadow:0 8px 32px rgba(0,0,0,.4)';
-      tchClone.style.top = item.getBoundingClientRect().top + 'px';
-      document.body.appendChild(tchClone);
-      item.style.opacity = '0.3';
-    }, { passive: true });
-    handle.addEventListener('touchmove', function(e) {
-      if (!tchClone) return; e.preventDefault(); e.stopPropagation();
-      tchClone.style.top = (e.touches[0].clientY - 30) + 'px';
-    }, { passive: false });
-    handle.addEventListener('touchend', function(e) {
-      var tch = e.changedTouches[0];
-      if (tchClone) { document.body.removeChild(tchClone); tchClone = null; }
-      if (tchSrc) { tchSrc.style.opacity = ''; }
-      var el2 = document.elementFromPoint(tch.clientX, tch.clientY);
-      var tgt = el2 ? el2.closest('.acc-type-item') : null;
-      if (tgt && tgt !== tchSrc) {
-        var order2 = Array.from(document.querySelectorAll('.acc-type-item')).map(function(el) { return el.dataset.acctype; });
-        var si2 = order2.indexOf(tchSrc.dataset.acctype), di2 = order2.indexOf(tgt.dataset.acctype);
-        if (si2 >= 0 && di2 >= 0) {
-          order2.splice(si2, 1); order2.splice(di2, 0, tchSrc.dataset.acctype);
-          stockAccTypeOrder = order2;
-          store('stk-acc-order', stockAccTypeOrder);
-          renderStockList(); haptic('light');
-        }
-      }
-      tchSrc = null;
-    }, { passive: true });
   });
 }
 
@@ -13462,6 +13465,9 @@ async function fetchAllPrices() {
   }
 
   let updated = 0;
+  const total = stocks.length;
+  const timeEl = document.getElementById('stock-update-time');
+  if (timeEl) timeEl.textContent = '0/' + total;
   for (const s of stocks) {
     try {
       const res = await fetch(proxyUrl + '/stock?ticker=' + encodeURIComponent(s.ticker) + '&market=' + s.market);
@@ -13471,6 +13477,7 @@ async function fetchAllPrices() {
         updated++;
       }
     } catch(e) { console.log('Price fetch error:', s.ticker, e); }
+    if (timeEl) timeEl.textContent = updated + '/' + total;
   }
 
   // 환율 저장
@@ -13479,7 +13486,6 @@ async function fetchAllPrices() {
   renderStockList();
   if (currentStkTab === 'chart') renderStockCharts();
   if (btn) { btn.classList.remove('refreshing'); btn.disabled = false; }
-  const timeEl = document.getElementById('stock-update-time');
   if (timeEl) timeEl.textContent = new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
   const rateMsg = usdKrw ? ' · $1=' + usdKrw.toFixed(2) + '원' : '';
   showToast(updated > 0 ? ('✅ ' + updated + '개 종목 시세 갱신!' + rateMsg) : '⚠️ 시세 조회 실패. Cloudflare 주소 확인해주세요');
