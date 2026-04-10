@@ -845,7 +845,10 @@ body[data-theme="light"] .ge-group input:focus { border-color: #2563eb !importan
 .acc-body-open { grid-template-rows: 1fr; }
 /* ── 계좌별 뷰 카드 ── */
 .acc-card { background: var(--surface2); border-radius: 16px; overflow: hidden; margin-bottom: 10px; }
-.acc-card .stock-drag-item:last-child { border-bottom: none !important; }
+/* 카드 내 종목 행: 카드 배경과 통합 */
+.acc-card .stock-drag-item { background: var(--surface2) !important; }
+/* 카드 내 마지막 종목 행 border 제거 */
+.acc-card .acc-body > div > div:last-child { border-bottom: none !important; }
 
 /* ══ 스플래시 스크린 ══ */
 @keyframes splashDot {
