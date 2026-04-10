@@ -13337,12 +13337,13 @@ function renderStockList() {
     var pnlColor = totalPnl > 0 ? 'var(--red)' : totalPnl < 0 ? 'var(--blue)' : 'var(--muted)';
     var evalStr = hasPrices ? fmtAmt(totalEval, isUS) : '시세 조회 필요';
     var pnlStr  = hasPrices ? (totalPnl >= 0 ? '+' : '') + fmtAmt(totalPnl, isUS) + ' (' + pct.toFixed(1) + '%)' : '-';
-    // 미니멀 배지: 소형 점선 텍스트로 N계좌 표시
-    var nBadge = '<span style="font-size:9px;color:var(--muted2);margin-left:5px">·&nbsp;' + ss.length + '계좌</span>';
+    // N계좌 배지 (gold pill)
+    var nBadge = '<span style="font-size:9px;background:rgba(201,168,76,.1);color:var(--gold);border:0.5px solid rgba(201,168,76,.25);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:5px">' + ss.length + '계좌</span>';
     var ownerBadge = (currentStkOwner === 'all' && group.owner)
-      ? '<span style="font-size:9px;background:' + (group.owner==='minsuk'?'rgba(96,165,250,.15)':'rgba(52,211,153,.15)')
-        + ';color:' + (group.owner==='minsuk'?'var(--minsuk)':'var(--siyun)')
-        + ';padding:1px 5px;border-radius:5px;font-weight:700;margin-left:5px">'
+      ? '<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;margin-left:4px;flex-shrink:0;'
+        + 'background:' + (group.owner==='minsuk'?'rgba(59,130,246,.12)':'rgba(34,197,94,.12)') + ';'
+        + 'color:' + (group.owner==='minsuk'?'var(--minsuk)':'var(--siyun)') + ';'
+        + 'border:0.5px solid ' + (group.owner==='minsuk'?'rgba(59,130,246,.3)':'rgba(34,197,94,.3)') + '">'
         + (group.owner==='minsuk'?getP1Name():getP2Name()) + '</span>' : '';
     var gk = group.key.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     var sgDomId = group.key.replace(/['"]/g, '').replace(/[\s|]/g, '-');
