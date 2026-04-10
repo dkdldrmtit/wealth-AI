@@ -13275,7 +13275,7 @@ function initStockDragDrop() {
       document.querySelectorAll('.stock-drag-item').forEach(function(el) {
         el.classList.remove('drag-over');
       });
-      if (target && target !== touchItem && target.dataset.market === touchItem.dataset.market) {
+      if (target && target !== touchItem && sameScope(target, touchItem)) {
         target.classList.add('drag-over');
       }
     }, { passive: false });
@@ -13366,10 +13366,9 @@ function initAccTypeDragDrop() {
       tchClone.style.top = (e.touches[0].clientY - 30) + 'px';
     }, { passive: false });
     handle.addEventListener('touchend', function(e) {
+      var tch = e.changedTouches[0];
       if (tchClone) { document.body.removeChild(tchClone); tchClone = null; }
       if (tchSrc) { tchSrc.style.opacity = ''; }
-      var tch = e.changedTouches[0];
-      tchClone && (tchClone.style.display = 'none');
       var el2 = document.elementFromPoint(tch.clientX, tch.clientY);
       var tgt = el2 ? el2.closest('.acc-type-item') : null;
       if (tgt && tgt !== tchSrc) {
