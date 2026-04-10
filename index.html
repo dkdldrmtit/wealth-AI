@@ -829,6 +829,9 @@ body[data-theme="light"] .ge-group input:focus { border-color: #2563eb !importan
   border-color: rgba(59,130,246,0.4) !important;
   background: rgba(59,130,246,0.05) !important;
 }
+.acc-type-item.drag-over { background: rgba(59,130,246,0.04) !important; }
+@keyframes spin-icon { to { transform: rotate(360deg); } }
+#stock-refresh-btn.refreshing svg { animation: spin-icon .8s linear infinite; }
 
 /* ══ 스플래시 스크린 ══ */
 @keyframes splashDot {
@@ -2996,7 +2999,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <div id="stk-list-label" style="font-size:12px;color:var(--muted);font-weight:600"></div>
       <div style="display:flex;gap:6px;align-items:center">
-        <div id="stock-update-time" style="font-size:10px;color:var(--muted)"></div>
         <!-- 뷰 토글: 세그먼트 컨트롤 -->
         <div id="stk-view-seg" style="display:flex;background:var(--surface2);border-radius:8px;padding:2px;gap:1px;flex-shrink:0">
           <button id="stk-view-acc" onclick="setStkViewMode('account')"
@@ -3006,15 +3008,19 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         </div>
         <button id="stk-owner-toggle" onclick="cycleStkOwner()"
           style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;
-          color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 8px;cursor:pointer;min-width:44px;display:flex;align-items:center;gap:3px">
-          <span id="stk-owner-toggle-text">통합</span><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.4;flex-shrink:0"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="4" y1="4" x2="21" y2="21"/></svg>
+          color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;padding:5px 8px;cursor:pointer;min-width:36px">
+          <span id="stk-owner-toggle-text">통합</span>
         </button>
-        <button onclick="fetchAllPrices()" id="stock-refresh-btn"
-          style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;
-          color:var(--muted);display:flex;align-items:center;gap:4px;padding:5px 10px;cursor:pointer">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-          <span style="font-size:11px;font-weight:600;font-family:'Noto Sans KR',sans-serif">시세</span>
-        </button>
+        <!-- 새로고침 + 업데이트 시간 -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1px">
+          <button onclick="fetchAllPrices()" id="stock-refresh-btn"
+            style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;
+            color:var(--muted);display:flex;align-items:center;gap:4px;padding:5px 10px;cursor:pointer">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+            <span style="font-size:11px;font-weight:600;font-family:'Noto Sans KR',sans-serif">시세</span>
+          </button>
+          <div id="stock-update-time" style="font-size:9px;color:var(--muted);line-height:1;white-space:nowrap"></div>
+        </div>
       </div>
     </div>
     <div id="stock-list"></div>
@@ -12194,6 +12200,8 @@ function toggleAccTypeExpand(accType) {
   renderStockList();
 }
 
+var stockAccTypeOrder = load('stk-acc-order', []); // 계좌별 뷰 그룹 순서
+
 // ── 계좌종류 / 증권사 관리
 var STOCK_DEFAULT_ACC_TYPES = ['일반', 'ISA', 'IRP', '연금저축'];
 var stockAccountTypes = load('stock-account-types', STOCK_DEFAULT_ACC_TYPES.slice());
@@ -12901,7 +12909,7 @@ function renderStockList() {
   }
 
   // ── 단일 종목 행 HTML 생성
-  function stockRowHtml(s, showAccBadge) {
+  function stockRowHtml(s, showAccBadge, scope) {
     var cp = s.currentPrice || 0;
     var isUS = s.market === 'US';
     var evalAmt = cp * s.qty;
@@ -12926,7 +12934,7 @@ function renderStockList() {
 
     var sid = s.id;
     return '<div style="border-bottom:1px solid var(--border)">'
-      + '<div id="stk-row-' + sid + '" class="stock-drag-item" data-id="' + sid + '" data-market="' + s.market + '" draggable="false"'
+      + '<div id="stk-row-' + sid + '" class="stock-drag-item" data-id="' + sid + '" data-market="' + s.market + '"' + (scope ? ' data-scope="' + scope + '"' : '') + ' draggable="false"'
       + ' style="display:flex;align-items:center;padding:13px 0;padding-right:8px;gap:10px;background:var(--surface)">'
       + '<div class="stock-drag-handle" style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;cursor:grab;padding:4px 6px;opacity:0.35;touch-action:none">'
       + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
@@ -12954,17 +12962,24 @@ function renderStockList() {
   if (stkViewMode === 'account') {
     // 계좌종류별 그룹핑
     var accGroups = {};
-    var accOrder = [];
+    var rawAccOrder = [];
     filtered.forEach(function(s) {
       var key = s.accountType || '미분류';
-      if (!accGroups[key]) { accGroups[key] = []; accOrder.push(key); }
+      if (!accGroups[key]) { accGroups[key] = []; rawAccOrder.push(key); }
       accGroups[key].push(s);
+    });
+    // 저장된 순서 적용
+    var accOrder = rawAccOrder.slice().sort(function(a, b) {
+      var ia = stockAccTypeOrder.indexOf(a), ib = stockAccTypeOrder.indexOf(b);
+      if (ia < 0) ia = 9999; if (ib < 0) ib = 9999;
+      return ia - ib;
     });
 
     var html = accOrder.map(function(accType) {
       var list = accGroups[accType];
       var isExpanded = expandedAccTypes.has(accType);
       var usdKrw2 = usdKrw;
+      var safeKey = accType.replace(/'/g, "\\'");
 
       // 계좌 합산 평가금액 + P&L
       var totalEval = 0, totalPnl = 0, hasPrices = false;
@@ -12980,29 +12995,33 @@ function renderStockList() {
       });
       var pct = (totalEval - totalPnl) > 0 ? totalPnl / (totalEval - totalPnl) * 100 : 0;
       var pnlColor = totalPnl > 0 ? 'var(--red)' : totalPnl < 0 ? 'var(--blue)' : 'var(--muted)';
-      var evalDisp = hasPrices ? Math.round(totalEval).toLocaleString() + (showKrw || list[0].market==='KR' ? '원' : '') : '시세 조회 필요';
+      var evalDisp = hasPrices ? Math.round(totalEval).toLocaleString() + '원' : '시세 조회 필요';
       var pnlDisp  = hasPrices ? (totalPnl>=0?'+':'') + Math.round(totalPnl).toLocaleString() + '원 (' + pct.toFixed(1) + '%)' : '';
+      var chevron  = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3;transform:rotate(' + (isExpanded?'180':'0') + 'deg)"><polyline points="6 9 12 15 18 9"/></svg>';
 
-      var arrow = isExpanded ? '▼' : '▶';
-
-      var header = '<div onclick="toggleAccTypeExpand(\'' + accType.replace(/'/g,"\\'") + '\')" '
-        + 'style="display:flex;align-items:center;padding:14px 0;cursor:pointer;gap:10px;user-select:none">'
-        + '<span style="font-size:13px;color:var(--muted2);transition:transform .2s">' + arrow + '</span>'
-        + '<div style="flex:1;min-width:0">'
+      var header = '<div class="acc-type-item" data-acctype="' + safeKey + '" draggable="false"'
+        + ' style="display:flex;align-items:center;padding:13px 0;gap:10px;user-select:none">'
+        + '<div class="acc-type-drag-handle" style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;cursor:grab;padding:4px 6px;opacity:0.35;touch-action:none">'
+        + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
+        + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
+        + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
+        + '</div>'
+        + '<div onclick="toggleAccTypeExpand(\'' + safeKey + '\')" style="flex:1;cursor:pointer;min-width:0">'
         + '<div style="display:flex;align-items:center;gap:6px">'
         + '<span style="font-size:15px;font-weight:800;color:var(--text)">' + accType + '</span>'
         + '<span style="font-size:10px;color:var(--muted2);background:var(--surface2);border-radius:8px;padding:1px 7px">' + list.length + '종목</span>'
         + '</div>'
         + (hasPrices ? '<div style="font-size:11px;color:' + pnlColor + ';margin-top:3px">' + pnlDisp + '</div>' : '')
         + '</div>'
-        + '<div style="text-align:right;flex-shrink:0">'
+        + '<div onclick="toggleAccTypeExpand(\'' + safeKey + '\')" style="text-align:right;flex-shrink:0;cursor:pointer;padding-left:8px">'
         + '<div style="font-size:15px;font-weight:800;color:var(--text)">' + evalDisp + '</div>'
+        + chevron
         + '</div>'
         + '</div>';
 
       var body = isExpanded
-        ? '<div style="padding-left:8px;padding-right:10px;border-left:2px solid var(--border2);margin-left:6px;margin-right:2px;margin-bottom:8px">'
-          + list.map(function(s) { return stockRowHtml(s, false); }).join('')
+        ? '<div style="padding-left:8px;padding-right:10px;border-left:2px solid var(--border2);margin-left:20px;margin-right:2px;margin-bottom:8px">'
+          + list.map(function(s) { return stockRowHtml(s, false, accType); }).join('')
           + '</div>'
         : '';
 
@@ -13011,6 +13030,8 @@ function renderStockList() {
 
     wrap.innerHTML = html || '<div style="text-align:center;padding:32px;color:var(--muted)">종목이 없어요</div>';
     updateStockSummary();
+    initStockDragDrop();     // 그룹 내 종목 드래그
+    initAccTypeDragDrop();   // 그룹 헤더 드래그
     return;
   }
 
@@ -13103,9 +13124,10 @@ function renderStockList() {
         + '<div style="font-size:11px;color:var(--muted);margin-top:1px">' + s.qty.toLocaleString() + '주 · 평단 ' + fmtAmt(s.avgPrice, isUS) + '</div>'
         + '</div>'
         + '<div style="text-align:right;flex-shrink:0">'
-        + (cp > 0 ? '<div style="font-size:13px;font-weight:700;color:' + pCol + '">' + (pnl2>=0?'+':'') + fmtAmt(pnl2, isUS) + '</div>'
-                  + '<div style="font-size:10px;color:' + pCol + '">' + (pc2>=0?'+':'') + pc2.toFixed(1) + '%</div>'
-                  : '<div style="font-size:11px;color:var(--muted)">-</div>')
+        + (cp > 0
+          ? '<div style="font-size:13px;font-weight:700;color:var(--text)">' + fmtAmt(cp * s.qty, isUS) + '</div>'
+            + '<div style="font-size:10px;color:' + pCol + ';margin-top:1px">' + (pnl2>=0?'+':'') + fmtAmt(pnl2, isUS) + ' (' + (pc2>=0?'+':'') + pc2.toFixed(1) + '%)</div>'
+          : '<div style="font-size:11px;color:var(--muted)">-</div>')
         + '</div></div>';
     }).join('');
 
@@ -13180,25 +13202,26 @@ function initStockDragDrop() {
       dragSrc = null;
     });
 
+    // scope가 있으면 scope 기준, 없으면 market 기준
+    function sameScope(a, b) {
+      var sa = a.dataset.scope || a.dataset.market;
+      var sb = b.dataset.scope || b.dataset.market;
+      return sa === sb;
+    }
     item.addEventListener('dragover', function(e) {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
-      if (dragSrc && dragSrc !== this) {
-        // 같은 마켓끼리만 허용
-        if (dragSrc.dataset.market === this.dataset.market) {
-          document.querySelectorAll('.stock-drag-item').forEach(function(el) {
-            el.classList.remove('drag-over');
-          });
-          this.classList.add('drag-over');
-        }
+      if (dragSrc && dragSrc !== this && sameScope(dragSrc, this)) {
+        document.querySelectorAll('.stock-drag-item').forEach(function(el) { el.classList.remove('drag-over'); });
+        this.classList.add('drag-over');
       }
     });
 
     item.addEventListener('drop', function(e) {
       e.preventDefault();
       if (!dragSrc || dragSrc === this) return;
-      if (dragSrc.dataset.market !== this.dataset.market) {
-        showToast('❗ 같은 시장 종목끼리만 순서를 바꿀 수 있어요');
+      if (!sameScope(dragSrc, this)) {
+        showToast('❗ 같은 시장(또는 계좌) 내에서만 순서를 바꿀 수 있어요');
         return;
       }
       // 그룹 드래그 지원: data-group-ids가 있으면 복수 이동
@@ -13271,7 +13294,9 @@ function initStockDragDrop() {
       const touch = e.changedTouches[0];
       const el = document.elementFromPoint(touch.clientX, touch.clientY);
       const target = el ? el.closest('.stock-drag-item') : null;
-      if (target && target !== touchItem && target.dataset.market === touchItem.dataset.market) {
+      const tScopeA = touchItem.dataset.scope || touchItem.dataset.market;
+      const tScopeB = target ? (target.dataset.scope || target.dataset.market) : null;
+      if (target && target !== touchItem && tScopeA === tScopeB) {
         const srcIds = touchItem.dataset.groupIds ? touchItem.dataset.groupIds.split(',') : [touchItem.dataset.id];
         const anchorId = (target.dataset.groupIds ? target.dataset.groupIds.split(',')[0] : target.dataset.id);
         const moving = srcIds.map(function(id) { return stocks.find(function(s) { return s.id === id; }); }).filter(Boolean);
@@ -13287,6 +13312,77 @@ function initStockDragDrop() {
         haptic('light');
       }
       touchItem = null;
+    }, { passive: true });
+  });
+}
+
+// ── 계좌 그룹 헤더 드래그앤드롭
+function initAccTypeDragDrop() {
+  let dragSrcAcc = null;
+  document.querySelectorAll('.acc-type-item').forEach(function(item) {
+    var handle = item.querySelector('.acc-type-drag-handle');
+    if (!handle) return;
+    handle.addEventListener('mousedown', function() { item.setAttribute('draggable', 'true'); });
+    document.addEventListener('mouseup', function() { item.setAttribute('draggable', 'false'); });
+    item.addEventListener('dragstart', function(e) {
+      dragSrcAcc = this.dataset.acctype;
+      this.style.opacity = '0.5';
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    item.addEventListener('dragend', function() {
+      this.style.opacity = '';
+      document.querySelectorAll('.acc-type-item').forEach(function(el) { el.classList.remove('drag-over'); });
+      dragSrcAcc = null;
+    });
+    item.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      if (dragSrcAcc && dragSrcAcc !== this.dataset.acctype) this.classList.add('drag-over');
+    });
+    item.addEventListener('dragleave', function() { this.classList.remove('drag-over'); });
+    item.addEventListener('drop', function(e) {
+      e.preventDefault();
+      this.classList.remove('drag-over');
+      if (!dragSrcAcc || dragSrcAcc === this.dataset.acctype) return;
+      var order = Array.from(document.querySelectorAll('.acc-type-item')).map(function(el) { return el.dataset.acctype; });
+      var si = order.indexOf(dragSrcAcc), di = order.indexOf(this.dataset.acctype);
+      if (si < 0 || di < 0) return;
+      order.splice(si, 1); order.splice(di, 0, dragSrcAcc);
+      stockAccTypeOrder = order;
+      store('stk-acc-order', stockAccTypeOrder);
+      renderStockList(); haptic('light');
+    });
+    // 터치 지원
+    var tchSrc = null, tchClone = null;
+    handle.addEventListener('touchstart', function(e) {
+      tchSrc = item;
+      tchClone = item.cloneNode(true);
+      tchClone.style.cssText = 'position:fixed;left:16px;right:16px;z-index:9999;opacity:0.85;pointer-events:none;background:var(--surface2);border-radius:12px;padding:0 14px;box-shadow:0 8px 32px rgba(0,0,0,.4)';
+      tchClone.style.top = item.getBoundingClientRect().top + 'px';
+      document.body.appendChild(tchClone);
+      item.style.opacity = '0.3';
+    }, { passive: true });
+    handle.addEventListener('touchmove', function(e) {
+      if (!tchClone) return; e.preventDefault(); e.stopPropagation();
+      tchClone.style.top = (e.touches[0].clientY - 30) + 'px';
+    }, { passive: false });
+    handle.addEventListener('touchend', function(e) {
+      if (tchClone) { document.body.removeChild(tchClone); tchClone = null; }
+      if (tchSrc) { tchSrc.style.opacity = ''; }
+      var tch = e.changedTouches[0];
+      tchClone && (tchClone.style.display = 'none');
+      var el2 = document.elementFromPoint(tch.clientX, tch.clientY);
+      var tgt = el2 ? el2.closest('.acc-type-item') : null;
+      if (tgt && tgt !== tchSrc) {
+        var order2 = Array.from(document.querySelectorAll('.acc-type-item')).map(function(el) { return el.dataset.acctype; });
+        var si2 = order2.indexOf(tchSrc.dataset.acctype), di2 = order2.indexOf(tgt.dataset.acctype);
+        if (si2 >= 0 && di2 >= 0) {
+          order2.splice(si2, 1); order2.splice(di2, 0, tchSrc.dataset.acctype);
+          stockAccTypeOrder = order2;
+          store('stk-acc-order', stockAccTypeOrder);
+          renderStockList(); haptic('light');
+        }
+      }
+      tchSrc = null;
     }, { passive: true });
   });
 }
@@ -13335,7 +13431,7 @@ async function fetchAllPrices() {
     showToast('⚙️ 설정에서 Cloudflare 주소를 먼저 입력해주세요');
     return;
   }
-  if (btn) btn.textContent = '⏳ 조회중...';
+  if (btn) { btn.classList.add('refreshing'); btn.disabled = true; }
     // 스켈레톤 로딩 표시
   const stockListEl = document.getElementById('stock-list');
   if (stockListEl && stocks.length > 0) {
@@ -13384,9 +13480,9 @@ async function fetchAllPrices() {
   store('stocks', stocks);
   renderStockList();
   if (currentStkTab === 'chart') renderStockCharts();
-  if (btn) btn.textContent = '🔄 시세 갱신';
+  if (btn) { btn.classList.remove('refreshing'); btn.disabled = false; }
   const timeEl = document.getElementById('stock-update-time');
-  if (timeEl) timeEl.textContent = new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'}) + ' 기준';
+  if (timeEl) timeEl.textContent = new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
   const rateMsg = usdKrw ? ' · $1=' + usdKrw.toFixed(2) + '원' : '';
   showToast(updated > 0 ? ('✅ ' + updated + '개 종목 시세 갱신!' + rateMsg) : '⚠️ 시세 조회 실패. Cloudflare 주소 확인해주세요');
 }
