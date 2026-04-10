@@ -12530,13 +12530,18 @@ function applyStocksToAsset() {
     return;
   }
 
-  // owner + market 기준으로 주식 평가금액 계산
-  function calcEval(owner, market) {
+  // owner + linkVal 기준으로 주식 평가금액 계산 (KR/US/all 또는 acct:ISA 등)
+  function calcEval(owner, linkVal) {
     return stocks
       .filter(function(s) {
         const ownerMatch = owner === 'all' ? true : s.owner === owner;
-        const marketMatch = market === 'all' ? true : s.market === market;
-        return ownerMatch && marketMatch && s.currentPrice > 0;
+        let typeMatch;
+        if (linkVal.startsWith('acct:')) {
+          typeMatch = s.accountType === linkVal.slice(5);
+        } else {
+          typeMatch = linkVal === 'all' ? true : s.market === linkVal;
+        }
+        return ownerMatch && typeMatch && s.currentPrice > 0;
       })
       .reduce(function(sum, s) {
         const evalAmt = s.currentPrice * s.qty;
@@ -12550,16 +12555,17 @@ function applyStocksToAsset() {
 
   linkedItems.forEach(function(item) {
     const owner = item.owner || 'common';
-    const market = item.stockLink; // 'KR', 'US', 'all'
-    const evalKrw = calcEval(owner === 'common' ? 'all' : owner, market);
+    const linkVal = item.stockLink; // 'KR', 'US', 'all', 'acct:ISA', etc.
+    const evalKrw = calcEval(owner === 'common' ? 'all' : owner, linkVal);
     const evalMan = Math.round(evalKrw / 10000);
 
     if (evalMan > 0) {
       item.amount = evalMan;
       updated++;
-      const marketLabel = market === 'KR' ? '국내' : market === 'US' ? '해외' : '전체';
-      const ownerLabel = owner === 'minsuk' ? '민석' : owner === 'siyun' ? '시윤' : '공동';
-      msgs.push(ownerLabel + ' ' + marketLabel + ' ' + (evalMan/10000).toFixed(2) + '억');
+      const linkLabel = linkVal.startsWith('acct:') ? linkVal.slice(5)
+        : linkVal === 'KR' ? '국내' : linkVal === 'US' ? '해외' : '전체';
+      const ownerLabel = owner === 'minsuk' ? getP1Name() : owner === 'siyun' ? getP2Name() : '공동';
+      msgs.push(ownerLabel + ' ' + linkLabel + ' ' + (evalMan >= 10000 ? (evalMan/10000).toFixed(2) + '억' : evalMan.toLocaleString() + '만'));
     }
   });
 
