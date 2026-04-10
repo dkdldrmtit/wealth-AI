@@ -2999,6 +2999,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <div id="stk-list-label" style="font-size:12px;color:var(--muted);font-weight:600"></div>
       <div style="display:flex;gap:6px;align-items:center">
+        <div id="stock-update-time" style="font-size:10px;color:var(--muted)"></div>
         <!-- 뷰 토글: 세그먼트 컨트롤 -->
         <div id="stk-view-seg" style="display:flex;background:var(--surface2);border-radius:8px;padding:2px;gap:1px;flex-shrink:0">
           <button id="stk-view-acc" onclick="setStkViewMode('account')"
@@ -3011,16 +3012,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;padding:5px 8px;cursor:pointer;min-width:36px">
           <span id="stk-owner-toggle-text">통합</span>
         </button>
-        <!-- 새로고침 + 업데이트 시간 -->
-        <div style="display:flex;flex-direction:column;align-items:center;gap:1px">
-          <button onclick="fetchAllPrices()" id="stock-refresh-btn"
-            style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;
-            color:var(--muted);display:flex;align-items:center;gap:4px;padding:5px 10px;cursor:pointer">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-            <span style="font-size:11px;font-weight:600;font-family:'Noto Sans KR',sans-serif">시세</span>
-          </button>
-          <div id="stock-update-time" style="font-size:9px;color:var(--muted);line-height:1;white-space:nowrap"></div>
-        </div>
+        <button onclick="fetchAllPrices()" id="stock-refresh-btn"
+          style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;
+          color:var(--muted);display:flex;align-items:center;gap:4px;padding:5px 10px;cursor:pointer">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          <span style="font-size:11px;font-weight:600;font-family:'Noto Sans KR',sans-serif">시세</span>
+        </button>
       </div>
     </div>
     <div id="stock-list"></div>
@@ -13000,7 +12997,7 @@ function renderStockList() {
       var chevron  = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3;transform:rotate(' + (isExpanded?'180':'0') + 'deg)"><polyline points="6 9 12 15 18 9"/></svg>';
 
       var header = '<div class="acc-type-item" data-acctype="' + safeKey + '" draggable="false"'
-        + ' style="display:flex;align-items:center;padding:13px 0;gap:10px;user-select:none">'
+        + ' style="display:flex;align-items:center;padding:13px 0;gap:8px;user-select:none">'
         + '<div class="acc-type-drag-handle" style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;cursor:grab;padding:4px 6px;opacity:0.35;touch-action:none">'
         + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
         + '<div style="width:13px;height:2px;border-radius:1px;background:var(--muted)"></div>'
@@ -13013,14 +13010,16 @@ function renderStockList() {
         + '</div>'
         + (hasPrices ? '<div style="font-size:11px;color:' + pnlColor + ';margin-top:3px">' + pnlDisp + '</div>' : '')
         + '</div>'
-        + '<div onclick="toggleAccTypeExpand(\'' + safeKey + '\')" style="text-align:right;flex-shrink:0;cursor:pointer;padding-left:8px">'
+        + '<div onclick="toggleAccTypeExpand(\'' + safeKey + '\')" style="text-align:right;flex-shrink:0;cursor:pointer;align-self:center">'
         + '<div style="font-size:15px;font-weight:800;color:var(--text)">' + evalDisp + '</div>'
+        + '</div>'
+        + '<div onclick="toggleAccTypeExpand(\'' + safeKey + '\')" style="flex-shrink:0;cursor:pointer;align-self:flex-end;padding-bottom:4px">'
         + chevron
         + '</div>'
         + '</div>';
 
       var body = isExpanded
-        ? '<div style="padding-left:8px;padding-right:10px;border-left:2px solid var(--border2);margin-left:20px;margin-right:2px;margin-bottom:8px">'
+        ? '<div style="padding-left:4px;border-left:1.5px solid var(--border);margin-left:20px;margin-bottom:6px">'
           + list.map(function(s) { return stockRowHtml(s, false, accType); }).join('')
           + '</div>'
         : '';
