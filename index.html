@@ -1255,18 +1255,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
 <!-- ══ HOME ══ -->
 <div class="page active" id="page-home">
-  <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;padding-bottom:0;margin-bottom:0">
-    <div id="home-greeting" style="font-size:13px;font-weight:600;color:var(--muted)"></div>
-    <button onclick="goPage('ai',{classList:{add:()=>{},remove:()=>{}}})"
-      style="background:rgba(180,155,80,0.10);border:1px solid rgba(180,155,80,0.20);color:var(--gold);width:auto;height:28px;padding:0 10px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:20px;gap:5px;transition:all .2s;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700"
-      ontouchstart="this.style.background='rgba(180,155,80,0.20)'" ontouchend="this.style.background='rgba(180,155,80,0.10)'">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/></svg>
-      AI 상담
-    </button>
-  </div>
 
-  <!-- 카드 순서 앵커 -->
-  <div id="home-cards-anchor">
+  <!-- 카드 순서 앵커: safe-area 상단 여백 -->
+  <div id="home-cards-anchor" style="padding-top:max(16px,calc(env(safe-area-inset-top,0px)+8px))">
 
   <!-- 월간 자산 기록 리마인더 -->
   <div id="asset-reminder-banner" style="display:none;background:rgba(240,192,64,0.10);border:1px solid rgba(240,192,64,0.30);border-radius:16px;padding:14px 16px;margin-bottom:14px;cursor:pointer" onclick="openModal(null)">
@@ -1367,9 +1358,33 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div id="ai-comment-chevron" style="font-size:10px;color:rgba(180,155,80,0.45);flex-shrink:0;transition:transform 0.3s">▾</div>
       </div>
       <!-- 펼쳐진 전체 텍스트 -->
-      <div id="ai-comment-expand" style="display:none;padding:0 14px 14px;border-top:0.5px solid rgba(180,155,80,0.12)">
+      <div id="ai-comment-expand" onclick="event.stopPropagation()" style="display:none;padding:0 14px 14px;border-top:0.5px solid rgba(180,155,80,0.12)">
         <div id="ai-comment-text" style="font-size:13px;color:var(--text);line-height:1.85;padding-top:12px;font-weight:400"></div>
-        <div style="margin-top:10px;font-size:9px;color:rgba(180,155,80,0.35);letter-spacing:2px;text-transform:uppercase">M&S Wealth · AI Analysis</div>
+        <!-- 퀵 질문 버튼 -->
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px">
+          <button onclick="homeAiAsk('포트폴리오 리스크 점검해줘')"
+            style="padding:5px 11px;border-radius:16px;border:0.5px solid rgba(180,155,80,0.3);background:rgba(180,155,80,0.06);color:var(--gold);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer">리스크 점검</button>
+          <button onclick="homeAiAsk('이번달 지출 패턴 분석해줘')"
+            style="padding:5px 11px;border-radius:16px;border:0.5px solid rgba(180,155,80,0.3);background:rgba(180,155,80,0.06);color:var(--gold);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer">지출 패턴</button>
+          <button onclick="homeAiAsk('절세 전략 추천해줘')"
+            style="padding:5px 11px;border-radius:16px;border:0.5px solid rgba(180,155,80,0.3);background:rgba(180,155,80,0.06);color:var(--gold);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer">절세 전략</button>
+          <button onclick="homeAiAsk('순자산 목표 달성 전략 알려줘')"
+            style="padding:5px 11px;border-radius:16px;border:0.5px solid rgba(180,155,80,0.3);background:rgba(180,155,80,0.06);color:var(--gold);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer">순자산 전략</button>
+        </div>
+        <!-- 직접 입력 -->
+        <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+          <input id="home-ai-input" type="text" placeholder="더 물어보기..."
+            onclick="event.stopPropagation()"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();homeAiAskFromInput()}"
+            style="flex:1;background:rgba(180,155,80,0.06);border:0.5px solid rgba(180,155,80,0.25);border-radius:20px;padding:9px 14px;font-size:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;outline:none"
+            onfocus="this.style.borderColor='rgba(180,155,80,0.5)'"
+            onblur="this.style.borderColor='rgba(180,155,80,0.25)'">
+          <button onclick="homeAiAskFromInput()"
+            style="background:rgba(180,155,80,0.15);border:0.5px solid rgba(180,155,80,0.35);border-radius:50%;width:34px;height:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--gold)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+        <div style="margin-top:10px;font-size:9px;color:rgba(180,155,80,0.3);letter-spacing:2px;text-transform:uppercase">M&S Wealth · AI Analysis</div>
       </div>
     </div>
   </div>
@@ -9528,14 +9543,6 @@ function applyPartnerNamesToUI() {
   if (pnlMs) pnlMs.textContent = p1;
   if (pnlSy) { pnlSy.textContent = p2; pnlSy.style.display = p2 ? '' : 'none'; }
 
-  // 홈 그리팅
-  const greetEl = document.getElementById('home-greeting');
-  if (greetEl) {
-    const h = new Date().getHours();
-    const timeStr = h < 6 ? '새벽이에요' : h < 12 ? '좋은 아침이에요' : h < 18 ? '안녕하세요' : h < 22 ? '좋은 저녁이에요' : '밤이 깊었네요';
-    greetEl.textContent = p1 + ', ' + timeStr + ' 👋';
-  }
-
   // 홈 부부 대결 카드
   renderCoupleCard();
   renderHomeLedgerSummary();
@@ -9584,6 +9591,25 @@ function toggleAiComment() {
   if (chevron) chevron.style.transform = _aiCommentExpanded ? 'rotate(180deg)' : '';
   if (!_aiCommentExpanded) _startAiTicker();
   else _stopAiTicker();
+}
+
+// AI 티커 카드에서 AI 어드바이저로 자연스럽게 연결
+function homeAiAsk(q) {
+  goPage('ai', { classList: { add: function(){}, remove: function(){} } });
+  setTimeout(function() {
+    var chatInput = document.getElementById('chat-input');
+    if (chatInput && q) {
+      chatInput.value = q;
+      sendChat();
+    }
+  }, 180);
+}
+function homeAiAskFromInput() {
+  var input = document.getElementById('home-ai-input');
+  var q = input ? input.value.trim() : '';
+  if (!q) return;
+  if (input) input.value = '';
+  homeAiAsk(q);
 }
 
 function _startAiTicker() {
