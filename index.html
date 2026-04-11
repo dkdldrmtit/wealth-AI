@@ -1256,8 +1256,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 <!-- ══ HOME ══ -->
 <div class="page active" id="page-home">
 
-  <!-- 카드 순서 앵커: safe-area 상단 여백 -->
-  <div id="home-cards-anchor" style="padding-top:max(16px,calc(env(safe-area-inset-top,0px)+8px))">
+  <!-- 카드 순서 앵커: safe-area 상단 여백 (applyHeaderPadding에서 동기화) -->
+  <div id="home-cards-anchor" style="padding-top:max(44px,calc(env(safe-area-inset-top,0px)+12px))">
 
   <!-- 월간 자산 기록 리마인더 -->
   <div id="asset-reminder-banner" style="display:none;background:rgba(240,192,64,0.10);border:1px solid rgba(240,192,64,0.30);border-radius:16px;padding:14px 16px;margin-bottom:14px;cursor:pointer" onclick="openModal(null)">
@@ -1360,17 +1360,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <!-- 펼쳐진 전체 텍스트 -->
       <div id="ai-comment-expand" onclick="event.stopPropagation()" style="display:none;padding:0 14px 14px;border-top:0.5px solid rgba(180,155,80,0.12)">
         <div id="ai-comment-text" style="font-size:13px;color:var(--text);line-height:1.85;padding-top:12px;font-weight:400"></div>
-        <!-- 퀵 질문 버튼 -->
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px">
-          <button onclick="homeAiAsk('포트폴리오 리스크 점검해줘')"
-            style="padding:5px 11px;border-radius:16px;border:0.5px solid rgba(180,155,80,0.3);background:rgba(180,155,80,0.06);color:var(--gold);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer">리스크 점검</button>
-          <button onclick="homeAiAsk('이번달 지출 패턴 분석해줘')"
-            style="padding:5px 11px;border-radius:16px;border:0.5px solid rgba(180,155,80,0.3);background:rgba(180,155,80,0.06);color:var(--gold);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer">지출 패턴</button>
-          <button onclick="homeAiAsk('절세 전략 추천해줘')"
-            style="padding:5px 11px;border-radius:16px;border:0.5px solid rgba(180,155,80,0.3);background:rgba(180,155,80,0.06);color:var(--gold);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer">절세 전략</button>
-          <button onclick="homeAiAsk('순자산 목표 달성 전략 알려줘')"
-            style="padding:5px 11px;border-radius:16px;border:0.5px solid rgba(180,155,80,0.3);background:rgba(180,155,80,0.06);color:var(--gold);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer">순자산 전략</button>
-        </div>
         <!-- 직접 입력 -->
         <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
           <input id="home-ai-input" type="text" placeholder="더 물어보기..."
@@ -4483,6 +4472,9 @@ function applyHeaderPadding() {
     h.style.paddingTop = topPad;
     h.style.marginTop = '0';
   });
+  // 홈 화면은 page-header 없이 cards-anchor로 상단 여백 처리
+  const homeAnchor = document.getElementById('home-cards-anchor');
+  if (homeAnchor) homeAnchor.style.paddingTop = topPad;
 }
 
 function goBack() {
@@ -9595,14 +9587,23 @@ function toggleAiComment() {
 
 // AI 티커 카드에서 AI 어드바이저로 자연스럽게 연결
 function homeAiAsk(q) {
+  // 현재 AI 코멘트 내용 캡처
+  var commentEl = document.getElementById('ai-comment-text');
+  var commentText = commentEl ? commentEl.textContent.trim() : '';
+
   goPage('ai', { classList: { add: function(){}, remove: function(){} } });
+
   setTimeout(function() {
-    var chatInput = document.getElementById('chat-input');
-    if (chatInput && q) {
-      chatInput.value = q;
-      sendChat();
+    if (commentText) {
+      // 코멘트를 AI 메시지로 채팅에 추가 (DOM + 히스토리 모두)
+      addMsg('ai', commentText);
+      chatHistory.push({ role: 'assistant', content: commentText });
     }
-  }, 180);
+    if (q) {
+      var chatInput = document.getElementById('chat-input');
+      if (chatInput) { chatInput.value = q; sendChat(); }
+    }
+  }, 200);
 }
 function homeAiAskFromInput() {
   var input = document.getElementById('home-ai-input');
