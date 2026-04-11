@@ -41,8 +41,8 @@
   /* 호환성 유지 aliases */
   --teal: #3b82f6;
   --purple: #3b82f6;
-  --minsuk: #3b82f6;
-  --siyun: #22c55e;
+  --minsuk: #818cf8;
+  --siyun: #fb7185;
   --shadow: rgba(0,0,0,0.4);
   /* 여백 토큰 */
   --space-xs: 4px;
@@ -470,8 +470,8 @@ body[data-theme="dark"] {
   --muted2: #808080;
   --teal: #3b82f6;
   --purple: #3b82f6;
-  --minsuk: #3b82f6;
-  --siyun: #22c55e;
+  --minsuk: #818cf8;
+  --siyun: #fb7185;
   --shadow: rgba(0,0,0,0.4);
 }
 
@@ -499,8 +499,8 @@ body[data-theme="light"] {
   --muted2: #555555;
   --teal: #2563eb;
   --purple: #2563eb;
-  --minsuk: #2563eb;
-  --siyun: #16a34a;
+  --minsuk: #6366f1;
+  --siyun: #f43f5e;
   --shadow: rgba(0,0,0,0.08);
 }
 
@@ -3033,7 +3033,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div id="stk-content-list">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <div style="display:flex;align-items:center;gap:8px">
-        <div id="stk-list-label" style="font-size:12px;color:var(--muted);font-weight:600"></div>
+        <div id="stk-list-label" style="font-size:11px;color:var(--muted2);font-weight:500"></div>
         <!-- 계좌별 뷰: 전체 펼치기/접기 -->
         <button id="stk-expand-all-btn" onclick="toggleAllAccGroups()" style="display:none;font-size:10px;color:var(--muted2);background:none;border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:600;padding:0">
           <span id="stk-expand-all-text">전체 펼치기</span>
@@ -3048,11 +3048,14 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           <button id="stk-view-stk" onclick="setStkViewMode('stock')"
             style="padding:5px 9px;border-radius:6px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:500;cursor:pointer;transition:all .15s;background:transparent;color:var(--muted2)">종목별</button>
         </div>
-        <button id="stk-owner-toggle" onclick="cycleStkOwner()"
-          style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;
-          color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;padding:5px 8px;cursor:pointer;min-width:36px">
-          <span id="stk-owner-toggle-text">통합</span>
-        </button>
+        <div id="stk-owner-seg" style="display:flex;align-items:center;gap:0;flex-shrink:0">
+          <button id="stk-own-all" onclick="setStkOwner('all')"
+            style="padding:5px 8px;border:none;border-bottom:1.5px solid var(--text);background:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;color:var(--text);line-height:1">전체</button>
+          <button id="stk-own-ms" onclick="setStkOwner('minsuk')"
+            style="padding:5px 8px;border:none;border-bottom:1.5px solid transparent;background:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:500;cursor:pointer;color:var(--muted2);line-height:1">나</button>
+          <button id="stk-own-sy" onclick="setStkOwner('siyun')"
+            style="padding:5px 8px;border:none;border-bottom:1.5px solid transparent;background:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:500;cursor:pointer;color:var(--muted2);line-height:1">배우자</button>
+        </div>
         <button onclick="fetchAllPrices()" id="stock-refresh-btn"
           style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;
           color:var(--muted);display:flex;align-items:center;gap:4px;padding:5px 10px;cursor:pointer">
@@ -3236,6 +3239,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           <span id="stock-acctype-hint" style="font-size:11px;color:var(--muted);flex:1">선택해주세요</span>
         </div>
         <div id="stock-acctype-chips" style="display:flex;flex-wrap:wrap;gap:6px;padding-left:68px"></div>
+        <div id="stock-acctype-desc" style="padding-left:68px;margin-top:5px;font-size:10px;color:var(--muted);height:14px"></div>
         <!-- 커스텀 추가 입력 -->
         <div id="stock-acctype-add-row" style="display:none;padding-left:68px;margin-top:8px;gap:6px;align-items:center">
           <input type="text" id="stock-acctype-add-input" placeholder="새 계좌종류 이름"
@@ -9442,11 +9446,11 @@ function applyPartnerNamesToUI() {
   if (txSy) { txSy.textContent = p2; txSy.style.display = p2 ? '' : 'none'; }
   if (txCm) txCm.textContent = cm;
 
-  // 주식 탭 소유자 버튼
-  const stkMs = document.getElementById('stk-owner-minsuk');
-  const stkSy = document.getElementById('stk-owner-siyun');
-  if (stkMs) stkMs.textContent = '👤 ' + p1;
-  if (stkSy) { stkSy.textContent = p2 ? '👤 ' + p2 : ''; stkSy.style.display = p2 ? '' : 'none'; }
+  // 주식 탭 소유자 3-pill
+  const stkOwnMs = document.getElementById('stk-own-ms');
+  const stkOwnSy = document.getElementById('stk-own-sy');
+  if (stkOwnMs) stkOwnMs.textContent = p1;
+  if (stkOwnSy) { stkOwnSy.textContent = p2 || '배우자'; stkOwnSy.style.display = p2 ? '' : 'none'; }
 
   // 가계부 필터 소유자 버튼
   const lfMs = document.getElementById('lf-owner-minsuk');
@@ -12424,32 +12428,15 @@ let currentStkOwner = 'all';
 
 function setStkOwner(owner) {
   currentStkOwner = owner;
-  const toggleText = document.getElementById('stk-owner-toggle-text');
-  if (toggleText) {
-    const labels = { all: '통합', minsuk: getP1Name(), siyun: getP2Name() };
-    toggleText.textContent = labels[owner] || '통합';
-  }
-  const ownerBtn = document.getElementById('stk-owner-toggle');
-  if (ownerBtn) {
-    if (owner === 'minsuk') {
-      ownerBtn.style.color = 'var(--minsuk)';
-      ownerBtn.style.borderColor = 'rgba(59,130,246,.5)';
-      ownerBtn.style.background = 'rgba(59,130,246,.1)';
-      ownerBtn.style.fontWeight = '700';
-    } else if (owner === 'siyun') {
-      ownerBtn.style.color = 'var(--siyun)';
-      ownerBtn.style.borderColor = 'rgba(34,197,94,.5)';
-      ownerBtn.style.background = 'rgba(34,197,94,.1)';
-      ownerBtn.style.fontWeight = '700';
-    } else {
-      ownerBtn.style.color = 'var(--muted2)';
-      ownerBtn.style.borderColor = 'var(--border2)';
-      ownerBtn.style.background = 'var(--surface2)';
-      ownerBtn.style.fontWeight = '600';
-    }
-  }
-  const label = document.getElementById('stk-list-label');
-  if (label) label.textContent = owner === 'all' ? '전체 종목' : owner === 'minsuk' ? getP1Name() + ' 종목' : getP2Name() + ' 종목';
+  // 3-pill 세그먼트 업데이트
+  [['all','all'],['ms','minsuk'],['sy','siyun']].forEach(function(pair) {
+    var btn = document.getElementById('stk-own-' + pair[0]);
+    if (!btn) return;
+    var active = pair[1] === owner;
+    btn.style.color = active ? 'var(--text)' : 'var(--muted2)';
+    btn.style.fontWeight = active ? '700' : '500';
+    btn.style.borderBottom = active ? '1.5px solid var(--text)' : '1.5px solid transparent';
+  });
   renderStockList();
   updateStockSummary();
   if (currentStkTab === 'chart') renderStockCharts();
@@ -12547,7 +12534,7 @@ function toggleAccTypeExpand(accType) {
 var stockAccTypeOrder = load('stk-acc-order', []); // 계좌별 뷰 그룹 순서
 
 // ── 계좌종류 / 증권사 관리
-var STOCK_DEFAULT_ACC_TYPES = ['일반', 'ISA', 'IRP', '연금저축'];
+var STOCK_DEFAULT_ACC_TYPES = ['위탁', 'ISA', 'IRP', '연금저축'];
 var stockAccountTypes = load('stock-account-types', STOCK_DEFAULT_ACC_TYPES.slice());
 var STOCK_DEFAULT_BROKERS = ['신한', 'KB', '미래에셋', '삼성', '한투', '키움', '토스', '카카오'];
 var stockBrokers = load('stock-brokers', STOCK_DEFAULT_BROKERS.slice());
@@ -12580,6 +12567,16 @@ function renderAccTypeChips() {
   // hint 업데이트
   var hint = document.getElementById('stock-acctype-hint');
   if (hint) hint.textContent = currentStockAccType ? currentStockAccType : '선택해주세요';
+  // 계좌 설명
+  var descMap = {
+    '위탁': '일반 증권계좌 (HTS/MTS)',
+    '일반': '일반 증권계좌',
+    'ISA': '절세 만능통장 · 비과세',
+    'IRP': '퇴직·개인연금 · 세액공제',
+    '연금저축': '연금저축펀드 · 세액공제'
+  };
+  var descEl = document.getElementById('stock-acctype-desc');
+  if (descEl) descEl.textContent = currentStockAccType ? (descMap[currentStockAccType] || '') : '';
 }
 
 function renderBrokerChips() {
@@ -13425,6 +13422,9 @@ function renderStockList() {
   var wrap = document.getElementById('stock-list');
   if (!wrap) return;
   var filtered = getFilteredStocks();
+  // 종목 수 표시
+  var lbl = document.getElementById('stk-list-label');
+  if (lbl) lbl.textContent = filtered.length ? filtered.length + '종목' : '';
 
   if (!filtered.length) {
     var ownerLabel = currentStkOwner === 'minsuk' ? getP1Name() : currentStkOwner === 'siyun' ? getP2Name() : '';
@@ -13465,10 +13465,10 @@ function renderStockList() {
     var pnlStr  = cp > 0 ? (isUp?'+':'') + fmtAmt(pnl, isUS) + ' (' + pct.toFixed(1) + '%)' : '-';
 
     var ownerBadge = (currentStkOwner === 'all' && s.owner)
-      ? '<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;margin-left:4px;flex-shrink:0;'
-        + 'background:' + (s.owner==='minsuk'?'rgba(59,130,246,.12)':'rgba(34,197,94,.12)') + ';'
+      ? '<span style="font-size:9px;font-weight:600;padding:1px 5px;border-radius:6px;margin-left:4px;flex-shrink:0;'
+        + 'background:transparent;'
         + 'color:' + (s.owner==='minsuk'?'var(--minsuk)':'var(--siyun)') + ';'
-        + 'border:0.5px solid ' + (s.owner==='minsuk'?'rgba(59,130,246,.3)':'rgba(34,197,94,.3)') + '">'
+        + 'border:0.5px solid ' + (s.owner==='minsuk'?'rgba(129,140,248,.45)':'rgba(251,113,133,.45)') + '">'
         + (s.owner==='minsuk'?getP1Name():getP2Name()) + '</span>' : '';
 
     // 종목별 모드에서 계좌종류 배지, 증권사 텍스트
