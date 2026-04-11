@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M&S Wealth — 컬러 시안</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Noto Sans KR', sans-serif; background: #1a1a1a; padding: 24px 16px 48px; }
+
+h1 { color: #fff; font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; opacity: 0.5; }
+h2 { color: #fff; font-size: 22px; font-weight: 900; margin-bottom: 32px; }
+
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 900px; margin: 0 auto; }
+@media (max-width: 640px) { .modes { grid-template-columns: 1fr; } }
+
+.mode-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+
+/* ── LIGHT MODE ── */
+.light { background: #f1f2f4; border-radius: 28px; padding: 20px; overflow: hidden; }
+.light .mode-label { color: #9aa0aa; }
+
+.light .card { background: #ffffff; border-radius: 20px; padding: 20px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+.light .card-sm { background: #ffffff; border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+
+/* 순자산 카드 — light */
+.light .net-label { font-size: 10px; color: #8a8a95; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
+.light .net-value { font-size: 44px; font-weight: 900; color: #111111; line-height: 1; letter-spacing: -2px; }
+.light .net-unit { font-size: 16px; color: #8a8a95; font-weight: 400; }
+.light .badge-up { display: inline-flex; align-items: center; gap: 4px; background: #eaecef; color: #4a4a5a; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+.light .badge-down { display: inline-flex; align-items: center; gap: 4px; background: rgba(220,38,38,0.08); color: #dc2626; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+
+.light .sub-label { font-size: 9px; color: #8a8a95; font-weight: 500; margin-bottom: 3px; }
+.light .sub-value { font-size: 14px; font-weight: 800; color: #111111; }
+.light .sub-value.red { color: #dc2626; }
+
+/* 비율 바 — light */
+.light .ratio-bar { position: relative; height: 20px; background: #eaecef; border-radius: 6px; overflow: hidden; margin-top: 10px; }
+.light .ratio-asset { position: absolute; left: 0; top: 0; height: 100%; width: 82%; background: #dde0e5; border-radius: 6px; }
+.light .ratio-debt { position: absolute; right: 0; top: 0; height: 100%; width: 18%; background: rgba(220,38,38,0.25); border-radius: 6px; }
+.light .ratio-txt-l { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 10px; font-weight: 700; color: #6a6a75; }
+.light .ratio-txt-r { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 10px; font-weight: 700; color: rgba(220,38,38,0.7); }
+
+/* 버튼 — light */
+.light .btn-primary { background: #1e3a52; color: #fff; border: none; border-radius: 12px; padding: 12px 20px; font-family: 'Noto Sans KR', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; width: 100%; margin-bottom: 8px; }
+.light .btn-secondary { background: #eaecef; color: #4a4a5a; border: none; border-radius: 12px; padding: 12px 20px; font-family: 'Noto Sans KR', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; margin-bottom: 8px; }
+
+/* AI 카드 — light */
+.light .ai-card { background: #ffffff; border: 1.5px solid #1e3a52; border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; position: relative; overflow: hidden; }
+.light .ai-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(30,58,82,0.04), transparent); }
+.light .ai-dot { width: 6px; height: 6px; border-radius: 50%; background: #b8922a; display: inline-block; margin-right: 6px; }
+.light .ai-label { font-size: 8px; font-weight: 700; letter-spacing: 2px; color: #b8922a; text-transform: uppercase; }
+.light .ai-text { font-size: 12px; color: #4a4a5a; margin-top: 4px; line-height: 1.6; }
+
+/* 탭 바 — light */
+.light .nav { background: rgba(255,255,255,0.97); border-top: 1px solid rgba(0,0,0,0.07); border-radius: 0 0 20px 20px; display: flex; padding: 10px 0 4px; margin: 10px -20px -20px; }
+.light .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0; font-size: 10px; font-weight: 500; color: #9aa0aa; }
+.light .nav-item.active { color: #1e3a52; font-weight: 700; }
+.light .nav-icon { font-size: 18px; }
+
+/* 칩 — light */
+.light .chip { display: inline-block; padding: 4px 10px; border-radius: 16px; font-size: 11px; font-weight: 700; border: 1.5px solid; margin-right: 6px; }
+.light .chip.active { background: rgba(30,58,82,0.1); border-color: #1e3a52; color: #1e3a52; }
+.light .chip.inactive { background: transparent; border-color: rgba(0,0,0,0.12); color: #8a8a95; }
+
+/* 손익 바 — light */
+.light .pnl-bar-wrap { margin-top: 6px; height: 4px; background: #eaecef; border-radius: 2px; overflow: hidden; }
+.light .pnl-bar-pos { height: 100%; background: #1e3a52; border-radius: 2px; }
+.light .pnl-bar-neg { height: 100%; background: #dc2626; border-radius: 2px; }
+
+
+/* ── DARK MODE ── */
+.dark { background: #0e1014; border-radius: 28px; padding: 20px; overflow: hidden; }
+.dark .mode-label { color: #4a5060; }
+
+.dark .card { background: #16191e; border-radius: 20px; padding: 20px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); }
+.dark .card-sm { background: #16191e; border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); }
+
+/* 순자산 카드 — dark */
+.dark .net-label { font-size: 10px; color: #4a5060; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
+.dark .net-value { font-size: 44px; font-weight: 900; color: #eef0f3; line-height: 1; letter-spacing: -2px; }
+.dark .net-unit { font-size: 16px; color: #4a5060; font-weight: 400; }
+.dark .badge-up { display: inline-flex; align-items: center; gap: 4px; background: #1e2228; color: #7a8090; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+.dark .badge-down { display: inline-flex; align-items: center; gap: 4px; background: rgba(239,68,68,0.09); color: rgba(239,68,68,0.75); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+
+.dark .sub-label { font-size: 9px; color: #4a5060; font-weight: 500; margin-bottom: 3px; }
+.dark .sub-value { font-size: 14px; font-weight: 800; color: #eef0f3; }
+.dark .sub-value.red { color: #ef4444; }
+
+/* 비율 바 — dark */
+.dark .ratio-bar { position: relative; height: 20px; background: #1e2228; border-radius: 6px; overflow: hidden; margin-top: 10px; }
+.dark .ratio-asset { position: absolute; left: 0; top: 0; height: 100%; width: 82%; background: #252b33; border-radius: 6px; }
+.dark .ratio-debt { position: absolute; right: 0; top: 0; height: 100%; width: 18%; background: rgba(239,68,68,0.25); border-radius: 6px; }
+.dark .ratio-txt-l { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 10px; font-weight: 700; color: #7a8090; }
+.dark .ratio-txt-r { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 10px; font-weight: 700; color: rgba(239,68,68,0.65); }
+
+/* 버튼 — dark */
+.dark .btn-primary { background: #4a8ab8; color: #fff; border: none; border-radius: 12px; padding: 12px 20px; font-family: 'Noto Sans KR', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; width: 100%; margin-bottom: 8px; }
+.dark .btn-secondary { background: #1e2228; color: #7a8090; border: none; border-radius: 12px; padding: 12px 20px; font-family: 'Noto Sans KR', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; margin-bottom: 8px; }
+
+/* AI 카드 — dark */
+.dark .ai-card { background: #16191e; border: 1px solid rgba(201,168,76,0.25); border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; position: relative; overflow: hidden; }
+.dark .ai-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(201,168,76,0.04), transparent); }
+.dark .ai-dot { width: 6px; height: 6px; border-radius: 50%; background: #c9a84c; display: inline-block; margin-right: 6px; }
+.dark .ai-label { font-size: 8px; font-weight: 700; letter-spacing: 2px; color: rgba(201,168,76,0.6); text-transform: uppercase; }
+.dark .ai-text { font-size: 12px; color: #7a8090; margin-top: 4px; line-height: 1.6; }
+
+/* 탭 바 — dark */
+.dark .nav { background: #0e1014; border-top: 1px solid rgba(255,255,255,0.05); border-radius: 0 0 20px 20px; display: flex; padding: 10px 0 4px; margin: 10px -20px -20px; }
+.dark .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0; font-size: 10px; font-weight: 500; color: #4a5060; }
+.dark .nav-item.active { color: #4a8ab8; font-weight: 700; }
+.dark .nav-icon { font-size: 18px; }
+
+/* 칩 — dark */
+.dark .chip { display: inline-block; padding: 4px 10px; border-radius: 16px; font-size: 11px; font-weight: 700; border: 1.5px solid; margin-right: 6px; }
+.dark .chip.active { background: rgba(74,138,184,0.15); border-color: #4a8ab8; color: #4a8ab8; }
+.dark .chip.inactive { background: transparent; border-color: rgba(255,255,255,0.1); color: #4a5060; }
+
+/* 손익 바 — dark */
+.dark .pnl-bar-wrap { margin-top: 6px; height: 4px; background: #1e2228; border-radius: 2px; overflow: hidden; }
+.dark .pnl-bar-pos { height: 100%; background: #4a8ab8; border-radius: 2px; }
+.dark .pnl-bar-neg { height: 100%; background: #ef4444; border-radius: 2px; }
+
+/* 공통 */
+.section-title { font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+.light .section-title { color: #111; }
+.dark .section-title { color: #eef0f3; }
+
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.mini-card { border-radius: 14px; padding: 14px; }
+.light .mini-card { background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.dark .mini-card { background: #16191e; border: 1px solid rgba(255,255,255,0.05); }
+.mini-label { font-size: 10px; margin-bottom: 6px; }
+.light .mini-label { color: #8a8a95; }
+.dark .mini-label { color: #4a5060; }
+.mini-value { font-size: 18px; font-weight: 900; }
+.light .mini-value { color: #111; }
+.dark .mini-value { color: #eef0f3; }
+.mini-sub { font-size: 10px; margin-top: 2px; }
+.light .mini-sub.pos { color: #1e3a52; }
+.dark .mini-sub.pos { color: #4a8ab8; }
+.mini-sub.neg { color: #ef4444; }
+
+/* 팔레트 섹션 */
+.palette { max-width: 900px; margin: 0 auto 32px; }
+.palette-title { color: #fff; font-size: 13px; font-weight: 700; margin-bottom: 14px; opacity: 0.6; }
+.swatches { display: flex; gap: 10px; flex-wrap: wrap; }
+.swatch { border-radius: 12px; padding: 12px 16px; min-width: 100px; }
+.swatch-color { width: 36px; height: 36px; border-radius: 8px; margin-bottom: 8px; }
+.swatch-name { font-size: 10px; font-weight: 700; color: #fff; opacity: 0.7; }
+.swatch-hex { font-size: 10px; color: #fff; opacity: 0.4; margin-top: 2px; font-family: monospace; }
+.swatch-role { font-size: 9px; color: #fff; opacity: 0.3; margin-top: 1px; }
+</style>
+</head>
+<body>
+
+<div style="max-width:900px;margin:0 auto 28px">
+  <h1>M&S Wealth AI</h1>
+  <h2 style="color:#fff">컬러 시안 — Poseidon + 쿨 뉴트럴</h2>
+</div>
+
+<!-- 팔레트 -->
+<div class="palette">
+  <div class="palette-title">COLOR PALETTE</div>
+  <div class="swatches">
+    <div class="swatch" style="background:#16191e">
+      <div class="swatch-color" style="background:#1e3a52"></div>
+      <div class="swatch-name">Poseidon</div>
+      <div class="swatch-hex">#1e3a52</div>
+      <div class="swatch-role">라이트 포인트</div>
+    </div>
+    <div class="swatch" style="background:#16191e">
+      <div class="swatch-color" style="background:#4a8ab8"></div>
+      <div class="swatch-name">Poseidon Light</div>
+      <div class="swatch-hex">#4a8ab8</div>
+      <div class="swatch-role">다크 포인트</div>
+    </div>
+    <div class="swatch" style="background:#16191e">
+      <div class="swatch-color" style="background:#c9a84c"></div>
+      <div class="swatch-name">Gold</div>
+      <div class="swatch-hex">#c9a84c</div>
+      <div class="swatch-role">AI 전용 (다크)</div>
+    </div>
+    <div class="swatch" style="background:#16191e">
+      <div class="swatch-color" style="background:#b8922a"></div>
+      <div class="swatch-name">Gold</div>
+      <div class="swatch-hex">#b8922a</div>
+      <div class="swatch-role">AI 전용 (라이트)</div>
+    </div>
+    <div class="swatch" style="background:#16191e">
+      <div class="swatch-color" style="background:#f1f2f4"></div>
+      <div class="swatch-name">BG Light</div>
+      <div class="swatch-hex">#f1f2f4</div>
+      <div class="swatch-role">라이트 배경</div>
+    </div>
+    <div class="swatch" style="background:#16191e">
+      <div class="swatch-color" style="background:#0e1014"></div>
+      <div class="swatch-name">BG Dark</div>
+      <div class="swatch-hex">#0e1014</div>
+      <div class="swatch-role">다크 배경</div>
+    </div>
+  </div>
+</div>
+
+<!-- 라이트 / 다크 나란히 -->
+<div class="modes">
+
+  <!-- LIGHT -->
+  <div class="light">
+    <div class="mode-label">LIGHT MODE</div>
+
+    <!-- 순자산 카드 -->
+    <div class="card">
+      <div class="net-label">순자산</div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+        <div>
+          <div style="display:flex;align-items:baseline;gap:4px">
+            <div class="net-value">4.32</div>
+            <div class="net-unit">억</div>
+          </div>
+        </div>
+        <div class="badge-up">▲ +0.18억</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;margin-top:14px">
+        <div>
+          <div class="sub-label">총자산</div>
+          <div class="sub-value">5.20억</div>
+        </div>
+        <div style="text-align:right">
+          <div class="sub-label">부채</div>
+          <div class="sub-value red">0.88억</div>
+        </div>
+      </div>
+      <div class="ratio-bar">
+        <div class="ratio-asset"></div>
+        <div class="ratio-debt"></div>
+        <div class="ratio-txt-l">자산 82%</div>
+        <div class="ratio-txt-r">부채 18%</div>
+      </div>
+    </div>
+
+    <!-- AI 카드 -->
+    <div class="ai-card">
+      <div style="display:flex;align-items:center">
+        <span class="ai-dot"></span>
+        <span class="ai-label">AI INSIGHT</span>
+      </div>
+      <div class="ai-text">이번 달 지출이 전월 대비 12% 감소했어요. 저축 여력이 늘고 있습니다.</div>
+    </div>
+
+    <!-- 종목별 손익 (미니) -->
+    <div class="card-sm">
+      <div class="section-title">종목별 손익</div>
+      <div style="margin-bottom:8px">
+        <span class="chip active">전체</span>
+        <span class="chip inactive">나</span>
+        <span class="chip inactive">배우자</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:12px;color:#6a6a75">삼성전자</span>
+        <span style="font-size:12px;font-weight:700;color:#1e3a52">+8.4%</span>
+      </div>
+      <div class="pnl-bar-wrap"><div class="pnl-bar-pos" style="width:65%"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;margin-bottom:6px">
+        <span style="font-size:12px;color:#6a6a75">AAPL</span>
+        <span style="font-size:12px;font-weight:700;color:#dc2626">-2.1%</span>
+      </div>
+      <div class="pnl-bar-wrap"><div class="pnl-bar-neg" style="width:20%"></div></div>
+    </div>
+
+    <!-- 버튼 -->
+    <button class="btn-primary">시세 새로고침</button>
+    <button class="btn-secondary">종목 추가</button>
+
+    <!-- 탭 바 -->
+    <div class="nav">
+      <div class="nav-item active"><div class="nav-icon">🏠</div>홈</div>
+      <div class="nav-item"><div class="nav-icon">📒</div>가계부</div>
+      <div class="nav-item"><div class="nav-icon">🏦</div>자산</div>
+      <div class="nav-item"><div class="nav-icon">📈</div>주식</div>
+      <div class="nav-item"><div class="nav-icon">⚙️</div>설정</div>
+    </div>
+  </div>
+
+  <!-- DARK -->
+  <div class="dark">
+    <div class="mode-label">DARK MODE</div>
+
+    <!-- 순자산 카드 -->
+    <div class="card">
+      <div class="net-label">순자산</div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+        <div>
+          <div style="display:flex;align-items:baseline;gap:4px">
+            <div class="net-value">4.32</div>
+            <div class="net-unit">억</div>
+          </div>
+        </div>
+        <div class="badge-up">▲ +0.18억</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;margin-top:14px">
+        <div>
+          <div class="sub-label">총자산</div>
+          <div class="sub-value">5.20억</div>
+        </div>
+        <div style="text-align:right">
+          <div class="sub-label">부채</div>
+          <div class="sub-value red">0.88억</div>
+        </div>
+      </div>
+      <div class="ratio-bar">
+        <div class="ratio-asset"></div>
+        <div class="ratio-debt"></div>
+        <div class="ratio-txt-l" style="color:#7a8090">자산 82%</div>
+        <div class="ratio-txt-r">부채 18%</div>
+      </div>
+    </div>
+
+    <!-- AI 카드 -->
+    <div class="ai-card">
+      <div style="display:flex;align-items:center">
+        <span class="ai-dot"></span>
+        <span class="ai-label">AI INSIGHT</span>
+      </div>
+      <div class="ai-text">이번 달 지출이 전월 대비 12% 감소했어요. 저축 여력이 늘고 있습니다.</div>
+    </div>
+
+    <!-- 종목별 손익 (미니) -->
+    <div class="card-sm">
+      <div class="section-title">종목별 손익</div>
+      <div style="margin-bottom:8px">
+        <span class="chip active">전체</span>
+        <span class="chip inactive">나</span>
+        <span class="chip inactive">배우자</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:12px;color:#7a8090">삼성전자</span>
+        <span style="font-size:12px;font-weight:700;color:#4a8ab8">+8.4%</span>
+      </div>
+      <div class="pnl-bar-wrap"><div class="pnl-bar-pos" style="width:65%"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;margin-bottom:6px">
+        <span style="font-size:12px;color:#7a8090">AAPL</span>
+        <span style="font-size:12px;font-weight:700;color:#ef4444">-2.1%</span>
+      </div>
+      <div class="pnl-bar-wrap"><div class="pnl-bar-neg" style="width:20%"></div></div>
+    </div>
+
+    <!-- 버튼 -->
+    <button class="btn-primary">시세 새로고침</button>
+    <button class="btn-secondary">종목 추가</button>
+
+    <!-- 탭 바 -->
+    <div class="nav">
+      <div class="nav-item active"><div class="nav-icon">🏠</div>홈</div>
+      <div class="nav-item"><div class="nav-icon">📒</div>가계부</div>
+      <div class="nav-item"><div class="nav-icon">🏦</div>자산</div>
+      <div class="nav-item"><div class="nav-icon">📈</div>주식</div>
+      <div class="nav-item"><div class="nav-icon">⚙️</div>설정</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 컬러 시스템 요약 -->
+<div style="max-width:900px;margin:32px auto 0;padding:20px;background:#16191e;border-radius:20px;border:1px solid rgba(255,255,255,0.06)">
+  <div style="color:#4a5060;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px">COLOR SYSTEM SUMMARY</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div>
+      <div style="color:#7a8090;font-size:11px;font-weight:600;margin-bottom:8px">LIGHT</div>
+      <div style="font-size:12px;color:#4a5060;line-height:2">
+        BG: <span style="color:#eef0f3">#f1f2f4</span> (쿨 라이트 그레이)<br>
+        카드: <span style="color:#eef0f3">#ffffff</span><br>
+        포인트: <span style="color:#1e3a52;background:#1e3a52;border-radius:3px;padding:0 4px">■</span> <span style="color:#eef0f3">#1e3a52</span> Poseidon<br>
+        AI: <span style="color:#b8922a">■</span> <span style="color:#eef0f3">#b8922a</span> Gold<br>
+        상승손익: Poseidon 포인트<br>
+        하락손익: <span style="color:#dc2626">#dc2626</span> Red
+      </div>
+    </div>
+    <div>
+      <div style="color:#7a8090;font-size:11px;font-weight:600;margin-bottom:8px">DARK</div>
+      <div style="font-size:12px;color:#4a5060;line-height:2">
+        BG: <span style="color:#eef0f3">#0e1014</span> (쿨 다크)<br>
+        카드: <span style="color:#eef0f3">#16191e</span><br>
+        포인트: <span style="color:#4a8ab8">■</span> <span style="color:#eef0f3">#4a8ab8</span> Poseidon Light<br>
+        AI: <span style="color:#c9a84c">■</span> <span style="color:#eef0f3">#c9a84c</span> Gold<br>
+        상승손익: Poseidon Light<br>
+        하락손익: <span style="color:#ef4444">#ef4444</span> Red
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.05);font-size:11px;color:#4a5060;line-height:1.8">
+    ※ 포인트 색(Poseidon)은 탭 활성, 버튼, 칩 선택, 손익 포지티브에만 사용<br>
+    ※ 골드는 AI 카드 테두리·도트·레이블에만 사용<br>
+    ※ 주식 한국 컨벤션(상승=적·하락=청)은 주식 탭에서만 유지, 일반 손익은 Poseidon/Red
+  </div>
+</div>
+
+</body>
+</html>
