@@ -1533,13 +1533,13 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
 
       <!-- 비율 바 -->
-      <div style="position:relative;height:22px;background:rgba(255,255,255,0.07);border-radius:6px;overflow:hidden;margin-bottom:0">
-        <div id="h-asset-bar" style="position:absolute;left:0;top:0;height:100%;background:rgba(255,255,255,0.13);border-radius:6px;transition:width .8s ease;width:100%"></div>
+      <div style="position:relative;height:22px;background:var(--surface2);border-radius:6px;overflow:hidden;margin-bottom:0">
+        <div id="h-asset-bar" style="position:absolute;left:0;top:0;height:100%;background:var(--surface3);border-radius:6px;transition:width .8s ease;width:100%"></div>
         <div id="h-debt-bar" style="position:absolute;right:0;top:0;height:100%;background:rgba(239,68,68,0.28);border-radius:6px;transition:width .8s ease;width:0%"></div>
         <div style="position:absolute;left:10px;top:50%;transform:translateY(-50%);display:flex;align-items:baseline;gap:3px;z-index:1">
-          <span style="font-size:9px;color:rgba(255,255,255,0.35);font-weight:500">자산</span>
-          <span id="h-asset-ratio" style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.65)">—</span>
-          <span style="font-size:9px;color:rgba(255,255,255,0.3)">%</span>
+          <span style="font-size:9px;color:var(--muted2);font-weight:500">자산</span>
+          <span id="h-asset-ratio" style="font-size:11px;font-weight:700;color:var(--text2)">—</span>
+          <span style="font-size:9px;color:var(--muted2)">%</span>
         </div>
         <div style="position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;align-items:baseline;gap:3px;z-index:1">
           <span style="font-size:9px;color:rgba(239,68,68,0.55);font-weight:500">부채</span>
@@ -4922,8 +4922,8 @@ function updateHomeFromItems(rec) {
     if (prev) {
       const diff = rec.net - prev.net;
       const sign = diff >= 0 ? '+' : '';
-      const color = diff >= 0 ? 'rgba(255,255,255,0.75)' : 'rgba(239,68,68,0.75)';
-      const bg = diff >= 0 ? 'rgba(255,255,255,0.07)' : 'rgba(239,68,68,0.09)';
+      const color = diff >= 0 ? 'var(--text2)' : 'var(--red)';
+      const bg = diff >= 0 ? 'var(--surface2)' : 'rgba(239,68,68,0.09)';
       const arrow = diff >= 0 ? '▲' : '▼';
       changeBadge.innerHTML = '<span style="display:inline-flex;align-items:center;gap:5px;background:' + bg + ';color:' + color + ';font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px">'
         + '<sup style="font-size:8px;font-weight:500;opacity:0.65;vertical-align:super;line-height:0">전월 대비</sup> ' + arrow + ' ' + sign + (diff/10000).toFixed(2) + '억</span>';
@@ -10704,8 +10704,8 @@ function setDonutTab(tab) {
       const prev = assetHistory[assetHistory.length - 2];
       const diff = latest.net - prev.net;
       const sign = diff >= 0 ? '+' : '';
-      const color = diff >= 0 ? 'rgba(255,255,255,0.75)' : 'rgba(239,68,68,0.75)';
-      const bg = diff >= 0 ? 'rgba(255,255,255,0.07)' : 'rgba(239,68,68,0.09)';
+      const color = diff >= 0 ? 'var(--text2)' : 'var(--red)';
+      const bg = diff >= 0 ? 'var(--surface2)' : 'rgba(239,68,68,0.09)';
       const arrow = diff >= 0 ? '▲' : '▼';
       changeBadge.innerHTML = '<span style="display:inline-flex;align-items:center;gap:5px;background:' + bg + ';color:' + color + ';font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px"><sup style="font-size:8px;font-weight:500;opacity:0.65;vertical-align:super;line-height:0">전월 대비</sup> ' + arrow + ' ' + sign + (diff/10000).toFixed(2) + '억</span>';
     } else if (changeBadge && tab !== 'all') {
