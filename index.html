@@ -14,18 +14,18 @@
 /* ── 다크 모드 기본 ── */
 :root {
   --sat: env(safe-area-inset-top, 0px);
-  --bg: #0f0f0f;
-  --surface: #181818;
-  --surface2: #212121;
-  --surface3: #2a2a2a;
+  --bg: #0e1014;
+  --surface: #16191e;
+  --surface2: #1e2228;
+  --surface3: #252b33;
   --border: rgba(255,255,255,0.06);
   --border2: rgba(255,255,255,0.10);
   /* 건메탈 accent */
   --accent: #4a4a48;
   --acc-bright: #6a6a68;
   --acc-line: rgba(90,90,86,0.5);
-  /* 액센트 4색 시스템 */
-  --blue: #3b82f6;
+  /* 액센트 시스템 — Poseidon + Gold(AI전용) */
+  --blue: #5a9fc4;
   --green: #22c55e;
   --red: #ef4444;
   --gold: #c9a84c;
@@ -33,15 +33,15 @@
   --up: #d95555;
   --down: #4a80d4;
   /* 텍스트 위계 */
-  --text: #eeeeee;
-  --text2: #a0a0a0;
-  --text3: #606060;
-  --muted: #505050;
-  --muted2: #808080;
-  /* 호환성 유지 aliases */
-  --teal: #3b82f6;
-  --purple: #3b82f6;
-  --minsuk: #818cf8;
+  --text: #eef0f3;
+  --text2: #9aa0aa;
+  --text3: #555e6a;
+  --muted: #4a5060;
+  --muted2: #7a8090;
+  /* aliases */
+  --teal: #5a9fc4;
+  --purple: #5a9fc4;
+  --minsuk: #7ab8d8;
   --siyun: #fb7185;
   --shadow: rgba(0,0,0,0.4);
   /* 여백 토큰 */
@@ -55,30 +55,30 @@
 /* ── 라이트 모드 ── */
 @media (prefers-color-scheme: light) {
   :root {
-    --bg: #f4f4f4;
+    --bg: #f1f2f4;
     --surface: #ffffff;
-    --surface2: #efefef;
-    --surface3: #e8e8ea;
+    --surface2: #eaecef;
+    --surface3: #e0e2e6;
     --border: rgba(0,0,0,0.07);
     --border2: rgba(0,0,0,0.12);
     --accent: #2a2a28;
     --acc-bright: #484846;
     --acc-line: rgba(40,40,36,0.3);
-    --blue: #2563eb;
+    --blue: #1e3a52;
     --green: #16a34a;
     --red: #dc2626;
-    --gold: #a07830;
+    --gold: #b8922a;
     --up: #cc3333;
     --down: #2255cc;
     --text: #111111;
-    --text2: #555555;
+    --text2: #4a4a5a;
     --text3: #999999;
-    --muted: #777777;
-    --muted2: #555555;
-    --teal: #2563eb;
-    --purple: #2563eb;
-    --minsuk: #2563eb;
-    --siyun: #16a34a;
+    --muted: #8a8a95;
+    --muted2: #6a6a75;
+    --teal: #1e3a52;
+    --purple: #1e3a52;
+    --minsuk: #1e3a52;
+    --siyun: #f43f5e;
     --shadow: rgba(0,0,0,0.08);
   }
   body::before {
@@ -138,7 +138,7 @@ body::before {
   -webkit-tap-highlight-color: transparent;
 }
 .nav-item .icon { width:22px; height:22px; line-height:1; display:block; }
-.nav-item.active { color: #b8b8b6; filter: none; }
+.nav-item.active { color: var(--blue); filter: none; }
 /* 활성 탭 상단 마커 */
 * {
   -webkit-tap-highlight-color: transparent;
@@ -162,8 +162,9 @@ input, textarea, select {
   position: absolute;
   top: 0; left: 50%; transform: translateX(-50%);
   width: 24px; height: 2px;
-  background: linear-gradient(90deg, rgba(184,154,80,0.6), #b8b8b6, rgba(184,154,80,0.6));
+  background: var(--blue);
   border-radius: 0 0 3px 3px;
+  opacity: 0.7;
 }
 /* 탭 누를 때 튕기는 효과 */
 .nav-item:active { transform: scale(0.88); }
@@ -429,18 +430,18 @@ input, textarea, select {
 @media (prefers-color-scheme: light) {
   body:not([data-theme="dark"]) .siri-card-inner { background: #ffffff; }
   body:not([data-theme="dark"]) .siri-card { background: linear-gradient(270deg, #3a3630, #c9a84c, #e8d9a0, #c9a84c, #3a3630); background-size:300% 300%; }
-  .sum-box.net .val { color: #2563eb !important; }
-  .sum-box.net::after { background: #2563eb !important; opacity: 0.8 !important; }
-  .nav-item.active { color: #484846 !important; filter: none !important; }
-  .nav-item.active::before { background: linear-gradient(90deg, rgba(154,120,56,0.5), #7a7876, rgba(154,120,56,0.5)) !important; box-shadow: none !important; }
+  .sum-box.net .val { color: #1e3a52 !important; }
+  .sum-box.net::after { background: #1e3a52 !important; opacity: 0.8 !important; }
+  .nav-item.active { color: #1e3a52 !important; filter: none !important; }
+  .nav-item.active::before { background: #1e3a52 !important; opacity: 0.6 !important; box-shadow: none !important; }
   .page-header h1 { filter: none !important; color: #111111 !important; }
-  .btn-primary { background: #111111 !important; color: #ffffff !important; border: none !important; }
-  .active-chip { background: rgba(74,74,72,0.08) !important; color: #484846 !important; border: 0.5px solid rgba(74,74,72,0.2) !important; }
-  .inp-group input:focus, .ge-group input:focus { border-color: #2a2a28 !important; box-shadow: 0 0 0 3px rgba(74,74,72,0.08) !important; }
+  .btn-primary { background: #1e3a52 !important; color: #ffffff !important; border: none !important; }
+  .active-chip { background: rgba(30,58,82,0.08) !important; color: #1e3a52 !important; border: 0.5px solid rgba(30,58,82,0.2) !important; }
+  .inp-group input:focus, .ge-group input:focus { border-color: #1e3a52 !important; box-shadow: 0 0 0 3px rgba(30,58,82,0.08) !important; }
   #home-wealth-text { color: #999999 !important; }
   #home-ai-text { color: #a8874a !important; filter: none !important; }
-  .chat-send { background: #2563eb !important; }
-  .goal-pct { color: #2563eb !important; }
+  .chat-send { background: #1e3a52 !important; }
+  .goal-pct { color: #1e3a52 !important; }
   ::-webkit-scrollbar-thumb { background: #d4d4d4; }
 }
 
@@ -453,53 +454,53 @@ body.modal-open {
 
 /* ── 다크 강제 모드 ── */
 body[data-theme="dark"] {
-  --bg: #080808;
-  --surface: #111111;
-  --surface2: #181818;
-  --surface3: #202020;
+  --bg: #0e1014;
+  --surface: #16191e;
+  --surface2: #1e2228;
+  --surface3: #252b33;
   --border: rgba(255,255,255,0.06);
   --border2: rgba(255,255,255,0.10);
-  --blue: #3b82f6;
+  --blue: #5a9fc4;
   --green: #22c55e;
   --red: #ef4444;
-  --gold: #f59e0b;
-  --text: #f0f0f0;
-  --text2: #a0a0a0;
-  --text3: #606060;
-  --muted: #505050;
-  --muted2: #808080;
-  --teal: #3b82f6;
-  --purple: #3b82f6;
-  --minsuk: #818cf8;
+  --gold: #c9a84c;
+  --text: #eef0f3;
+  --text2: #9aa0aa;
+  --text3: #555e6a;
+  --muted: #4a5060;
+  --muted2: #7a8090;
+  --teal: #5a9fc4;
+  --purple: #5a9fc4;
+  --minsuk: #7ab8d8;
   --siyun: #fb7185;
   --shadow: rgba(0,0,0,0.4);
 }
 
 /* ── 라이트 강제 모드 ── */
 body[data-theme="light"] {
-  --bg: #f4f4f4;
+  --bg: #f1f2f4;
   --surface: #ffffff;
-  --surface2: #efefef;
-  --surface3: #e8e8ea;
+  --surface2: #eaecef;
+  --surface3: #e0e2e6;
   --border: rgba(0,0,0,0.07);
   --border2: rgba(0,0,0,0.12);
   --accent: #2a2a28;
   --acc-bright: #484846;
   --acc-line: rgba(40,40,36,0.3);
-  --blue: #2563eb;
+  --blue: #1e3a52;
   --green: #16a34a;
   --red: #dc2626;
-  --gold: #a07830;
+  --gold: #b8922a;
   --up: #cc3333;
   --down: #2255cc;
   --text: #111111;
-  --text2: #555555;
+  --text2: #4a4a5a;
   --text3: #999999;
-  --muted: #777777;
-  --muted2: #555555;
-  --teal: #2563eb;
-  --purple: #2563eb;
-  --minsuk: #6366f1;
+  --muted: #8a8a95;
+  --muted2: #6a6a75;
+  --teal: #1e3a52;
+  --purple: #1e3a52;
+  --minsuk: #1e3a52;
   --siyun: #f43f5e;
   --shadow: rgba(0,0,0,0.08);
 }
@@ -630,9 +631,9 @@ select:active {
   box-shadow: 0 4px 20px rgba(239,68,68,.4);
 }
 .toast.toast-info {
-  background: linear-gradient(135deg, #60a5fa, #2563eb);
+  background: linear-gradient(135deg, #5a9fc4, #1e3a52);
   color: #fff;
-  box-shadow: 0 4px 20px rgba(96,165,250,.4);
+  box-shadow: 0 4px 20px rgba(30,58,82,.35);
 }
 .toast.toast-default {
   background: var(--surface);
@@ -645,13 +646,13 @@ select:active {
 .goal-bar-fill.pct-low    { background: linear-gradient(90deg, #ef4444, #fb923c); }
 .goal-bar-fill.pct-mid    { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
 .goal-bar-fill.pct-high   { background: linear-gradient(90deg, #22c55e, #22c55e); }
-.goal-bar-fill.pct-done   { background: linear-gradient(90deg, #3b82f6, #22c55e); }
+.goal-bar-fill.pct-done   { background: linear-gradient(90deg, #1e3a52, #22c55e); }
 
 /* ── 5. FAB 마이크 버튼 펄스 애니메이션 ── */
 @keyframes fabPulse {
-  0%   { box-shadow: 0 4px 20px rgba(0,0,0,.5), 0 0 0 0 rgba(59,130,246,0.2); }
-  60%  { box-shadow: 0 4px 20px rgba(0,0,0,.5), 0 0 0 10px rgba(59,130,246,0); }
-  100% { box-shadow: 0 4px 20px rgba(0,0,0,.5), 0 0 0 0 rgba(59,130,246,0); }
+  0%   { box-shadow: 0 4px 20px rgba(0,0,0,.5), 0 0 0 0 rgba(30,58,82,0.2); }
+  60%  { box-shadow: 0 4px 20px rgba(0,0,0,.5), 0 0 0 10px rgba(30,58,82,0); }
+  100% { box-shadow: 0 4px 20px rgba(0,0,0,.5), 0 0 0 0 rgba(30,58,82,0); }
 }
 #home-fab-mic {
   animation: fabPulse 2.4s ease infinite;
@@ -709,7 +710,7 @@ select:active {
 .inp-group input:focus,
 .ge-group input:focus {
   border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.08);
+  box-shadow: 0 0 0 3px rgba(30,58,82,0.08);
 }
 
 /* ── 어두운 배경 버튼은 항상 밝은 텍스트 ── */
@@ -738,7 +739,7 @@ button[style*="background:#2a2a2a"] {
 /* ── 9. 일정 D-day 배지 색상 개선 ── */
 .dday-urgent { background: rgba(239,68,68,.18); color: #ef4444; border: 1px solid rgba(239,68,68,.35); }
 .dday-soon   { background: rgba(251,191,36,.15);  color: #fbbf24; border: 1px solid rgba(251,191,36,.3); }
-.dday-normal { background: rgba(59,130,246,.08);  color: #3b82f6; border: 1px solid rgba(59,130,246,.2); }
+.dday-normal { background: rgba(90,159,196,.08); color: var(--blue); border: 1px solid rgba(90,159,196,.2); }
 .dday-past   { background: rgba(107,114,128,.12); color: #6b7280; border: 1px solid rgba(107,114,128,.2); }
 
 /* ── 10. 스와이프 삭제 버튼 개선 ── */
@@ -762,20 +763,21 @@ button:active {
 @media (prefers-color-scheme: light) {
   .nav { background: rgba(255,255,255,0.97) !important; }
   .nav-item.active::before {
-    background: linear-gradient(90deg, transparent, #1a6fa8, transparent) !important;
-    box-shadow: 0 0 8px rgba(26,111,168,0.6) !important;
+    background: #1e3a52 !important;
+    opacity: 0.6 !important;
+    box-shadow: none !important;
   }
 }
 body[data-theme="light"] .nav { background: rgba(255,255,255,0.97) !important; border-top: 1px solid rgba(0,0,0,0.07) !important; }
-body[data-theme="light"] .nav-item.active { color: #484846 !important; filter: none !important; }
-body[data-theme="light"] .nav-item.active::before { background: linear-gradient(90deg, rgba(154,120,56,0.5), #7a7876, rgba(154,120,56,0.5)) !important; box-shadow: none !important; }
-body[data-theme="light"] .sum-box.net .val { color: #2563eb !important; }
+body[data-theme="light"] .nav-item.active { color: #1e3a52 !important; filter: none !important; }
+body[data-theme="light"] .nav-item.active::before { background: #1e3a52 !important; opacity: 0.6 !important; box-shadow: none !important; }
+body[data-theme="light"] .sum-box.net .val { color: #1e3a52 !important; }
 body[data-theme="light"] #home-ai-text { color: #a8874a !important; filter: none !important; }
-body[data-theme="light"] .btn-primary { background: #111111 !important; color: #ffffff !important; border: none !important; box-shadow: none !important; filter: none !important; }
+body[data-theme="light"] .btn-primary { background: #1e3a52 !important; color: #ffffff !important; border: none !important; box-shadow: none !important; filter: none !important; }
 body[data-theme="light"] .siri-card-inner { background: #ffffff; }
 body[data-theme="light"] .siri-card { background: linear-gradient(270deg, #3a3630, #c9a84c, #e8d9a0, #c9a84c, #3a3630); background-size:300% 300%; }
 body[data-theme="light"] .inp-group input:focus,
-body[data-theme="light"] .ge-group input:focus { border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,0.08) !important; }
+body[data-theme="light"] .ge-group input:focus { border-color: #1e3a52 !important; box-shadow: 0 0 0 3px rgba(30,58,82,0.08) !important; }
 
 /* ══ 스켈레톤 로딩 ══ */
 @keyframes skeleton-shimmer {
@@ -833,10 +835,10 @@ body[data-theme="light"] .ge-group input:focus { border-color: #2563eb !importan
   transform: scale(0.98);
 }
 .stock-drag-item.drag-over {
-  border-color: rgba(59,130,246,0.4) !important;
-  background: rgba(59,130,246,0.05) !important;
+  border-color: rgba(30,58,82,0.4) !important;
+  background: rgba(30,58,82,0.05) !important;
 }
-.acc-type-item.drag-over { background: rgba(59,130,246,0.04) !important; }
+.acc-type-item.drag-over { background: rgba(30,58,82,0.04) !important; }
 @keyframes spin-icon { to { transform: rotate(360deg); } }
 #stock-refresh-btn.refreshing svg { animation: spin-icon .8s linear infinite; }
 /* ── 아코디언 슬라이드 (CSS Grid trick) ── */
@@ -910,7 +912,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       letter-spacing:8px;
       color:var(--text);
       line-height:1;
-      filter:drop-shadow(0 0 30px rgba(59,130,246,0.25));
+      filter:drop-shadow(0 0 30px rgba(90,159,196,0.2));
     ">WEALTH</div>
 
     <!-- AI 강조 -->
@@ -919,7 +921,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       font-size:13px;font-weight:300;
       letter-spacing:12px;
       margin-top:8px;
-      background:linear-gradient(90deg, rgba(59,130,246,0.35), #3b82f6, rgba(59,130,246,0.35));
+      background:linear-gradient(90deg, rgba(30,58,82,0.35), #5a9fc4, rgba(30,58,82,0.35));
       -webkit-background-clip:text;
       -webkit-text-fill-color:transparent;
       background-clip:text;
@@ -928,14 +930,14 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <!-- 구분선 -->
     <div style="
       width:40px;height:0.5px;
-      background:linear-gradient(90deg, transparent, rgba(59,130,246,0.25), transparent);
+      background:linear-gradient(90deg, transparent, rgba(90,159,196,0.3), transparent);
       margin:20px auto;
     "></div>
 
     <!-- 태그라인 -->
     <div style="
       font-size:9px;
-      color:rgba(59,130,246,0.20);
+      color:rgba(90,159,196,0.35);
       letter-spacing:3px;
       font-weight:400;
       text-transform:uppercase;
@@ -948,9 +950,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     transition:opacity .4s ease;
     display:flex;gap:6px;margin-top:8px;
   ">
-    <div class="splash-dot" style="width:6px;height:6px;border-radius:50%;background:rgba(59,130,246,0.25);animation:splashDot .9s ease infinite"></div>
-    <div class="splash-dot" style="width:6px;height:6px;border-radius:50%;background:rgba(59,130,246,0.25);animation:splashDot .9s ease .2s infinite"></div>
-    <div class="splash-dot" style="width:6px;height:6px;border-radius:50%;background:rgba(59,130,246,0.25);animation:splashDot .9s ease .4s infinite"></div>
+    <div class="splash-dot" style="width:6px;height:6px;border-radius:50%;background:rgba(90,159,196,0.45);animation:splashDot .9s ease infinite"></div>
+    <div class="splash-dot" style="width:6px;height:6px;border-radius:50%;background:rgba(90,159,196,0.45);animation:splashDot .9s ease .2s infinite"></div>
+    <div class="splash-dot" style="width:6px;height:6px;border-radius:50%;background:rgba(90,159,196,0.45);animation:splashDot .9s ease .4s infinite"></div>
   </div>
 </div>
 
@@ -964,8 +966,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="font-size:56px;margin-bottom:32px;line-height:1">🏠 📈 💰</div>
       <div style="font-size:22px;font-weight:700;color:#f0f0f0;margin-bottom:14px;letter-spacing:-.5px">자산을 한 곳에 기록하세요</div>
       <div style="font-size:14px;color:rgba(255,255,255,0.45);line-height:1.7;max-width:280px">아파트, 주식, 예금, 대출까지<br>매달 한 번, 1분이면 충분해요</div>
-      <div style="margin-top:32px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.15);border-radius:16px;padding:16px 20px;max-width:300px;text-align:left">
-        <div style="font-size:10px;color:rgba(59,130,246,0.6);letter-spacing:1px;margin-bottom:10px">자산 항목 예시</div>
+      <div style="margin-top:32px;background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.15);border-radius:16px;padding:16px 20px;max-width:300px;text-align:left">
+        <div style="font-size:10px;color:rgba(30,58,82,0.6);letter-spacing:1px;margin-bottom:10px">자산 항목 예시</div>
         <div style="display:flex;flex-direction:column;gap:8px">
           <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:rgba(255,255,255,0.5)">동탄 아파트</span><span style="color:#f0f0f0;font-weight:600">7.3억</span></div>
           <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:rgba(255,255,255,0.5)">주식·ETF</span><span style="color:#f0f0f0;font-weight:600">2,340만</span></div>
@@ -979,16 +981,16 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="font-size:56px;margin-bottom:32px;line-height:1">📊</div>
       <div style="font-size:22px;font-weight:700;color:#f0f0f0;margin-bottom:14px;letter-spacing:-.5px">지출 패턴을 분석해드려요</div>
       <div style="font-size:14px;color:rgba(255,255,255,0.45);line-height:1.7;max-width:280px">카테고리별 지출을 한눈에 파악하고<br>절약 포인트를 바로 찾아요</div>
-      <div style="margin-top:32px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.15);border-radius:16px;padding:16px 20px;max-width:300px;text-align:left">
-        <div style="font-size:10px;color:rgba(59,130,246,0.6);letter-spacing:1px;margin-bottom:10px">이번달 지출 분석</div>
+      <div style="margin-top:32px;background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.15);border-radius:16px;padding:16px 20px;max-width:300px;text-align:left">
+        <div style="font-size:10px;color:rgba(30,58,82,0.6);letter-spacing:1px;margin-bottom:10px">이번달 지출 분석</div>
         <div style="display:flex;flex-direction:column;gap:10px">
           <div>
             <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:rgba(255,255,255,0.5)">식비</span><span style="color:#f0f0f0">42만</span></div>
-            <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px"><div style="width:70%;height:100%;background:#3b82f6;border-radius:2px"></div></div>
+            <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px"><div style="width:70%;height:100%;background:#5a9fc4;border-radius:2px"></div></div>
           </div>
           <div>
             <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:rgba(255,255,255,0.5)">교통</span><span style="color:#f0f0f0">18만</span></div>
-            <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px"><div style="width:30%;height:100%;background:#3b82f6;border-radius:2px"></div></div>
+            <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px"><div style="width:30%;height:100%;background:#5a9fc4;border-radius:2px"></div></div>
           </div>
         </div>
       </div>
@@ -996,12 +998,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
     <!-- Step 3: AI 분석 -->
     <div style="width:25%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 120px;text-align:center">
-      <div style="font-size:56px;margin-bottom:32px;line-height:1">🤖</div>
+      <div style="font-size:13px;font-weight:300;letter-spacing:6px;color:rgba(90,159,196,0.6);margin-bottom:32px;text-transform:uppercase">AI</div>
       <div style="font-size:22px;font-weight:700;color:#f0f0f0;margin-bottom:14px;letter-spacing:-.5px">AI가 맞춤 조언을 드려요</div>
       <div style="font-size:14px;color:rgba(255,255,255,0.45);line-height:1.7;max-width:280px">10년 경력 PB급 금융 솔루션을<br>내 자산에 맞게 제안해드려요</div>
-      <div style="margin-top:32px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.15);border-radius:16px;padding:16px 20px;max-width:300px;text-align:left">
-        <div style="font-size:10px;color:rgba(59,130,246,0.6);letter-spacing:1px;margin-bottom:10px">AI 조언 예시</div>
-        <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6">💡 IRP 미가입 상태예요. 연말정산 세액공제로 최대 <span style="color:#3b82f6;font-weight:600">148만원</span> 환급 가능해요. 지금 개설하면 올해 혜택 받을 수 있어요.</div>
+      <div style="margin-top:32px;background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.15);border-radius:16px;padding:16px 20px;max-width:300px;text-align:left">
+        <div style="font-size:10px;color:rgba(30,58,82,0.6);letter-spacing:1px;margin-bottom:10px">AI 조언 예시</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6">💡 IRP 미가입 상태예요. 연말정산 세액공제로 최대 <span style="color:#5a9fc4;font-weight:600">148만원</span> 환급 가능해요. 지금 개설하면 올해 혜택 받을 수 있어요.</div>
       </div>
     </div>
 
@@ -1029,14 +1031,14 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div style="position:absolute;bottom:0;left:0;right:0;padding:24px 32px max(32px,env(safe-area-inset-bottom,32px));background:linear-gradient(0deg,#080808 60%,transparent)">
     <!-- 점 인디케이터 -->
     <div id="ob-dots" style="display:flex;justify-content:center;gap:6px;margin-bottom:20px">
-      <div class="ob-dot" style="width:20px;height:4px;border-radius:2px;background:#3b82f6;transition:all .3s"></div>
+      <div class="ob-dot" style="width:20px;height:4px;border-radius:2px;background:#5a9fc4;transition:all .3s"></div>
       <div class="ob-dot" style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);transition:all .3s"></div>
       <div class="ob-dot" style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);transition:all .3s"></div>
       <div class="ob-dot" style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);transition:all .3s"></div>
     </div>
     <!-- 버튼 -->
     <button id="ob-next-btn" onclick="obNext()"
-      style="width:100%;padding:16px;border-radius:14px;border:none;background:#3b82f6;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:-.3px">
+      style="width:100%;padding:16px;border-radius:14px;border:none;background:#5a9fc4;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:-.3px">
       다음
     </button>
     <button id="ob-skip-btn" onclick="obSkip()"
@@ -1052,9 +1054,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <!-- 상단 로고 -->
   <div style="text-align:center;padding:max(80px, calc(env(safe-area-inset-top, 0px) + 60px)) 32px 40px">
     <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:11px;font-weight:400;letter-spacing:6px;color:rgba(255,255,255,0.25);margin-bottom:16px;text-transform:uppercase">M & S</div>
-    <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:38px;font-weight:100;letter-spacing:8px;color:#f0f0f0;line-height:1;filter:drop-shadow(0 0 30px rgba(59,130,246,0.2))">WEALTH</div>
-    <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:12px;font-weight:300;letter-spacing:12px;margin-top:8px;background:linear-gradient(90deg,rgba(59,130,246,0.35),#3b82f6,rgba(59,130,246,0.35));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">A I</div>
-    <div style="width:40px;height:0.5px;background:linear-gradient(90deg,transparent,rgba(59,130,246,0.25),transparent);margin:20px auto 0"></div>
+    <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:38px;font-weight:100;letter-spacing:8px;color:#f0f0f0;line-height:1;filter:drop-shadow(0 0 30px rgba(30,58,82,0.2))">WEALTH</div>
+    <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:12px;font-weight:300;letter-spacing:12px;margin-top:8px;background:linear-gradient(90deg,rgba(30,58,82,0.35),#5a9fc4,rgba(30,58,82,0.35));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">A I</div>
+    <div style="width:40px;height:0.5px;background:linear-gradient(90deg,transparent,rgba(90,159,196,0.3),transparent);margin:20px auto 0"></div>
   </div>
 
   <!-- 폼 영역 -->
@@ -1063,7 +1065,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <!-- 탭 -->
     <div style="display:flex;background:#111111;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:4px;margin-bottom:28px;gap:3px">
       <button id="auth-tab-login" onclick="setAuthTab('login')"
-        style="flex:1;padding:11px;border-radius:11px;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.15);color:#3b82f6;border:0.5px solid rgba(59,130,246,0.25);transition:all .2s">
+        style="flex:1;padding:11px;border-radius:11px;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:rgba(30,58,82,0.15);color:#5a9fc4;border:0.5px solid rgba(30,58,82,0.25);transition:all .2s">
         로그인
       </button>
       <button id="auth-tab-signup" onclick="setAuthTab('signup')"
@@ -1079,7 +1081,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">이메일</div>
         <input type="email" id="login-email" placeholder="이메일을 입력하세요"
           style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
-          onfocus="this.style.borderColor='rgba(59,130,246,0.4)'"
+          onfocus="this.style.borderColor='rgba(30,58,82,0.4)'"
           onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
       </div>
 
@@ -1087,13 +1089,13 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">비밀번호</div>
         <input type="password" id="login-password" placeholder="비밀번호를 입력하세요"
           style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
-          onfocus="this.style.borderColor='rgba(59,130,246,0.4)'"
+          onfocus="this.style.borderColor='rgba(30,58,82,0.4)'"
           onblur="this.style.borderColor='rgba(255,255,255,0.08)'"
           onkeydown="if(event.key==='Enter') handleLogin()">
       </div>
 
       <button onclick="handleLogin()" id="login-btn"
-        style="width:100%;padding:15px;border-radius:14px;background:#111111;border:0.5px solid rgba(59,130,246,0.3);color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:0.5px">
+        style="width:100%;padding:15px;border-radius:14px;background:#111111;border:0.5px solid rgba(30,58,82,0.3);color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:0.5px">
         로그인
       </button>
 
@@ -1114,7 +1116,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">이름</div>
         <input type="text" id="signup-name" placeholder="이름을 입력하세요"
           style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
-          onfocus="this.style.borderColor='rgba(59,130,246,0.4)'"
+          onfocus="this.style.borderColor='rgba(30,58,82,0.4)'"
           onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
       </div>
 
@@ -1122,7 +1124,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">이메일</div>
         <input type="email" id="signup-email" placeholder="이메일을 입력하세요"
           style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
-          onfocus="this.style.borderColor='rgba(59,130,246,0.4)'"
+          onfocus="this.style.borderColor='rgba(30,58,82,0.4)'"
           onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
       </div>
 
@@ -1130,7 +1132,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">비밀번호 <span style="color:#303030;font-weight:400">(8자 이상, 영문+숫자)</span></div>
         <input type="password" id="signup-password" placeholder="비밀번호를 입력하세요"
           style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
-          onfocus="this.style.borderColor='rgba(59,130,246,0.4)'"
+          onfocus="this.style.borderColor='rgba(30,58,82,0.4)'"
           onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
       </div>
 
@@ -1138,12 +1140,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">베타 초대 코드</div>
         <input type="text" id="signup-beta-code" placeholder="초대 코드를 입력하세요"
           style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s;text-transform:uppercase;letter-spacing:1px"
-          onfocus="this.style.borderColor='rgba(59,130,246,0.4)'"
+          onfocus="this.style.borderColor='rgba(30,58,82,0.4)'"
           onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
       </div>
 
       <button onclick="handleSignup()" id="signup-btn"
-        style="width:100%;padding:15px;border-radius:14px;background:#111111;border:0.5px solid rgba(59,130,246,0.3);color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:0.5px">
+        style="width:100%;padding:15px;border-radius:14px;background:#111111;border:0.5px solid rgba(30,58,82,0.3);color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:0.5px">
         회원가입
       </button>
 
@@ -1164,21 +1166,21 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div style="text-align:center;margin-bottom:40px">
       <div style="font-size:11px;color:rgba(255,255,255,0.2);letter-spacing:4px;text-transform:uppercase;margin-bottom:20px">COUPLE SETUP</div>
       <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:300;color:#f0f0f0;letter-spacing:1px;margin-bottom:10px">배우자 연결</div>
-      <div style="width:40px;height:0.5px;background:linear-gradient(90deg,transparent,rgba(59,130,246,0.3),transparent);margin:0 auto 16px"></div>
+      <div style="width:40px;height:0.5px;background:linear-gradient(90deg,transparent,rgba(30,58,82,0.3),transparent);margin:0 auto 16px"></div>
       <div style="font-size:13px;color:#404040;line-height:1.8">배우자나 파트너와 함께<br>재무 데이터를 공유하세요</div>
     </div>
 
     <!-- 새 커플 시작 -->
     <div style="background:#111111;border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:22px;margin-bottom:12px">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
-        <div style="width:36px;height:36px;border-radius:10px;background:rgba(59,130,246,0.08);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🆕</div>
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(30,58,82,0.08);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🆕</div>
         <div>
           <div style="font-size:14px;font-weight:700;color:#f0f0f0">새로 시작하기</div>
           <div style="font-size:11px;color:#404040;margin-top:2px">커플 공간 만들고 배우자 초대</div>
         </div>
       </div>
       <button onclick="handleCreateCouple()" id="create-couple-btn"
-        style="width:100%;padding:13px;border-radius:12px;background:#111111;border:0.5px solid rgba(59,130,246,0.25);color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s">
+        style="width:100%;padding:13px;border-radius:12px;background:#111111;border:0.5px solid rgba(30,58,82,0.25);color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s">
         커플 공간 만들기
       </button>
     </div>
@@ -1280,7 +1282,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div id="pending-banner" style="display:none;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.35);border-radius:16px;padding:14px 16px;margin-bottom:14px;cursor:pointer" onclick="openPendingModal()">
     <div style="display:flex;align-items:center;justify-content:space-between">
       <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:32px;height:32px;border-radius:8px;background:rgba(59,130,246,0.10);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+        <div style="width:32px;height:32px;border-radius:8px;background:rgba(30,58,82,0.10);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
         <div>
           <div style="font-size:13px;font-weight:700;color:var(--teal)">미등록 거래 <span id="pending-count">0</span>건</div>
           <div style="font-size:11px;color:var(--muted);margin-top:2px">문자로 자동 파싱됨 · 탭해서 확인</div>
@@ -1402,7 +1404,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
   <!-- ② -2 주식 포트폴리오 요약 -->
   <div data-card="stocks-summary" id="home-card-stocks-summary">
-  <div class="card" style="border-color:rgba(74,158,255,.2);cursor:pointer" onclick="goPage('stocks',document.querySelectorAll('.nav-item')[3])">
+  <div class="card" style="border-color:rgba(90,159,196,.2);cursor:pointer" onclick="goPage('stocks',document.querySelectorAll('.nav-item')[3])">
 
     <!-- 헤더 -->
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
@@ -1410,7 +1412,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="display:flex;align-items:center;gap:6px">
         <div id="home-stock-update" style="font-size:9px;color:var(--muted)"></div>
         <button onclick="event.stopPropagation();homeRefreshStocks()" id="home-stock-refresh"
-          style="background:rgba(74,158,255,.12);border:1px solid rgba(74,158,255,.25);border-radius:8px;color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:700;padding:4px 8px;cursor:pointer">
+          style="background:rgba(90,159,196,.12);border:1px solid rgba(90,159,196,.25);border-radius:8px;color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:10px;font-weight:700;padding:4px 8px;cursor:pointer">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
         </button>
       </div>
@@ -1642,7 +1644,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div class="card" onclick="goPage('settings',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab('apt'),200)" style="cursor:pointer">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px" id="home-apt-card-title">아파트 실거래가</div>
-      <button onclick="event.stopPropagation();fetchAndShowApt()" id="apt-refresh-btn" style="background:none;border:none;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;padding:0">🔄 새로고침</button>
+      <button onclick="event.stopPropagation();fetchAndShowApt()" id="apt-refresh-btn" style="background:none;border:none;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;padding:0">새로고침</button>
     </div>
     <div id="home-apt-content">
       <div style="text-align:center;color:var(--muted);font-size:12px;padding:8px 0">새로고침 버튼을 눌러 최신 시세를 불러오세요</div>
@@ -1657,7 +1659,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:24px;width:calc(100% - 32px);max-width:480px;margin:auto;position:relative;top:0">
       <!-- 소유자 -->
       <div style="display:flex;background:var(--surface2);border-radius:10px;padding:3px;gap:2px;margin-bottom:16px">
-        <button id="hm-owner-cm" onclick="setHomeMicOwner('common')" style="flex:1;padding:7px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.10);color:var(--text)">공동</button>
+        <button id="hm-owner-cm" onclick="setHomeMicOwner('common')" style="flex:1;padding:7px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:rgba(30,58,82,0.10);color:var(--text)">공동</button>
         <button id="hm-owner-ms" onclick="setHomeMicOwner('minsuk')" style="flex:1;padding:7px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2)">나</button>
         <button id="hm-owner-sy" onclick="setHomeMicOwner('siyun')" style="flex:1;padding:7px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2)">배우자</button>
       </div>
@@ -1679,7 +1681,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <!-- 버튼 -->
       <div style="display:flex;gap:8px">
         <button onclick="closeHomeMic()" style="flex:1;padding:13px;border-radius:12px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">취소</button>
-        <button id="hm-retry-btn" onclick="startHomeMicRecord()" style="display:none;flex:1;padding:13px;border-radius:12px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:var(--teal);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">🎙️ 다시 말하기</button>
+        <button id="hm-retry-btn" onclick="startHomeMicRecord()" style="display:none;flex:1;padding:13px;border-radius:12px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:var(--teal);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">다시 말하기</button>
       </div>
     </div>
   </div>
@@ -1726,7 +1728,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
       <div style="display:flex;gap:10px">
         <button id="sch-delete-btn" onclick="deleteScheduleFromModal()" style="display:none;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:12px;color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:13px 16px;cursor:pointer">삭제</button>
-        <button onclick="saveSchedule()" style="flex:1;background:rgba(59,130,246,0.10);border:0.5px solid rgba(59,130,246,0.25);border-radius:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;padding:13px;cursor:pointer">저장</button>
+        <button onclick="saveSchedule()" style="flex:1;background:rgba(30,58,82,0.10);border:0.5px solid rgba(30,58,82,0.25);border-radius:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;padding:13px;cursor:pointer">저장</button>
       </div>
     </div>
   </div>
@@ -1788,9 +1790,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div class="card-title">목표 현황</div>
     <div id="goals-list"></div>
   </div>
-  <div class="card" style="border-color:rgba(59,130,246,0.12)">
+  <div class="card" style="border-color:rgba(30,58,82,0.12)">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
-      <div style="width:36px;height:36px;border-radius:10px;background:rgba(59,130,246,0.06);display:flex;align-items:center;justify-content:center;font-size:18px">🎯</div>
+      <div style="width:36px;height:36px;border-radius:10px;background:rgba(30,58,82,0.06);display:flex;align-items:center;justify-content:center;font-size:18px">🎯</div>
       <div>
         <div style="font-size:14px;font-weight:800;color:var(--text)">새 목표 추가</div>
         <div style="font-size:11px;color:var(--muted);margin-top:1px">재무 목표를 설정하고 달성률을 추적해요</div>
@@ -1802,7 +1804,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <label style="font-size:11px;color:var(--muted);font-weight:700;display:block;margin-bottom:6px;letter-spacing:0.5px">목표 이름</label>
       <input type="text" id="g-name" placeholder="예: 순자산 10억 달성"
         style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:13px 14px;outline:none;transition:border-color .2s"
-        onfocus="this.style.borderColor='rgba(59,130,246,0.35)'"
+        onfocus="this.style.borderColor='rgba(30,58,82,0.35)'"
         onblur="this.style.borderColor='var(--border)'">
     </div>
 
@@ -1813,7 +1815,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div style="position:relative">
           <input type="number" id="g-target" placeholder="100000"
             style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:13px 40px 13px 14px;outline:none;transition:border-color .2s"
-            onfocus="this.style.borderColor='rgba(59,130,246,0.35)'"
+            onfocus="this.style.borderColor='rgba(30,58,82,0.35)'"
             onblur="this.style.borderColor='var(--border)'">
           <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted)">만원</span>
         </div>
@@ -1822,13 +1824,13 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <label style="font-size:11px;color:var(--muted);font-weight:700;display:block;margin-bottom:6px;letter-spacing:0.5px">목표 년월</label>
         <input type="month" id="g-deadline" value="2030-12"
           style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:13px 14px;outline:none;transition:border-color .2s"
-          onfocus="this.style.borderColor='rgba(59,130,246,0.35)'"
+          onfocus="this.style.borderColor='rgba(30,58,82,0.35)'"
           onblur="this.style.borderColor='var(--border)'">
       </div>
     </div>
 
     <!-- 안내 메시지 -->
-    <div style="background:rgba(59,130,246,0.04);border:1px solid rgba(59,130,246,0.10);border-radius:12px;padding:12px 14px;margin-bottom:16px">
+    <div style="background:rgba(30,58,82,0.04);border:1px solid rgba(30,58,82,0.10);border-radius:12px;padding:12px 14px;margin-bottom:16px">
       <div style="display:flex;align-items:flex-start;gap:8px">
         <span style="font-size:14px;flex-shrink:0">💡</span>
         <div style="font-size:11px;color:var(--muted2);line-height:1.7">
@@ -1839,7 +1841,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     </div>
 
     <button class="btn-primary" onclick="addGoal()" style="height:50px;font-size:15px">
-      🎯 목표 저장
+      목표 저장
     </button>
   </div>
 </div>
@@ -1967,14 +1969,14 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
       <!-- 실거래가 반영 -->
       <div id="detail-apt-sync" style="display:none;padding:0 20px 12px">
-        <button onclick="applyAptFromDetail()" style="width:100%;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.25);border-radius:12px;color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:12px;cursor:pointer">
+        <button onclick="applyAptFromDetail()" style="width:100%;background:rgba(90,159,196,.12);border:1px solid rgba(90,159,196,.25);border-radius:12px;color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:12px;cursor:pointer">
           🏢 최신 실거래가로 아파트 업데이트
         </button>
       </div>
 
       <!-- 편집 버튼 -->
       <div style="padding:0 20px 20px;display:flex;gap:10px">
-        <button onclick="openModalFromDetail()" style="flex:1;background:#1e1e1e;border:0.5px solid rgba(59,130,246,0.20);border-radius:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;padding:14px;cursor:pointer">편집하기</button>
+        <button onclick="openModalFromDetail()" style="flex:1;background:#1e1e1e;border:0.5px solid rgba(30,58,82,0.20);border-radius:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;padding:14px;cursor:pointer">편집하기</button>
         <button onclick="deleteRecordDirect()" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:12px;color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:14px 16px;cursor:pointer">삭제</button>
       </div>
     </div>
@@ -2066,7 +2068,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
       <!-- 저장/삭제 -->
       <div style="display:flex;gap:8px;">
-        <button onclick="saveRecord()" style="flex:1;padding:12px;border-radius:12px;background:#1e1e1e;border:0.5px solid rgba(59,130,246,0.25);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">저장</button>
+        <button onclick="saveRecord()" style="flex:1;padding:12px;border-radius:12px;background:#1e1e1e;border:0.5px solid rgba(30,58,82,0.25);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">저장</button>
         <button id="btn-delete" onclick="deleteRecord()" style="display:none;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:12px;color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:12px 16px;cursor:pointer;">삭제</button>
       </div>
     </div>
@@ -2090,7 +2092,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <!-- 설정 탭 내비 -->
   <div style="display:flex;background:var(--surface2);border-radius:14px;padding:4px;margin-bottom:20px;gap:2px">
     <button id="stab-home" onclick="setSettingsTab('home')"
-      style="flex:1;padding:8px 4px;border-radius:9px;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.10);color:var(--text);border:0.5px solid rgba(59,130,246,0.25)">홈</button>
+      style="flex:1;padding:8px 4px;border-radius:9px;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:rgba(30,58,82,0.10);color:var(--text);border:0.5px solid rgba(30,58,82,0.25)">홈</button>
     <button id="stab-apt" onclick="setSettingsTab('apt')"
       style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">부동산</button>
     <button id="stab-cat" onclick="setSettingsTab('cat')"
@@ -2109,7 +2111,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     </div>
 
     <!-- 파트너 이름 설정 -->
-    <div class="card" style="margin-bottom:14px;border-color:rgba(59,130,246,0.15)">
+    <div class="card" style="margin-bottom:14px;border-color:rgba(30,58,82,0.15)">
       <div class="card-title" style="color:var(--muted)">이름 설정</div>
       <p style="font-size:12px;color:var(--muted2);line-height:1.7;margin-bottom:14px">
         가계부·자산에 표시되는 이름을 바꿀 수 있어요.<br>
@@ -2157,7 +2159,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div class="card-title" style="color:var(--muted);margin-bottom:0">등록된 아파트</div>
       <button onclick="openAptModal(null)"
-        style="background:rgba(59,130,246,0.10);border:0.5px solid rgba(59,130,246,0.25);border-radius:8px;color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:6px 12px;cursor:pointer">
+        style="background:rgba(30,58,82,0.10);border:0.5px solid rgba(30,58,82,0.25);border-radius:8px;color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:6px 12px;cursor:pointer">
         + 추가
       </button>
     </div>
@@ -2203,12 +2205,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <button onclick="exportBackup()"
           style="flex:1;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:12px;
           color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;padding:13px;cursor:pointer">
-          📤 JSON 백업
+          JSON 백업
         </button>
         <button onclick="document.getElementById('import-file').click()"
           style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;
           color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:13px;cursor:pointer">
-          📥 불러오기
+          불러오기
         </button>
       </div>
       <!-- Excel 내보내기 -->
@@ -2219,7 +2221,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           가계부 Excel
         </button>
         <button onclick="exportAssetExcel()"
-          style="flex:1;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.3);border-radius:12px;
+          style="flex:1;background:rgba(90,159,196,.12);border:1px solid rgba(90,159,196,.3);border-radius:12px;
           color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:13px;cursor:pointer">
           🏦 자산 Excel
         </button>
@@ -2269,7 +2271,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
           <!-- 새로 만들기 -->
           <button onclick="handleCreateCoupleFromSettings()"
-            style="width:100%;padding:12px;border-radius:10px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">
+            style="width:100%;padding:12px;border-radius:10px;background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.2);color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">
             🆕 커플 공간 만들기
           </button>
 
@@ -2550,7 +2552,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <div class="card-title" style="margin-bottom:0">월별 지출 추이</div>
         <div style="display:flex;gap:4px">
-          <button id="trend-btn-3" onclick="setTrendMonths(3)" style="padding:4px 10px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.10);color:var(--text)">3개월</button>
+          <button id="trend-btn-3" onclick="setTrendMonths(3)" style="padding:4px 10px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:rgba(30,58,82,0.10);color:var(--text)">3개월</button>
           <button id="trend-btn-6" onclick="setTrendMonths(6)" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">6개월</button>
         </div>
       </div>
@@ -2585,8 +2587,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
     <!-- 범례 -->
     <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:#3b82f6"></div><span style="font-size:10px;color:var(--muted)">일정</span></div>
-      <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:#60a5fa"></div><span style="font-size:10px;color:var(--muted)">정기지출</span></div>
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:#5a9fc4"></div><span style="font-size:10px;color:var(--muted)">일정</span></div>
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:#7ab8d8"></div><span style="font-size:10px;color:var(--muted)">정기지출</span></div>
       <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:#ef4444"></div><span style="font-size:10px;color:var(--muted)">지출</span></div>
       <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:#22c55e"></div><span style="font-size:10px;color:var(--muted)">수입</span></div>
     </div>
@@ -2600,7 +2602,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div style="text-align:center;font-size:10px;font-weight:700;color:var(--muted);padding:10px 0">수</div>
         <div style="text-align:center;font-size:10px;font-weight:700;color:var(--muted);padding:10px 0">목</div>
         <div style="text-align:center;font-size:10px;font-weight:700;color:var(--muted);padding:10px 0">금</div>
-        <div style="text-align:center;font-size:10px;font-weight:700;color:#60a5fa;padding:10px 0">토</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:#7ab8d8;padding:10px 0">토</div>
         <div style="text-align:center;font-size:10px;font-weight:700;color:#ef4444;padding:10px 0">일</div>
       </div>
       <!-- 날짜 그리드 -->
@@ -2643,13 +2645,13 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <!-- 정기 지출 -->
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <div class="card-title" style="margin-bottom:0">🔄 정기 지출</div>
+        <div class="card-title" style="margin-bottom:0">정기 지출</div>
         <button onclick="openRecurringAdd()" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer">+ 추가</button>
       </div>
       <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;line-height:1.6">매달 자동으로 반복되는 지출을 등록해두면 이번달 가계부에 한번에 추가할 수 있어요.</div>
       <div id="recurring-list"></div>
-      <button onclick="applyRecurring()" id="recurring-apply-btn" style="display:none;width:100%;margin-top:12px;padding:12px;background:linear-gradient(135deg,var(--blue),#1d4ed8);border:none;border-radius:12px;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
-        📥 이번달 가계부에 추가
+      <button onclick="applyRecurring()" id="recurring-apply-btn" style="display:none;width:100%;margin-top:12px;padding:12px;background:linear-gradient(135deg,var(--blue),#1e3a52);border:none;border-radius:12px;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
+        이번달 가계부에 추가
       </button>
     </div>
   </div>
@@ -2777,7 +2779,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
       <!-- 소유자 선택 -->
       <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:16px;gap:2px">
-        <button id="voice-owner-cm" onclick="setVoiceOwner('common')" style="flex:1;padding:9px;border-radius:9px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.10);color:var(--text);border:0.5px solid rgba(59,130,246,0.25);transition:all .2s">공동</button>
+        <button id="voice-owner-cm" onclick="setVoiceOwner('common')" style="flex:1;padding:9px;border-radius:9px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:rgba(30,58,82,0.10);color:var(--text);border:0.5px solid rgba(30,58,82,0.25);transition:all .2s">공동</button>
         <button id="voice-owner-ms" onclick="setVoiceOwner('minsuk')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">나</button>
         <button id="voice-owner-sy" onclick="setVoiceOwner('siyun')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">배우자</button>
 
@@ -2807,8 +2809,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">🗣️ 인식된 내용</div>
         <div id="voice-transcript" style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px;font-size:14px;color:var(--text);line-height:1.6;min-height:48px"></div>
         <button onclick="runVoiceParser()" id="voice-parse-btn"
-          style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#1e1e1e;border:0.5px solid rgba(59,130,246,0.20);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:800;cursor:pointer">
-          🤖 AI로 등록하기
+          style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#1e1e1e;border:0.5px solid rgba(30,58,82,0.20);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:800;cursor:pointer">
+          AI로 등록하기
         </button>
       </div>
 
@@ -2817,8 +2819,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div style="font-size:11px;color:var(--teal);font-weight:700;margin-bottom:8px;letter-spacing:.5px">파싱 결과 — 확인 후 추가</div>
         <div id="voice-result-list"></div>
         <button onclick="confirmVoiceImport()"
-          style="width:100%;padding:14px;border-radius:12px;background:#1e1e1e;border:0.5px solid rgba(59,130,246,0.20);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px">
-          💾 가계부에 추가
+          style="width:100%;padding:14px;border-radius:12px;background:#1e1e1e;border:0.5px solid rgba(30,58,82,0.20);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px">
+          가계부에 추가
         </button>
       </div>
 
@@ -2838,8 +2840,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div id="pending-list"></div>
       <div style="display:flex;gap:8px;margin-top:14px">
         <button onclick="confirmPendingAll()" id="pending-confirm-btn"
-          style="flex:1;padding:14px;border-radius:12px;background:#1e1e1e;border:0.5px solid rgba(59,130,246,0.20);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
-          💾 선택 항목 등록
+          style="flex:1;padding:14px;border-radius:12px;background:#1e1e1e;border:0.5px solid rgba(30,58,82,0.20);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
+          선택 항목 등록
         </button>
         <button onclick="dismissAllPending()"
           style="padding:14px 16px;border-radius:12px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
@@ -2876,7 +2878,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="margin-bottom:14px">
         <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:8px">지출 주체</div>
         <div style="display:flex;background:var(--surface2);border-radius:10px;padding:3px;gap:2px">
-          <button id="excel-owner-joint" onclick="setExcelOwner('joint')" style="flex:1;padding:7px;border-radius:8px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.10);color:var(--text);border:0.5px solid rgba(59,130,246,0.25)">공동</button>
+          <button id="excel-owner-joint" onclick="setExcelOwner('joint')" style="flex:1;padding:7px;border-radius:8px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:rgba(30,58,82,0.10);color:var(--text);border:0.5px solid rgba(30,58,82,0.25)">공동</button>
           <button id="excel-owner-minsuk" onclick="setExcelOwner('minsuk')" style="flex:1;padding:7px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2)">나</button>
           <button id="excel-owner-siyun" onclick="setExcelOwner('siyun')" style="flex:1;padding:7px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2)">배우자</button>
         </div>
@@ -2906,8 +2908,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
       <!-- 버튼 -->
       <button onclick="confirmExcelImport()" id="excel-confirm-btn"
-        style="display:none;width:100%;padding:14px;border-radius:12px;background:#1e1e1e;border:0.5px solid rgba(59,130,246,0.20);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:800;cursor:pointer">
-        💾 선택 항목 가계부에 추가
+        style="display:none;width:100%;padding:14px;border-radius:12px;background:#1e1e1e;border:0.5px solid rgba(30,58,82,0.20);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:800;cursor:pointer">
+        선택 항목 가계부에 추가
       </button>
     </div>
   </div>
@@ -2926,7 +2928,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
       <!-- 소유자 선택 -->
       <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:14px;gap:2px">
-        <button id="sms-owner-cm" onclick="setSmsOwner('common')" style="flex:1;padding:9px;border-radius:9px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:rgba(59,130,246,0.10);color:var(--text);border:0.5px solid rgba(59,130,246,0.25);transition:all .2s">공동</button>
+        <button id="sms-owner-cm" onclick="setSmsOwner('common')" style="flex:1;padding:9px;border-radius:9px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:rgba(30,58,82,0.10);color:var(--text);border:0.5px solid rgba(30,58,82,0.25);transition:all .2s">공동</button>
         <button id="sms-owner-ms" onclick="setSmsOwner('minsuk')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">나</button>
         <button id="sms-owner-sy" onclick="setSmsOwner('siyun')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">배우자</button>
 
@@ -2960,11 +2962,11 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="display:flex;gap:8px">
         <button onclick="runSmsParser()" id="sms-parse-btn"
           style="flex:1;padding:14px;border-radius:12px;background:var(--blue);border:none;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
-          🤖 AI로 분석하기
+          AI로 분석하기
         </button>
         <button onclick="confirmSmsImport()" id="sms-confirm-btn"
-          style="display:none;flex:1;padding:14px;border-radius:12px;background:#1e1e1e;border:0.5px solid rgba(59,130,246,0.20);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
-          💾 선택 항목 추가
+          style="display:none;flex:1;padding:14px;border-radius:12px;background:#1e1e1e;border:0.5px solid rgba(30,58,82,0.20);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
+          선택 항목 추가
         </button>
       </div>
     </div>
@@ -2981,7 +2983,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
       <p style="font-size:12px;color:var(--muted2);margin-bottom:16px">카테고리별 월 예산을 설정하세요. 초과시 빨간색으로 표시돼요.</p>
       <div id="budget-inputs"></div>
-      <button class="btn-primary" onclick="saveBudget()" style="margin-top:16px">💾 예산 저장</button>
+      <button class="btn-primary" onclick="saveBudget()" style="margin-top:16px">예산 저장</button>
     </div>
   </div>
 </div>
@@ -3077,9 +3079,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <!-- 주식 → 자산 반영 버튼 -->
     <div style="margin-top:10px">
       <button onclick="applyStocksToAsset()"
-        style="width:100%;padding:11px;background:rgba(74,158,255,.08);border:0.5px solid rgba(74,158,255,.2);
+        style="width:100%;padding:11px;background:rgba(90,159,196,.08);border:0.5px solid rgba(90,159,196,.2);
         border-radius:12px;color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer">
-        📥 평가금액 자산에 반영
+        평가금액 자산에 반영
       </button>
     </div>
   </div>
@@ -3117,7 +3119,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           <button id="stk-sort-pct" onclick="setStkSort('pct')"
             style="padding:4px 10px;border-radius:8px;font-family:'Noto Sans KR',sans-serif;
                    font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;
-                   background:rgba(59,130,246,.15);border:1px solid var(--blue);color:var(--blue)">수익률</button>
+                   background:rgba(30,58,82,.15);border:1px solid var(--blue);color:var(--blue)">수익률</button>
           <button id="stk-sort-amt" onclick="setStkSort('amt')"
             style="padding:4px 10px;border-radius:8px;font-family:'Noto Sans KR',sans-serif;
                    font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;
@@ -3129,7 +3131,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <button id="pnl-owner-all" onclick="setPnlOwner('all')"
           style="padding:4px 12px;border-radius:16px;font-family:'Noto Sans KR',sans-serif;
                  font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;
-                 background:rgba(59,130,246,.15);border:1.5px solid var(--blue);color:var(--blue)">전체</button>
+                 background:rgba(30,58,82,.15);border:1.5px solid var(--blue);color:var(--blue)">전체</button>
         <button id="pnl-owner-ms" onclick="setPnlOwner('minsuk')"
           style="padding:4px 12px;border-radius:16px;font-family:'Noto Sans KR',sans-serif;
                  font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;
@@ -3298,7 +3300,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
       <!-- 매수/매도 -->
       <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:16px">
-        <button id="trade-buy" onclick="setTradeType('buy')" style="flex:1;padding:10px;border-radius:9px;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:var(--blue);color:#fff;border:0.5px solid rgba(59,130,246,.5)">매수</button>
+        <button id="trade-buy" onclick="setTradeType('buy')" style="flex:1;padding:10px;border-radius:9px;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:var(--blue);color:#fff;border:0.5px solid rgba(30,58,82,.5)">매수</button>
         <button id="trade-sell" onclick="setTradeType('sell')" style="flex:1;padding:10px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2)">매도</button>
       </div>
 
@@ -3343,7 +3345,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none">
       </div>
 
-      <button class="btn-primary" onclick="saveTrade()">💾 거래 저장</button>
+      <button class="btn-primary" onclick="saveTrade()">거래 저장</button>
     </div>
   </div>
 </div>
@@ -3397,7 +3399,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
       <div style="display:flex;gap:10px">
         <button id="cat-delete-btn" onclick="deleteCatFromModal()" style="display:none;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:12px;color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:14px 16px;cursor:pointer">삭제</button>
-        <button onclick="saveCatFromModal()" style="flex:1;background:#1e1e1e;border:0.5px solid rgba(59,130,246,0.20);border-radius:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;padding:14px;cursor:pointer">저장</button>
+        <button onclick="saveCatFromModal()" style="flex:1;background:#1e1e1e;border:0.5px solid rgba(30,58,82,0.20);border-radius:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;padding:14px;cursor:pointer">저장</button>
       </div>
     </div>
   </div>
@@ -3542,7 +3544,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div id="apt-search-results" style="display:none;margin-bottom:16px;max-height:220px;overflow-y:auto;background:var(--surface2);border-radius:12px;border:1px solid var(--border)"></div>
 
       <!-- 선택된 단지 표시 -->
-      <div id="apt-selected-wrap" style="display:none;margin-bottom:16px;padding:12px 14px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:12px">
+      <div id="apt-selected-wrap" style="display:none;margin-bottom:16px;padding:12px 14px;background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.2);border-radius:12px">
         <div style="font-size:11px;color:var(--blue);font-weight:600;margin-bottom:4px">✅ 선택된 단지</div>
         <div id="apt-selected-name" style="font-size:14px;font-weight:700;color:var(--text)"></div>
         <div id="apt-selected-info" style="font-size:11px;color:var(--muted);margin-top:2px"></div>
@@ -3835,18 +3837,18 @@ function setAuthTab(tab) {
   if (tab === 'login') {
     loginForm.style.display = 'block';
     signupForm.style.display = 'none';
-    loginTab.style.background = 'rgba(59,130,246,0.15)';
-    loginTab.style.color = '#3b82f6';
-    loginTab.style.border = '0.5px solid rgba(59,130,246,0.25)';
+    loginTab.style.background = 'rgba(30,58,82,0.15)';
+    loginTab.style.color = '#5a9fc4';
+    loginTab.style.border = '0.5px solid rgba(30,58,82,0.25)';
     signupTab.style.background = 'transparent';
     signupTab.style.color = '#505050';
     signupTab.style.border = 'none';
   } else {
     loginForm.style.display = 'none';
     signupForm.style.display = 'block';
-    signupTab.style.background = 'rgba(59,130,246,0.15)';
-    signupTab.style.color = '#3b82f6';
-    signupTab.style.border = '0.5px solid rgba(59,130,246,0.25)';
+    signupTab.style.background = 'rgba(30,58,82,0.15)';
+    signupTab.style.color = '#5a9fc4';
+    signupTab.style.border = '0.5px solid rgba(30,58,82,0.25)';
     loginTab.style.background = 'transparent';
     loginTab.style.color = '#505050';
     loginTab.style.border = 'none';
@@ -4585,7 +4587,7 @@ function closeRecurringModal() {
 function setRecurOwner(owner) {
   _recurOwner = owner;
   const colorMap = {
-    minsuk: { bg: 'rgba(59,130,246,.15)', border: 'rgba(59,130,246,.4)', color: 'var(--blue)' },
+    minsuk: { bg: 'rgba(90,159,196,.12)', border: 'rgba(90,159,196,.35)', color: 'var(--blue)' },
     siyun:  { bg: 'rgba(34,197,94,.15)',  border: 'rgba(34,197,94,.4)',  color: 'var(--green)' },
     common: { bg: 'rgba(20,184,166,.15)', border: 'var(--teal)',          color: 'var(--teal)' }
   };
@@ -4731,7 +4733,7 @@ function renderGoals() {
     const pct = Math.min(100, Math.round(current / g.target * 100));
     // 달성률에 따라 색상 클래스 + 텍스트 색상 결정
     const barClass = pct >= 100 ? 'pct-done' : pct >= 70 ? 'pct-high' : pct >= 40 ? 'pct-mid' : 'pct-low';
-    const pctColor = pct >= 100 ? '#3b82f6' : pct >= 70 ? '#22c55e' : pct >= 40 ? '#fbbf24' : '#ef4444';
+    const pctColor = pct >= 100 ? '#5a9fc4' : pct >= 70 ? '#22c55e' : pct >= 40 ? '#fbbf24' : '#ef4444';
     const pctEmoji = '';
     const months = monthDiff(new Date(), new Date(g.deadline));
     const isAutoLinked = latestMonth !== null;
@@ -4743,7 +4745,7 @@ function renderGoals() {
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <div class="goal-pct" style="color:${pctColor}">${pctEmoji} ${pct}%</div>
-          <button class="btn-danger" onclick="editGoal(${i})" style="background:rgba(74,158,255,.12);border:1px solid rgba(74,158,255,.3);color:var(--blue)">수정</button>
+          <button class="btn-danger" onclick="editGoal(${i})" style="background:rgba(90,159,196,.12);border:1px solid rgba(90,159,196,.3);color:var(--blue)">수정</button>
           <button class="btn-danger" onclick="deleteGoal(${i})">삭제</button>
         </div>
       </div>
@@ -4840,7 +4842,7 @@ function editGoal(i) {
 function resetGoalForm() {
   const saveBtn = document.querySelector('#page-goals .btn-primary');
   if (saveBtn) {
-    saveBtn.textContent = '🎯 목표 저장';
+    saveBtn.textContent = '목표 저장';
     saveBtn.onclick = addGoal;
   }
   document.getElementById('g-name').value = '';
@@ -4907,7 +4909,7 @@ function updateHomeFromItems(rec) {
     animateNumber(netLarge, 0, rec.net/10000, 1100, v => v.toFixed(2));
     // 숫자 올라가면서 글로우 점점 강해짐
     setTimeout(function() {
-      netLarge.style.textShadow = '0 0 20px rgba(59,130,246,0.4), 0 0 40px rgba(59,130,246,0.15)';
+      netLarge.style.textShadow = '0 0 20px rgba(30,58,82,0.4), 0 0 40px rgba(30,58,82,0.15)';
     }, 100);
     // 완료 후 살짝 줄어들며 안정
     setTimeout(function() {
@@ -5055,7 +5057,7 @@ function renderMonthCards() {
       ${(r.items || []).filter(i => i.stockLink).length > 0
         ? '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:6px">'
           + (r.items || []).filter(i => i.stockLink).map(i =>
-              '<span style="font-size:10px;font-weight:600;color:var(--blue);background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.15);border-radius:6px;padding:2px 8px">'
+              '<span style="font-size:10px;font-weight:600;color:var(--blue);background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.15);border-radius:6px;padding:2px 8px">'
               + '🔗 ' + i.name
               + ' <span style="font-weight:400;color:var(--muted)">'
               + (i.stockLink === 'KR' ? '국내' : '해외')
@@ -5151,12 +5153,12 @@ function renderItemView() {
     '신용대출': 'var(--red)', '기타대출': 'var(--red)'
   };
   const colorHex = {
-    'realestate': '#3b82f6', 'stocks': '#f59e0b', 'savings': '#22c55e',
+    'realestate': '#5a9fc4', 'stocks': '#f59e0b', 'savings': '#22c55e',
     'pension': '#a78bfa', 'deposit': '#fb923c', 'cash': '#9ca3af',
     'mortgage': '#ef4444', 'jeonse-loan': '#ef4444',
     'credit-loan': '#ef4444', 'other-debt': '#ef4444',
     'housing-debt': '#ef4444', 'credit-debt': '#ef4444',
-    '부동산': '#3b82f6', '금융자산': '#f59e0b',
+    '부동산': '#5a9fc4', '금융자산': '#f59e0b',
     '민석 금융자산': '#f59e0b', '시윤 금융자산': '#f59e0b',
     '기타자산': '#9ca3af', '부채': '#ef4444',
     '주식·ETF': '#f59e0b', '저축·예금': '#22c55e',
@@ -5322,8 +5324,8 @@ function renderItemView() {
         const x = idx * (barW + barGap);
         const isLast = idx === sparkVals.length - 1;
         const fillColor = isLast
-          ? (isDebt ? '#ef4444' : '#3b82f6')
-          : (isDebt ? 'rgba(239,68,68,0.3)' : 'rgba(74,158,255,0.25)');
+          ? (isDebt ? '#ef4444' : '#5a9fc4')
+          : (isDebt ? 'rgba(239,68,68,0.3)' : 'rgba(90,159,196,0.25)');
         return '<rect x="' + x + '" y="' + (svgH - h) + '" width="' + barW + '" height="' + h + '" rx="2" fill="' + fillColor + '"/>';
       }).join('');
 
@@ -5341,7 +5343,7 @@ function renderItemView() {
         }
         return null;
       })();
-      if (latestMemo) html += '<div style="font-size:10px;color:var(--blue);margin-top:2px;padding:2px 6px;background:rgba(74,158,255,.08);border-radius:5px;display:inline-block">📝 ' + latestMemo + '</div>';      
+      if (latestMemo) html += '<div style="font-size:10px;color:var(--blue);margin-top:2px;padding:2px 6px;background:rgba(90,159,196,.08);border-radius:5px;display:inline-block">📝 ' + latestMemo + '</div>';      
       html += '</div>';
       html += '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">';
       html += '<svg width="' + svgW + '" height="20" style="display:block">' + sparkBars + '</svg>';
@@ -5388,9 +5390,9 @@ function renderQuickMonthBtns(selectedMonth, isEdit) {
     const alreadyExists = assetHistory.some(r => r.month === m.val);
     return `<button onclick="selectQuickMonth('${m.val}')"
       style="flex:1;padding:8px 4px;border-radius:10px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;
-      background:${isSelected ? 'rgba(59,130,246,0.10)' : 'var(--surface3)'};
-      color:${isSelected ? '#3b82f6' : 'var(--muted2)'};
-      border:0.5px solid ${isSelected ? 'rgba(59,130,246,0.25)' : 'var(--border2)'};
+      background:${isSelected ? 'rgba(30,58,82,0.10)' : 'var(--surface3)'};
+      color:${isSelected ? '#5a9fc4' : 'var(--muted2)'};
+      border:0.5px solid ${isSelected ? 'rgba(30,58,82,0.25)' : 'var(--border2)'};
       position:relative;">
       ${m.label}
       ${alreadyExists ? `<span style="position:absolute;top:-4px;right:-4px;width:8px;height:8px;border-radius:50%;background:var(--teal);border:2px solid var(--surface)"></span>` : ''}
@@ -5674,13 +5676,13 @@ function renderAddItemPresets() {
 
       return '<button onclick="linkStockToItem(\'' + market + '\',\'' + owner + '\')" style="'
         + 'flex:1;padding:10px 12px;border-radius:12px;'
-        + 'border:1px solid rgba(59,130,246,0.25);'
-        + 'background:rgba(59,130,246,0.05);'
+        + 'border:1px solid rgba(30,58,82,0.25);'
+        + 'background:rgba(30,58,82,0.05);'
         + 'font-family:\'Noto Sans KR\',sans-serif;cursor:pointer;text-align:left;'
         + 'transition:all .15s">'
         + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
         + '<span style="font-size:10px;color:var(--muted)">' + flag + ' ' + ownerLabel + '</span>'
-        + '<span style="font-size:9px;font-weight:700;color:var(--blue);background:rgba(59,130,246,0.1);padding:1px 6px;border-radius:8px">불러오기</span>'
+        + '<span style="font-size:9px;font-weight:700;color:var(--blue);background:rgba(30,58,82,0.1);padding:1px 6px;border-radius:8px">불러오기</span>'
         + '</div>'
         + '<div style="font-size:16px;font-weight:900;color:var(--text)">' + amt.toLocaleString() + '만원</div>'
         + '</button>';
@@ -5710,13 +5712,13 @@ function renderAddItemPresets() {
       const accentColor = accType === 'ISA' ? 'var(--blue)'
         : accType === 'IRP' ? 'var(--gold)'
         : accType === '연금저축' ? 'var(--green)' : 'var(--muted2)';
-      const accentBg = accType === 'ISA' ? 'rgba(59,130,246,0.05)'
+      const accentBg = accType === 'ISA' ? 'rgba(30,58,82,0.05)'
         : accType === 'IRP' ? 'rgba(201,168,76,0.05)'
         : accType === '연금저축' ? 'rgba(34,197,94,0.05)' : 'var(--surface2)';
-      const accentBorder = accType === 'ISA' ? 'rgba(59,130,246,0.25)'
+      const accentBorder = accType === 'ISA' ? 'rgba(30,58,82,0.25)'
         : accType === 'IRP' ? 'rgba(201,168,76,0.25)'
         : accType === '연금저축' ? 'rgba(34,197,94,0.25)' : 'var(--border2)';
-      const badgeBg = accType === 'ISA' ? 'rgba(59,130,246,0.12)'
+      const badgeBg = accType === 'ISA' ? 'rgba(30,58,82,0.12)'
         : accType === 'IRP' ? 'rgba(201,168,76,0.12)'
         : accType === '연금저축' ? 'rgba(34,197,94,0.12)' : 'var(--surface)';
       if (isDuplicate) {
@@ -5945,7 +5947,7 @@ function setAddItemOwner(owner) {
   _addItemOwner = owner;
   const colorMap = {
     common: { bg: 'var(--surface)', color: 'var(--text)' },
-    minsuk: { bg: 'rgba(59,130,246,.12)', color: 'var(--blue)' },
+    minsuk: { bg: 'rgba(30,58,82,.12)', color: 'var(--blue)' },
     siyun:  { bg: 'rgba(34,197,94,.12)',  color: 'var(--green)' }
   };
   ['common', 'minsuk', 'siyun'].forEach(function(o) {
@@ -6049,11 +6051,11 @@ function renderAssetItems() {
 
   wrap.innerHTML = '';
   const colorMap = {
-    'realestate':'#3b82f6','stocks':'#f59e0b','savings':'#22c55e',
+    'realestate':'#5a9fc4','stocks':'#f59e0b','savings':'#22c55e',
     'pension':'#a78bfa','deposit':'#fb923c','cash':'#9ca3af',
     'housing-debt':'#ef4444','credit-debt':'#ef4444',
     // 구버전 호환
-    '부동산':'#3b82f6','금융자산':'#f59e0b',
+    '부동산':'#5a9fc4','금융자산':'#f59e0b',
     '민석 금융자산':'#f59e0b','시윤 금융자산':'#f59e0b',
     '기타자산':'#9ca3af','부채':'#ef4444'
   };
@@ -6133,7 +6135,7 @@ function renderAssetItems() {
 
     if (item.stockLink || item.aptLink) {
       const linkBadge = document.createElement('span');
-      linkBadge.style.cssText = 'font-size:9px;font-weight:700;color:var(--blue);background:rgba(59,130,246,0.10);border:1px solid rgba(59,130,246,0.2);border-radius:5px;padding:1px 5px;margin-left:6px;vertical-align:super;line-height:1;white-space:nowrap';
+      linkBadge.style.cssText = 'font-size:9px;font-weight:700;color:var(--blue);background:rgba(30,58,82,0.10);border:1px solid rgba(30,58,82,0.2);border-radius:5px;padding:1px 5px;margin-left:6px;vertical-align:super;line-height:1;white-space:nowrap';
 
       if (item.stockLink) {
         const marketLabel = item.stockLink === 'KR' ? '🇰🇷 국내' : '🇺🇸 해외';
@@ -6383,7 +6385,7 @@ function obUpdateUI() {
   if (slides) slides.style.transform = 'translateX(-' + (_obStep * 25) + '%)';
   dots.forEach(function(d, i) {
     d.style.width = i === _obStep ? '20px' : '4px';
-    d.style.background = i === _obStep ? '#3b82f6' : 'rgba(255,255,255,0.2)';
+    d.style.background = i === _obStep ? '#5a9fc4' : 'rgba(255,255,255,0.2)';
   });
   if (nextBtn) nextBtn.textContent = _obStep === _obTotal - 1 ? '시작하기' : '다음';
   if (skipBtn) skipBtn.style.display = _obStep === _obTotal - 1 ? 'none' : 'block';
@@ -6597,7 +6599,7 @@ function renderSchedules() {
     } else if (diff <= 90) {
       ddayClass = 'dday-soon'; dotColor = '#fbbf24'; nameColor = 'var(--text)';
     } else {
-      ddayClass = 'dday-normal'; dotColor = '#3b82f6'; nameColor = 'var(--text)';
+      ddayClass = 'dday-normal'; dotColor = '#5a9fc4'; nameColor = 'var(--text)';
     }
 
     const diffBadge = isPast
@@ -6794,7 +6796,7 @@ const DEFAULT_CAT_IDS = {
 // 색상 프리셋
 const CAT_COLOR_PRESETS = [
   '#ef4444','#fb923c','#fbbf24','#22c55e','#34d399',
-  '#60a5fa','#3b82f6','#f472b6','#94a3b8','#ffffff',
+  '#7ab8d8','#5a9fc4','#f472b6','#94a3b8','#ffffff',
   '#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#c77dff',
 ];
 
@@ -7271,7 +7273,7 @@ function renderHomeLedgerSummary() {
   const goIncome = "goPage('ledger',document.querySelectorAll('.nav-item')[1]);setTimeout(()=>openLedgerAdd('income'),300)";
   const goExpense = "goPage('ledger',document.querySelectorAll('.nav-item')[1]);setTimeout(()=>openLedgerAdd('expense'),300)";
   html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">';
-  html += '<div onclick="' + goIncome + '" style="text-align:center;cursor:pointer;background:rgba(74,158,255,.06);border:1px solid rgba(74,158,255,.15);border-radius:10px;padding:8px;active:opacity:.7"><div style="font-size:9px;color:var(--blue);margin-bottom:3px;font-weight:600">+ 수입</div><div style="font-size:14px;font-weight:800;color:var(--blue)">+' + Math.round(income).toLocaleString() + '만</div></div>';
+  html += '<div onclick="' + goIncome + '" style="text-align:center;cursor:pointer;background:rgba(90,159,196,.06);border:1px solid rgba(90,159,196,.15);border-radius:10px;padding:8px;active:opacity:.7"><div style="font-size:9px;color:var(--blue);margin-bottom:3px;font-weight:600">+ 수입</div><div style="font-size:14px;font-weight:800;color:var(--blue)">+' + Math.round(income).toLocaleString() + '만</div></div>';
   html += '<div onclick="' + goExpense + '" style="text-align:center;cursor:pointer;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);border-radius:10px;padding:8px"><div style="font-size:9px;color:var(--red);margin-bottom:3px;font-weight:600">- 지출</div><div style="font-size:14px;font-weight:800;color:var(--red)">-' + Math.round(expense).toLocaleString() + '만</div></div>';
   html += '<div onclick="' + goLedger + '" style="text-align:center;cursor:pointer;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px"><div style="font-size:9px;color:var(--muted);margin-bottom:3px;font-weight:600">잔액</div><div style="font-size:14px;font-weight:800;color:' + (bal>=0?'var(--teal)':'var(--red)') + '">' + (bal>=0?'+':'') + Math.round(bal).toLocaleString() + '만</div></div>';
   html += '</div>';
@@ -7332,9 +7334,9 @@ function renderCoupleCard() {
   var L, R;
   if (syWins) {
     L = { name: getP2Name(), amt: syExp, hex: '#22c55e', cssVar: 'var(--siyun)', badge: getP2Name(), badgeBg: 'rgba(34,197,94,0.15)' };
-    R = { name: getP1Name(), amt: msExp, hex: '#3b82f6', cssVar: 'var(--minsuk)', badge: getP1Name(), badgeBg: 'rgba(59,130,246,0.15)' };
+    R = { name: getP1Name(), amt: msExp, hex: '#5a9fc4', cssVar: 'var(--minsuk)', badge: getP1Name(), badgeBg: 'rgba(30,58,82,0.15)' };
   } else {
-    L = { name: getP1Name(), amt: msExp, hex: '#3b82f6', cssVar: 'var(--minsuk)', badge: getP1Name(), badgeBg: 'rgba(59,130,246,0.15)' };
+    L = { name: getP1Name(), amt: msExp, hex: '#5a9fc4', cssVar: 'var(--minsuk)', badge: getP1Name(), badgeBg: 'rgba(30,58,82,0.15)' };
     R = { name: getP2Name(), amt: syExp, hex: '#22c55e', cssVar: 'var(--siyun)', badge: getP2Name(), badgeBg: 'rgba(34,197,94,0.15)' };
   }
 
@@ -7378,11 +7380,11 @@ function renderCoupleCard() {
 
   // 바: 승자=파란색, 패자=중립 회색 (다크/라이트 모두 보이게 rgba 사용)
   var lBarBg = lWins
-    ? 'linear-gradient(to right, var(--blue), rgba(59,130,246,0.5))'
+    ? 'linear-gradient(to right, var(--blue), rgba(30,58,82,0.5))'
     : 'rgba(128,128,128,0.18)';
   var rBarBg = lWins
     ? 'rgba(128,128,128,0.18)'
-    : 'linear-gradient(to right, var(--blue), rgba(59,130,246,0.5))';
+    : 'linear-gradient(to right, var(--blue), rgba(30,58,82,0.5))';
 
   battleArea.innerHTML =
     '<div style="padding:2px 16px 16px">'
@@ -7481,8 +7483,8 @@ function renderLedgerCoupleCard(txs) {
   const rNameColor = lWins ? 'var(--muted2)' : 'var(--text)';
   const lAmtSize = lWins ? '24px' : '18px';
   const rAmtSize = lWins ? '18px' : '24px';
-  const lBarBg = lWins ? 'linear-gradient(to right, var(--blue), rgba(59,130,246,0.5))' : 'rgba(128,128,128,0.18)';
-  const rBarBg = lWins ? 'rgba(128,128,128,0.18)' : 'linear-gradient(to right, var(--blue), rgba(59,130,246,0.5))';
+  const lBarBg = lWins ? 'linear-gradient(to right, var(--blue), rgba(30,58,82,0.5))' : 'rgba(128,128,128,0.18)';
+  const rBarBg = lWins ? 'rgba(128,128,128,0.18)' : 'linear-gradient(to right, var(--blue), rgba(30,58,82,0.5))';
 
   battleArea.innerHTML =
     '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px">'
@@ -7576,9 +7578,9 @@ function renderHomeStockRankList() {
     const pctColor = isUp ? 'var(--red)' : 'var(--blue)';
     const pnlColor = pnl >= 0 ? 'var(--red)' : 'var(--blue)';
     const ownerBadge = '<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:6px;margin-left:4px;'
-      + 'background:' + (s.owner === 'minsuk' ? 'rgba(59,130,246,.12)' : 'rgba(34,197,94,.12)') + ';'
+      + 'background:' + (s.owner === 'minsuk' ? 'rgba(30,58,82,.12)' : 'rgba(34,197,94,.12)') + ';'
       + 'color:' + (s.owner === 'minsuk' ? 'var(--minsuk)' : 'var(--siyun)') + ';'
-      + 'border:0.5px solid ' + (s.owner === 'minsuk' ? 'rgba(59,130,246,.3)' : 'rgba(34,197,94,.3)') + '">'
+      + 'border:0.5px solid ' + (s.owner === 'minsuk' ? 'rgba(30,58,82,.3)' : 'rgba(34,197,94,.3)') + '">'
       + (s.owner === 'minsuk' ? getP1Name() : getP2Name()) + '</span>';
     const acctBadge = s.accountType
       ? '<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:6px;margin-left:4px;'
@@ -7817,7 +7819,7 @@ function _renderWidgetContent(tab) {
         barEl.style.height = '16px';
         barEl.style.borderRadius = '8px';
         barEl.style.width = Math.min(pct, 100) + '%';
-        barEl.style.background = effectiveBudget > 0 ? getWidgetBarColor(pct) : 'rgba(59,130,246,0.25)';
+        barEl.style.background = effectiveBudget > 0 ? getWidgetBarColor(pct) : 'rgba(30,58,82,0.25)';
         barEl.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
         barEl.style.transition = 'width 1.2s cubic-bezier(.4,0,.2,1)';
       }, 100);
@@ -7846,7 +7848,7 @@ function _renderWidgetContent(tab) {
         barEl.style.height = '16px';
         barEl.style.borderRadius = '8px';
         barEl.style.width = Math.min(pct, 100) + '%';
-        barEl.style.background = effectiveBudget > 0 ? getWidgetBarColor(pct) : 'rgba(59,130,246,0.25)';
+        barEl.style.background = effectiveBudget > 0 ? getWidgetBarColor(pct) : 'rgba(30,58,82,0.25)';
         barEl.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
         barEl.style.transition = 'width 1.2s cubic-bezier(.4,0,.2,1)';
       }, 100);
@@ -7905,7 +7907,7 @@ function updateHomeWidget() {
 
     if (el('widget-exp-bar')) {
       el('widget-exp-bar').style.width = Math.min(pct, 100) + '%';
-      el('widget-exp-bar').style.background = effectiveBudget > 0 ? getWidgetBarColor(pct) : 'rgba(59,130,246,0.25)';
+      el('widget-exp-bar').style.background = effectiveBudget > 0 ? getWidgetBarColor(pct) : 'rgba(30,58,82,0.25)';
     }
 
     if (el('widget-status-text')) {
@@ -7929,7 +7931,7 @@ function updateHomeWidget() {
 
     if (el('widget-exp-bar')) {
       el('widget-exp-bar').style.width = Math.min(pct, 100) + '%';
-      el('widget-exp-bar').style.background = effectiveBudget > 0 ? getWidgetBarColor(pct) : 'rgba(59,130,246,0.25)';
+      el('widget-exp-bar').style.background = effectiveBudget > 0 ? getWidgetBarColor(pct) : 'rgba(30,58,82,0.25)';
     }
 
     if (el('widget-status-text')) {
@@ -8099,7 +8101,7 @@ function updateFilterBadges() {
 
   wrap.style.display = 'flex';
   wrap.innerHTML = badges.map(function(b, i) {
-    return '<div style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:rgba(59,130,246,0.10);border:1px solid rgba(59,130,246,0.25);border-radius:20px;font-size:11px;font-weight:600;color:var(--blue);cursor:pointer" onclick="filterBadgeClear(' + i + ')">'
+    return '<div style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:rgba(30,58,82,0.10);border:1px solid rgba(30,58,82,0.25);border-radius:20px;font-size:11px;font-weight:600;color:var(--blue);cursor:pointer" onclick="filterBadgeClear(' + i + ')">'
       + b.text
       + '<span style="font-size:12px;opacity:0.7">✕</span>'
       + '</div>';
@@ -8123,8 +8125,8 @@ function setLedgerPeriod(period) {
     const btn = document.getElementById('period-' + p);
     if (!btn) return;
     const isActive = p === period;
-    btn.style.background = isActive ? 'rgba(59,130,246,0.10)' : 'transparent';
-    btn.style.color = isActive ? '#3b82f6' : 'var(--muted2)';
+    btn.style.background = isActive ? 'rgba(30,58,82,0.10)' : 'transparent';
+    btn.style.color = isActive ? '#5a9fc4' : 'var(--muted2)';
     btn.style.border = isActive ? 'none' : '1px solid var(--border2)';
     btn.style.fontWeight = isActive ? '700' : '600';
   });
@@ -8143,9 +8145,9 @@ function setLedgerFilterOwner(owner) {
     const isActive = o === owner;
     if (isActive) {
       if (o === 'minsuk') {
-        btn.style.background = 'rgba(59,130,246,.12)';
+        btn.style.background = 'rgba(30,58,82,.12)';
         btn.style.color = 'var(--minsuk)';
-        btn.style.border = '1px solid rgba(59,130,246,.35)';
+        btn.style.border = '1px solid rgba(30,58,82,.35)';
       } else if (o === 'siyun') {
         btn.style.background = 'rgba(34,197,94,.12)';
         btn.style.color = 'var(--siyun)';
@@ -8534,8 +8536,8 @@ function renderDetailItem(item, totalAsset, prev, isDebt, cid, showOwner) {
   if (item.stockLink) {
     const marketLabel = item.stockLink === 'KR' ? '🇰🇷 국내' : '🇺🇸 해외';
     const timeLabel = item.stockLinkTime ? ' · ' + item.stockLinkTime : '';
-    badgeHtml = '<span style="font-size:9px;font-weight:600;color:var(--blue);background:rgba(59,130,246,0.10);border:1px solid rgba(59,130,246,0.2);border-radius:4px;padding:1px 6px;margin-left:5px;vertical-align:middle">🔗 ' + marketLabel + timeLabel + '</span>';
-    refreshBtnHtml = '<button onclick="refreshStockItem(\'' + item.name + '\',\'' + (item.owner||'common') + '\',\'' + item.stockLink + '\')" style="margin-left:6px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:6px;color:var(--blue);font-size:11px;font-weight:700;padding:2px 8px;cursor:pointer;vertical-align:middle">🔄</button>';
+    badgeHtml = '<span style="font-size:9px;font-weight:600;color:var(--blue);background:rgba(30,58,82,0.10);border:1px solid rgba(30,58,82,0.2);border-radius:4px;padding:1px 6px;margin-left:5px;vertical-align:middle">🔗 ' + marketLabel + timeLabel + '</span>';
+    refreshBtnHtml = '<button onclick="refreshStockItem(\'' + item.name + '\',\'' + (item.owner||'common') + '\',\'' + item.stockLink + '\')" style="margin-left:6px;background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.2);border-radius:6px;color:var(--blue);font-size:11px;font-weight:700;padding:2px 8px;cursor:pointer;vertical-align:middle">🔄</button>';
   }
 
   // 소유자 표시
@@ -8544,9 +8546,9 @@ function renderDetailItem(item, totalAsset, prev, isDebt, cid, showOwner) {
     var isMs = item.owner === 'minsuk';
     var ownerLabelText = isMs ? getP1Name() : getP2Name();
     ownerHtml = '<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:6px;margin-left:5px;vertical-align:middle;'
-      + 'background:' + (isMs?'rgba(59,130,246,.12)':'rgba(34,197,94,.12)') + ';'
+      + 'background:' + (isMs?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';'
       + 'color:' + (isMs?'var(--minsuk)':'var(--siyun)') + ';'
-      + 'border:0.5px solid ' + (isMs?'rgba(59,130,246,.3)':'rgba(34,197,94,.3)') + '">'
+      + 'border:0.5px solid ' + (isMs?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">'
       + ownerLabelText + '</span>';
   }
 
@@ -8568,14 +8570,14 @@ function renderDetailItem(item, totalAsset, prev, isDebt, cid, showOwner) {
   }
 
   const linkedBadge = item.stockLink
-    ? '<span style="font-size:9px;font-weight:700;color:var(--blue);background:rgba(59,130,246,0.10);border:1px solid rgba(59,130,246,0.2);border-radius:5px;padding:1px 5px;margin-left:6px;vertical-align:super;line-height:1;white-space:nowrap">'
+    ? '<span style="font-size:9px;font-weight:700;color:var(--blue);background:rgba(30,58,82,0.10);border:1px solid rgba(30,58,82,0.2);border-radius:5px;padding:1px 5px;margin-left:6px;vertical-align:super;line-height:1;white-space:nowrap">'
       + '🔗 ' + (item.stockLink==='KR'?'🇰🇷 국내':'🇺🇸 해외')
       + (item.stockLinkTime ? ' · ' + item.stockLinkTime : '')
       + '</span>'
     : '';
 
   const stockBadge = item.stockLink
-    ? '<sup style="font-size:9px;font-weight:700;color:var(--blue);background:rgba(59,130,246,0.10);border:1px solid rgba(59,130,246,0.2);border-radius:5px;padding:1px 5px;margin-left:5px;vertical-align:super;white-space:nowrap">'
+    ? '<sup style="font-size:9px;font-weight:700;color:var(--blue);background:rgba(30,58,82,0.10);border:1px solid rgba(30,58,82,0.2);border-radius:5px;padding:1px 5px;margin-left:5px;vertical-align:super;white-space:nowrap">'
       + '🔗 ' + (item.stockLink === 'KR' ? '🇰🇷 국내' : '🇺🇸 해외')
       + (item.stockLinkTime ? ' · ' + item.stockLinkTime : '')
       + '</sup>'
@@ -8900,9 +8902,9 @@ function renderRecurringList() {
     const isRMs = r.owner === 'minsuk', isRSy = r.owner === 'siyun';
     const ownerBadge = (isRMs || isRSy)
       ? '<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:6px;margin-right:4px;'
-        + 'background:' + (isRMs?'rgba(59,130,246,.12)':'rgba(34,197,94,.12)') + ';'
+        + 'background:' + (isRMs?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';'
         + 'color:' + (isRMs?'var(--minsuk)':'var(--siyun)') + ';'
-        + 'border:0.5px solid ' + (isRMs?'rgba(59,130,246,.3)':'rgba(34,197,94,.3)') + '">'
+        + 'border:0.5px solid ' + (isRMs?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">'
         + (isRMs?getP1Name():getP2Name()) + '</span>'
       : '';
     return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">'
@@ -8957,7 +8959,7 @@ function applyRecurring() {
 // ── 홈 카드 순서/표시 설정
 const HOME_CARD_DEFAULTS = [
   { id:'widget',        label:'💰 지출 위젯',           desc:'오늘/이번달 지출 금액',       visible:true  },
-  { id:'ai',            label:'🤖 AI 코멘트',           desc:'자산 분석 한마디',             visible:true  },
+  { id:'ai',            label:'AI 코멘트',               desc:'자산 분석 한마디',             visible:true  },
   { id:'schedule',      label:'📅 주요 일정',           desc:'D-day 일정 목록',             visible:true  },
   { id:'goalguage',     label:'🎯 목표 달성률',         desc:'순자산 목표 진행률',           visible:true  },
   { id:'summary',       label:'📊 자산 요약',           desc:'순자산 큰 숫자 + 비율 바',    visible:true  },
@@ -9296,7 +9298,7 @@ async function handleJoinCoupleFromSettings() {
   }
 
   msgEl.style.display = 'block';
-  msgEl.style.background = 'rgba(59,130,246,0.08)';
+  msgEl.style.background = 'rgba(30,58,82,0.08)';
   msgEl.style.color = 'var(--blue)';
   msgEl.textContent = '🔍 확인 중...';
 
@@ -9369,11 +9371,11 @@ function setSettingsTab(tab) {
     const con = document.getElementById('stab-content-' + t);
     const isActive = t === tab;
     if (btn) {
-      btn.style.background = isActive ? 'rgba(59,130,246,0.10)' : 'transparent';
-      btn.style.color = isActive ? '#3b82f6' : 'var(--muted2)';
+      btn.style.background = isActive ? 'rgba(30,58,82,0.10)' : 'transparent';
+      btn.style.color = isActive ? '#5a9fc4' : 'var(--muted2)';
       btn.style.fontWeight = isActive ? '700' : '600';
       if (isActive) {
-        btn.style.border = '0.5px solid rgba(59,130,246,0.25)';
+        btn.style.border = '0.5px solid rgba(30,58,82,0.25)';
       } else {
         btn.style.border = 'none';
       }
@@ -9786,7 +9788,7 @@ document.addEventListener('DOMContentLoaded', function() {
       'will-change:transform'
     ].join(';');
 
-    indicator.innerHTML = '<svg id="ptr-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .3s"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>';
+    indicator.innerHTML = '<svg id="ptr-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5a9fc4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .3s"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>';
     document.body.appendChild(indicator);
 
     // safe-area 높이를 측정해서 인디케이터의 "보이는 기준점" 계산
@@ -9842,8 +9844,8 @@ document.addEventListener('DOMContentLoaded', function() {
         ptrTriggered = true;
         haptic('medium');
         // 충분히 당겨졌을 때 배경 밝아짐
-        indicator.style.background = 'rgba(59,130,246,0.15)';
-        indicator.style.borderColor = 'rgba(59,130,246,0.35)';
+        indicator.style.background = 'rgba(30,58,82,0.15)';
+        indicator.style.borderColor = 'rgba(30,58,82,0.35)';
       } else if (ptrDist < THRESHOLD) {
         ptrTriggered = false;
         indicator.style.background = 'var(--surface)';
@@ -9880,7 +9882,7 @@ document.addEventListener('DOMContentLoaded', function() {
           if (activePageName === 'home') {
             syncLoad(true);
             initHome();
-            showToast('🔄 새로고침 완료');
+            showToast('새로고침 완료');
           } else if (activePageName === 'ledger') {
             syncLoad(true);
             renderLedger();
@@ -9904,7 +9906,7 @@ document.addEventListener('DOMContentLoaded', function() {
             initRealEstate();
             showToast('🔄 설정 새로고침');
           } else {
-            showToast('🔄 새로고침 완료');
+            showToast('새로고침 완료');
           }
 
           // 완료 후 인디케이터 숨기기
@@ -10762,7 +10764,7 @@ function renderDonutCard() {
 
   // 색상 매핑
   const CAT_COLORS = {
-    'realestate':   '#60a5fa',
+    'realestate':   '#7ab8d8',
     'stocks':       '#fbbf24',
     'savings':      '#34d399',
     'pension':      '#a78bfa',
@@ -10771,7 +10773,7 @@ function renderDonutCard() {
     'housing-debt': '#ef4444',
     'credit-debt':  '#f87171',
     // 구버전 호환
-    '부동산':       '#60a5fa',
+    '부동산':       '#7ab8d8',
     '금융자산':     '#fbbf24',
     '민석 금융자산':'#fbbf24',
     '시윤 금융자산':'#a78bfa',
@@ -10830,9 +10832,9 @@ function renderDonutCard() {
             // 전체 탭에서만 소유자 배지 표시
             const itemOwnerBadge = (donutTab === 'all' && item.owner && item.owner !== 'common')
               ? '<span style="font-size:9px;font-weight:700;padding:1px 4px;border-radius:4px;margin-left:4px;'
-                + 'background:' + (item.owner==='minsuk'?'rgba(59,130,246,.12)':'rgba(34,197,94,.12)') + ';'
+                + 'background:' + (item.owner==='minsuk'?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';'
                 + 'color:' + (item.owner==='minsuk'?'var(--minsuk)':'var(--siyun)') + ';'
-                + 'border:0.5px solid ' + (item.owner==='minsuk'?'rgba(59,130,246,.3)':'rgba(34,197,94,.3)') + '">'
+                + 'border:0.5px solid ' + (item.owner==='minsuk'?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">'
                 + (item.owner==='minsuk'?getP1Name():getP2Name()) + '</span>'
               : '';
             return '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0 4px 13px">'
@@ -11143,7 +11145,7 @@ function setAptOwner(owner) {
   _aptModalOwner = owner;
   const colorMap = {
     common: { bg: 'var(--surface)', color: 'var(--text)' },
-    minsuk: { bg: 'rgba(59,130,246,.12)', color: 'var(--blue)' },
+    minsuk: { bg: 'rgba(30,58,82,.12)', color: 'var(--blue)' },
     siyun:  { bg: 'rgba(34,197,94,.12)',  color: 'var(--green)' }
   };
   ['common','minsuk','siyun'].forEach(function(o) {
@@ -11547,10 +11549,10 @@ async function selectAptComplex(name, lawdCd, sigungu) {
           const isLatest = i === 0;
           return '<div style="display:flex;justify-content:space-between;align-items:center;'
             + 'padding:8px 10px;border-radius:10px;'
-            + 'background:' + (isLatest ? 'rgba(59,130,246,0.08)' : 'var(--surface3)') + ';'
-            + 'border:1px solid ' + (isLatest ? 'rgba(59,130,246,0.2)' : 'transparent') + '">'
+            + 'background:' + (isLatest ? 'rgba(30,58,82,0.08)' : 'var(--surface3)') + ';'
+            + 'border:1px solid ' + (isLatest ? 'rgba(30,58,82,0.2)' : 'transparent') + '">'
             + '<div style="display:flex;align-items:center;gap:8px">'
-            + (isLatest ? '<span style="font-size:9px;font-weight:700;color:var(--blue);background:rgba(59,130,246,0.12);padding:2px 6px;border-radius:6px">최신</span>' : '')
+            + (isLatest ? '<span style="font-size:9px;font-weight:700;color:var(--blue);background:rgba(30,58,82,0.12);padding:2px 6px;border-radius:6px">최신</span>' : '')
             + '<span style="font-size:12px;color:var(--muted)">' + t.date + '</span>'
             + '<span style="font-size:11px;color:var(--muted2)">' + t.floor + '층</span>'
             + '</div>'
@@ -11793,7 +11795,7 @@ async function fetchAndShowApt() {
   const btn = document.getElementById('apt-refresh-btn');
   if (btn) { btn.textContent = '⏳ 조회중...'; btn.disabled = true; }
   await fetchAllApts();
-  if (btn) { btn.textContent = '🔄 새로고침'; btn.disabled = false; }
+  if (btn) { btn.textContent = '새로고침'; btn.disabled = false; }
 }
 
 // ── ID로 자산에 반영 ──
@@ -11882,13 +11884,13 @@ function renderAptPresets(presetsWrap) {
 
         return '<button onclick="linkAptToItem(\'' + apt.id + '\')" style="'
           + 'width:100%;padding:10px 12px;border-radius:12px;'
-          + 'border:1px solid rgba(59,130,246,0.25);'
-          + 'background:rgba(59,130,246,0.05);'
+          + 'border:1px solid rgba(30,58,82,0.25);'
+          + 'background:rgba(30,58,82,0.05);'
           + 'font-family:\'Noto Sans KR\',sans-serif;cursor:pointer;text-align:left;'
           + 'margin-bottom:6px;transition:all .15s">'
           + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
           + '<span style="font-size:10px;color:var(--muted)">🏢 ' + ownerLabel + '</span>'
-          + '<span style="font-size:9px;font-weight:700;color:var(--blue);background:rgba(59,130,246,0.1);padding:1px 6px;border-radius:8px">불러오기</span>'
+          + '<span style="font-size:9px;font-weight:700;color:var(--blue);background:rgba(30,58,82,0.1);padding:1px 6px;border-radius:8px">불러오기</span>'
           + '</div>'
           + '<div style="font-size:15px;font-weight:800;color:var(--text)">' + apt.name + '</div>'
           + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + priceStr + ' · ' + fetchedStr + '</div>'
@@ -12058,7 +12060,7 @@ function renderAssetTabChart() {
     + '</linearGradient></defs>';
 
   svgHtml += '<path d="' + areaD + '" fill="url(#acg)"/>';
-  svgHtml += '<path d="' + pathD + '" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+  svgHtml += '<path d="' + pathD + '" fill="none" stroke="#5a9fc4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
 
   pts.forEach(function(p, i) {
     const isLast = i === pts.length - 1;
@@ -12156,7 +12158,7 @@ function renderMiniChart() {
 
   // 영역 + 선
   svgHtml += '<path d="' + areaD + '" fill="url(#cg)"/>';
-  svgHtml += '<path d="' + pathD + '" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+  svgHtml += '<path d="' + pathD + '" fill="none" stroke="#5a9fc4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
 
   // 포인트 + 레이블
   pts.forEach(function(p, i) {
@@ -12614,7 +12616,7 @@ function renderBrokerChips() {
     return '<button type="button" onclick="selectStockBroker(\'' + b.replace(/'/g, "\\'") + '\')"'
       + ' style="padding:5px 12px;border-radius:16px;'
       + 'border:1.5px solid ' + (active ? 'var(--blue)' : 'var(--border2)') + ';'
-      + 'background:' + (active ? 'rgba(59,130,246,.12)' : 'transparent') + ';'
+      + 'background:' + (active ? 'rgba(30,58,82,.12)' : 'transparent') + ';'
       + 'color:' + (active ? 'var(--blue)' : 'var(--muted2)') + ';'
       + 'font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:700;'
       + 'cursor:pointer;transition:all .15s">' + b + '</button>';
@@ -12728,7 +12730,7 @@ function setStockOwner(owner) {
   const msBtn = document.getElementById('stock-owner-ms');
   const syBtn = document.getElementById('stock-owner-sy');
   if (msBtn) {
-    msBtn.style.background = owner === 'minsuk' ? 'rgba(59,130,246,.15)' : 'transparent';
+    msBtn.style.background = owner === 'minsuk' ? 'rgba(30,58,82,.15)' : 'transparent';
     msBtn.style.borderColor = owner === 'minsuk' ? 'var(--blue)' : 'var(--border2)';
     msBtn.style.color = owner === 'minsuk' ? 'var(--blue)' : 'var(--muted2)';
     msBtn.textContent = getP1Name();
@@ -12892,7 +12894,7 @@ function setPnlOwner(owner) {
     var btn = document.getElementById('pnl-owner-' + k);
     if (!btn) return;
     var active = ownerMap[k] === owner;
-    btn.style.background = active ? 'rgba(59,130,246,.15)' : 'transparent';
+    btn.style.background = active ? 'rgba(30,58,82,.15)' : 'transparent';
     btn.style.borderColor = active ? 'var(--blue)' : 'var(--border2)';
     btn.style.color = active ? 'var(--blue)' : 'var(--muted2)';
   });
@@ -12904,12 +12906,12 @@ function setStkSort(mode) {
   const pctBtn = document.getElementById('stk-sort-pct');
   const amtBtn = document.getElementById('stk-sort-amt');
   if (pctBtn) {
-    pctBtn.style.background = mode === 'pct' ? 'rgba(59,130,246,.15)' : 'transparent';
+    pctBtn.style.background = mode === 'pct' ? 'rgba(30,58,82,.15)' : 'transparent';
     pctBtn.style.borderColor = mode === 'pct' ? 'var(--blue)' : 'var(--border2)';
     pctBtn.style.color = mode === 'pct' ? 'var(--blue)' : 'var(--muted2)';
   }
   if (amtBtn) {
-    amtBtn.style.background = mode === 'amt' ? 'rgba(59,130,246,.15)' : 'transparent';
+    amtBtn.style.background = mode === 'amt' ? 'rgba(30,58,82,.15)' : 'transparent';
     amtBtn.style.borderColor = mode === 'amt' ? 'var(--blue)' : 'var(--border2)';
     amtBtn.style.color = mode === 'amt' ? 'var(--blue)' : 'var(--muted2)';
   }
@@ -12975,8 +12977,8 @@ function _renderStockRows(list) {
     // 그라데이션: 비율에 비례해 색상 강도 조절 (0.25 ~ 1.0)
     const ratio   = Math.min(barVal / maxAbs, 1);
     const alpha   = (0.28 + ratio * 0.72).toFixed(2);
-    const barColor  = isUp ? 'rgba(239,68,68,' + alpha + ')' : 'rgba(74,158,255,' + alpha + ')';
-    const textColor = isUp ? 'rgba(239,68,68,' + Math.max(alpha, 0.6) + ')' : 'rgba(74,158,255,' + Math.max(alpha, 0.6) + ')';
+    const barColor  = isUp ? 'rgba(239,68,68,' + alpha + ')' : 'rgba(90,159,196,' + alpha + ')';
+    const textColor = isUp ? 'rgba(239,68,68,' + Math.max(alpha, 0.6) + ')' : 'rgba(90,159,196,' + Math.max(alpha, 0.6) + ')';
 
     // 평가금액 (원화 환산)
     const evalKrw = s.currentPrice * s.qty * (s.market === 'US' && usdKrw ? usdKrw : 1);
@@ -13063,7 +13065,7 @@ function renderStkPctChart() {
         + (isByAmt ? fmtKrwCompact(topGainerKrw) : (topGainerPct >= 0 ? '+' : '') + topGainerPct.toFixed(1) + '%')
       + '</div>'
       + '</div>'
-      + '<div style="padding:8px 10px;background:rgba(74,158,255,.07);border:0.5px solid rgba(74,158,255,.15);border-radius:8px">'
+      + '<div style="padding:8px 10px;background:rgba(90,159,196,.07);border:0.5px solid rgba(90,159,196,.15);border-radius:8px">'
       + '<div style="font-size:9px;color:var(--muted);margin-bottom:3px">' + (isByAmt ? '최저 수익금액' : '최저 수익률') + '</div>'
       + '<div style="font-size:11px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + topLoser.name + '</div>'
       + '<div style="font-size:12px;font-weight:800;color:var(--blue);margin-top:1px">'
@@ -13169,7 +13171,7 @@ function renderStkPctChart() {
 
   compareContent.innerHTML =
     '<div style="display:flex;gap:10px;margin-bottom:14px">'
-    + ownerCard(msStocks, getP1Name(), 'var(--minsuk)', 'rgba(59,130,246,.06)')
+    + ownerCard(msStocks, getP1Name(), 'var(--minsuk)', 'rgba(30,58,82,.06)')
     + ownerCard(syStocks, getP2Name(), 'var(--siyun)', 'rgba(34,197,94,.06)')
     + '</div>'
     + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
@@ -13366,7 +13368,7 @@ function renderStockHistory() {
         + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">총 매수 (' + buyCount + '건)</div>'
         + '<div style="font-size:13px;font-weight:800;color:var(--red)">-' + Math.round(totalBuyKrw).toLocaleString() + '원</div>'
         + '</div>' : '')
-      + (sellCount > 0 ? '<div style="flex:1;padding:10px 12px;background:rgba(74,158,255,.07);border:0.5px solid rgba(74,158,255,.2);border-radius:10px">'
+      + (sellCount > 0 ? '<div style="flex:1;padding:10px 12px;background:rgba(90,159,196,.07);border:0.5px solid rgba(90,159,196,.2);border-radius:10px">'
         + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">총 매도 (' + sellCount + '건)</div>'
         + '<div style="font-size:13px;font-weight:800;color:var(--blue)">+' + Math.round(totalSellKrw).toLocaleString() + '원</div>'
         + '</div>' : '')
@@ -13386,7 +13388,7 @@ function renderStockHistory() {
     const totalStr = t.market === 'KR' ? Math.round(t.price * t.qty).toLocaleString() + '원' : '$' + (t.price * t.qty).toFixed(2);
     const ownerBadge = currentStkOwner === 'all'
       ? (t.owner === 'minsuk'
-          ? '<span style="font-size:9px;background:rgba(59,130,246,.12);color:var(--minsuk);border:0.5px solid rgba(59,130,246,.3);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + getP1Name() + '</span>'
+          ? '<span style="font-size:9px;background:rgba(30,58,82,.12);color:var(--minsuk);border:0.5px solid rgba(30,58,82,.3);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + getP1Name() + '</span>'
           : t.owner === 'siyun'
           ? '<span style="font-size:9px;background:rgba(34,197,94,.12);color:var(--siyun);border:0.5px solid rgba(34,197,94,.3);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + getP2Name() + '</span>'
           : '')
@@ -13399,7 +13401,7 @@ function renderStockHistory() {
       : '';
 
     return '<div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:8px">'
-      + '<div style="width:40px;height:40px;border-radius:12px;background:' + (isBuy?'rgba(239,68,68,.12)':'rgba(74,158,255,.12)') + ';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:' + color + ';flex-shrink:0">' + label + '</div>'
+      + '<div style="width:40px;height:40px;border-radius:12px;background:' + (isBuy?'rgba(239,68,68,.12)':'rgba(90,159,196,.12)') + ';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:' + color + ';flex-shrink:0">' + label + '</div>'
       + '<div style="flex:1;min-width:0">'
       + '<div style="font-size:13px;font-weight:700;display:flex;align-items:center;flex-wrap:wrap;gap:2px">' + t.stockName + ownerBadge + acctBadge + '</div>'
       + '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:3px">'
@@ -13462,7 +13464,7 @@ function renderStockList() {
       + '<div style="font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:24px">'
       + '국내/해외 주식을 계좌종류와 함께 추가하면<br>계좌별로 구분해 수익률을 확인할 수 있어요</div>'
       + '<button onclick="openStockAdd()" style="margin-top:4px;width:100%;max-width:280px;padding:14px;'
-      + 'background:#1e1e1e;border:0.5px solid rgba(59,130,246,0.25);border-radius:14px;'
+      + 'background:#1e1e1e;border:0.5px solid rgba(30,58,82,0.25);border-radius:14px;'
       + 'color:var(--text);font-family:\'Noto Sans KR\',sans-serif;font-size:14px;font-weight:700;cursor:pointer">'
       + '+ 첫 종목 추가하기</button></div>';
     updateStockSummary();
@@ -13668,9 +13670,9 @@ function renderStockList() {
     var nBadge = '<span style="font-size:9px;background:rgba(201,168,76,.1);color:var(--gold);border:0.5px solid rgba(201,168,76,.25);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:5px">' + ss.length + '계좌</span>';
     var ownerBadge = (currentStkOwner === 'all' && group.owner)
       ? '<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;margin-left:4px;flex-shrink:0;'
-        + 'background:' + (group.owner==='minsuk'?'rgba(59,130,246,.12)':'rgba(34,197,94,.12)') + ';'
+        + 'background:' + (group.owner==='minsuk'?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';'
         + 'color:' + (group.owner==='minsuk'?'var(--minsuk)':'var(--siyun)') + ';'
-        + 'border:0.5px solid ' + (group.owner==='minsuk'?'rgba(59,130,246,.3)':'rgba(34,197,94,.3)') + '">'
+        + 'border:0.5px solid ' + (group.owner==='minsuk'?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">'
         + (group.owner==='minsuk'?getP1Name():getP2Name()) + '</span>' : '';
     var gk = group.key.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     var sgDomId = group.key.replace(/['"]/g, '').replace(/[\s|]/g, '-');
@@ -14094,7 +14096,7 @@ function setMarket(market) {
   const us = document.getElementById('market-us');
   const lbl = document.getElementById('stock-currency-label');
   if (kr) {
-    kr.style.background = market === 'KR' ? 'rgba(59,130,246,.15)' : 'transparent';
+    kr.style.background = market === 'KR' ? 'rgba(30,58,82,.15)' : 'transparent';
     kr.style.borderColor = market === 'KR' ? 'var(--blue)' : 'var(--border2)';
     kr.style.color = market === 'KR' ? 'var(--blue)' : 'var(--muted2)';
   }
@@ -14201,7 +14203,7 @@ function openTradeModal(id) {
     if (s.broker) badges.push('<span style="font-size:10px;color:var(--muted2);border:0.5px solid var(--border2);border-radius:7px;padding:2px 7px">' + s.broker + '</span>');
     if (s.owner) {
       const isMs = s.owner === 'minsuk';
-      badges.push('<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:' + (isMs?'rgba(59,130,246,.12)':'rgba(34,197,94,.12)') + ';color:' + (isMs?'var(--minsuk)':'var(--siyun)') + ';border:0.5px solid ' + (isMs?'rgba(59,130,246,.3)':'rgba(34,197,94,.3)') + '">' + (isMs?getP1Name():getP2Name()) + '</span>');
+      badges.push('<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:' + (isMs?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';color:' + (isMs?'var(--minsuk)':'var(--siyun)') + ';border:0.5px solid ' + (isMs?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">' + (isMs?getP1Name():getP2Name()) + '</span>');
     }
     acctEl.innerHTML = badges.join('');
     acctEl.style.display = badges.length ? 'flex' : 'none';
@@ -14231,7 +14233,7 @@ function setTradeType(type) {
   if (buyBtn) {
     buyBtn.style.background = type === 'buy' ? 'var(--blue)' : 'transparent';
     buyBtn.style.color = type === 'buy' ? '#fff' : 'var(--muted2)';
-    buyBtn.style.border = type === 'buy' ? '0.5px solid rgba(59,130,246,.5)' : '0.5px solid transparent';
+    buyBtn.style.border = type === 'buy' ? '0.5px solid rgba(30,58,82,.5)' : '0.5px solid transparent';
   }
   if (sellBtn) {
     sellBtn.style.background = type === 'sell' ? 'var(--red)' : 'transparent';
@@ -14315,9 +14317,9 @@ const CATEGORIES = {
     { id:'food',    label:'식비',    color:'#ef4444' },
     { id:'cafe',    label:'카페',    color:'#fb923c' },
     { id:'trans',   label:'교통',    color:'#fbbf24' },
-    { id:'shop',    label:'쇼핑',    color:'#3b82f6' },
+    { id:'shop',    label:'쇼핑',    color:'#5a9fc4' },
     { id:'health',  label:'의료',    color:'#34d399' },
-    { id:'leisure', label:'여가',    color:'#60a5fa' },
+    { id:'leisure', label:'여가',    color:'#7ab8d8' },
     { id:'child',   label:'육아',    color:'#f472b6' },
     { id:'edu',     label:'교육',    color:'#a78bfa' },
     { id:'house',   label:'주거',    color:'#94a3b8' },
@@ -14327,7 +14329,7 @@ const CATEGORIES = {
     { id:'salary',  label:'급여',    color:'#22c55e' },
     { id:'bonus',   label:'보너스',  color:'#a3e635' },
     { id:'invest',  label:'투자',    color:'#34d399' },
-    { id:'side',    label:'부업',    color:'#60a5fa' },
+    { id:'side',    label:'부업',    color:'#7ab8d8' },
     { id:'etc_in',  label:'기타',    color:'#6b7280' },
   ]
 };
@@ -14505,16 +14507,16 @@ function renderCalendar() {
     const isLastCol = colIdx === 6;
 
     let dayColor = 'var(--text)';
-    if (isSat) dayColor = '#60a5fa';
+    if (isSat) dayColor = '#7ab8d8';
     if (isSun) dayColor = '#ef4444';
 
     let bg = 'transparent';
-    if (isSelected) bg = 'rgba(59,130,246,0.06)';
-    if (isToday) bg = 'rgba(59,130,246,0.04)';
+    if (isSelected) bg = 'rgba(30,58,82,0.06)';
+    if (isToday) bg = 'rgba(30,58,82,0.04)';
 
     let dots = '';
-    if (data.schedules.length) dots += '<div style="width:5px;height:5px;border-radius:50%;background:#3b82f6;flex-shrink:0"></div>';
-    if (data.recurring.length) dots += '<div style="width:5px;height:5px;border-radius:50%;background:#60a5fa;flex-shrink:0"></div>';
+    if (data.schedules.length) dots += '<div style="width:5px;height:5px;border-radius:50%;background:#5a9fc4;flex-shrink:0"></div>';
+    if (data.recurring.length) dots += '<div style="width:5px;height:5px;border-radius:50%;background:#7ab8d8;flex-shrink:0"></div>';
     if (data.expense > 0) dots += '<div style="width:5px;height:5px;border-radius:50%;background:#ef4444;flex-shrink:0"></div>';
     if (data.income > 0) dots += '<div style="width:5px;height:5px;border-radius:50%;background:#22c55e;flex-shrink:0"></div>';
 
@@ -14538,9 +14540,9 @@ function renderCalendar() {
       + 'display:flex;align-items:center;justify-content:center;'
       + 'font-size:11px;font-weight:' + (isToday ? '900' : '600') + ';'
       + 'color:' + (isToday ? '#0a0a0a' : dayColor) + ';'
-      + 'background:' + (isToday ? '#3b82f6' : 'transparent') + ';'
+      + 'background:' + (isToday ? '#5a9fc4' : 'transparent') + ';'
       + 'margin:0 auto 3px;'
-      + (isSelected && !isToday ? 'outline:2px solid rgba(59,130,246,0.4);' : '')
+      + (isSelected && !isToday ? 'outline:2px solid rgba(30,58,82,0.4);' : '')
       + '">' + d + '</div>'
       + '<div style="text-align:center">' + expLabel + '</div>'
       + '<div style="display:flex;justify-content:center;gap:2px;flex-wrap:wrap;margin-top:2px">' + dots + '</div>'
@@ -14585,7 +14587,7 @@ function renderCalDayDetail(dateStr) {
     const diffStr = diff === 0 ? '오늘' : diff > 0 ? 'D-' + diff : Math.abs(diff) + '일 전';
     const diffColor = diff <= 7 && diff >= 0 ? '#ef4444' : diff <= 30 && diff >= 0 ? '#fbbf24' : 'var(--muted)';
     html += '<div onclick="openScheduleEdit(' + schedules.indexOf(s) + ')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:12px;margin-bottom:8px;cursor:pointer">'
-      + '<div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;flex-shrink:0"></div>'
+      + '<div style="width:8px;height:8px;border-radius:50%;background:#5a9fc4;flex-shrink:0"></div>'
       + '<div style="flex:1">'
       + '<div style="font-size:13px;font-weight:700;color:var(--text)">' + escHtml(s.name) + '</div>'
       + (s.amount ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + (s.amountType==='in'?'+':'-') + s.amount.toLocaleString() + '만원</div>' : '')
@@ -14596,8 +14598,8 @@ function renderCalDayDetail(dateStr) {
 
   if (dateStr.endsWith('-01')) {
     recurringItems.forEach(function(r) {
-      html += '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.2);border-radius:12px;margin-bottom:8px">'
-        + '<div style="width:8px;height:8px;border-radius:50%;background:#60a5fa;flex-shrink:0"></div>'
+      html += '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(90,159,196,0.08);border:1px solid rgba(90,159,196,0.2);border-radius:12px;margin-bottom:8px">'
+        + '<div style="width:8px;height:8px;border-radius:50%;background:#7ab8d8;flex-shrink:0"></div>'
         + '<div style="flex:1">'
         + '<div style="font-size:13px;font-weight:700;color:var(--text)">🔄 ' + escHtml(r.name) + '</div>'
         + '<div style="font-size:11px;color:var(--muted);margin-top:2px">정기지출 · ' + (r.owner==='minsuk'?getP1Name():r.owner==='siyun'?getP2Name():getCommonName()) + '</div>'
@@ -14675,7 +14677,7 @@ function renderCalUpcoming() {
     const [iy, im, id2] = item.date.split('-');
     const isPast = item.diff < 0;
     const isToday3 = item.diff === 0;
-    const dotColor = item.type === 'schedule' ? '#3b82f6' : '#60a5fa';
+    const dotColor = item.type === 'schedule' ? '#5a9fc4' : '#7ab8d8';
     const diffStr = isToday3 ? '🔥 오늘' : isPast ? Math.abs(item.diff) + '일 전' : 'D-' + item.diff;
     const diffColor = isToday3 ? '#ef4444' : isPast ? 'var(--muted)' : item.diff <= 7 ? '#fbbf24' : 'var(--muted2)';
     const amtStr = item.amount
@@ -15129,7 +15131,7 @@ function renderLedgerList(txs) {
       + '<div style="font-size:12px;margin-bottom:20px">이번달 첫 거래를 기록해보세요!</div>'
       + '<div style="display:flex;gap:8px;justify-content:center">'
       + '<button onclick="openLedgerAdd(\'expense\')" style="padding:12px 20px;border-radius:12px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--red);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:700;cursor:pointer">💸 지출 추가</button>'
-      + '<button onclick="openLedgerAdd(\'income\')" style="padding:12px 20px;border-radius:12px;background:rgba(74,158,255,.12);border:1px solid rgba(74,158,255,.3);color:var(--blue);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:700;cursor:pointer">💰 수입 추가</button>'
+      + '<button onclick="openLedgerAdd(\'income\')" style="padding:12px 20px;border-radius:12px;background:rgba(90,159,196,.12);border:1px solid rgba(90,159,196,.3);color:var(--blue);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:700;cursor:pointer">💰 수입 추가</button>'
       + '</div></div>';
     return;
   }
@@ -15153,7 +15155,7 @@ function renderLedgerList(txs) {
     var dayName = dayNames[dateObj.getDay()];
     var isSat = dateObj.getDay() === 6;
     var isSun = dateObj.getDay() === 0;
-    var dayColor = isSat ? '#60a5fa' : isSun ? '#ef4444' : 'var(--muted)';
+    var dayColor = isSat ? '#7ab8d8' : isSun ? '#ef4444' : 'var(--muted)';
     var isToday = date === todayStr2;
     var dayIncome  = items.filter(function(t){ return t.type==='income'; }).reduce(function(s,t){ return s+t.amount; },0);
     var dayExpense = items.filter(function(t){ return t.type==='expense'; }).reduce(function(s,t){ return s+t.amount; },0);
@@ -15163,7 +15165,7 @@ function renderLedgerList(txs) {
       + '<div style="display:flex;align-items:center;gap:8px">'
       + '<span style="font-size:13px;font-weight:700;color:var(--text)">' + parseInt(mm) + '/' + parseInt(dd) + '</span>'
       + '<span style="font-size:11px;color:' + dayColor + '">' + dayName + '</span>'
-      + (isToday ? '<span style="font-size:9px;background:rgba(59,130,246,0.12);color:var(--blue);padding:2px 7px;border-radius:8px;font-weight:700">오늘</span>' : '')
+      + (isToday ? '<span style="font-size:9px;background:rgba(30,58,82,0.12);color:var(--blue);padding:2px 7px;border-radius:8px;font-weight:700">오늘</span>' : '')
       + '</div>'
       + '<span style="font-size:11px;font-weight:500;color:' + (dayNet>=0?'var(--blue)':'var(--red)') + '">'
       + (dayNet>=0?'+':'') + Math.round(dayNet*10000).toLocaleString() + '원</span>'
@@ -15183,9 +15185,9 @@ function renderLedgerList(txs) {
         var isMs = t.owner === 'minsuk';
         var ownerName = isMs ? getP1Name() : getP2Name();
         ownerHtml = ' <span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:6px;'
-          + 'background:' + (isMs ? 'rgba(59,130,246,.12)' : 'rgba(34,197,94,.12)') + ';'
+          + 'background:' + (isMs ? 'rgba(30,58,82,.12)' : 'rgba(34,197,94,.12)') + ';'
           + 'color:' + (isMs ? 'var(--minsuk)' : 'var(--siyun)') + ';'
-          + 'border:0.5px solid ' + (isMs ? 'rgba(59,130,246,.3)' : 'rgba(34,197,94,.3)') + '">'
+          + 'border:0.5px solid ' + (isMs ? 'rgba(30,58,82,.3)' : 'rgba(34,197,94,.3)') + '">'
           + ownerName + '</span>';
       }
 
@@ -15229,7 +15231,7 @@ function renderLedgerList(txs) {
         + swipeBtn
         + '<div onclick="' + clickFn + '" id="row-' + t.id + '" ' + touchEvents
         + ' style="display:flex;align-items:center;gap:12px;padding:13px 14px;cursor:pointer;'
-        + 'background:' + (isSelected ? 'rgba(59,130,246,0.06)' : 'var(--surface)') + ';'
+        + 'background:' + (isSelected ? 'rgba(30,58,82,0.06)' : 'var(--surface)') + ';'
         + 'position:relative;z-index:2;transition:background .15s">'
         + leftIcon
         + '<div style="flex:1;min-width:0">'
@@ -15570,9 +15572,9 @@ function renderExpenseHeatmap() {
       textColor = '#fff';
     }
 
-    const border = isToday ? '2px solid #3b82f6' : '1px solid transparent';
+    const border = isToday ? '2px solid #5a9fc4' : '1px solid transparent';
     const expStr = exp > 0 ? (exp >= 10 ? Math.round(exp) + '만' : Math.round(exp * 10000 / 1000) + 'k') : '';
-    const dayNumColor = exp === 0 ? (isSat ? '#60a5fa' : isSun ? '#ef4444' : 'var(--muted)') : textColor;
+    const dayNumColor = exp === 0 ? (isSat ? '#7ab8d8' : isSun ? '#ef4444' : 'var(--muted)') : textColor;
 
     html += '<div onclick="showDayDetail(\'' + dateStr + '\')" style="'
       + 'background:' + bg + ';'
@@ -15646,8 +15648,8 @@ function setTrendMonths(n) {
     const btn = document.getElementById('trend-btn-' + m);
     if (!btn) return;
     const isActive = m === n;
-    btn.style.background = isActive ? 'rgba(59,130,246,0.10)' : 'transparent';
-    btn.style.color = isActive ? '#3b82f6' : 'var(--muted2)';
+    btn.style.background = isActive ? 'rgba(30,58,82,0.10)' : 'transparent';
+    btn.style.color = isActive ? '#5a9fc4' : 'var(--muted2)';
     btn.style.border = isActive ? 'none' : '1px solid var(--border2)';
     btn.style.fontWeight = isActive ? '700' : '600';
   });
@@ -15689,7 +15691,7 @@ function renderLedgerTrendChart() {
     const incY = padT + innerH - incH;
 
     // 수입 바
-    svgHtml += '<rect x="' + x + '" y="' + incY + '" width="' + barW + '" height="' + incH + '" rx="4" fill="rgba(74,158,255,0.5)"/>';
+    svgHtml += '<rect x="' + x + '" y="' + incY + '" width="' + barW + '" height="' + incH + '" rx="4" fill="rgba(90,159,196,0.5)"/>';
     // 지출 바
     svgHtml += '<rect x="' + (x + barW + 4) + '" y="' + expY + '" width="' + barW + '" height="' + expH + '" rx="4" fill="rgba(239,68,68,0.7)"/>';
 
@@ -15704,7 +15706,7 @@ function renderLedgerTrendChart() {
   });
 
   // 범례
-  svgHtml += '<rect x="' + (svgW - 80) + '" y="4" width="10" height="10" rx="2" fill="rgba(74,158,255,0.5)"/>';
+  svgHtml += '<rect x="' + (svgW - 80) + '" y="4" width="10" height="10" rx="2" fill="rgba(90,159,196,0.5)"/>';
   svgHtml += '<text x="' + (svgW - 67) + '" y="13" fill="var(--muted)" font-size="9" font-family="Noto Sans KR">수입</text>';
   svgHtml += '<rect x="' + (svgW - 42) + '" y="4" width="10" height="10" rx="2" fill="rgba(239,68,68,0.7)"/>';
   svgHtml += '<text x="' + (svgW - 29) + '" y="13" fill="var(--muted)" font-size="9" font-family="Noto Sans KR">지출</text>';
@@ -15730,7 +15732,7 @@ function renderOwnerCompare(txs) {
   const cmPct = Math.round(cmExp/totalExp2*100);
   wrap.innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
-      <div style="background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.15);border-radius:12px;padding:10px;text-align:center">
+      <div style="background:rgba(90,159,196,.08);border:1px solid rgba(90,159,196,.15);border-radius:12px;padding:10px;text-align:center">
         <div style="font-size:10px;color:var(--minsuk);font-weight:700;margin-bottom:5px">👨 ${getP1Name()}</div>
         <div style="font-size:14px;font-weight:900;color:var(--red)">${(msExp*10000).toLocaleString()}원</div>
         <div style="font-size:9px;color:var(--muted)">지출</div>
@@ -15874,8 +15876,8 @@ function closeVoiceParser() {
 function setVoiceOwner(owner) {
   voiceOwner = owner;
   const styles = {
-    cm: { bg: 'rgba(59,130,246,.10)', color: 'var(--text)', border: 'rgba(59,130,246,.25)' },
-    ms: { bg: 'rgba(59,130,246,.15)', color: 'var(--blue)', border: 'rgba(59,130,246,.35)' },
+    cm: { bg: 'rgba(30,58,82,.10)', color: 'var(--text)', border: 'rgba(30,58,82,.25)' },
+    ms: { bg: 'rgba(30,58,82,.15)', color: 'var(--blue)', border: 'rgba(30,58,82,.35)' },
     sy: { bg: 'rgba(34,197,94,.15)', color: 'var(--green)', border: 'rgba(34,197,94,.35)' }
   };
   ['cm','ms','sy'].forEach(function(k) {
@@ -16027,7 +16029,7 @@ async function runVoiceParser() {
   } catch(e) {
     showToast('❗ 분석 실패: ' + e.message);
   } finally {
-    btn.textContent = '🤖 AI로 등록하기';
+    btn.textContent = 'AI로 등록하기';
     btn.disabled = false;
   }
 }
@@ -16429,8 +16431,8 @@ function setExcelCardType(type) {
 function setExcelOwner(owner) {
   excelOwner = owner;
   const colorMap = {
-    joint:  { bg: 'rgba(59,130,246,.10)', color: 'var(--text)',  border: 'rgba(59,130,246,.25)' },
-    minsuk: { bg: 'rgba(59,130,246,.15)', color: 'var(--blue)',  border: 'rgba(59,130,246,.35)' },
+    joint:  { bg: 'rgba(30,58,82,.10)', color: 'var(--text)',  border: 'rgba(30,58,82,.25)' },
+    minsuk: { bg: 'rgba(30,58,82,.15)', color: 'var(--blue)',  border: 'rgba(30,58,82,.35)' },
     siyun:  { bg: 'rgba(34,197,94,.15)', color: 'var(--green)', border: 'rgba(34,197,94,.35)' }
   };
   ['joint','minsuk','siyun'].forEach(function(o) {
@@ -16692,8 +16694,8 @@ function closeHomeMic() {
 function setHomeMicOwner(owner) {
   homeMicOwner = owner;
   const styles = {
-    cm: { bg: 'rgba(59,130,246,.10)', color: 'var(--text)', border: 'rgba(59,130,246,.25)' },
-    ms: { bg: 'rgba(59,130,246,.15)', color: 'var(--blue)', border: 'rgba(59,130,246,.35)' },
+    cm: { bg: 'rgba(30,58,82,.10)', color: 'var(--text)', border: 'rgba(30,58,82,.25)' },
+    ms: { bg: 'rgba(30,58,82,.15)', color: 'var(--blue)', border: 'rgba(30,58,82,.35)' },
     sy: { bg: 'rgba(34,197,94,.15)', color: 'var(--green)', border: 'rgba(34,197,94,.35)' }
   };
   ['cm','ms','sy'].forEach(function(k) {
@@ -16828,7 +16830,7 @@ function openSmsParser() {
   document.getElementById('sms-result-list').innerHTML = '';
   document.getElementById('sms-confirm-btn').style.display = 'none';
   document.getElementById('sms-parse-btn').style.display = 'block';
-  document.getElementById('sms-parse-btn').textContent = '🤖 AI로 분석하기';
+  document.getElementById('sms-parse-btn').textContent = 'AI로 분석하기';
   document.getElementById('sms-parse-btn').disabled = false;
   document.getElementById('sms-drop-zone').style.display = 'block';
   document.getElementById('sms-img-input').value = '';
@@ -16845,8 +16847,8 @@ function closeSmsParser() {
 function setSmsOwner(owner) {
   smsOwner = owner;
   const styles = {
-    cm: { bg: 'rgba(59,130,246,.10)', color: 'var(--text)', border: 'rgba(59,130,246,.25)' },
-    ms: { bg: 'rgba(59,130,246,.15)', color: 'var(--blue)', border: 'rgba(59,130,246,.35)' },
+    cm: { bg: 'rgba(30,58,82,.10)', color: 'var(--text)', border: 'rgba(30,58,82,.25)' },
+    ms: { bg: 'rgba(30,58,82,.15)', color: 'var(--blue)', border: 'rgba(30,58,82,.35)' },
     sy: { bg: 'rgba(34,197,94,.15)', color: 'var(--green)', border: 'rgba(34,197,94,.35)' }
   };
   ['cm','ms','sy'].forEach(function(k) {
@@ -16874,7 +16876,7 @@ function addSmsImages(files) {
   document.getElementById('sms-result-wrap').style.display = 'none';
   document.getElementById('sms-confirm-btn').style.display = 'none';
   document.getElementById('sms-parse-btn').style.display = 'block';
-  document.getElementById('sms-parse-btn').textContent = '🤖 AI로 분석하기';
+  document.getElementById('sms-parse-btn').textContent = 'AI로 분석하기';
   document.getElementById('sms-parse-btn').disabled = false;
 }
 
@@ -16957,7 +16959,7 @@ async function runSmsParser() {
     const claudeKey = load('claude-api-key', '');
     if (!claudeKey) {
       showToast('❗ 설정에서 Claude API 키를 먼저 입력해주세요');
-      btn.textContent = '🤖 AI로 분석하기';
+      btn.textContent = 'AI로 분석하기';
       btn.disabled = false;
       return;
     }
@@ -17022,7 +17024,7 @@ async function runSmsParser() {
 
   } catch(e) {
     showToast('❗ 분석 실패: ' + e.message);
-    btn.textContent = '🤖 AI로 분석하기';
+    btn.textContent = 'AI로 분석하기';
     btn.disabled = false;
   }
 }
@@ -17105,7 +17107,7 @@ function setTxType(type) {
     expBtn.style.color = isExp ? 'var(--up)' : 'var(--muted2)';
   }
   if (incBtn) {
-    incBtn.style.background = !isExp ? 'rgba(59,130,246,0.10)' : 'transparent';
+    incBtn.style.background = !isExp ? 'rgba(30,58,82,0.10)' : 'transparent';
     incBtn.style.borderColor = !isExp ? 'var(--blue)' : 'var(--border2)';
     incBtn.style.color = !isExp ? 'var(--blue)' : 'var(--muted2)';
   }
@@ -17123,7 +17125,7 @@ function setTxOwner(owner) {
   const cmBtn = document.getElementById('tx-owner-cm');
   if (msBtn) {
     const active = owner === 'minsuk';
-    msBtn.style.background = active ? 'rgba(59,130,246,.15)' : 'transparent';
+    msBtn.style.background = active ? 'rgba(30,58,82,.15)' : 'transparent';
     msBtn.style.borderColor = active ? 'var(--blue)' : 'var(--border2)';
     msBtn.style.color = active ? 'var(--blue)' : 'var(--muted2)';
     msBtn.style.fontWeight = active ? '700' : '600';
@@ -17305,9 +17307,9 @@ function renderLoadMonthBtns(currentMonth) {
     const isCurrent = r.month === currentMonth;
     return `<button onclick="loadMonthDataToModal('${r.month}')"
       style="flex-shrink:0;padding:4px 10px;border-radius:16px;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;
-      background:${isCurrent ? 'rgba(59,130,246,0.12)' : 'var(--surface3)'};
-      color:${isCurrent ? '#3b82f6' : 'var(--muted2)'};
-      border:0.5px solid ${isCurrent ? 'rgba(59,130,246,0.25)' : 'var(--border2)'};
+      background:${isCurrent ? 'rgba(30,58,82,0.12)' : 'var(--surface3)'};
+      color:${isCurrent ? '#5a9fc4' : 'var(--muted2)'};
+      border:0.5px solid ${isCurrent ? 'rgba(30,58,82,0.25)' : 'var(--border2)'};
       white-space:nowrap">
       ${parseInt(y)}년 ${parseInt(m)}월
     </button>`;
