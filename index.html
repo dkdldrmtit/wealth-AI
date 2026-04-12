@@ -2099,6 +2099,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">카테고리</button>
     <button id="stab-data" onclick="setSettingsTab('data')"
       style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">계정</button>
+    <button id="stab-notif" onclick="setSettingsTab('notif')"
+      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">알림</button>
   </div>
 
   <!-- 홈 설정 -->
@@ -2149,6 +2151,70 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
   <!-- API 탭 제거됨 -->
   <div id="stab-content-api" style="display:none"></div>
+
+  <!-- 알림 설정 -->
+  <div id="stab-content-notif" style="display:none">
+
+    <!-- 알림 권한 상태 -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title" style="color:var(--muted)">알림 권한</div>
+      <div id="notif-permission-status" style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--surface2);border-radius:12px;margin-bottom:14px">
+        <div id="notif-permission-dot" style="width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0"></div>
+        <div>
+          <div id="notif-permission-label" style="font-size:13px;font-weight:600;color:var(--text)">확인 중...</div>
+          <div id="notif-permission-desc" style="font-size:11px;color:var(--muted2);margin-top:2px"></div>
+        </div>
+      </div>
+      <button id="notif-enable-btn" onclick="requestPushPermission()" style="display:none;width:100%;padding:13px;border-radius:12px;background:rgba(90,159,196,0.12);border:1px solid rgba(90,159,196,0.3);color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
+        알림 켜기
+      </button>
+    </div>
+
+    <!-- 알림 동작 설정 -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title" style="color:var(--muted)">알림 동작</div>
+      <p style="font-size:12px;color:var(--muted2);line-height:1.7;margin-bottom:16px">
+        파트너가 소비를 기록하면 알림을 받고,<br>내 소비도 파트너에게 즉시 전달돼요.
+      </p>
+
+      <!-- 수신 알림 토글 -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-size:14px;font-weight:600;color:var(--text)">파트너 알림 받기</div>
+          <div style="font-size:11px;color:var(--muted2);margin-top:3px">파트너가 소비 기록 시 알림</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:46px;height:26px;cursor:pointer">
+          <input type="checkbox" id="notif-receive-toggle" onchange="toggleReceiveNotif(this.checked)"
+            style="opacity:0;width:0;height:0;position:absolute">
+          <span id="notif-receive-track" style="position:absolute;inset:0;border-radius:13px;background:var(--border2);transition:background .2s">
+            <span id="notif-receive-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:white;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></span>
+          </span>
+        </label>
+      </div>
+
+      <!-- 송신 알림 토글 -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0">
+        <div>
+          <div style="font-size:14px;font-weight:600;color:var(--text)">내 소비 파트너에게 공개</div>
+          <div style="font-size:11px;color:var(--muted2);margin-top:3px">끄면 파트너에게 알림이 전송됩니다</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:46px;height:26px;cursor:pointer">
+          <input type="checkbox" id="notif-send-toggle" onchange="toggleSendNotif(this.checked)"
+            style="opacity:0;width:0;height:0;position:absolute">
+          <span id="notif-send-track" style="position:absolute;inset:0;border-radius:13px;background:var(--border2);transition:background .2s">
+            <span id="notif-send-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:white;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></span>
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <!-- 안내 -->
+    <div style="padding:14px;background:var(--surface2);border-radius:12px;font-size:12px;color:var(--muted2);line-height:1.8">
+      iOS 사용자는 홈 화면에 앱을 추가해야 알림이 작동합니다.<br>
+      홈 화면에 추가 → 사파리 공유 버튼 → "홈 화면에 추가"
+    </div>
+
+  </div>
 
 
   <!-- 🏢 부동산 -->
@@ -2973,6 +3039,148 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
 </div>
 
+<!-- ══ 푸시 알림 온보딩 모달 ══ -->
+<div id="push-onboarding-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:9100;display:none;align-items:flex-end">
+  <div style="width:100%;max-width:680px;margin:0 auto;background:var(--surface);border-radius:24px 24px 0 0;padding:8px 20px max(32px,env(safe-area-inset-bottom,32px));animation:slideUp .35s cubic-bezier(.32,0,.15,1)">
+
+    <!-- 핸들 -->
+    <div style="width:36px;height:4px;border-radius:2px;background:var(--border2);margin:12px auto 20px"></div>
+
+    <!-- iOS 가이드 -->
+    <div id="push-ios-guide" style="display:none">
+      <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--text);font-weight:700;margin-bottom:6px">알림 설정하기</div>
+      <p style="font-size:13px;color:var(--muted2);line-height:1.7;margin-bottom:24px">
+        파트너의 소비를 실시간으로 받으려면<br>홈 화면에 앱 추가가 필요해요.
+      </p>
+
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px">
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:var(--surface2);border-radius:14px">
+          <div style="width:28px;height:28px;border-radius:50%;background:rgba(90,159,196,0.15);border:1px solid rgba(90,159,196,0.3);color:var(--blue);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">사파리 하단 공유 버튼 탭</div>
+            <div style="font-size:11px;color:var(--muted2)">화면 아래 가운데 아이콘을 누르세요</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:var(--surface2);border-radius:14px">
+          <div style="width:28px;height:28px;border-radius:50%;background:rgba(90,159,196,0.15);border:1px solid rgba(90,159,196,0.3);color:var(--blue);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">"홈 화면에 추가" 선택</div>
+            <div style="font-size:11px;color:var(--muted2)">목록을 스크롤해서 찾으세요</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:var(--surface2);border-radius:14px">
+          <div style="width:28px;height:28px;border-radius:50%;background:rgba(90,159,196,0.15);border:1px solid rgba(90,159,196,0.3);color:var(--blue);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">홈 화면 앱 아이콘으로 재실행</div>
+            <div style="font-size:11px;color:var(--muted2)">그 다음 알림 허용하면 완료</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px">
+        <button onclick="closePushOnboarding()" style="flex:1;padding:14px;border-radius:14px;background:transparent;border:1px solid var(--border2);color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer">나중에</button>
+        <button onclick="closePushOnboarding(true)" style="flex:2;padding:14px;border-radius:14px;background:var(--blue);border:none;color:white;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">완료했어요</button>
+      </div>
+    </div>
+
+    <!-- iOS 독립 실행 - 알림 권한 요청 -->
+    <div id="push-ios-standalone-guide" style="display:none">
+      <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--text);font-weight:700;margin-bottom:6px">알림 허용하기</div>
+      <p style="font-size:13px;color:var(--muted2);line-height:1.7;margin-bottom:24px">
+        파트너가 소비를 기록하면 즉시 알림이 와요.<br>허용해주시면 연결이 완성돼요.
+      </p>
+      <div style="display:flex;gap:10px">
+        <button onclick="closePushOnboarding()" style="flex:1;padding:14px;border-radius:14px;background:transparent;border:1px solid var(--border2);color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer">나중에</button>
+        <button onclick="requestPushPermission(true)" style="flex:2;padding:14px;border-radius:14px;background:var(--blue);border:none;color:white;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">알림 허용</button>
+      </div>
+    </div>
+
+    <!-- Android / Desktop 가이드 -->
+    <div id="push-android-guide" style="display:none">
+      <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--text);font-weight:700;margin-bottom:6px">알림 허용하기</div>
+      <p style="font-size:13px;color:var(--muted2);line-height:1.7;margin-bottom:24px">
+        파트너가 소비를 기록하면 즉시 알림이 와요.<br>허용해주시면 연결이 완성돼요.
+      </p>
+      <div style="padding:16px;background:rgba(90,159,196,0.08);border:1px solid rgba(90,159,196,0.2);border-radius:14px;margin-bottom:20px">
+        <div style="font-size:13px;color:var(--blue);font-weight:600;margin-bottom:4px">알림을 허용하면</div>
+        <div style="font-size:12px;color:var(--muted2);line-height:1.8">
+          파트너 소비 실시간 알림<br>
+          구매 협의 요청 알림<br>
+          앱이 꺼져있어도 수신 가능
+        </div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button onclick="closePushOnboarding()" style="flex:1;padding:14px;border-radius:14px;background:transparent;border:1px solid var(--border2);color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer">나중에</button>
+        <button onclick="requestPushPermission(true)" style="flex:2;padding:14px;border-radius:14px;background:var(--blue);border:none;color:white;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">알림 허용</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ 구매 협의 모달 ══ -->
+<div id="proposals-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:400;overflow-y:auto">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 80px">
+
+    <!-- 헤더 -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">COUPLE</div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:26px;color:var(--text);font-weight:700;line-height:1.1">구매 협의</h2>
+      </div>
+      <button onclick="closeProposalsModal()" style="width:36px;height:36px;border-radius:50%;background:var(--surface2);border:none;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- 제안 목록 -->
+    <div id="proposals-list"></div>
+
+    <!-- 새 제안 버튼 -->
+    <button onclick="openAddProposal()" style="width:100%;padding:15px;border-radius:16px;background:rgba(90,159,196,0.10);border:1px dashed rgba(90,159,196,0.35);color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px">
+      + 새 구매 제안
+    </button>
+  </div>
+</div>
+
+<!-- ══ 구매 제안 추가 시트 ══ -->
+<div id="add-proposal-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:9200;display:none;align-items:flex-end">
+  <div style="width:100%;max-width:680px;margin:0 auto;background:var(--surface);border-radius:24px 24px 0 0;padding:8px 20px max(32px,env(safe-area-inset-bottom,32px));animation:slideUp .35s cubic-bezier(.32,0,.15,1)">
+    <div style="width:36px;height:4px;border-radius:2px;background:var(--border2);margin:12px auto 20px"></div>
+
+    <div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--text);font-weight:700;margin-bottom:20px">새 구매 제안</div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+      <div>
+        <label style="font-size:11px;color:var(--muted);font-weight:700;display:block;margin-bottom:6px">항목</label>
+        <input type="text" id="proposal-title" placeholder="예: 아이패드 프로 13인치"
+          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:12px 14px;outline:none;box-sizing:border-box"
+          onfocus="this.style.borderColor='rgba(90,159,196,0.5)'"
+          onblur="this.style.borderColor='var(--border)'">
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--muted);font-weight:700;display:block;margin-bottom:6px">금액 (원)</label>
+        <input type="number" id="proposal-amount" placeholder="0" inputmode="numeric"
+          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:12px 14px;outline:none;box-sizing:border-box"
+          onfocus="this.style.borderColor='rgba(90,159,196,0.5)'"
+          onblur="this.style.borderColor='var(--border)'">
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--muted);font-weight:700;display:block;margin-bottom:6px">메모 (선택)</label>
+        <input type="text" id="proposal-memo" placeholder="구매 이유나 참고 링크"
+          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:12px 14px;outline:none;box-sizing:border-box"
+          onfocus="this.style.borderColor='rgba(90,159,196,0.5)'"
+          onblur="this.style.borderColor='var(--border)'">
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button onclick="closeAddProposal()" style="flex:1;padding:14px;border-radius:14px;background:transparent;border:1px solid var(--border2);color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer">취소</button>
+      <button onclick="saveProposal()" style="flex:2;padding:14px;border-radius:14px;background:var(--blue);border:none;color:white;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">제안하기</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ 예산 설정 모달 ══ -->
 <div id="budget-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto">
   <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
@@ -3748,10 +3956,22 @@ const SUPABASE_URL = 'https://pjxdfhozjuteckbtavmw.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_aPUdJabOmrwe3nwD161Cjw_3_kr1Eno';
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// ── Web Push VAPID 공개키 (supabase/functions/send-push에서 동일한 키 쌍 사용)
+const VAPID_PUBLIC_KEY = 'BBI1p4ve4Wu3ak0S2cRcSqxBxnkr9nc3Z8N9vP9TcaJGiWGbbr7JWDY2visCcLgT6M-xH3qbGGjgisfQrLT1xeg';
+
 // 현재 로그인된 유저 정보
 let currentUser = null;
 let currentProfile = null;
 let currentCoupleId = null;
+
+// 파트너 유저 ID (커플 연결 시 저장)
+let partnerUserId = null;
+// Supabase Realtime 채널 (인앱 알림용)
+let realtimeChannel = null;
+// 알림 설정
+let notifSettings = load('notif-settings', { receiveEnabled: true, sendEnabled: true });
+// 구매 제안 목록
+let proposals = load('proposals', []);
 
 // 파트너 이름 전역 관리
 let PARTNER_NAMES = load('partner-names', {
@@ -3799,13 +4019,13 @@ async function loadProfile() {
   currentCoupleId = data.couple_id;
 
   if (!currentCoupleId) {
-    // 커플 연결 없어도 혼자 사용 가능 → 바로 앱 진입
     hideAuthScreens();
     await loadAllDataFromSupabase();
+    initPushNotifications();
   } else {
-    // 커플 연결된 경우도 동일하게 진입
     hideAuthScreens();
     await loadAllDataFromSupabase();
+    await setupCoupleFeatures();
   }
 }
 
@@ -4152,7 +4372,8 @@ async function loadAllDataFromSupabase() {
       goalsRes,
       schedulesRes,
       appDataRes,
-      molitKeyRes
+      molitKeyRes,
+      proposalsRes
     ] = await Promise.all([
       _supabase.from('asset_history').select('data').eq(keyField, keyValue).single(),
       _supabase.from('ledger_txs').select('data').eq(keyField, keyValue).single(),
@@ -4160,7 +4381,8 @@ async function loadAllDataFromSupabase() {
       _supabase.from('goals').select('data').eq(keyField, keyValue).single(),
       _supabase.from('schedules').select('data').eq(keyField, keyValue).single(),
       _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'budgets').single(),
-      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'molit-api-key').single()
+      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'molit-api-key').single(),
+      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'proposals').single()
     ]);
 
     const hasSupabaseData =
@@ -4178,6 +4400,11 @@ async function loadAllDataFromSupabase() {
         food:50, cafe:15, trans:20, shop:30, health:10,
         leisure:20, child:0, edu:10, house:0, etc:20
       };
+
+      if (proposalsRes.data && proposalsRes.data.data) {
+        proposals = proposalsRes.data.data;
+        store('proposals', proposals);
+      }
 
       store('asset-history', assetHistory);
       store('ledger-txs', ledgerTxs);
@@ -9366,7 +9593,7 @@ function setSettingsTab(tab) {
       HOME_CARD_DEFAULTS.map(function(c) { return Object.assign({}, c); });
   }
   currentSettingsTab = tab;
-  ['home','apt','cat','data'].forEach(t => {
+  ['home','apt','cat','data','notif'].forEach(t => {
     const btn = document.getElementById('stab-' + t);
     const con = document.getElementById('stab-content-' + t);
     const isActive = t === tab;
@@ -9385,6 +9612,7 @@ function setSettingsTab(tab) {
   if (tab === 'cat') renderCatSettings();
   if (tab === 'data') renderCoupleSettings();
   if (tab === 'home') loadPartnerNamesUI();
+  if (tab === 'notif') renderNotifSettings();
 }
 
 
@@ -17180,9 +17408,21 @@ function saveTx() {
     editingTxId = null;
   } else {
     // 새 거래 추가
-    ledgerTxs.push({ id: Date.now().toString(), type: currentTxType, amount, date, owner: currentTxOwner, category: selectedCategory, memo });
+    const newTx = { id: Date.now().toString(), type: currentTxType, amount, date, owner: currentTxOwner, category: selectedCategory, memo };
+    ledgerTxs.push(newTx);
     haptic('success');
     showToast(`✅ ${currentTxType==='expense'?'지출':'수입'} ${amountRaw.toLocaleString()}원 추가!`);
+    // 파트너에게 알림 전송
+    if (currentCoupleId && notifSettings.sendEnabled) {
+      const catObj = (CATEGORIES[currentTxType] || []).find(c => c.id === selectedCategory);
+      sendPartnerNotification({
+        type: 'tx',
+        txType: currentTxType,
+        amount: amountRaw,
+        category: catObj ? catObj.name : '',
+        memo: memo
+      });
+    }
   }
   store('ledger-txs', ledgerTxs);
   ledgerMonth = date.substring(0,7);
@@ -17642,6 +17882,566 @@ window.addEventListener('popstate', function() {
     window.history.pushState(null, '', location.href);
   }
 });
+
+// ══════════════════════════════════════
+// ── 푸시 알림 시스템 ──
+// ══════════════════════════════════════
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+  return outputArray;
+}
+
+function detectDevice() {
+  const ua = navigator.userAgent;
+  if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) return 'ios';
+  if (/Android/.test(ua)) return 'android';
+  return 'desktop';
+}
+
+function isStandaloneMode() {
+  return window.navigator.standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches;
+}
+
+// 커플 연결 후 공통 초기화
+async function setupCoupleFeatures() {
+  // 파트너 유저ID 로드
+  if (currentCoupleId && currentUser) {
+    const { data: members } = await _supabase
+      .from('profiles')
+      .select('id')
+      .eq('couple_id', currentCoupleId)
+      .neq('id', currentUser.id);
+    if (members && members.length > 0) partnerUserId = members[0].id;
+  }
+  // Realtime 채널 구독 (인앱 알림)
+  setupRealtimeChannel();
+  // 푸시 알림 초기화
+  initPushNotifications();
+}
+
+function setupRealtimeChannel() {
+  if (!currentCoupleId || realtimeChannel) return;
+  realtimeChannel = _supabase.channel('couple:' + currentCoupleId)
+    .on('broadcast', { event: 'tx-notification' }, function(payload) {
+      if (!notifSettings.receiveEnabled) return;
+      const d = payload.payload || {};
+      const myName = currentProfile && currentProfile.role === 'partner1' ? getP1Name() : getP2Name();
+      const senderName = d.senderName || '파트너';
+      if (d.senderUserId === (currentUser && currentUser.id)) return; // 내가 보낸 것 무시
+      const typeLabel = d.txType === 'expense' ? '지출' : '수입';
+      const amountStr = Number(d.amount || 0).toLocaleString();
+      const catStr = d.category ? ' · ' + d.category : '';
+      showToast(senderName + '  ' + amountStr + '원 ' + typeLabel + catStr, 'info', 4000);
+    })
+    .on('broadcast', { event: 'proposal-notification' }, function(payload) {
+      if (!notifSettings.receiveEnabled) return;
+      const d = payload.payload || {};
+      if (d.senderUserId === (currentUser && currentUser.id)) return;
+      const senderName = d.senderName || '파트너';
+      if (d.event === 'new') {
+        showToast(senderName + '가 구매 제안했어요: ' + d.title, 'info', 4000);
+      } else if (d.event === 'reaction') {
+        showToast(senderName + '가 반응했어요: ' + d.reactionLabel, 'info', 4000);
+      }
+      // 로컬 proposals 업데이트
+      loadProposalsFromSupabase();
+    })
+    .subscribe();
+}
+
+async function initPushNotifications() {
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
+  const perm = Notification.permission;
+  if (perm === 'granted') {
+    await subscribeToPush();
+  } else if (perm === 'default') {
+    // 커플 연결된 경우에만 온보딩 표시
+    if (currentCoupleId && !load('push-onboarding-shown', false)) {
+      store('push-onboarding-shown', true);
+      setTimeout(showPushOnboarding, 1200);
+    }
+  }
+}
+
+function showPushOnboarding() {
+  const modal = document.getElementById('push-onboarding-modal');
+  if (!modal) return;
+  const device = detectDevice();
+  const standalone = isStandaloneMode();
+
+  document.getElementById('push-ios-guide').style.display = 'none';
+  document.getElementById('push-ios-standalone-guide').style.display = 'none';
+  document.getElementById('push-android-guide').style.display = 'none';
+
+  if (device === 'ios') {
+    if (standalone) {
+      document.getElementById('push-ios-standalone-guide').style.display = 'block';
+    } else {
+      document.getElementById('push-ios-guide').style.display = 'block';
+    }
+  } else {
+    document.getElementById('push-android-guide').style.display = 'block';
+  }
+
+  modal.style.display = 'flex';
+}
+
+function closePushOnboarding(didAdd) {
+  const modal = document.getElementById('push-onboarding-modal');
+  if (modal) modal.style.display = 'none';
+  // iOS 홈 화면 추가 완료 후 알림 권한 재시도
+  if (didAdd && isStandaloneMode()) {
+    requestPushPermission(false);
+  }
+}
+
+async function requestPushPermission(closeModal) {
+  if (closeModal) closePushOnboarding();
+  try {
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted') {
+      await subscribeToPush();
+      showToast('알림이 설정됐어요');
+      renderNotifSettings();
+    } else {
+      showToast('알림 권한이 거부됐어요. 브라우저 설정에서 허용해주세요');
+    }
+  } catch(e) {
+    console.warn('알림 권한 오류:', e);
+  }
+}
+
+async function subscribeToPush() {
+  if (!('PushManager' in window)) return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+      });
+    }
+    await savePushSubscriptionToSupabase(sub.toJSON());
+    return sub;
+  } catch(e) {
+    console.warn('푸시 구독 오류:', e);
+  }
+}
+
+async function savePushSubscriptionToSupabase(subJson) {
+  if (!currentUser) return;
+  const { data: existing } = await _supabase
+    .from('app_data')
+    .select('id')
+    .eq('user_id', currentUser.id)
+    .eq('key', 'push-subscription')
+    .single();
+  if (existing) {
+    await _supabase
+      .from('app_data')
+      .update({ data: subJson, updated_at: new Date().toISOString() })
+      .eq('user_id', currentUser.id)
+      .eq('key', 'push-subscription');
+  } else {
+    await _supabase
+      .from('app_data')
+      .insert({ user_id: currentUser.id, key: 'push-subscription', data: subJson });
+  }
+}
+
+// 파트너에게 알림 전송 (Realtime + Edge Function)
+async function sendPartnerNotification(payload) {
+  if (!currentCoupleId || !currentUser) return;
+  const senderName = currentProfile && currentProfile.role === 'partner1' ? getP1Name() : getP2Name();
+  const fullPayload = { ...payload, senderUserId: currentUser.id, senderName };
+
+  // 1) Realtime broadcast (인앱 알림)
+  if (realtimeChannel) {
+    realtimeChannel.send({ type: 'broadcast', event: 'tx-notification', payload: fullPayload });
+  }
+
+  // 2) Edge Function 호출 (백그라운드 푸시)
+  try {
+    const notifBody = payload.txType === 'expense'
+      ? senderName + '  ' + Number(payload.amount).toLocaleString() + '원 지출'
+      : senderName + '  ' + Number(payload.amount).toLocaleString() + '원 수입';
+    await fetch(SUPABASE_URL + '/functions/v1/send-push', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+      },
+      body: JSON.stringify({
+        coupleId: currentCoupleId,
+        senderUserId: currentUser.id,
+        notification: {
+          title: 'Wealth AI',
+          body: notifBody + (payload.category ? ' · ' + payload.category : ''),
+          tag: 'tx-notif',
+          url: '/'
+        }
+      })
+    });
+  } catch(e) {
+    // Edge Function 미배포 시 무시
+  }
+}
+
+// 알림 설정 UI 렌더링
+function renderNotifSettings() {
+  const perm = 'Notification' in window ? Notification.permission : 'unsupported';
+  const dot = document.getElementById('notif-permission-dot');
+  const label = document.getElementById('notif-permission-label');
+  const desc = document.getElementById('notif-permission-desc');
+  const btn = document.getElementById('notif-enable-btn');
+
+  if (perm === 'granted') {
+    if (dot) { dot.style.background = '#22c55e'; }
+    if (label) label.textContent = '알림 허용됨';
+    if (desc) desc.textContent = '파트너 소비 알림을 받을 수 있어요';
+    if (btn) btn.style.display = 'none';
+  } else if (perm === 'denied') {
+    if (dot) { dot.style.background = 'var(--red)'; }
+    if (label) label.textContent = '알림 차단됨';
+    if (desc) desc.textContent = '브라우저 설정에서 직접 허용해주세요';
+    if (btn) btn.style.display = 'none';
+  } else if (perm === 'default') {
+    if (dot) { dot.style.background = 'var(--gold)'; }
+    if (label) label.textContent = '알림 미설정';
+    if (desc) desc.textContent = '아직 알림 권한을 허용하지 않았어요';
+    if (btn) btn.style.display = 'block';
+  } else {
+    if (dot) { dot.style.background = 'var(--muted)'; }
+    if (label) label.textContent = '지원되지 않는 환경';
+    if (desc) {
+      if (detectDevice() === 'ios' && !isStandaloneMode()) {
+        desc.textContent = 'iOS는 홈 화면에 앱 추가 후 사용 가능해요';
+      } else {
+        desc.textContent = '이 브라우저에서는 푸시 알림을 지원하지 않아요';
+      }
+    }
+    if (btn) btn.style.display = 'none';
+  }
+
+  // 토글 상태 동기화
+  const receiveToggle = document.getElementById('notif-receive-toggle');
+  const receiveTrack = document.getElementById('notif-receive-track');
+  const receiveThumb = document.getElementById('notif-receive-thumb');
+  if (receiveToggle) {
+    receiveToggle.checked = notifSettings.receiveEnabled;
+    if (receiveTrack) receiveTrack.style.background = notifSettings.receiveEnabled ? 'var(--blue)' : 'var(--border2)';
+    if (receiveThumb) receiveThumb.style.transform = notifSettings.receiveEnabled ? 'translateX(20px)' : 'translateX(0)';
+  }
+
+  const sendToggle = document.getElementById('notif-send-toggle');
+  const sendTrack = document.getElementById('notif-send-track');
+  const sendThumb = document.getElementById('notif-send-thumb');
+  if (sendToggle) {
+    sendToggle.checked = notifSettings.sendEnabled;
+    if (sendTrack) sendTrack.style.background = notifSettings.sendEnabled ? 'var(--blue)' : 'var(--border2)';
+    if (sendThumb) sendThumb.style.transform = notifSettings.sendEnabled ? 'translateX(20px)' : 'translateX(0)';
+  }
+}
+
+async function toggleReceiveNotif(enabled) {
+  notifSettings.receiveEnabled = enabled;
+  store('notif-settings', notifSettings);
+  renderNotifSettings();
+  if (enabled) {
+    showToast('파트너 알림 수신이 켜졌어요');
+    if (Notification.permission === 'default') await requestPushPermission(false);
+  } else {
+    showToast('파트너 알림 수신이 꺼졌어요');
+  }
+}
+
+async function toggleSendNotif(enabled) {
+  if (!enabled) {
+    // 끄기 전 파트너에게 알림되는 것 확인
+    const ok = await showConfirm(
+      '내 소비 공개를 끄면 파트너에게 알림이 전송됩니다.\n계속하시겠어요?',
+      '끄기'
+    );
+    if (!ok) {
+      // 토글 원복
+      const toggle = document.getElementById('notif-send-toggle');
+      if (toggle) toggle.checked = true;
+      renderNotifSettings();
+      return;
+    }
+    // 파트너에게 알림 전송
+    if (currentCoupleId && realtimeChannel) {
+      const senderName = currentProfile && currentProfile.role === 'partner1' ? getP1Name() : getP2Name();
+      realtimeChannel.send({
+        type: 'broadcast',
+        event: 'tx-notification',
+        payload: {
+          senderUserId: currentUser && currentUser.id,
+          senderName,
+          type: 'system',
+          message: senderName + '이 소비 공개 알림을 껐어요'
+        }
+      });
+    }
+  }
+  notifSettings.sendEnabled = enabled;
+  store('notif-settings', notifSettings);
+  renderNotifSettings();
+  if (enabled) showToast('내 소비 공개가 다시 켜졌어요');
+}
+
+
+// ══════════════════════════════════════
+// ── 구매 협의 시스템 ──
+// ══════════════════════════════════════
+
+function openProposalsModal() {
+  const modal = document.getElementById('proposals-modal');
+  if (modal) { modal.style.display = 'block'; renderProposals(); }
+  lockScroll();
+}
+
+function closeProposalsModal() {
+  const modal = document.getElementById('proposals-modal');
+  if (modal) modal.style.display = 'none';
+  unlockScroll();
+}
+
+function openAddProposal() {
+  const modal = document.getElementById('add-proposal-modal');
+  if (modal) modal.style.display = 'flex';
+  const titleInput = document.getElementById('proposal-title');
+  if (titleInput) { titleInput.value = ''; setTimeout(() => titleInput.focus(), 300); }
+  const amountInput = document.getElementById('proposal-amount');
+  if (amountInput) amountInput.value = '';
+  const memoInput = document.getElementById('proposal-memo');
+  if (memoInput) memoInput.value = '';
+}
+
+function closeAddProposal() {
+  const modal = document.getElementById('add-proposal-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+async function saveProposal() {
+  const title = (document.getElementById('proposal-title').value || '').trim();
+  const amount = parseInt(document.getElementById('proposal-amount').value || '0', 10);
+  const memo = (document.getElementById('proposal-memo').value || '').trim();
+
+  if (!title) { showToast('항목 이름을 입력해주세요'); return; }
+  if (!amount || amount <= 0) { showToast('금액을 입력해주세요'); return; }
+
+  const senderName = currentProfile && currentProfile.role === 'partner1' ? getP1Name() : getP2Name();
+  const newProposal = {
+    id: Date.now().toString(),
+    proposerUserId: currentUser ? currentUser.id : null,
+    proposerName: senderName,
+    title,
+    amount,
+    memo,
+    createdAt: new Date().toISOString(),
+    reaction: null  // { type: 'approved'|'maybe'|'declined', comment: '', reactedAt: '' }
+  };
+
+  proposals.unshift(newProposal);
+  store('proposals', proposals);
+  await saveAppDataToSupabase('proposals', proposals);
+
+  closeAddProposal();
+  renderProposals();
+  showToast('제안을 보냈어요');
+
+  // 파트너 알림
+  if (currentCoupleId) {
+    const payload = {
+      event: 'new',
+      senderUserId: currentUser && currentUser.id,
+      senderName,
+      title,
+      amount
+    };
+    if (realtimeChannel) {
+      realtimeChannel.send({ type: 'broadcast', event: 'proposal-notification', payload });
+    }
+    try {
+      await fetch(SUPABASE_URL + '/functions/v1/send-push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
+        body: JSON.stringify({
+          coupleId: currentCoupleId,
+          senderUserId: currentUser && currentUser.id,
+          notification: {
+            title: 'Wealth AI',
+            body: senderName + '가 구매 제안: ' + title + '  ' + amount.toLocaleString() + '원',
+            tag: 'proposal-notif',
+            url: '/'
+          }
+        })
+      });
+    } catch(e) {}
+  }
+}
+
+async function reactToProposal(id, reactionType) {
+  const idx = proposals.findIndex(p => p.id === id);
+  if (idx < 0) return;
+
+  const REACTION_LABELS = { approved: '좋아요', maybe: '보류', declined: '반대' };
+  const label = REACTION_LABELS[reactionType] || reactionType;
+
+  // 댓글 입력 시트 (간단한 prompt 대체)
+  let comment = '';
+  const commentEl = document.getElementById('proposal-comment-' + id);
+  if (commentEl) comment = commentEl.value.trim();
+
+  proposals[idx].reaction = {
+    type: reactionType,
+    label,
+    comment,
+    reactorUserId: currentUser ? currentUser.id : null,
+    reactedAt: new Date().toISOString()
+  };
+
+  store('proposals', proposals);
+  await saveAppDataToSupabase('proposals', proposals);
+  renderProposals();
+  showToast('반응을 남겼어요');
+
+  // 파트너(제안자)에게 알림
+  if (currentCoupleId) {
+    const senderName = currentProfile && currentProfile.role === 'partner1' ? getP1Name() : getP2Name();
+    const payload = {
+      event: 'reaction',
+      senderUserId: currentUser && currentUser.id,
+      senderName,
+      title: proposals[idx].title,
+      reactionLabel: label
+    };
+    if (realtimeChannel) {
+      realtimeChannel.send({ type: 'broadcast', event: 'proposal-notification', payload });
+    }
+    try {
+      await fetch(SUPABASE_URL + '/functions/v1/send-push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
+        body: JSON.stringify({
+          coupleId: currentCoupleId,
+          senderUserId: currentUser && currentUser.id,
+          notification: {
+            title: 'Wealth AI',
+            body: senderName + '가 "' + proposals[idx].title + '"에 ' + label + '했어요',
+            tag: 'proposal-reaction',
+            url: '/'
+          }
+        })
+      });
+    } catch(e) {}
+  }
+}
+
+async function deleteProposal(id) {
+  const ok = await showConfirm('이 제안을 삭제할까요?', '삭제');
+  if (!ok) return;
+  proposals = proposals.filter(p => p.id !== id);
+  store('proposals', proposals);
+  await saveAppDataToSupabase('proposals', proposals);
+  renderProposals();
+  showToast('삭제됐어요');
+}
+
+async function loadProposalsFromSupabase() {
+  if (!currentUser) return;
+  const keyField = currentCoupleId ? 'couple_id' : 'user_id';
+  const keyValue = currentCoupleId ? currentCoupleId : currentUser.id;
+  const { data } = await _supabase
+    .from('app_data')
+    .select('data')
+    .eq(keyField, keyValue)
+    .eq('key', 'proposals')
+    .single();
+  if (data && data.data) {
+    proposals = data.data;
+    store('proposals', proposals);
+    renderProposals();
+  }
+}
+
+function renderProposals() {
+  const container = document.getElementById('proposals-list');
+  if (!container) return;
+
+  const myUserId = currentUser ? currentUser.id : null;
+
+  if (!proposals || proposals.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:40px 0;color:var(--muted);font-size:13px;line-height:1.8">아직 구매 제안이 없어요.<br>큰 소비 전에 먼저 물어보세요.</div>';
+    return;
+  }
+
+  const REACTION_COLORS = {
+    approved: { bg: 'rgba(34,197,94,0.10)', border: 'rgba(34,197,94,0.25)', text: '#22c55e' },
+    maybe:    { bg: 'rgba(201,168,76,0.10)', border: 'rgba(201,168,76,0.25)', text: 'var(--gold)' },
+    declined: { bg: 'rgba(239,68,68,0.10)', border: 'rgba(239,68,68,0.25)', text: 'var(--red)' }
+  };
+  const REACTION_LABELS = { approved: '좋아요', maybe: '보류', declined: '반대' };
+
+  container.innerHTML = proposals.map(p => {
+    const isMyProposal = p.proposerUserId === myUserId;
+    const dateStr = p.createdAt ? new Date(p.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) : '';
+    const amountStr = Number(p.amount).toLocaleString();
+    const hasReaction = p.reaction && p.reaction.type;
+    const reactionColor = hasReaction ? (REACTION_COLORS[p.reaction.type] || REACTION_COLORS.maybe) : null;
+
+    const reactionSection = hasReaction
+      ? `<div style="margin-top:12px;padding:10px 12px;background:${reactionColor.bg};border:1px solid ${reactionColor.border};border-radius:10px;display:flex;align-items:center;gap:8px">
+          <span style="font-size:13px;font-weight:700;color:${reactionColor.text}">${p.reaction.label}</span>
+          ${p.reaction.comment ? `<span style="font-size:12px;color:var(--muted2)">· ${p.reaction.comment}</span>` : ''}
+        </div>`
+      : (!isMyProposal
+          ? `<div style="margin-top:12px">
+              <input type="text" id="proposal-comment-${p.id}" placeholder="한 마디 남기기 (선택)" maxlength="30"
+                style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:12px;padding:9px 12px;outline:none;box-sizing:border-box;margin-bottom:8px"
+                onfocus="this.style.borderColor='rgba(90,159,196,0.5)'" onblur="this.style.borderColor='var(--border)'">
+              <div style="display:flex;gap:6px">
+                <button onclick="reactToProposal('${p.id}','approved')"
+                  style="flex:1;padding:9px 4px;border-radius:10px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:#22c55e;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer">
+                  좋아요
+                </button>
+                <button onclick="reactToProposal('${p.id}','maybe')"
+                  style="flex:1;padding:9px 4px;border-radius:10px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);color:var(--gold);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer">
+                  보류
+                </button>
+                <button onclick="reactToProposal('${p.id}','declined')"
+                  style="flex:1;padding:9px 4px;border-radius:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer">
+                  반대
+                </button>
+              </div>
+            </div>`
+          : `<div style="margin-top:10px;font-size:11px;color:var(--muted2);padding:8px 0">파트너의 반응을 기다리는 중...</div>`
+        );
+
+    return `<div style="background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:16px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px">${p.title}</div>
+          <div style="font-size:18px;font-weight:800;color:var(--blue);font-family:'Playfair Display',serif">${amountStr}<span style="font-size:12px;font-weight:400;color:var(--muted);margin-left:2px">원</span></div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;margin-left:12px">
+          <div style="font-size:11px;color:var(--muted2);margin-bottom:4px">${p.proposerName} · ${dateStr}</div>
+          ${isMyProposal ? `<button onclick="deleteProposal('${p.id}')" style="background:transparent;border:none;color:var(--muted2);font-size:11px;cursor:pointer;padding:2px 4px">삭제</button>` : ''}
+        </div>
+      </div>
+      ${p.memo ? `<div style="font-size:12px;color:var(--muted2);margin-bottom:6px;padding:8px 10px;background:var(--surface2);border-radius:8px">${p.memo}</div>` : ''}
+      ${reactionSection}
+    </div>`;
+  }).join('');
+}
 
 // ── Service Worker 등록 ──
 if ('serviceWorker' in navigator) {
