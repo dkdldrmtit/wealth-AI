@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brand Concepts</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0a0c0f;
+  color: #eef0f3;
+  font-family: 'Inter', 'Noto Sans KR', sans-serif;
+  min-height: 100vh;
+  padding: 48px 24px;
+}
+
+.page-title {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: #4a5060;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 64px;
+}
+
+.brand-section {
+  max-width: 960px;
+  margin: 0 auto 80px;
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #4a5060;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #1e2228;
+}
+
+.brand-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+/* ── 카드 ── */
+.brand-card {
+  background: #13161b;
+  border: 1px solid #1e2228;
+  border-radius: 20px;
+  padding: 36px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* ── 아이콘 ── */
+.icon-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.icon-knot  { background: #0e1a24; border: 1px solid rgba(90,159,196,0.2); }
+.icon-even  { background: #0e1a24; border: 1px solid rgba(90,159,196,0.2); }
+.icon-catch { background: #0e1a24; border: 1px solid rgba(90,159,196,0.2); }
+
+/* ── 워드마크 ── */
+.wordmark {
+  font-family: 'Inter', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #eef0f3;
+  margin-bottom: 8px;
+}
+
+.wordmark span { color: #5a9fc4; }
+
+/* ── 발음 뱃지 ── */
+.pronounce {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  color: #4a5060;
+  margin-bottom: 20px;
+  letter-spacing: 0.05em;
+}
+
+/* ── 태그라인 ── */
+.tagline {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #7a8090;
+  text-align: center;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+.tagline strong {
+  color: #9aa0aa;
+  font-weight: 700;
+}
+
+/* ── 키워드 태그 ── */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.tag {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: #5a9fc4;
+  background: rgba(90,159,196,0.08);
+  border: 1px solid rgba(90,159,196,0.15);
+  border-radius: 20px;
+  padding: 3px 10px;
+}
+
+/* ── 샘플 문구 ── */
+.copy-block {
+  width: 100%;
+  background: #0e1014;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #1e2228;
+}
+
+.copy-label {
+  font-size: 9px;
+  font-weight: 600;
+  color: #4a5060;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.copy-text {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 12px;
+  color: #7a8090;
+  line-height: 1.7;
+}
+
+.copy-text em {
+  color: #5a9fc4;
+  font-style: normal;
+  font-weight: 600;
+}
+
+/* ── 구분선 ── */
+.divider {
+  width: 1px;
+  background: #1e2228;
+  height: auto;
+}
+
+/* ── 비교표 ── */
+.compare-section {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.compare-table th {
+  font-size: 11px;
+  font-weight: 600;
+  color: #4a5060;
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid #1e2228;
+}
+
+.compare-table th.center { text-align: center; }
+
+.compare-table td {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 12px;
+  color: #7a8090;
+  padding: 14px 16px;
+  border-bottom: 1px solid #13161b;
+  vertical-align: middle;
+}
+
+.compare-table td.center { text-align: center; }
+
+.compare-table tr:last-child td { border-bottom: none; }
+
+.dot-good  { color: #5a9fc4; font-size: 16px; }
+.dot-mid   { color: #4a5060; font-size: 16px; }
+.dot-bad   { color: #3a4050; font-size: 16px; }
+
+.row-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #9aa0aa;
+}
+
+/* ── Splash 미리보기 ── */
+.splash-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+  max-width: 960px;
+  margin: 0 auto 80px;
+}
+
+.splash-card {
+  background: #13161b;
+  border: 1px solid #1e2228;
+  border-radius: 20px;
+  padding: 48px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 200px;
+}
+
+.splash-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #eef0f3;
+}
+
+.splash-name span { color: #5a9fc4; }
+
+.splash-sub {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 12px;
+  color: #4a5060;
+  font-weight: 400;
+}
+</style>
+</head>
+<body>
+
+<p class="page-title">Brand Concept — 3 Candidates</p>
+
+<!-- ── 로고 + 개념 카드 ── -->
+<div class="brand-section">
+  <p class="section-label">Logo & Concept</p>
+  <div class="brand-grid">
+
+    <!-- KNOT -->
+    <div class="brand-card">
+      <div class="icon-wrap icon-knot">
+        <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
+          <!-- 렘니스케이트 (∞ 변형) -->
+          <path d="M8,19 C8,13 13,10 19,14 C25,18 25,22 19,24 C13,26 8,23 8,19 Z"
+            stroke="#5a9fc4" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+          <path d="M30,19 C30,13 25,10 19,14 C13,18 13,22 19,24 C25,26 30,23 30,19 Z"
+            stroke="#5a9fc4" stroke-width="2.2" fill="none" stroke-linecap="round" opacity="0.5"/>
+        </svg>
+      </div>
+
+      <div class="wordmark"><span>K</span>not</div>
+      <div class="pronounce">노트 · /nɒt/</div>
+
+      <div class="tagline">
+        둘이 함께<strong> 매듭짓는</strong> 우리 자산.<br>
+        기록하고, 엮고, 쌓아가세요.
+      </div>
+
+      <div class="tags">
+        <span class="tag">결속</span>
+        <span class="tag">기록</span>
+        <span class="tag">함께</span>
+      </div>
+
+      <div class="copy-block">
+        <div class="copy-label">App Store 한 줄 소개</div>
+        <div class="copy-text">부부의 자산을 <em>Knot</em>으로 하나로 묶으세요. 카드 결제부터 자산 현황까지, 둘이 같이 보는 우리 살림.</div>
+      </div>
+    </div>
+
+    <!-- EVEN -->
+    <div class="brand-card">
+      <div class="icon-wrap icon-even">
+        <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
+          <!-- 두 개의 균형 잡힌 평행선 -->
+          <line x1="8" y1="15" x2="30" y2="15" stroke="#5a9fc4" stroke-width="2.8" stroke-linecap="round"/>
+          <line x1="8" y1="23" x2="30" y2="23" stroke="#5a9fc4" stroke-width="2.8" stroke-linecap="round" opacity="0.45"/>
+        </svg>
+      </div>
+
+      <div class="wordmark"><span>E</span>ven</div>
+      <div class="pronounce">이븐 · /ˈiːvən/</div>
+
+      <div class="tagline">
+        더 이상 한 사람만의 가계부가 아니에요.<br>
+        <strong>이제, 이븐하게.</strong>
+      </div>
+
+      <div class="tags">
+        <span class="tag">균등</span>
+        <span class="tag">투명</span>
+        <span class="tag">공평</span>
+      </div>
+
+      <div class="copy-block">
+        <div class="copy-label">App Store 한 줄 소개</div>
+        <div class="copy-text">부부의 자산, <em>이제 이븐하게</em>. 지출·자산·목표를 둘이 함께 보는 공동 재정 앱.</div>
+      </div>
+    </div>
+
+    <!-- CATCH -->
+    <div class="brand-card">
+      <div class="icon-wrap icon-catch">
+        <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
+          <!-- 포착하는 아크 -->
+          <path d="M10,26 C10,16 14,10 19,10 C24,10 28,16 28,26"
+            stroke="#5a9fc4" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <circle cx="19" cy="27" r="3" fill="#5a9fc4"/>
+          <circle cx="10" cy="26" r="1.8" fill="#5a9fc4" opacity="0.4"/>
+          <circle cx="28" cy="26" r="1.8" fill="#5a9fc4" opacity="0.4"/>
+        </svg>
+      </div>
+
+      <div class="wordmark"><span>C</span>atch</div>
+      <div class="pronounce">캐치 · /kætʃ/</div>
+
+      <div class="tagline">
+        결제하는 순간, <strong>자동으로 캐치</strong>됩니다.<br>
+        놓치는 지출 없이, 함께.
+      </div>
+
+      <div class="tags">
+        <span class="tag">자동기록</span>
+        <span class="tag">포착</span>
+        <span class="tag">실시간</span>
+      </div>
+
+      <div class="copy-block">
+        <div class="copy-label">App Store 한 줄 소개</div>
+        <div class="copy-text">카드 결제 문자가 오면 <em>자동으로 캐치</em>됩니다. 부부의 지출과 자산을 함께 관리하는 가장 쉬운 방법.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── 스플래시 느낌 ── -->
+<div class="brand-section">
+  <p class="section-label">Splash Screen Feel</p>
+  <div class="splash-row">
+
+    <div class="splash-card">
+      <svg width="44" height="44" viewBox="0 0 38 38" fill="none">
+        <path d="M8,19 C8,13 13,10 19,14 C25,18 25,22 19,24 C13,26 8,23 8,19 Z"
+          stroke="#5a9fc4" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M30,19 C30,13 25,10 19,14 C13,18 13,22 19,24 C25,26 30,23 30,19 Z"
+          stroke="#5a9fc4" stroke-width="2.2" fill="none" stroke-linecap="round" opacity="0.5"/>
+      </svg>
+      <div class="splash-name"><span>K</span>not</div>
+      <div class="splash-sub">둘이 함께 매듭짓는 우리 자산</div>
+    </div>
+
+    <div class="splash-card">
+      <svg width="44" height="44" viewBox="0 0 38 38" fill="none">
+        <line x1="8" y1="15" x2="30" y2="15" stroke="#5a9fc4" stroke-width="2.8" stroke-linecap="round"/>
+        <line x1="8" y1="23" x2="30" y2="23" stroke="#5a9fc4" stroke-width="2.8" stroke-linecap="round" opacity="0.45"/>
+      </svg>
+      <div class="splash-name"><span>E</span>ven</div>
+      <div class="splash-sub">이제, 이븐하게</div>
+    </div>
+
+    <div class="splash-card">
+      <svg width="44" height="44" viewBox="0 0 38 38" fill="none">
+        <path d="M10,26 C10,16 14,10 19,10 C24,10 28,16 28,26"
+          stroke="#5a9fc4" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <circle cx="19" cy="27" r="3" fill="#5a9fc4"/>
+        <circle cx="10" cy="26" r="1.8" fill="#5a9fc4" opacity="0.4"/>
+        <circle cx="28" cy="26" r="1.8" fill="#5a9fc4" opacity="0.4"/>
+      </svg>
+      <div class="splash-name"><span>C</span>atch</div>
+      <div class="splash-sub">결제하면 자동으로 캐치됩니다</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── 비교표 ── -->
+<div class="compare-section">
+  <p class="section-label" style="max-width:960px;margin:0 auto 24px;">비교</p>
+  <div style="max-width:960px;margin:0 auto;background:#13161b;border:1px solid #1e2228;border-radius:16px;overflow:hidden;">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th style="width:28%">항목</th>
+          <th class="center">Knot</th>
+          <th class="center">Even</th>
+          <th class="center">Catch</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-label">한글 발음 명확성</td>
+          <td class="center"><span class="dot-mid">●</span></td>
+          <td class="center"><span class="dot-good">●</span></td>
+          <td class="center"><span class="dot-good">●</span></td>
+        </tr>
+        <tr>
+          <td class="row-label">입소문 전파력</td>
+          <td class="center"><span class="dot-mid">●</span></td>
+          <td class="center"><span class="dot-good">●</span></td>
+          <td class="center"><span class="dot-good">●</span></td>
+        </tr>
+        <tr>
+          <td class="row-label">브랜드 깊이</td>
+          <td class="center"><span class="dot-good">●</span></td>
+          <td class="center"><span class="dot-good">●</span></td>
+          <td class="center"><span class="dot-mid">●</span></td>
+        </tr>
+        <tr>
+          <td class="row-label">앱 기능 직관성</td>
+          <td class="center"><span class="dot-mid">●</span></td>
+          <td class="center"><span class="dot-mid">●</span></td>
+          <td class="center"><span class="dot-good">●</span></td>
+        </tr>
+        <tr>
+          <td class="row-label">타 앱 충돌 위험</td>
+          <td class="center"><span class="dot-mid">●</span></td>
+          <td class="center"><span class="dot-mid">●</span></td>
+          <td class="center"><span class="dot-good">●</span></td>
+        </tr>
+        <tr>
+          <td class="row-label">로고 애니메이션 가능성</td>
+          <td class="center"><span class="dot-good">●</span></td>
+          <td class="center"><span class="dot-mid">●</span></td>
+          <td class="center"><span class="dot-mid">●</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="text-align:center;font-size:11px;color:#4a5060;margin-top:16px;">● 강함 &nbsp;&nbsp; ● 보통 &nbsp;&nbsp; ● 약함</p>
+</div>
+
+</body>
+</html>
