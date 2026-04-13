@@ -69,6 +69,37 @@
     background: white; white-space: nowrap;
   }
   .ext-link:active { background: var(--sb-light); color: var(--sb-green-dark); }
+  .field-hint {
+    font-size: 11px; color: var(--muted);
+    margin-top: 6px; padding-left: 2px;
+    line-height: 1.45;
+  }
+  details.addon-details {
+    margin: 14px 0 8px;
+  }
+  details.addon-details > summary {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; font-weight: 600; font-size: 13px;
+    color: var(--sb-green-dark);
+    cursor: pointer; list-style: none;
+    padding: 4px 0;
+  }
+  details.addon-details > summary::-webkit-details-marker { display: none; }
+  details.addon-details > summary::after {
+    content: "▼"; font-size: 9px; color: var(--muted);
+    transition: transform 0.2s ease;
+    margin-left: auto;
+  }
+  details.addon-details[open] > summary::after {
+    transform: rotate(180deg);
+  }
+  details.addon-details > .chips {
+    margin-top: 10px;
+  }
+  .addon-count {
+    font-size: 11px; font-weight: 500; color: var(--sb-accent);
+    margin-left: 4px;
+  }
   input[type=text], textarea, select {
     width: 100%; padding: 12px; border: 1.5px solid var(--border);
     border-radius: 10px; font-size: 15px;
@@ -223,18 +254,23 @@
       </label>
       <input id="menuInput" type="text" list="menuList" placeholder="메뉴 검색 또는 직접 입력" autocomplete="off">
       <datalist id="menuList"></datalist>
+      <div class="field-hint">예) 아이스아메리카노 디카페인 · 라벤더 라떼 · 돌체라떼 연하게</div>
 
-      <label>추가옵션 (중복 선택 가능)</label>
-      <div class="chips" id="addonOptions">
-        <div class="chip" data-val="샷추가">샷추가</div>
-        <div class="chip" data-val="시럽추가">시럽추가</div>
-        <div class="chip" data-val="휘핑추가">휘핑추가</div>
-        <div class="chip" data-val="휘핑빼기">휘핑빼기</div>
-        <div class="chip" data-val="디카페인">디카페인</div>
-        <div class="chip" data-val="연하게">연하게</div>
-        <div class="chip" data-val="얼음적게">얼음적게</div>
-        <div class="chip" data-val="얼음많이">얼음많이</div>
-      </div>
+      <details class="addon-details">
+        <summary>
+          <span>추가옵션 (선택) <span class="addon-count" id="addonCount"></span></span>
+        </summary>
+        <div class="chips" id="addonOptions">
+          <div class="chip" data-val="샷추가">샷추가</div>
+          <div class="chip" data-val="시럽추가">시럽추가</div>
+          <div class="chip" data-val="휘핑추가" data-group="whip">휘핑추가</div>
+          <div class="chip" data-val="휘핑빼기" data-group="whip">휘핑빼기</div>
+          <div class="chip" data-val="디카페인">디카페인</div>
+          <div class="chip" data-val="연하게">연하게</div>
+          <div class="chip" data-val="얼음적게" data-group="ice">얼음적게</div>
+          <div class="chip" data-val="얼음많이" data-group="ice">얼음많이</div>
+        </div>
+      </details>
 
       <label>메모 (선택)</label>
       <textarea id="memoInput" rows="2" placeholder="예) 알러지, 특이사항 등"></textarea>
@@ -423,6 +459,12 @@ function setupChips(containerId, multi = false) {
     const chip = e.target.closest('.chip');
     if (!chip) return;
     if (multi) {
+      // 같은 그룹(data-group) 내에서는 한 번에 하나만 선택되게 (배타)
+      const willActivate = !chip.classList.contains('active');
+      if (willActivate && chip.dataset.group) {
+        c.querySelectorAll(`.chip[data-group="${chip.dataset.group}"]`)
+          .forEach(other => { if (other !== chip) other.classList.remove('active'); });
+      }
       chip.classList.toggle('active');
     } else {
       c.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
@@ -433,6 +475,15 @@ function setupChips(containerId, multi = false) {
 setupChips('tempOptions');
 setupChips('sizeOptions');
 setupChips('addonOptions', true);
+
+// 추가옵션 선택 개수 표시
+const addonContainer = document.getElementById('addonOptions');
+const addonCountEl = document.getElementById('addonCount');
+function updateAddonCount() {
+  const count = addonContainer.querySelectorAll('.chip.active').length;
+  addonCountEl.textContent = count > 0 ? `· ${count}개 선택됨` : '';
+}
+addonContainer.addEventListener('click', updateAddonCount);
 
 function getSingle(id) {
   return document.querySelector(`#${id} .chip.active`)?.dataset.val || '';
@@ -583,6 +634,11 @@ function restoreMyOrder(o) {
   setSingle('sizeOptions', o.size);
   if (o.menu) menuInput.value = o.menu;
   setMulti('addonOptions', o.addons);
+  updateAddonCount();
+  // 기존 옵션이 있으면 추가옵션 섹션 자동 펼침
+  if (o.addons && o.addons.length) {
+    document.querySelector('details.addon-details').open = true;
+  }
   document.getElementById('memoInput').value = o.memo || '';
   document.getElementById('submitBtn').textContent = '주문 수정하기';
   document.getElementById('deleteBtn').classList.remove('hide');
