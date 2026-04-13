@@ -697,6 +697,7 @@ if (isConfigured) {
     firebaseDataLoaded = true;
     renderList();
     renderSummary();
+    renderMenuList(); // 메뉴 드롭다운 인기순 재정렬
     const n = Object.keys(currentOrders).length;
     document.getElementById('orderCount').textContent = n ? `(${n})` : '';
     syncFormForSelectedName(); // 선택된 이름에 맞춰 폼 동기화 시도
@@ -711,6 +712,38 @@ function formatOrder(o) {
   let s = parts.filter(Boolean).join(' ');
   if (o.addons && o.addons.length) s += ' (' + o.addons.join(', ') + ')';
   return s;
+}
+
+// ════════════════════════════════════════════════════════════════
+// 메뉴 datalist 인기순 재정렬 (주문 많이 받은 메뉴가 위로)
+// ════════════════════════════════════════════════════════════════
+function renderMenuList() {
+  // 메뉴별 주문 횟수 집계
+  const counts = {};
+  Object.values(currentOrders).forEach(o => {
+    if (o.menu) counts[o.menu] = (counts[o.menu] || 0) + 1;
+  });
+
+  // MENUS + 자유 입력 메뉴 합치기 (중복 제거)
+  const allMenus = Array.from(new Set([...MENUS, ...Object.keys(counts)]));
+
+  // 정렬: 주문 많은 순, 동률이면 원래 MENUS 순서, 자유 입력 메뉴는 맨 뒤
+  const menuIndex = new Map(MENUS.map((m, i) => [m, i]));
+  allMenus.sort((a, b) => {
+    const diff = (counts[b] || 0) - (counts[a] || 0);
+    if (diff !== 0) return diff;
+    const ia = menuIndex.has(a) ? menuIndex.get(a) : Number.POSITIVE_INFINITY;
+    const ib = menuIndex.has(b) ? menuIndex.get(b) : Number.POSITIVE_INFINITY;
+    return ia - ib;
+  });
+
+  // datalist 재생성
+  menuList.innerHTML = '';
+  allMenus.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m;
+    menuList.appendChild(opt);
+  });
 }
 
 function renderList() {
