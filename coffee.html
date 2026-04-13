@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#006241">
+<title>☕️ 아들 탄생 기념 커피</title>
+<style>
+  :root {
+    --sb-green: #006241;
+    --sb-green-dark: #1e3932;
+    --sb-light: #d4e9e2;
+    --sb-accent: #cba258;
+    --bg: #f7f4ef;
+    --text: #1e3932;
+    --muted: #6b6b6b;
+    --border: #e5e5e5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+    background: var(--bg);
+    margin: 0;
+    padding: 16px;
+    color: var(--text);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .container { max-width: 560px; margin: 0 auto; }
+  .header { text-align: center; padding: 12px 0 8px; }
+  .header h1 {
+    font-size: 22px; margin: 0 0 6px;
+    color: var(--sb-green-dark);
+  }
+  .header p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .countdown {
+    background: var(--sb-green); color: white;
+    padding: 14px; border-radius: 14px; text-align: center;
+    font-size: 15px; margin: 14px 0 18px;
+    font-weight: 600; letter-spacing: 0.2px;
+    box-shadow: 0 4px 14px rgba(0, 98, 65, 0.25);
+  }
+  .countdown.closed { background: #8a8a8a; box-shadow: none; }
+  .tabs {
+    display: flex; gap: 4px; background: white;
+    border-radius: 12px; padding: 4px; margin-bottom: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .tab {
+    flex: 1; text-align: center; padding: 10px 8px;
+    border-radius: 10px; cursor: pointer; font-size: 14px;
+    font-weight: 500; color: var(--muted);
+    transition: all 0.15s;
+  }
+  .tab.active { background: var(--sb-green); color: white; }
+  .card {
+    background: white; padding: 18px; border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 14px;
+  }
+  label {
+    display: block; font-weight: 600; margin: 14px 0 8px;
+    font-size: 13px; color: var(--sb-green-dark);
+  }
+  label:first-of-type { margin-top: 0; }
+  input[type=text], textarea, select {
+    width: 100%; padding: 12px; border: 1.5px solid var(--border);
+    border-radius: 10px; font-size: 15px;
+    font-family: inherit; background: white; color: var(--text);
+  }
+  input[type=text]:focus, textarea:focus, select:focus {
+    outline: none; border-color: var(--sb-green);
+  }
+  textarea { resize: vertical; min-height: 50px; }
+  select {
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23006241' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    display: inline-block; padding: 9px 14px;
+    border: 1.5px solid var(--border); border-radius: 999px;
+    cursor: pointer; background: white; font-size: 13px;
+    user-select: none; transition: all 0.12s;
+    font-weight: 500;
+  }
+  .chip.active {
+    background: var(--sb-green); color: white;
+    border-color: var(--sb-green);
+  }
+  button.primary {
+    width: 100%; padding: 15px; background: var(--sb-green);
+    color: white; border: none; border-radius: 12px;
+    font-size: 16px; font-weight: 700; cursor: pointer;
+    margin-top: 18px; font-family: inherit;
+    box-shadow: 0 4px 12px rgba(0, 98, 65, 0.22);
+  }
+  button.primary:active { transform: translateY(1px); }
+  button.ghost {
+    width: 100%; padding: 12px; background: transparent;
+    color: #c43535; border: 1.5px solid #f0c2c2; border-radius: 10px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    margin-top: 10px; font-family: inherit;
+  }
+  .copy-btn {
+    padding: 13px; background: var(--sb-accent); color: white;
+    border: none; border-radius: 10px; cursor: pointer; width: 100%;
+    font-weight: 700; margin-top: 14px; font-size: 14px;
+    font-family: inherit;
+  }
+  .order-item {
+    padding: 12px 0; border-bottom: 1px solid #f0f0f0;
+  }
+  .order-item:last-child { border-bottom: none; }
+  .order-item:first-child { padding-top: 0; }
+  .order-name {
+    font-weight: 700; font-size: 15px;
+    color: var(--sb-green-dark); margin-bottom: 3px;
+  }
+  .order-name .mine {
+    display: inline-block; font-size: 10px; background: var(--sb-accent);
+    color: white; padding: 2px 6px; border-radius: 4px;
+    margin-left: 6px; vertical-align: middle; font-weight: 600;
+  }
+  .order-menu { color: #444; font-size: 14px; line-height: 1.45; }
+  .order-memo { color: var(--muted); font-size: 12px; margin-top: 3px; }
+  .summary-row {
+    padding: 10px 0; border-bottom: 1px dashed #eee;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 14px;
+  }
+  .summary-row:last-child {
+    border-bottom: none; border-top: 2px solid var(--sb-green-dark);
+    font-weight: 800; padding-top: 14px; margin-top: 4px;
+    font-size: 15px;
+  }
+  .summary-row .count {
+    background: var(--sb-light); padding: 3px 10px;
+    border-radius: 10px; font-weight: 700; color: var(--sb-green-dark);
+    font-size: 13px;
+  }
+  .empty {
+    text-align: center; color: #aaa; padding: 28px 10px;
+    font-size: 14px;
+  }
+  .hide { display: none !important; }
+  .setup-warning {
+    background: #fff6d6; border: 2px solid #ffc107;
+    padding: 16px; border-radius: 12px; margin-bottom: 14px;
+    font-size: 13px; line-height: 1.6;
+  }
+  .setup-warning b { color: #b8860b; }
+  .setup-warning code {
+    background: #fff; padding: 1px 5px; border-radius: 3px;
+    font-size: 12px;
+  }
+  h3 { margin: 0 0 10px; font-size: 16px; color: var(--sb-green-dark); }
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--sb-green-dark); color: white;
+    padding: 12px 22px; border-radius: 999px;
+    font-size: 14px; font-weight: 600;
+    transition: transform 0.3s; z-index: 100;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>☕️ 아들 탄생 기념 커피 한 잔 ☕️</h1>
+    <p>축하해주셔서 감사합니다 🙏<br>메뉴 선택해주세요!</p>
+  </div>
+
+  <div class="countdown" id="countdown">⏰ 마감까지 --:--:--</div>
+
+  <div id="setupWarning" class="setup-warning hide">
+    <b>⚠️ Firebase 설정이 필요합니다</b><br>
+    <code>coffee.html</code> 상단의 <code>firebaseConfig</code>에 본인 프로젝트 설정을 붙여넣어주세요.
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="order">주문하기</div>
+    <div class="tab" data-tab="list">전체주문 <span id="orderCount"></span></div>
+    <div class="tab" data-tab="summary">요약</div>
+  </div>
+
+  <!-- ORDER TAB -->
+  <div id="orderTab">
+    <div class="card">
+      <label>이름</label>
+      <input id="nameInput" type="text" placeholder="예) 홍길동" maxlength="20">
+
+      <label>온도</label>
+      <div class="chips" id="tempOptions">
+        <div class="chip active" data-val="ICE">ICE</div>
+        <div class="chip" data-val="HOT">HOT</div>
+      </div>
+
+      <label>사이즈</label>
+      <div class="chips" id="sizeOptions">
+        <div class="chip active" data-val="Tall">Tall</div>
+        <div class="chip" data-val="Grande">Grande</div>
+        <div class="chip" data-val="Venti">Venti</div>
+      </div>
+
+      <label>메뉴</label>
+      <select id="menuSelect"></select>
+
+      <label>추가옵션 (중복 선택 가능)</label>
+      <div class="chips" id="addonOptions">
+        <div class="chip" data-val="샷추가">샷추가</div>
+        <div class="chip" data-val="시럽추가">시럽추가</div>
+        <div class="chip" data-val="휘핑추가">휘핑추가</div>
+        <div class="chip" data-val="휘핑빼기">휘핑빼기</div>
+        <div class="chip" data-val="디카페인">디카페인</div>
+        <div class="chip" data-val="연하게">연하게</div>
+        <div class="chip" data-val="얼음적게">얼음적게</div>
+        <div class="chip" data-val="얼음많이">얼음많이</div>
+      </div>
+
+      <label>메모 (선택)</label>
+      <textarea id="memoInput" rows="2" placeholder="예) 알러지, 특이사항 등"></textarea>
+
+      <button class="primary" id="submitBtn">주문하기</button>
+      <button class="ghost hide" id="deleteBtn">내 주문 취소하기</button>
+    </div>
+  </div>
+
+  <!-- LIST TAB -->
+  <div id="listTab" class="hide">
+    <div class="card">
+      <h3>주문 목록</h3>
+      <div id="orderList"></div>
+    </div>
+  </div>
+
+  <!-- SUMMARY TAB -->
+  <div id="summaryTab" class="hide">
+    <div class="card">
+      <h3>메뉴별 집계</h3>
+      <div id="summaryList"></div>
+      <button class="copy-btn" id="copyBtn">📋 요약 복사하기</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">완료!</div>
+
+<script type="module">
+// ════════════════════════════════════════════════════════════════
+// 🔧 Firebase 설정 (세팅 3분)
+// ────────────────────────────────────────────────────────────────
+// 1. https://console.firebase.google.com → "프로젝트 추가" → 아무 이름
+// 2. 좌측 메뉴 "빌드" → "Realtime Database" → "데이터베이스 만들기"
+//    → 위치는 기본값 → "테스트 모드에서 시작" 선택 → 사용 설정
+// 3. 좌상단 ⚙️ (프로젝트 설정) → "일반" 탭 → "내 앱" → 웹 아이콘 (</>)
+//    → 앱 닉네임 입력 → "앱 등록" → 나오는 firebaseConfig 복사
+// 4. 아래 firebaseConfig 값을 본인 것으로 교체하고 저장
+// 5. (선택) Realtime Database → "규칙" 탭에서 아래처럼 설정:
+//      { "rules": { ".read": true, ".write": true } }
+//    테스트 모드는 30일 후 만료되니 위 규칙으로 덮어쓰는 걸 권장
+// ════════════════════════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "0000000000",
+  appId: "1:0000000000:web:xxxxxxxxxxxxxxxx"
+};
+
+// ════════════════════════════════════════════════════════════════
+// 마감 시간: 다음 오전 8시 30분
+// ════════════════════════════════════════════════════════════════
+const DEADLINE = (() => {
+  const d = new Date();
+  d.setHours(8, 30, 0, 0);
+  if (d.getTime() < Date.now()) d.setDate(d.getDate() + 1);
+  return d.getTime();
+})();
+
+// ════════════════════════════════════════════════════════════════
+// 스타벅스 메뉴
+// ════════════════════════════════════════════════════════════════
+const MENUS = [
+  "— 에스프레소 —",
+  "아메리카노",
+  "카페라떼",
+  "카푸치노",
+  "카라멜마키아또",
+  "바닐라라떼",
+  "돌체라떼",
+  "카페모카",
+  "화이트초콜릿모카",
+  "에스프레소 샷",
+  "— 콜드브루 —",
+  "콜드브루",
+  "돌체 콜드브루",
+  "바닐라 크림 콜드브루",
+  "나이트로 콜드브루",
+  "— 프라푸치노 —",
+  "자바칩 프라푸치노",
+  "모카 프라푸치노",
+  "그린티 크림 프라푸치노",
+  "초콜릿 크림 칩 프라푸치노",
+  "— 블렌디드 —",
+  "딸기 딜라이트 요거트 블렌디드",
+  "망고 바나나 블렌디드",
+  "— 티·기타 —",
+  "자몽 허니 블랙티",
+  "유자 민트 티",
+  "잉글리쉬 브렉퍼스트 티",
+  "캐모마일 티",
+  "그린티 라떼",
+  "차이 티 라떼",
+  "핫초코",
+];
+
+// ════════════════════════════════════════════════════════════════
+// Firebase 초기화
+// ════════════════════════════════════════════════════════════════
+let db = null, ordersRef = null;
+const isConfigured = firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith("YOUR_");
+
+if (isConfigured) {
+  const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+  const dbMod = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+  const app = initializeApp(firebaseConfig);
+  db = dbMod.getDatabase(app);
+  ordersRef = dbMod.ref(db, 'coffee_orders');
+  window._fb = dbMod;
+} else {
+  document.getElementById('setupWarning').classList.remove('hide');
+}
+
+// ════════════════════════════════════════════════════════════════
+// 메뉴 셋업
+// ════════════════════════════════════════════════════════════════
+const menuSelect = document.getElementById('menuSelect');
+MENUS.forEach(m => {
+  const opt = document.createElement('option');
+  if (m.startsWith('—')) {
+    opt.disabled = true;
+    opt.textContent = m;
+  } else {
+    opt.value = m;
+    opt.textContent = m;
+  }
+  menuSelect.appendChild(opt);
+});
+menuSelect.value = "아메리카노";
+
+// ════════════════════════════════════════════════════════════════
+// Chip 선택 UI
+// ════════════════════════════════════════════════════════════════
+function setupChips(containerId, multi = false) {
+  const c = document.getElementById(containerId);
+  c.addEventListener('click', e => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    if (multi) {
+      chip.classList.toggle('active');
+    } else {
+      c.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+      chip.classList.add('active');
+    }
+  });
+}
+setupChips('tempOptions');
+setupChips('sizeOptions');
+setupChips('addonOptions', true);
+
+function getSingle(id) {
+  return document.querySelector(`#${id} .chip.active`)?.dataset.val || '';
+}
+function getMulti(id) {
+  return Array.from(document.querySelectorAll(`#${id} .chip.active`))
+    .map(c => c.dataset.val);
+}
+function setSingle(id, val) {
+  document.querySelectorAll(`#${id} .chip`).forEach(c => {
+    c.classList.toggle('active', c.dataset.val === val);
+  });
+}
+function setMulti(id, vals) {
+  const set = new Set(vals || []);
+  document.querySelectorAll(`#${id} .chip`).forEach(c => {
+    c.classList.toggle('active', set.has(c.dataset.val));
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// 탭
+// ════════════════════════════════════════════════════════════════
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const target = tab.dataset.tab;
+    document.getElementById('orderTab').classList.toggle('hide', target !== 'order');
+    document.getElementById('listTab').classList.toggle('hide', target !== 'list');
+    document.getElementById('summaryTab').classList.toggle('hide', target !== 'summary');
+  });
+});
+
+// ════════════════════════════════════════════════════════════════
+// 카운트다운
+// ════════════════════════════════════════════════════════════════
+function isPastDeadline() { return Date.now() > DEADLINE; }
+function updateCountdown() {
+  const cd = document.getElementById('countdown');
+  const diff = DEADLINE - Date.now();
+  if (diff <= 0) {
+    cd.textContent = '⏰ 주문이 마감되었습니다';
+    cd.classList.add('closed');
+    return;
+  }
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  cd.textContent = `⏰ 내일 오전 8:30 마감 · ${h}시간 ${m}분 ${s}초 남음`;
+}
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+// ════════════════════════════════════════════════════════════════
+// 제출 / 취소
+// ════════════════════════════════════════════════════════════════
+let myOrderKey = localStorage.getItem('coffee_order_key');
+let currentOrders = {};
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+document.getElementById('submitBtn').addEventListener('click', async () => {
+  if (!isConfigured) { alert('Firebase 설정이 필요합니다. 파일 상단 주석을 확인해주세요.'); return; }
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name) { alert('이름을 입력해주세요'); return; }
+  if (isPastDeadline()) { alert('주문이 마감되었습니다 😢'); return; }
+  const menu = menuSelect.value;
+  if (!menu || menu.startsWith('—')) { alert('메뉴를 선택해주세요'); return; }
+
+  const order = {
+    name,
+    temp: getSingle('tempOptions'),
+    size: getSingle('sizeOptions'),
+    menu,
+    addons: getMulti('addonOptions'),
+    memo: document.getElementById('memoInput').value.trim(),
+    ts: Date.now()
+  };
+
+  try {
+    const { ref, set, push } = window._fb;
+    if (myOrderKey) {
+      await set(ref(db, 'coffee_orders/' + myOrderKey), order);
+      toast('주문 수정 완료 ☕️');
+    } else {
+      const newRef = push(ordersRef);
+      await set(newRef, order);
+      myOrderKey = newRef.key;
+      localStorage.setItem('coffee_order_key', myOrderKey);
+      toast('주문 완료! ☕️');
+    }
+    document.getElementById('submitBtn').textContent = '주문 수정하기';
+    document.getElementById('deleteBtn').classList.remove('hide');
+  } catch (e) {
+    alert('오류: ' + e.message);
+  }
+});
+
+document.getElementById('deleteBtn').addEventListener('click', async () => {
+  if (!myOrderKey) return;
+  if (!confirm('주문을 취소하시겠습니까?')) return;
+  try {
+    const { ref, remove } = window._fb;
+    await remove(ref(db, 'coffee_orders/' + myOrderKey));
+    localStorage.removeItem('coffee_order_key');
+    myOrderKey = null;
+    document.getElementById('submitBtn').textContent = '주문하기';
+    document.getElementById('deleteBtn').classList.add('hide');
+    toast('주문 취소 완료');
+  } catch (e) {
+    alert('오류: ' + e.message);
+  }
+});
+
+// ════════════════════════════════════════════════════════════════
+// 실시간 수신 & 렌더
+// ════════════════════════════════════════════════════════════════
+if (isConfigured) {
+  const { onValue } = window._fb;
+  onValue(ordersRef, snap => {
+    currentOrders = snap.val() || {};
+    renderList();
+    renderSummary();
+    const n = Object.keys(currentOrders).length;
+    document.getElementById('orderCount').textContent = n ? `(${n})` : '';
+    // 내 주문이 있으면 폼에 채우기
+    if (myOrderKey && currentOrders[myOrderKey]) {
+      restoreMyOrder(currentOrders[myOrderKey]);
+    } else if (myOrderKey && !currentOrders[myOrderKey]) {
+      localStorage.removeItem('coffee_order_key');
+      myOrderKey = null;
+    }
+  });
+}
+
+let _restored = false;
+function restoreMyOrder(o) {
+  if (_restored) return;
+  _restored = true;
+  document.getElementById('nameInput').value = o.name || '';
+  setSingle('tempOptions', o.temp);
+  setSingle('sizeOptions', o.size);
+  if (o.menu) menuSelect.value = o.menu;
+  setMulti('addonOptions', o.addons);
+  document.getElementById('memoInput').value = o.memo || '';
+  document.getElementById('submitBtn').textContent = '주문 수정하기';
+  document.getElementById('deleteBtn').classList.remove('hide');
+}
+
+function formatOrder(o) {
+  const parts = [];
+  if (o.temp) parts.push(o.temp);
+  if (o.size) parts.push(o.size);
+  parts.push(o.menu || '');
+  let s = parts.filter(Boolean).join(' ');
+  if (o.addons && o.addons.length) s += ' (' + o.addons.join(', ') + ')';
+  return s;
+}
+
+function renderList() {
+  const list = document.getElementById('orderList');
+  const entries = Object.entries(currentOrders)
+    .sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0));
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="empty">아직 주문이 없어요 ☕️</div>';
+    return;
+  }
+  list.innerHTML = entries.map(([k, o]) => `
+    <div class="order-item">
+      <div class="order-name">${escapeHtml(o.name)}${k === myOrderKey ? '<span class="mine">내 주문</span>' : ''}</div>
+      <div class="order-menu">${escapeHtml(formatOrder(o))}</div>
+      ${o.memo ? `<div class="order-memo">📝 ${escapeHtml(o.memo)}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function renderSummary() {
+  const list = document.getElementById('summaryList');
+  const counts = {};
+  Object.values(currentOrders).forEach(o => {
+    const key = formatOrder(o);
+    counts[key] = (counts[key] || 0) + 1;
+  });
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  const total = Object.keys(currentOrders).length;
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="empty">아직 주문이 없어요 ☕️</div>';
+    return;
+  }
+  list.innerHTML = entries.map(([k, c]) => `
+    <div class="summary-row">
+      <span>${escapeHtml(k)}</span>
+      <span class="count">× ${c}</span>
+    </div>
+  `).join('') + `
+    <div class="summary-row">
+      <span>총계</span>
+      <span>${total}잔</span>
+    </div>
+  `;
+}
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  const counts = {};
+  Object.values(currentOrders).forEach(o => {
+    const key = formatOrder(o);
+    counts[key] = (counts[key] || 0) + 1;
+  });
+  const lines = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([k, c]) => `• ${k} × ${c}`);
+  const total = Object.keys(currentOrders).length;
+  const text = `☕️ 커피 주문 요약 (총 ${total}잔)\n\n` + lines.join('\n');
+  try {
+    await navigator.clipboard.writeText(text);
+    toast('📋 복사 완료!');
+  } catch (e) {
+    alert(text);
+  }
+});
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+</script>
+</body>
+</html>
