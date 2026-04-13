@@ -539,10 +539,27 @@ updateCountdown();
 setInterval(updateCountdown, 1000);
 
 // ════════════════════════════════════════════════════════════════
-// 제출 / 취소
+// 상태 + localStorage 헬퍼 (이름별 주문 키 맵)
 // ════════════════════════════════════════════════════════════════
-let myOrderKey = localStorage.getItem('coffee_order_key');
 let currentOrders = {};
+let lastSyncedName = null;     // 폼이 현재 어느 이름에 대해 동기화됐는지
+let firebaseDataLoaded = false;
+
+function getOrderKeys() {
+  try { return JSON.parse(localStorage.getItem('coffee_order_keys') || '{}'); }
+  catch { return {}; }
+}
+function setOrderKey(name, key) {
+  const keys = getOrderKeys();
+  if (key) keys[name] = key; else delete keys[name];
+  localStorage.setItem('coffee_order_keys', JSON.stringify(keys));
+}
+
+// 페이지 로드 시 마지막 선택 이름 복원
+const lastName = localStorage.getItem('coffee_last_name');
+if (lastName && TEAM_MEMBERS.includes(lastName)) {
+  nameInput.value = lastName;
+}
 
 function toast(msg) {
   const t = document.getElementById('toast');
@@ -551,6 +568,66 @@ function toast(msg) {
   setTimeout(() => t.classList.remove('show'), 1800);
 }
 
+// ════════════════════════════════════════════════════════════════
+// 폼 채우기 / 리셋 / 이름 변경 동기화
+// ════════════════════════════════════════════════════════════════
+function fillFormFromOrder(o) {
+  setSingle('tempOptions', o.temp);
+  setSingle('sizeOptions', o.size);
+  menuInput.value = o.menu || '';
+  setMulti('addonOptions', o.addons || []);
+  updateAddonCount();
+  if (o.addons && o.addons.length) {
+    document.querySelector('details.addon-details').open = true;
+  }
+  document.getElementById('memoInput').value = o.memo || '';
+}
+
+function resetFormFields() {
+  setSingle('tempOptions', 'ICE');
+  setSingle('sizeOptions', 'Tall');
+  menuInput.value = '';
+  setMulti('addonOptions', []);
+  updateAddonCount();
+  document.querySelector('details.addon-details').open = false;
+  document.getElementById('memoInput').value = '';
+}
+
+function syncFormForSelectedName() {
+  const name = nameInput.value;
+  if (!name) return;
+  if (lastSyncedName === name) return; // 편집 중 덮어쓰기 방지
+
+  const myKey = getOrderKeys()[name];
+  const existingOrder = myKey ? currentOrders[myKey] : null;
+
+  // Firebase 데이터 아직 미도착 & 기존 주문 판단 불가 → 보류
+  if (!existingOrder && !firebaseDataLoaded) return;
+
+  if (existingOrder) {
+    fillFormFromOrder(existingOrder);
+    document.getElementById('submitBtn').textContent = '주문 수정하기';
+    document.getElementById('deleteBtn').classList.remove('hide');
+  } else {
+    resetFormFields();
+    document.getElementById('submitBtn').textContent = '주문하기';
+    document.getElementById('deleteBtn').classList.add('hide');
+    if (myKey) setOrderKey(name, null); // stale 정리
+  }
+  lastSyncedName = name;
+  renderList(); // "내 주문" 뱃지 갱신
+}
+
+nameInput.addEventListener('change', () => {
+  const name = nameInput.value;
+  if (name) localStorage.setItem('coffee_last_name', name);
+  lastSyncedName = null; // 강제 재동기화
+  syncFormForSelectedName();
+});
+
+// ════════════════════════════════════════════════════════════════
+// 제출 / 취소
+// ════════════════════════════════════════════════════════════════
 document.getElementById('submitBtn').addEventListener('click', async () => {
   if (!isConfigured) { alert('Firebase 설정이 필요합니다. 파일 상단 주석을 확인해주세요.'); return; }
   const name = nameInput.value.trim();
@@ -571,34 +648,40 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
 
   try {
     const { ref, set, push } = window._fb;
-    if (myOrderKey) {
-      await set(ref(db, 'coffee_orders/' + myOrderKey), order);
+    const existingKey = getOrderKeys()[name];
+    if (existingKey && currentOrders[existingKey]) {
+      await set(ref(db, 'coffee_orders/' + existingKey), order);
       toast('주문 수정 완료 ☕️');
     } else {
       const newRef = push(ordersRef);
       await set(newRef, order);
-      myOrderKey = newRef.key;
-      localStorage.setItem('coffee_order_key', myOrderKey);
+      setOrderKey(name, newRef.key);
       toast('주문 완료! ☕️');
     }
+    lastSyncedName = name; // 제출 후 재필 방지
     document.getElementById('submitBtn').textContent = '주문 수정하기';
     document.getElementById('deleteBtn').classList.remove('hide');
+    renderList(); // 뱃지 즉시 갱신
   } catch (e) {
     alert('오류: ' + e.message);
   }
 });
 
 document.getElementById('deleteBtn').addEventListener('click', async () => {
-  if (!myOrderKey) return;
+  const name = nameInput.value.trim();
+  const myKey = name ? getOrderKeys()[name] : null;
+  if (!myKey) return;
   if (!confirm('주문을 취소하시겠습니까?')) return;
   try {
     const { ref, remove } = window._fb;
-    await remove(ref(db, 'coffee_orders/' + myOrderKey));
-    localStorage.removeItem('coffee_order_key');
-    myOrderKey = null;
+    await remove(ref(db, 'coffee_orders/' + myKey));
+    setOrderKey(name, null);
+    resetFormFields();
     document.getElementById('submitBtn').textContent = '주문하기';
     document.getElementById('deleteBtn').classList.add('hide');
+    lastSyncedName = name; // 빈 상태로 동기화됨
     toast('주문 취소 완료');
+    renderList();
   } catch (e) {
     alert('오류: ' + e.message);
   }
@@ -611,37 +694,13 @@ if (isConfigured) {
   const { onValue } = window._fb;
   onValue(ordersRef, snap => {
     currentOrders = snap.val() || {};
+    firebaseDataLoaded = true;
     renderList();
     renderSummary();
     const n = Object.keys(currentOrders).length;
     document.getElementById('orderCount').textContent = n ? `(${n})` : '';
-    // 내 주문이 있으면 폼에 채우기
-    if (myOrderKey && currentOrders[myOrderKey]) {
-      restoreMyOrder(currentOrders[myOrderKey]);
-    } else if (myOrderKey && !currentOrders[myOrderKey]) {
-      localStorage.removeItem('coffee_order_key');
-      myOrderKey = null;
-    }
+    syncFormForSelectedName(); // 선택된 이름에 맞춰 폼 동기화 시도
   });
-}
-
-let _restored = false;
-function restoreMyOrder(o) {
-  if (_restored) return;
-  _restored = true;
-  if (o.name) nameInput.value = o.name;
-  setSingle('tempOptions', o.temp);
-  setSingle('sizeOptions', o.size);
-  if (o.menu) menuInput.value = o.menu;
-  setMulti('addonOptions', o.addons);
-  updateAddonCount();
-  // 기존 옵션이 있으면 추가옵션 섹션 자동 펼침
-  if (o.addons && o.addons.length) {
-    document.querySelector('details.addon-details').open = true;
-  }
-  document.getElementById('memoInput').value = o.memo || '';
-  document.getElementById('submitBtn').textContent = '주문 수정하기';
-  document.getElementById('deleteBtn').classList.remove('hide');
 }
 
 function formatOrder(o) {
@@ -656,6 +715,8 @@ function formatOrder(o) {
 
 function renderList() {
   const list = document.getElementById('orderList');
+  const currentName = nameInput.value;
+  const myKey = currentName ? getOrderKeys()[currentName] : null;
   const entries = Object.entries(currentOrders)
     .sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0));
   if (entries.length === 0) {
@@ -664,7 +725,7 @@ function renderList() {
   }
   list.innerHTML = entries.map(([k, o]) => `
     <div class="order-item">
-      <div class="order-name">${escapeHtml(o.name)}${k === myOrderKey ? '<span class="mine">내 주문</span>' : ''}</div>
+      <div class="order-name">${escapeHtml(o.name)}${k === myKey ? '<span class="mine">내 주문</span>' : ''}</div>
       <div class="order-menu">${escapeHtml(formatOrder(o))}</div>
       ${o.memo ? `<div class="order-memo">📝 ${escapeHtml(o.memo)}</div>` : ''}
     </div>
