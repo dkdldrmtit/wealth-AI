@@ -329,7 +329,7 @@ const firebaseConfig = {
 // ════════════════════════════════════════════════════════════════
 const DEADLINE = (() => {
   const d = new Date();
-  d.setHours(8, 30, 0, 0);
+  d.setHours(8, 40, 0, 0);
   if (d.getTime() < Date.now()) d.setDate(d.getDate() + 1);
   return d.getTime();
 })();
@@ -531,7 +531,7 @@ function updateCountdown() {
   const h = Math.floor(diff / 3600000);
   const m = Math.floor((diff % 3600000) / 60000);
   const s = Math.floor((diff % 60000) / 1000);
-  cd.textContent = `⏰ 내일 오전 8:30 마감 · ${h}시간 ${m}분 ${s}초 남음`;
+  cd.textContent = `⏰ 내일 오전 8:40 마감 · ${h}시간 ${m}분 ${s}초 남음`;
 }
 updateCountdown();
 setInterval(updateCountdown, 1000);
