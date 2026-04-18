@@ -3323,21 +3323,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
                    background:transparent;border:1px solid var(--border2);color:var(--muted2)">수익금액</button>
         </div>
       </div>
-      <!-- 소유자 필터 -->
-      <div style="display:flex;gap:6px;margin-bottom:14px">
-        <button id="pnl-owner-all" onclick="setPnlOwner('all')"
-          style="padding:4px 12px;border-radius:16px;font-family:'Noto Sans KR',sans-serif;
-                 font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;
-                 background:rgba(30,58,82,.15);border:1.5px solid var(--blue);color:var(--blue)">전체</button>
-        <button id="pnl-owner-ms" onclick="setPnlOwner('minsuk')"
-          style="padding:4px 12px;border-radius:16px;font-family:'Noto Sans KR',sans-serif;
-                 font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;
-                 background:transparent;border:1.5px solid var(--border2);color:var(--muted2)">나</button>
-        <button id="pnl-owner-sy" onclick="setPnlOwner('siyun')"
-          style="padding:4px 12px;border-radius:16px;font-family:'Noto Sans KR',sans-serif;
-                 font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;
-                 background:transparent;border:1.5px solid var(--border2);color:var(--muted2)">배우자</button>
-      </div>
       <div id="stk-pct-chart"></div>
     </div>
 
@@ -12758,7 +12743,7 @@ function setStkOwner(owner) {
   });
   renderStockList();
   updateStockSummary();
-  if (currentStkTab === 'chart') renderStockCharts();
+  if (currentStkTab === 'chart') { renderStockCharts(); renderStkPctChart(); }
   if (currentStkTab === 'history') {
     stkHistoryAccFilter = 'all'; // 소유자 변경 시 필터 초기화
     renderStockHistory();
@@ -13175,21 +13160,7 @@ function renderStockCharts() {
 
 
 var stkSortMode = 'pct'; // 'pct' | 'amt'
-var pnlOwnerFilter = 'all'; // 'all' | 'minsuk' | 'siyun'
-
-function setPnlOwner(owner) {
-  pnlOwnerFilter = owner;
-  var ownerMap = { all: 'all', ms: 'minsuk', sy: 'siyun' };
-  ['all', 'ms', 'sy'].forEach(function(k) {
-    var btn = document.getElementById('pnl-owner-' + k);
-    if (!btn) return;
-    var active = ownerMap[k] === owner;
-    btn.style.background = active ? 'rgba(30,58,82,.15)' : 'transparent';
-    btn.style.borderColor = active ? 'var(--blue)' : 'var(--border2)';
-    btn.style.color = active ? 'var(--blue)' : 'var(--muted2)';
-  });
-  renderStkPctChart();
-}
+// PnL 차트 소유자 필터는 상단 전역 필터(currentStkOwner)와 통일
 
 function setStkSort(mode) {
   stkSortMode = mode;
@@ -13308,12 +13279,12 @@ function renderStkPctChart() {
   const wrap = document.getElementById('stk-pct-chart');
   if (!wrap) return;
   let activeStocks = getFilteredStocks().filter(function(s) { return s.currentPrice > 0; });
-  // 소유자 필터 적용
-  if (pnlOwnerFilter !== 'all') {
-    activeStocks = activeStocks.filter(function(s) { return s.owner === pnlOwnerFilter; });
+  // 상단 전역 소유자 필터(currentStkOwner)와 동기화
+  if (currentStkOwner !== 'all') {
+    activeStocks = activeStocks.filter(function(s) { return s.owner === currentStkOwner; });
   }
   if (!activeStocks.length) {
-    wrap.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:16px">' + (pnlOwnerFilter !== 'all' ? '해당 소유자 종목이 없어요' : '시세 갱신 후 확인하세요') + '</div>';
+    wrap.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:16px">' + (currentStkOwner !== 'all' ? '해당 소유자 종목이 없어요' : '시세 갱신 후 확인하세요') + '</div>';
     const compareEl = document.getElementById('stk-owner-compare');
     if (compareEl) compareEl.style.display = 'none';
     return;
