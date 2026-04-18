@@ -3263,43 +3263,42 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
   <!-- 종목 탭 -->
   <div id="stk-content-list">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <div style="display:flex;align-items:center;gap:8px">
-        <div id="stk-list-label" style="font-size:11px;color:var(--muted2);font-weight:500"></div>
-        <!-- 계좌별 뷰: 전체 펼치기/접기 -->
-        <button id="stk-expand-all-btn" onclick="toggleAllAccGroups()" style="display:none;font-size:10px;color:var(--muted2);background:none;border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:600;padding:0">
-          <span id="stk-expand-all-text">전체 펼치기</span>
-        </button>
+    <!-- 1행: 오너 필터 + 시세 새로고침 -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div id="stk-owner-seg" style="display:flex;align-items:center;gap:0">
+        <button id="stk-own-all" onclick="setStkOwner('all')"
+          style="padding:6px 10px;border:none;border-bottom:1.5px solid var(--text);background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;color:var(--text);line-height:1">전체</button>
+        <button id="stk-own-ms" onclick="setStkOwner('minsuk')"
+          style="padding:6px 10px;border:none;border-bottom:1.5px solid transparent;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted2);line-height:1">나</button>
+        <button id="stk-own-sy" onclick="setStkOwner('siyun')"
+          style="padding:6px 10px;border:none;border-bottom:1.5px solid transparent;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted2);line-height:1">파트너</button>
       </div>
       <div style="display:flex;gap:6px;align-items:center">
         <div id="stock-update-time" style="font-size:10px;color:var(--muted)"></div>
-        <!-- 뷰 토글: 세그먼트 컨트롤 -->
-        <div id="stk-view-seg" style="display:flex;background:var(--surface2);border-radius:8px;padding:2px;gap:1px;flex-shrink:0">
-          <button id="stk-view-acc" onclick="setStkViewMode('account')"
-            style="padding:5px 9px;border-radius:6px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;background:var(--surface);color:var(--text)">계좌별</button>
-          <button id="stk-view-stk" onclick="setStkViewMode('stock')"
-            style="padding:5px 9px;border-radius:6px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:500;cursor:pointer;transition:all .15s;background:transparent;color:var(--muted2)">종목별</button>
-        </div>
-        <div id="stk-owner-seg" style="display:flex;align-items:center;gap:0;flex-shrink:0">
-          <button id="stk-own-all" onclick="setStkOwner('all')"
-            style="padding:5px 8px;border:none;border-bottom:1.5px solid var(--text);background:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;color:var(--text);line-height:1">전체</button>
-          <button id="stk-own-ms" onclick="setStkOwner('minsuk')"
-            style="padding:5px 8px;border:none;border-bottom:1.5px solid transparent;background:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:500;cursor:pointer;color:var(--muted2);line-height:1">나</button>
-          <button id="stk-own-sy" onclick="setStkOwner('siyun')"
-            style="padding:5px 8px;border:none;border-bottom:1.5px solid transparent;background:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:500;cursor:pointer;color:var(--muted2);line-height:1">파트너</button>
-        </div>
-        <button onclick="fetchAllPrices()" id="stock-refresh-btn"
-          style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;
-          color:var(--muted);display:flex;align-items:center;gap:4px;padding:5px 10px;cursor:pointer">
+        <button onclick="fetchAllPrices()" id="stock-refresh-btn" aria-label="시세 새로고침"
+          style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted);display:flex;align-items:center;gap:4px;padding:6px 10px;cursor:pointer">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-          <span style="font-size:11px;font-weight:600;font-family:'Noto Sans KR',sans-serif">시세</span>
+          <span style="font-size:11px;font-weight:600">새로고침</span>
         </button>
       </div>
     </div>
+    <!-- 2행: 뷰 토글 + 전체 펼치기 -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div id="stk-view-seg" style="display:flex;background:var(--surface2);border-radius:8px;padding:2px;gap:1px">
+        <button id="stk-view-acc" onclick="setStkViewMode('account')"
+          style="padding:6px 12px;border-radius:6px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;background:var(--surface);color:var(--text)">계좌별</button>
+        <button id="stk-view-stk" onclick="setStkViewMode('stock')"
+          style="padding:6px 12px;border-radius:6px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:500;cursor:pointer;transition:all .15s;background:transparent;color:var(--muted2)">종목별</button>
+      </div>
+      <button id="stk-expand-all-btn" onclick="toggleAllAccGroups()" style="display:none;font-size:11px;color:var(--muted2);background:none;border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:600;padding:4px 8px">
+        <span id="stk-expand-all-text">전체 펼치기</span>
+      </button>
+    </div>
+
     <div id="stock-list"></div>
 
     <div id="stock-proxy-notice" style="margin-top:12px;padding:12px 14px;background:rgba(240,192,64,.08);border:1px solid rgba(240,192,64,.2);border-radius:12px;font-size:12px;color:var(--muted2);line-height:1.7;display:none">
-      ⚙️ 실시간 시세를 보려면 설정에서 <strong style="color:var(--text)">Cloudflare 주소</strong>를 입력해주세요.
+      실시간 시세를 보려면 설정에서 Cloudflare 주소를 입력해주세요.
     </div>
 
     <!-- 주식 → 자산 반영 버튼 -->
