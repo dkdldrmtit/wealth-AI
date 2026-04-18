@@ -2173,11 +2173,11 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
       <!-- 수신 알림 토글 -->
       <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border)">
-        <div>
+        <div style="flex:1;padding-right:12px">
           <div style="font-size:14px;font-weight:600;color:var(--text)">파트너 알림 받기</div>
-          <div style="font-size:11px;color:var(--muted2);margin-top:3px">파트너가 소비 기록 시 알림</div>
+          <div style="font-size:11px;color:var(--muted2);margin-top:3px">파트너가 소비를 기록하면 알림이 와요</div>
         </div>
-        <label style="position:relative;display:inline-block;width:46px;height:26px;cursor:pointer">
+        <label style="position:relative;display:inline-block;width:46px;height:26px;cursor:pointer;flex-shrink:0">
           <input type="checkbox" id="notif-receive-toggle" onchange="toggleReceiveNotif(this.checked)"
             style="opacity:0;width:0;height:0;position:absolute">
           <span id="notif-receive-track" style="position:absolute;inset:0;border-radius:13px;background:var(--border2);transition:background .2s">
@@ -2188,11 +2188,14 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
       <!-- 송신 알림 토글 -->
       <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0">
-        <div>
-          <div style="font-size:14px;font-weight:600;color:var(--text)">내 소비 파트너에게 공개</div>
-          <div style="font-size:11px;color:var(--muted2);margin-top:3px">끄면 파트너에게 알림이 전송됩니다</div>
+        <div style="flex:1;padding-right:12px">
+          <div style="font-size:14px;font-weight:600;color:var(--text)">내 소비 파트너에게 공유</div>
+          <div style="font-size:11px;color:var(--muted2);margin-top:3px;line-height:1.5">
+            켜짐: 내가 기록하면 파트너에게 알림이 감<br>
+            <span style="color:var(--gold)">끄면 공유 중단 사실이 파트너에게 통지됩니다</span>
+          </div>
         </div>
-        <label style="position:relative;display:inline-block;width:46px;height:26px;cursor:pointer">
+        <label style="position:relative;display:inline-block;width:46px;height:26px;cursor:pointer;flex-shrink:0">
           <input type="checkbox" id="notif-send-toggle" onchange="toggleSendNotif(this.checked)"
             style="opacity:0;width:0;height:0;position:absolute">
           <span id="notif-send-track" style="position:absolute;inset:0;border-radius:13px;background:var(--border2);transition:background .2s">
