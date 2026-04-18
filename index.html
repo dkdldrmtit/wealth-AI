@@ -1868,7 +1868,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <h1>자산<br>기록</h1>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:6px">
-      <button onclick="goPage('stocks',document.querySelectorAll('.nav-item')[2])"
+      <button onclick="goPage('stocks',document.querySelectorAll('.nav-item')[2])" data-advanced="1"
         style="background:none;border:none;color:var(--muted);height:32px;padding:0 10px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s;flex-shrink:0;gap:4px"
         ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
@@ -2083,9 +2083,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       style="flex:1;min-width:56px;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);white-space:nowrap">계정</button>
     <button id="stab-notif" onclick="setSettingsTab('notif')"
       style="flex:1;min-width:56px;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);white-space:nowrap">알림</button>
-    <button id="stab-cat" onclick="setSettingsTab('cat')"
+    <button id="stab-cat" onclick="setSettingsTab('cat')" data-advanced="1"
       style="flex:1;min-width:64px;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);white-space:nowrap">카테고리</button>
-    <button id="stab-apt" onclick="setSettingsTab('apt')"
+    <button id="stab-apt" onclick="setSettingsTab('apt')" data-advanced="1"
       style="flex:1;min-width:56px;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);white-space:nowrap">부동산</button>
     <button id="stab-data" onclick="setSettingsTab('data')"
       style="flex:1;min-width:56px;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);white-space:nowrap">백업</button>
@@ -2093,6 +2093,24 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
   <!-- 홈 설정 -->
   <div id="stab-content-home">
+
+    <!-- 고급 기능 모드 -->
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="flex:1;padding-right:12px">
+          <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px">고급 기능</div>
+          <div style="font-size:11px;color:var(--muted2);line-height:1.6">주식, 부동산, 일정, 정기지출, 구매 협의, 일괄 편집 등을 표시합니다.</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:46px;height:26px;cursor:pointer;flex-shrink:0">
+          <input type="checkbox" id="advanced-mode-toggle" onchange="toggleAdvancedMode(this.checked)"
+            style="opacity:0;width:0;height:0;position:absolute">
+          <span id="advanced-mode-track" style="position:absolute;inset:0;border-radius:13px;background:var(--border2);transition:background .2s">
+            <span id="advanced-mode-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:white;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></span>
+          </span>
+        </label>
+      </div>
+    </div>
+
     <div class="card">
       <div class="card-title" style="color:var(--muted)">홈 카드 순서</div>
       <p style="font-size:12px;color:var(--muted2);line-height:1.7;margin-bottom:14px">☰ 순서 변경 · ◉ 표시 / ◎ 숨김</p>
@@ -2378,7 +2396,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/></svg>
             AI
           </button>
-          <button onclick="openImportMenu()" id="ledger-import-menu-btn" aria-label="가져오기 메뉴" title="음성·문자·엑셀로 가져오기"
+          <button onclick="openImportMenu()" id="ledger-import-menu-btn" aria-label="가져오기 메뉴" title="음성·문자·엑셀로 가져오기" data-advanced="1"
             style="background:none;border:none;color:var(--muted);padding:0 10px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px;gap:4px"
             ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -2412,8 +2430,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:0;gap:2px">
       <button id="ltab-list" onclick="setLedgerTab('list')" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s">내역</button>
       <button id="ltab-chart" onclick="setLedgerTab('chart')" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">분석</button>
-      <button id="ltab-budget" onclick="setLedgerTab('budget')" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">예산</button>
-      <button id="ltab-calendar" onclick="setLedgerTab('calendar')" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">캘린더</button>
+      <button id="ltab-budget" onclick="setLedgerTab('budget')" data-advanced="1" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">예산</button>
+      <button id="ltab-calendar" onclick="setLedgerTab('calendar')" data-advanced="1" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">캘린더</button>
     </div>
 
 
@@ -3936,6 +3954,8 @@ let realtimeChannel = null;
 let notifSettings = load('notif-settings', { receiveEnabled: true, sendEnabled: true });
 // 구매 제안 목록
 let proposals = load('proposals', []);
+// 고급 기능 모드 (기본 OFF)
+let advancedMode = load('advanced-mode', false);
 
 // 파트너 이름 전역 관리
 let PARTNER_NAMES = load('partner-names', {
@@ -6922,6 +6942,7 @@ function initHome() {
   renderPartnerActivity();
 
   applyPartnerNamesToUI();
+  applyAdvancedModeVisibility();
   setDonutTab('all');
   restoreDonutExpanded();
 
@@ -9668,6 +9689,34 @@ function loadPartnerNamesUI() {
   if (p1) p1.value = PARTNER_NAMES.partner1 || '';
   if (p2) p2.value = PARTNER_NAMES.partner2 || '';
   if (cm) cm.value = PARTNER_NAMES.common || '';
+  // 고급 모드 토글 동기화
+  renderAdvancedModeToggle();
+}
+
+// ── 고급 기능 모드 ──
+function renderAdvancedModeToggle() {
+  const t = document.getElementById('advanced-mode-toggle');
+  const track = document.getElementById('advanced-mode-track');
+  const thumb = document.getElementById('advanced-mode-thumb');
+  if (!t) return;
+  t.checked = !!advancedMode;
+  if (track) track.style.background = advancedMode ? 'var(--blue)' : 'var(--border2)';
+  if (thumb) thumb.style.transform = advancedMode ? 'translateX(20px)' : 'translateX(0)';
+}
+
+function toggleAdvancedMode(on) {
+  advancedMode = !!on;
+  store('advanced-mode', advancedMode);
+  renderAdvancedModeToggle();
+  applyAdvancedModeVisibility();
+  showToast(advancedMode ? '고급 기능이 켜졌어요' : '고급 기능이 꺼졌어요');
+}
+
+function applyAdvancedModeVisibility() {
+  // 고급 기능 그룹: data-advanced="1" 요소들
+  document.querySelectorAll('[data-advanced="1"]').forEach(function(el) {
+    el.style.display = advancedMode ? '' : 'none';
+  });
 }
 
 function applyNamePreset(type) {
