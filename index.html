@@ -958,70 +958,42 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
 <!-- ══ 온보딩 ══ -->
 <div id="onboarding-overlay" style="display:none;position:fixed;inset:0;background:#080808;z-index:9999;overflow:hidden;font-family:'Noto Sans KR',sans-serif">
-  <!-- 슬라이드 컨테이너 -->
-  <div id="ob-slides" style="display:flex;width:400%;height:100%;transition:transform .4s cubic-bezier(.4,0,.2,1)">
+  <!-- 슬라이드 컨테이너 (2 슬라이드) -->
+  <div id="ob-slides" style="display:flex;width:200%;height:100%;transition:transform .4s cubic-bezier(.4,0,.2,1)">
 
-    <!-- Step 1: 자산 기록 -->
-    <div style="width:25%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 120px;text-align:center">
-      <div style="font-size:56px;margin-bottom:32px;line-height:1">🏠 📈 💰</div>
-      <div style="font-size:22px;font-weight:700;color:#f0f0f0;margin-bottom:14px;letter-spacing:-.5px">자산을 한 곳에 기록하세요</div>
-      <div style="font-size:14px;color:rgba(255,255,255,0.45);line-height:1.7;max-width:280px">아파트, 주식, 예금, 대출까지<br>매달 한 번, 1분이면 충분해요</div>
-      <div style="margin-top:32px;background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.15);border-radius:16px;padding:16px 20px;max-width:300px;text-align:left">
-        <div style="font-size:10px;color:rgba(30,58,82,0.6);letter-spacing:1px;margin-bottom:10px">자산 항목 예시</div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:rgba(255,255,255,0.5)">동탄 아파트</span><span style="color:#f0f0f0;font-weight:600">7.3억</span></div>
-          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:rgba(255,255,255,0.5)">주식·ETF</span><span style="color:#f0f0f0;font-weight:600">2,340만</span></div>
-          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:rgba(255,255,255,0.5)">주택담보대출</span><span style="color:#ef4444;font-weight:600">-3.0억</span></div>
+    <!-- Step 1: 핵심 가치 -->
+    <div style="width:50%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 160px;text-align:center">
+      <div style="font-size:11px;font-weight:400;letter-spacing:6px;color:rgba(90,159,196,0.6);margin-bottom:28px;text-transform:uppercase">For Couples</div>
+      <div style="font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:#f0f0f0;margin-bottom:16px;letter-spacing:-.5px;line-height:1.3">부부가 함께<br>돈을 관리해요</div>
+      <div style="font-size:14px;color:rgba(255,255,255,0.55);line-height:1.8;max-width:280px">파트너가 지출하면 바로 알림이 와요.<br>큰 소비 전에는 먼저 물어볼 수 있고요.<br>둘이 함께 보는 진짜 가계부.</div>
+
+      <!-- 예시 알림 카드 -->
+      <div style="margin-top:36px;background:rgba(30,58,82,0.12);border:1px solid rgba(90,159,196,0.2);border-radius:16px;padding:14px 16px;max-width:300px;text-align:left;backdrop-filter:blur(8px)">
+        <div style="font-size:10px;color:rgba(90,159,196,0.6);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase">방금 알림이 왔어요</div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:13px;color:#f0f0f0;font-weight:600">민석 · 5분 전</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px">카페</div>
+          </div>
+          <div style="font-size:14px;font-weight:700;color:#ef4444">-5,500원</div>
         </div>
       </div>
     </div>
 
-    <!-- Step 2: 가계부 분석 -->
-    <div style="width:25%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 120px;text-align:center">
-      <div style="font-size:56px;margin-bottom:32px;line-height:1">📊</div>
-      <div style="font-size:22px;font-weight:700;color:#f0f0f0;margin-bottom:14px;letter-spacing:-.5px">지출 패턴을 분석해드려요</div>
-      <div style="font-size:14px;color:rgba(255,255,255,0.45);line-height:1.7;max-width:280px">카테고리별 지출을 한눈에 파악하고<br>절약 포인트를 바로 찾아요</div>
-      <div style="margin-top:32px;background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.15);border-radius:16px;padding:16px 20px;max-width:300px;text-align:left">
-        <div style="font-size:10px;color:rgba(30,58,82,0.6);letter-spacing:1px;margin-bottom:10px">이번달 지출 분석</div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:rgba(255,255,255,0.5)">식비</span><span style="color:#f0f0f0">42만</span></div>
-            <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px"><div style="width:70%;height:100%;background:#5a9fc4;border-radius:2px"></div></div>
-          </div>
-          <div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:rgba(255,255,255,0.5)">교통</span><span style="color:#f0f0f0">18만</span></div>
-            <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px"><div style="width:30%;height:100%;background:#5a9fc4;border-radius:2px"></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Step 3: AI 분석 -->
-    <div style="width:25%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 120px;text-align:center">
-      <div style="font-size:13px;font-weight:300;letter-spacing:6px;color:rgba(90,159,196,0.6);margin-bottom:32px;text-transform:uppercase">AI</div>
-      <div style="font-size:22px;font-weight:700;color:#f0f0f0;margin-bottom:14px;letter-spacing:-.5px">AI가 맞춤 조언을 드려요</div>
-      <div style="font-size:14px;color:rgba(255,255,255,0.45);line-height:1.7;max-width:280px">10년 경력 PB급 금융 솔루션을<br>내 자산에 맞게 제안해드려요</div>
-      <div style="margin-top:32px;background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.15);border-radius:16px;padding:16px 20px;max-width:300px;text-align:left">
-        <div style="font-size:10px;color:rgba(30,58,82,0.6);letter-spacing:1px;margin-bottom:10px">AI 조언 예시</div>
-        <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6">💡 IRP 미가입 상태예요. 연말정산 세액공제로 최대 <span style="color:#5a9fc4;font-weight:600">148만원</span> 환급 가능해요. 지금 개설하면 올해 혜택 받을 수 있어요.</div>
-      </div>
-    </div>
-
-    <!-- Step 4: 시작 (이름 입력) -->
-    <div style="width:25%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 120px;text-align:center">
-      <div style="font-size:56px;margin-bottom:24px;line-height:1">👫</div>
-      <div style="font-size:22px;font-weight:700;color:#f0f0f0;margin-bottom:10px;letter-spacing:-.5px">함께 시작해요</div>
-      <div style="font-size:14px;color:rgba(255,255,255,0.45);line-height:1.7;margin-bottom:32px;max-width:280px">이름을 입력하면 자산을<br>누구의 것인지 구분할 수 있어요</div>
+    <!-- Step 2: 이름 설정 -->
+    <div style="width:50%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 160px;text-align:center">
+      <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#f0f0f0;margin-bottom:10px;letter-spacing:-.5px">이름을 알려주세요</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.45);line-height:1.7;margin-bottom:32px;max-width:280px">자산과 소비를 누가 한 건지 구분할 때 써요.<br>혼자 쓰신다면 배우자 이름은 비워도 돼요.</div>
       <div style="width:100%;max-width:300px;display:flex;flex-direction:column;gap:12px;text-align:left">
         <div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:.5px">배우자 1</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:.5px">나</div>
           <input id="ob-name1" type="text" placeholder="예: 민석" maxlength="10"
-            style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;padding:12px 16px;outline:none;box-sizing:border-box;-webkit-appearance:none">
+            style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;padding:13px 16px;outline:none;box-sizing:border-box;-webkit-appearance:none">
         </div>
         <div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:.5px">배우자 2</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:.5px">배우자 <span style="color:rgba(255,255,255,0.25)">(선택)</span></div>
           <input id="ob-name2" type="text" placeholder="예: 시윤" maxlength="10"
-            style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;padding:12px 16px;outline:none;box-sizing:border-box;-webkit-appearance:none">
+            style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;padding:13px 16px;outline:none;box-sizing:border-box;-webkit-appearance:none">
         </div>
       </div>
     </div>
@@ -1032,8 +1004,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <!-- 점 인디케이터 -->
     <div id="ob-dots" style="display:flex;justify-content:center;gap:6px;margin-bottom:20px">
       <div class="ob-dot" style="width:20px;height:4px;border-radius:2px;background:#5a9fc4;transition:all .3s"></div>
-      <div class="ob-dot" style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);transition:all .3s"></div>
-      <div class="ob-dot" style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);transition:all .3s"></div>
       <div class="ob-dot" style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);transition:all .3s"></div>
     </div>
     <!-- 버튼 -->
@@ -1341,6 +1311,22 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
 
 
+  <!-- ① ⓑ 파트너 최근 활동 (신규) -->
+  <div data-card="partner-activity" id="home-card-partner-activity">
+    <div id="home-partner-activity"
+      style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 1px 8px var(--shadow)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">COUPLE</div>
+          <div style="font-size:14px;font-weight:700;color:var(--text)">파트너 최근 활동</div>
+        </div>
+        <div id="partner-activity-status" style="font-size:11px;color:var(--muted);font-weight:500"></div>
+      </div>
+      <div id="partner-activity-content"></div>
+    </div>
+  </div>
+
+
   <!-- ② AI 코멘트 -->
   <div data-card="ai" id="home-card-ai">
   <div class="siri-card" id="ai-comment-card" onclick="toggleAiComment()">
@@ -1404,7 +1390,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
   <!-- ② -2 주식 포트폴리오 요약 -->
   <div data-card="stocks-summary" id="home-card-stocks-summary">
-  <div class="card" style="border-color:rgba(90,159,196,.2);cursor:pointer" onclick="goPage('stocks',document.querySelectorAll('.nav-item')[3])">
+  <div class="card" style="border-color:rgba(90,159,196,.2);cursor:pointer" onclick="goPage('stocks',document.querySelectorAll('.nav-item')[2])">
 
     <!-- 헤더 -->
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
@@ -1429,12 +1415,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
     <!-- 민석/시윤 분리 -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-      <div onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>setStkOwner('minsuk'),300)" style="background:var(--surface2);border-radius:12px;padding:10px;cursor:pointer">
+      <div onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[2]);setTimeout(()=>setStkOwner('minsuk'),300)" style="background:var(--surface2);border-radius:12px;padding:10px;cursor:pointer">
         <div id="home-stock-ms-label" style="font-size:10px;color:var(--minsuk);font-weight:600;margin-bottom:6px">나 ›</div>
         <div id="home-stock-ms-val" style="font-size:14px;font-weight:800;color:var(--text)">-</div>
         <div id="home-stock-ms-pnl" style="font-size:11px;font-weight:600;margin-top:2px">-</div>
       </div>
-      <div onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>setStkOwner('siyun'),300)" style="background:var(--surface2);border-radius:12px;padding:10px;cursor:pointer">
+      <div onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[2]);setTimeout(()=>setStkOwner('siyun'),300)" style="background:var(--surface2);border-radius:12px;padding:10px;cursor:pointer">
         <div id="home-stock-sy-label" style="font-size:10px;color:var(--siyun);font-weight:600;margin-bottom:6px">배우자 ›</div>
         <div id="home-stock-sy-val" style="font-size:14px;font-weight:800;color:var(--text)">-</div>
         <div id="home-stock-sy-pnl" style="font-size:11px;font-weight:600;margin-top:2px">-</div>
@@ -1889,11 +1875,19 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div class="eyebrow">자산 관리</div>
       <h1>자산<br>기록</h1>
     </div>
-    <button onclick="goPage('goals',{classList:{add:()=>{},remove:()=>{}}})"
-      style="background:none;border:none;color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s;flex-shrink:0;margin-bottom:6px"
-      ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-    </button>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <button onclick="goPage('stocks',document.querySelectorAll('.nav-item')[2])"
+        style="background:none;border:none;color:var(--muted);height:32px;padding:0 10px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s;flex-shrink:0;gap:4px"
+        ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        <span style="font-size:11px;font-weight:700;letter-spacing:0.3px">주식</span>
+      </button>
+      <button onclick="goPage('goals',{classList:{add:()=>{},remove:()=>{}}})"
+        style="background:none;border:none;color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s;flex-shrink:0"
+        ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+      </button>
+    </div>
   </div>
   <!-- 순자산 변화 그래프 -->
   <div class="card" style="margin-bottom:14px;cursor:pointer" onclick="openModal(null)">
@@ -3929,13 +3923,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <line x1="6" y1="20" x2="6" y2="16"/>
       </svg>
       <span>자산</span>
-    </div>
-    <div class="nav-item" onclick="goPage('stocks',this)">
-      <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
-        <polyline points="16 7 22 7 22 13"/>
-      </svg>
-      <span>주식</span>
     </div>
     <div class="nav-item" onclick="goPage('settings',this)">
       <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -6600,16 +6587,16 @@ function openModal(month) {
   updatePreview();
 }
 
-// ── 온보딩 ──
+// ── 온보딩 (심플: 2단계) ──
 var _obStep = 0;
-var _obTotal = 4;
+var _obTotal = 2;
 
 function obUpdateUI() {
   var slides = document.getElementById('ob-slides');
   var dots = document.querySelectorAll('.ob-dot');
   var nextBtn = document.getElementById('ob-next-btn');
   var skipBtn = document.getElementById('ob-skip-btn');
-  if (slides) slides.style.transform = 'translateX(-' + (_obStep * 25) + '%)';
+  if (slides) slides.style.transform = 'translateX(-' + (_obStep * 50) + '%)';
   dots.forEach(function(d, i) {
     d.style.width = i === _obStep ? '20px' : '4px';
     d.style.background = i === _obStep ? '#5a9fc4' : 'rgba(255,255,255,0.2)';
@@ -6625,7 +6612,7 @@ function obNext() {
     if (_obStep === _obTotal - 1) {
       setTimeout(function() {
         var el = document.getElementById('ob-name1');
-        if (el) el.focus();
+        if (el && !el.value) el.focus();
       }, 400);
     }
   } else {
@@ -6955,6 +6942,7 @@ function initHome() {
   renderHomeApt();
   renderCoupleCard();
   renderHomeStocksSummary();
+  renderPartnerActivity();
 
   applyPartnerNamesToUI();
   setDonutTab('all');
@@ -7457,6 +7445,84 @@ function importBackup(event) {
     }
   };
   reader.readAsText(file);
+}
+
+
+// ── 파트너 최근 활동 피드 (홈)
+function renderPartnerActivity() {
+  const wrap = document.getElementById('partner-activity-content');
+  const statusEl = document.getElementById('partner-activity-status');
+  if (!wrap) return;
+
+  // 커플 연결 안 된 경우: 파트너 초대 CTA
+  if (!currentCoupleId) {
+    if (statusEl) statusEl.textContent = '미연결';
+    wrap.innerHTML = '<div style="padding:20px 4px;text-align:center">'
+      + '<div style="font-size:13px;color:var(--text);font-weight:600;margin-bottom:6px">혼자 쓰고 계신가요?</div>'
+      + '<div style="font-size:12px;color:var(--muted2);line-height:1.7;margin-bottom:14px">배우자와 연결하면 서로의 소비를<br>실시간으로 확인할 수 있어요</div>'
+      + '<button onclick="goPage(\'settings\',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab(\'data\'),200)" '
+      + 'style="padding:10px 18px;border-radius:10px;background:rgba(90,159,196,0.10);border:1px solid rgba(90,159,196,0.25);color:var(--blue);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:700;cursor:pointer">'
+      + '파트너 초대하기</button>'
+      + '</div>';
+    return;
+  }
+
+  // 파트너의 owner 코드 판별 (내가 p1이면 파트너는 p2)
+  const myRole = currentProfile && currentProfile.role;
+  const partnerOwner = myRole === 'partner1' ? 'p2' : 'p1';
+  const partnerName = partnerOwner === 'p1' ? getP1Name() : getP2Name();
+
+  // 파트너 거래 중 최근 3건
+  const partnerTxs = (ledgerTxs || [])
+    .filter(function(t) { return t.owner === partnerOwner; })
+    .sort(function(a, b) { return (b.date || '').localeCompare(a.date || '') || (parseInt(b.id||'0',10) - parseInt(a.id||'0',10)); })
+    .slice(0, 3);
+
+  if (partnerTxs.length === 0) {
+    if (statusEl) statusEl.textContent = partnerName;
+    wrap.innerHTML = '<div style="padding:16px 4px;text-align:center;color:var(--muted2);font-size:12px;line-height:1.7">'
+      + partnerName + '의 기록을 기다리고 있어요<br>'
+      + '<span style="color:var(--muted);font-size:11px">소비가 기록되면 여기에 표시돼요</span>'
+      + '</div>';
+    return;
+  }
+
+  if (statusEl) statusEl.textContent = partnerName;
+
+  // 시간 상대표기
+  function timeAgo(dateStr) {
+    if (!dateStr) return '';
+    const now = new Date();
+    const d = new Date(dateStr + 'T00:00:00');
+    const diffDays = Math.floor((now - d) / (1000 * 60 * 60 * 24));
+    if (diffDays <= 0) return '오늘';
+    if (diffDays === 1) return '어제';
+    if (diffDays < 7) return diffDays + '일 전';
+    const m = d.getMonth() + 1;
+    const day = d.getDate();
+    return m + '월 ' + day + '일';
+  }
+
+  wrap.innerHTML = partnerTxs.map(function(tx) {
+    const cat = (CATEGORIES[tx.type] || []).find(function(c) { return c.id === tx.category; });
+    const catName = cat ? cat.name : '';
+    const amountRaw = Math.round((tx.amount || 0) * 10000);
+    const typeColor = tx.type === 'expense' ? 'var(--red)' : '#22c55e';
+    const typeSign = tx.type === 'expense' ? '-' : '+';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)">'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font-size:13px;color:var(--text);font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (tx.memo || catName || '기록') + '</div>'
+      + '<div style="font-size:11px;color:var(--muted2)">' + timeAgo(tx.date) + (catName ? ' · ' + catName : '') + '</div>'
+      + '</div>'
+      + '<div style="font-size:14px;font-weight:700;color:' + typeColor + ';flex-shrink:0;margin-left:12px">' + typeSign + amountRaw.toLocaleString() + '원</div>'
+      + '</div>';
+  }).join('');
+
+  // 마지막 항목 border 제거
+  setTimeout(function() {
+    const rows = wrap.querySelectorAll('div[style*="border-bottom"]');
+    if (rows.length > 0) rows[rows.length - 1].style.borderBottom = 'none';
+  }, 0);
 }
 
 
@@ -9185,22 +9251,23 @@ function applyRecurring() {
 
 // ── 홈 카드 순서/표시 설정
 const HOME_CARD_DEFAULTS = [
-  { id:'widget',        label:'💰 지출 위젯',           desc:'오늘/이번달 지출 금액',       visible:true  },
-  { id:'ai',            label:'AI 코멘트',               desc:'자산 분석 한마디',             visible:true  },
-  { id:'schedule',      label:'📅 주요 일정',           desc:'D-day 일정 목록',             visible:true  },
-  { id:'goalguage',     label:'🎯 목표 달성률',         desc:'순자산 목표 진행률',           visible:true  },
-  { id:'summary',       label:'📊 자산 요약',           desc:'순자산 큰 숫자 + 비율 바',    visible:true  },
-  { id:'couple',        label:'👫 절약 배틀',           desc:'민석 vs 시윤 지출 비교',       visible:false },
-  { id:'stocks-summary',label:'📈 주식 요약',           desc:'보유 종목 수익률',             visible:false },
-  { id:'ledger',        label:'💳 이달 가계부',         desc:'수입/지출/잔액 요약',          visible:false },
-  { id:'chart',         label:'📉 자산 그래프',         desc:'월별 순자산 변화 차트',        visible:false },
-  { id:'apt',           label:'🏢 실거래가',            desc:'등록된 아파트 최신 시세',      visible:false },
+  { id:'widget',           label:'지출 위젯',         desc:'오늘/이번달 지출 금액',        visible:true  },
+  { id:'partner-activity', label:'파트너 활동',       desc:'파트너의 최근 소비',           visible:true  },
+  { id:'summary',          label:'자산 요약',         desc:'순자산 큰 숫자',              visible:true  },
+  { id:'goalguage',        label:'목표 달성률',       desc:'순자산 목표 진행률',           visible:false },
+  { id:'ai',               label:'AI 코멘트',         desc:'자산 분석 한마디',             visible:false },
+  { id:'schedule',         label:'주요 일정',         desc:'D-day 일정 목록',             visible:false },
+  { id:'couple',           label:'절약 배틀',         desc:'부부 지출 비교',               visible:false },
+  { id:'ledger',           label:'이달 가계부',       desc:'수입/지출 요약',              visible:false },
+  { id:'chart',            label:'자산 그래프',       desc:'월별 순자산 변화',             visible:false },
+  { id:'stocks-summary',   label:'주식 요약',         desc:'보유 종목 수익률',             visible:false },
+  { id:'apt',              label:'실거래가',          desc:'등록된 아파트 시세',           visible:false },
 ];
 
 
 // ── 홈 카드 설정 버전 마이그레이션 ──
-// v2: 기본 표시 카드를 5개로 축소 (widget, ai, schedule, goalguage, summary만 visible)
-const HOME_CARD_SETTINGS_VERSION = 2;
+// v3: 심플 모드 — 기본 표시 3개 (widget, partner-activity, summary)
+const HOME_CARD_SETTINGS_VERSION = 3;
 
 const _saved = load('home-card-settings', null);
 const _savedVersion = load('home-card-settings-version', 0);
@@ -17428,6 +17495,7 @@ function saveTx() {
   ledgerMonth = date.substring(0,7);
   renderLedger();
   renderHomeLedgerSummary();
+  renderPartnerActivity();
   closeLedgerAdd();
   // 방금 추가한 날짜의 거래로 자동 스크롤
   setTimeout(function() {
@@ -17938,6 +18006,8 @@ function setupRealtimeChannel() {
       const amountStr = Number(d.amount || 0).toLocaleString();
       const catStr = d.category ? ' · ' + d.category : '';
       showToast(senderName + '  ' + amountStr + '원 ' + typeLabel + catStr, 'info', 4000);
+      // 파트너 활동 피드 갱신 (Supabase 데이터 리로드 후)
+      setTimeout(function() { loadAllDataFromSupabase().then(function() { renderPartnerActivity(); }); }, 800);
     })
     .on('broadcast', { event: 'proposal-notification' }, function(payload) {
       if (!notifSettings.receiveEnabled) return;
