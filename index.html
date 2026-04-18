@@ -2585,7 +2585,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     </div>
 
     <!-- 4. 커플 지출 비교 -->
-    <div class="card" style="margin-bottom:12px">
+    <div class="card" data-couple-only="1" style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <div class="card-title" style="margin-bottom:0">커플 지출 비교</div>
         <div id="ledger-couple-winner-badge" style="font-size:11px;font-weight:700"></div>
@@ -6943,6 +6943,7 @@ function initHome() {
 
   applyPartnerNamesToUI();
   applyAdvancedModeVisibility();
+  applySoloModeVisibility();
   setDonutTab('all');
   restoreDonutExpanded();
 
@@ -9716,6 +9717,21 @@ function applyAdvancedModeVisibility() {
   // 고급 기능 그룹: data-advanced="1" 요소들
   document.querySelectorAll('[data-advanced="1"]').forEach(function(el) {
     el.style.display = advancedMode ? '' : 'none';
+  });
+}
+
+// ── 혼자 모드 감지 및 파트너 UI 제어 ──
+function isSoloMode() {
+  // 커플 연결 안 됨 + 파트너 이름이 비어있거나 기본값이면 혼자 모드
+  if (currentCoupleId) return false;
+  const p2 = (PARTNER_NAMES.partner2 || '').trim();
+  return !p2 || p2 === '파트너' || p2 === '배우자';
+}
+
+function applySoloModeVisibility() {
+  const solo = isSoloMode();
+  document.querySelectorAll('[data-couple-only="1"]').forEach(function(el) {
+    el.style.display = solo ? 'none' : '';
   });
 }
 
