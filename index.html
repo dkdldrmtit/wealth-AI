@@ -1917,6 +1917,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
   <div id="month-cards"></div>
   <div id="item-view-cards" style="display:none"></div>
+
+  <!-- 부동산 섹션 -->
+  <div id="input-apt-section" style="padding-bottom:120px"></div>
 </div>
 
 <!-- ══ 자산 상세보기 모달 ══ -->
@@ -2085,7 +2088,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       style="flex:1;min-width:56px;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);white-space:nowrap">알림</button>
     <button id="stab-cat" onclick="setSettingsTab('cat')" data-advanced="1"
       style="flex:1;min-width:64px;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);white-space:nowrap">카테고리</button>
-    <button id="stab-apt" onclick="setSettingsTab('apt')" data-advanced="1"
+    <button id="stab-apt" onclick="setSettingsTab('apt')"
       style="flex:1;min-width:56px;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);white-space:nowrap">부동산</button>
     <button id="stab-data" onclick="setSettingsTab('data')"
       style="flex:1;min-width:56px;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);white-space:nowrap">백업</button>
@@ -2429,13 +2432,16 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <!-- 여백 -->
     <div style="height:20px"></div>
 
-    <!-- 탭 (내역/분석/예산/캘린더) -->
-    <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:0;gap:2px">
-      <button id="ltab-list" onclick="setLedgerTab('list')" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s">내역</button>
-      <button id="ltab-chart" onclick="setLedgerTab('chart')" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">분석</button>
-      <button id="ltab-proposal" onclick="setLedgerTab('proposal')" data-couple-only="1" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">협의</button>
-      <button id="ltab-budget" onclick="setLedgerTab('budget')" data-advanced="1" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">예산</button>
-      <button id="ltab-calendar" onclick="setLedgerTab('calendar')" data-advanced="1" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">캘린더</button>
+    <!-- 탭 (내역/분석/협의/예산/캘린더) - 스크롤 가능 -->
+    <div style="position:relative">
+      <div id="ledger-tab-bar" style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;gap:2px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none">
+        <button id="ltab-list" onclick="setLedgerTab('list')" style="flex-shrink:0;padding:9px 14px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s;white-space:nowrap">내역</button>
+        <button id="ltab-chart" onclick="setLedgerTab('chart')" style="flex-shrink:0;padding:9px 14px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s;white-space:nowrap">분석</button>
+        <button id="ltab-proposal" onclick="setLedgerTab('proposal')" data-couple-only="1" style="flex-shrink:0;padding:9px 14px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s;white-space:nowrap">협의</button>
+        <button id="ltab-budget" onclick="setLedgerTab('budget')" style="flex-shrink:0;padding:9px 14px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s;white-space:nowrap">예산</button>
+        <button id="ltab-calendar" onclick="setLedgerTab('calendar')" style="flex-shrink:0;padding:9px 14px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s;white-space:nowrap">캘린더</button>
+      </div>
+      <div style="position:absolute;right:0;top:0;bottom:0;width:28px;background:linear-gradient(to right,transparent,var(--bg));border-radius:0 12px 12px 0;pointer-events:none"></div>
     </div>
 
 
@@ -3775,6 +3781,22 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
 
 
+      <!-- 매입가 / 대출 잔액 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+        <div>
+          <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:6px">매입가 <span style="font-weight:400">(만원)</span></label>
+          <input type="number" id="apt-purchase-price" placeholder="예: 72000" inputmode="numeric"
+            style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 12px;outline:none;box-sizing:border-box"
+            onfocus="this.style.borderColor='rgba(90,159,196,0.5)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:6px">대출 잔액 <span style="font-weight:400">(만원)</span></label>
+          <input type="number" id="apt-loan-amount" placeholder="예: 40000" inputmode="numeric"
+            style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 12px;outline:none;box-sizing:border-box"
+            onfocus="this.style.borderColor='rgba(90,159,196,0.5)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+      </div>
+
       <!-- 저장 버튼 -->
       <div style="display:flex;gap:10px">
         <button id="apt-modal-delete-btn" onclick="deleteAptFromModal()" style="display:none;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:12px;color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:14px 16px;cursor:pointer">삭제</button>
@@ -4678,6 +4700,7 @@ function goPage(name, el) {
     setLedgerTab(ledgerTab || 'list');
     renderLedger();
   }
+  if (name === 'input') { renderInputAptSection(); }
   if (name === 'ai') { renderQuickButtons(); }
   if (name === 'stocks') initStocks();
   if (name === 'settings') {
@@ -11493,12 +11516,22 @@ function openAptModal(id) {
     document.getElementById('apt-name-search').style.opacity = '1';
     document.getElementById('apt-region-input').value = apt.sigungu || '';
 
+    // 매입가/대출 복원
+    const ppEl = document.getElementById('apt-purchase-price');
+    const laEl = document.getElementById('apt-loan-amount');
+    if (ppEl) ppEl.value = apt.purchasePrice || '';
+    if (laEl) laEl.value = apt.loanAmount || '';
+
 
   } else {
     // 추가 모드
     titleEl.textContent = '아파트 추가';
     deleteBtn.style.display = 'none';
     setAptOwner('common');
+    const ppEl = document.getElementById('apt-purchase-price');
+    const laEl = document.getElementById('apt-loan-amount');
+    if (ppEl) ppEl.value = '';
+    if (laEl) laEl.value = '';
   }
 
   document.getElementById('apt-modal').style.display = 'block';
@@ -11975,6 +12008,11 @@ function saveAptFromModal() {
   const areaMax = parseFloat((areaMaxVal && areaMaxVal.value) || (areaMaxDirect && areaMaxDirect.value) || '999') || 999;
 
 
+  const ppVal = document.getElementById('apt-purchase-price');
+  const laVal = document.getElementById('apt-loan-amount');
+  const purchasePrice = ppVal && ppVal.value ? parseInt(ppVal.value) : 0;
+  const loanAmount = laVal && laVal.value ? parseInt(laVal.value) : 0;
+
   const aptData = {
     id: _aptEditingId || 'apt_' + Date.now(),
     name: _aptSelectedComplex.name,
@@ -11983,6 +12021,8 @@ function saveAptFromModal() {
     areaMin: areaMin,
     areaMax: areaMax,
     owner: _aptModalOwner,
+    purchasePrice: purchasePrice,
+    loanAmount: loanAmount,
     cache: null,
   };
 
@@ -12040,7 +12080,117 @@ async function fetchSingleApt(aptId) {
   store('apt-list', aptList);
   renderAptList();
   renderHomeApt();
+  renderInputAptSection();
   showToast('✅ ' + apt.name + ' ' + (latest.price/10000).toFixed(2) + '억 업데이트!');
+}
+
+// ── 자산 탭 부동산 섹션 렌더 ──
+function renderInputAptSection() {
+  const wrap = document.getElementById('input-apt-section');
+  if (!wrap) return;
+
+  aptList = load('apt-list', []);
+
+  if (!aptList.length) {
+    wrap.innerHTML = '<div class="card" style="margin-bottom:12px">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
+      + '<div style="font-size:13px;font-weight:700;color:var(--text)">부동산</div>'
+      + '</div>'
+      + '<div style="font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:14px">아파트를 등록하면 국토부 실거래가를 조회해<br>자산 가치를 자동으로 계산해드려요.</div>'
+      + '<button onclick="openAptModal(null)" style="width:100%;padding:12px;border-radius:12px;background:rgba(30,58,82,0.08);border:1.5px dashed rgba(30,58,82,0.25);color:var(--blue);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:700;cursor:pointer">+ 부동산 등록</button>'
+      + '</div>';
+    return;
+  }
+
+  const p1 = getP1Name(), p2 = getP2Name(), cm = getCommonName();
+
+  let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
+    + '<div style="font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.5px">부동산</div>'
+    + '<div style="display:flex;gap:6px">'
+    + '<button onclick="fetchAllApts().then(renderInputAptSection)" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;cursor:pointer">전체 조회</button>'
+    + '<button onclick="openAptModal(null)" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;cursor:pointer">+ 추가</button>'
+    + '</div></div>';
+
+  aptList.forEach(function(apt) {
+    const ownerLabel = apt.owner === 'minsuk' ? p1 : apt.owner === 'siyun' ? p2 : cm;
+    const ownerColor = apt.owner === 'minsuk' ? 'var(--blue)' : apt.owner === 'siyun' ? 'var(--siyun, #22c55e)' : 'var(--muted2)';
+    const hasPrice = apt.cache && apt.cache.price > 0;
+    const priceWon = hasPrice ? apt.cache.price * 10000 : 0; // cache.price는 만원 단위
+    const purchaseWon = (apt.purchasePrice || 0) * 10000;
+    const loanWon = (apt.loanAmount || 0) * 10000;
+    const equity = hasPrice ? priceWon - loanWon : 0;
+    const gain = (hasPrice && purchaseWon > 0) ? priceWon - purchaseWon : null;
+
+    // 스파크라인 차트 (최근 거래 이력)
+    let sparkHtml = '';
+    if (hasPrice && apt.cache.results && apt.cache.results.length > 1) {
+      const pts = apt.cache.results.slice().reverse();
+      const prices = pts.map(function(r) { return r.price; });
+      const minP = Math.min(...prices), maxP = Math.max(...prices);
+      const range = maxP - minP || 1;
+      const W = 120, H = 32;
+      const coords = prices.map(function(p, i) {
+        const x = (i / (prices.length - 1)) * W;
+        const y = H - ((p - minP) / range) * (H - 4) - 2;
+        return x.toFixed(1) + ',' + y.toFixed(1);
+      });
+      sparkHtml = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" style="display:block">'
+        + '<polyline points="' + coords.join(' ') + '" fill="none" stroke="var(--blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
+        + '<circle cx="' + coords[coords.length-1].split(',')[0] + '" cy="' + coords[coords.length-1].split(',')[1] + '" r="3" fill="var(--blue)"/>'
+        + '</svg>';
+    }
+
+    html += '<div class="card" style="margin-bottom:10px">'
+      + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">'
+      + '<div>'
+      + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">'
+      + '<span style="font-size:14px;font-weight:700;color:var(--text)">' + apt.name + '</span>'
+      + '<span style="font-size:10px;font-weight:600;color:' + ownerColor + ';background:' + ownerColor + '22;padding:2px 6px;border-radius:6px">' + ownerLabel + '</span>'
+      + '</div>'
+      + '<div style="font-size:11px;color:var(--muted)">' + (apt.sigungu || '') + (apt.areaMin ? ' · ' + apt.areaMin + '~' + apt.areaMax + '㎡' : '') + '</div>'
+      + '</div>'
+      + '<button onclick="fetchSingleApt(\'' + apt.id + '\').then(renderInputAptSection)" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-size:11px;font-weight:600;padding:5px 8px;cursor:pointer;font-family:\'Noto Sans KR\',sans-serif">조회</button>'
+      + '</div>';
+
+    if (hasPrice) {
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'
+        + '<div style="background:var(--surface2);border-radius:10px;padding:10px">'
+        + '<div style="font-size:9px;color:var(--muted);margin-bottom:3px">최근 실거래가</div>'
+        + '<div style="font-size:16px;font-weight:800;color:var(--text)">' + (apt.cache.price / 10000).toFixed(2) + '<span style="font-size:10px;font-weight:400;color:var(--muted)">억</span></div>'
+        + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + (apt.cache.fetchedAt || '') + '</div>'
+        + '</div>'
+        + '<div style="background:var(--surface2);border-radius:10px;padding:10px">'
+        + '<div style="font-size:9px;color:var(--muted);margin-bottom:3px">순자산 (시세-대출)</div>'
+        + '<div style="font-size:16px;font-weight:800;color:var(--teal, #2dd4bf)">' + (equity / 100000000).toFixed(2) + '<span style="font-size:10px;font-weight:400;color:var(--muted)">억</span></div>'
+        + (loanWon > 0 ? '<div style="font-size:10px;color:var(--red);margin-top:1px">대출 ' + (loanWon / 100000000).toFixed(2) + '억</div>' : '')
+        + '</div>'
+        + '</div>';
+
+      if (gain !== null) {
+        const gainAmt = (Math.abs(gain) / 100000000).toFixed(2);
+        const gainColor = gain >= 0 ? 'var(--red)' : 'var(--blue)';
+        const gainSign = gain >= 0 ? '▲ +' : '▼ -';
+        html += '<div style="background:var(--surface2);border-radius:10px;padding:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">'
+          + '<div style="font-size:11px;color:var(--muted)">매입가 ' + (purchaseWon / 100000000).toFixed(2) + '억 대비</div>'
+          + '<div style="font-size:13px;font-weight:700;color:' + gainColor + '">' + gainSign + gainAmt + '억</div>'
+          + '</div>';
+      }
+
+      if (sparkHtml) {
+        html += '<div style="margin-bottom:6px">'
+          + '<div style="font-size:9px;color:var(--muted);margin-bottom:4px">실거래가 추이</div>'
+          + sparkHtml
+          + '</div>';
+      }
+    } else {
+      html += '<div style="font-size:12px;color:var(--muted);padding:8px 0">조회 버튼을 눌러 최신 실거래가를 불러오세요</div>';
+    }
+
+    html += '<button onclick="openAptModal(\'' + apt.id + '\')" style="background:transparent;border:none;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:500;cursor:pointer;padding:4px 0;margin-top:4px">수정 ›</button>';
+    html += '</div>';
+  });
+
+  wrap.innerHTML = html;
 }
 
 // ── 전체 아파트 조회 ──
