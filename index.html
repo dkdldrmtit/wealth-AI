@@ -2226,21 +2226,24 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
 
 
-  <!-- 🏢 부동산 -->
+  <!-- 부동산 -->
 <div id="stab-content-apt" style="display:none">
 
-  <!-- 등록된 아파트 목록 -->
-  <div class="card" style="margin-bottom:14px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <div class="card-title" style="color:var(--muted);margin-bottom:0">등록된 아파트</div>
-      <button onclick="openAptModal(null)"
-        style="background:rgba(30,58,82,0.10);border:0.5px solid rgba(30,58,82,0.25);border-radius:8px;color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:6px 12px;cursor:pointer">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div>
+        <div class="card-title" style="color:var(--text);margin-bottom:2px">부동산</div>
+        <div style="font-size:11px;color:var(--muted2);line-height:1.6">아파트를 등록하면 실거래가를 자동으로 가져와<br>자산 가치를 계산해드려요.</div>
+      </div>
+      <button onclick="openAptModal(null)" aria-label="아파트 추가"
+        style="background:rgba(30,58,82,0.10);border:0.5px solid rgba(30,58,82,0.25);border-radius:8px;color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:6px 12px;cursor:pointer;flex-shrink:0;margin-left:12px">
         + 추가
       </button>
     </div>
-    <div id="apt-list-wrap">
-      <div style="text-align:center;color:var(--muted);font-size:12px;padding:16px 0">
-        + 추가 버튼으로 아파트를 등록해보세요
+    <div id="apt-list-wrap" style="margin-top:14px">
+      <div style="text-align:center;padding:28px 16px;border:1px dashed var(--border2);border-radius:12px;background:var(--surface2)">
+        <div style="font-size:13px;color:var(--text);font-weight:600;margin-bottom:6px">등록된 아파트가 없어요</div>
+        <div style="font-size:11px;color:var(--muted2);line-height:1.7">상단 <strong style="color:var(--blue)">+ 추가</strong> 버튼으로<br>아파트를 등록해보세요</div>
       </div>
     </div>
   </div>
