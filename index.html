@@ -958,70 +958,42 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
 <!-- ══ 온보딩 ══ -->
 <div id="onboarding-overlay" style="display:none;position:fixed;inset:0;background:#080808;z-index:9999;overflow:hidden;font-family:'Noto Sans KR',sans-serif">
-  <!-- 슬라이드 컨테이너 -->
-  <div id="ob-slides" style="display:flex;width:400%;height:100%;transition:transform .4s cubic-bezier(.4,0,.2,1)">
+  <!-- 슬라이드 컨테이너 (2 슬라이드) -->
+  <div id="ob-slides" style="display:flex;width:200%;height:100%;transition:transform .4s cubic-bezier(.4,0,.2,1)">
 
-    <!-- Step 1: 자산 기록 -->
-    <div style="width:25%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 120px;text-align:center">
-      <div style="font-size:56px;margin-bottom:32px;line-height:1">🏠 📈 💰</div>
-      <div style="font-size:22px;font-weight:700;color:#f0f0f0;margin-bottom:14px;letter-spacing:-.5px">자산을 한 곳에 기록하세요</div>
-      <div style="font-size:14px;color:rgba(255,255,255,0.45);line-height:1.7;max-width:280px">아파트, 주식, 예금, 대출까지<br>매달 한 번, 1분이면 충분해요</div>
-      <div style="margin-top:32px;background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.15);border-radius:16px;padding:16px 20px;max-width:300px;text-align:left">
-        <div style="font-size:10px;color:rgba(30,58,82,0.6);letter-spacing:1px;margin-bottom:10px">자산 항목 예시</div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:rgba(255,255,255,0.5)">동탄 아파트</span><span style="color:#f0f0f0;font-weight:600">7.3억</span></div>
-          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:rgba(255,255,255,0.5)">주식·ETF</span><span style="color:#f0f0f0;font-weight:600">2,340만</span></div>
-          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:rgba(255,255,255,0.5)">주택담보대출</span><span style="color:#ef4444;font-weight:600">-3.0억</span></div>
+    <!-- Step 1: 핵심 가치 -->
+    <div style="width:50%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 160px;text-align:center">
+      <div style="font-size:11px;font-weight:400;letter-spacing:6px;color:rgba(90,159,196,0.6);margin-bottom:28px;text-transform:uppercase">For Couples</div>
+      <div style="font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:#f0f0f0;margin-bottom:16px;letter-spacing:-.5px;line-height:1.3">부부가 함께<br>돈을 관리해요</div>
+      <div style="font-size:14px;color:rgba(255,255,255,0.55);line-height:1.8;max-width:280px">파트너가 지출하면 바로 알림이 와요.<br>큰 소비 전에는 먼저 물어볼 수 있고요.<br>둘이 함께 보는 진짜 가계부.</div>
+
+      <!-- 예시 알림 카드 -->
+      <div style="margin-top:36px;background:rgba(30,58,82,0.12);border:1px solid rgba(90,159,196,0.2);border-radius:16px;padding:14px 16px;max-width:300px;text-align:left;backdrop-filter:blur(8px)">
+        <div style="font-size:10px;color:rgba(90,159,196,0.6);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase">방금 알림이 왔어요</div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:13px;color:#f0f0f0;font-weight:600">민석 · 5분 전</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px">카페</div>
+          </div>
+          <div style="font-size:14px;font-weight:700;color:#ef4444">-5,500원</div>
         </div>
       </div>
     </div>
 
-    <!-- Step 2: 가계부 분석 -->
-    <div style="width:25%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 120px;text-align:center">
-      <div style="font-size:56px;margin-bottom:32px;line-height:1">📊</div>
-      <div style="font-size:22px;font-weight:700;color:#f0f0f0;margin-bottom:14px;letter-spacing:-.5px">지출 패턴을 분석해드려요</div>
-      <div style="font-size:14px;color:rgba(255,255,255,0.45);line-height:1.7;max-width:280px">카테고리별 지출을 한눈에 파악하고<br>절약 포인트를 바로 찾아요</div>
-      <div style="margin-top:32px;background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.15);border-radius:16px;padding:16px 20px;max-width:300px;text-align:left">
-        <div style="font-size:10px;color:rgba(30,58,82,0.6);letter-spacing:1px;margin-bottom:10px">이번달 지출 분석</div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:rgba(255,255,255,0.5)">식비</span><span style="color:#f0f0f0">42만</span></div>
-            <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px"><div style="width:70%;height:100%;background:#5a9fc4;border-radius:2px"></div></div>
-          </div>
-          <div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:rgba(255,255,255,0.5)">교통</span><span style="color:#f0f0f0">18만</span></div>
-            <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px"><div style="width:30%;height:100%;background:#5a9fc4;border-radius:2px"></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Step 3: AI 분석 -->
-    <div style="width:25%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 120px;text-align:center">
-      <div style="font-size:13px;font-weight:300;letter-spacing:6px;color:rgba(90,159,196,0.6);margin-bottom:32px;text-transform:uppercase">AI</div>
-      <div style="font-size:22px;font-weight:700;color:#f0f0f0;margin-bottom:14px;letter-spacing:-.5px">AI가 맞춤 조언을 드려요</div>
-      <div style="font-size:14px;color:rgba(255,255,255,0.45);line-height:1.7;max-width:280px">10년 경력 PB급 금융 솔루션을<br>내 자산에 맞게 제안해드려요</div>
-      <div style="margin-top:32px;background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.15);border-radius:16px;padding:16px 20px;max-width:300px;text-align:left">
-        <div style="font-size:10px;color:rgba(30,58,82,0.6);letter-spacing:1px;margin-bottom:10px">AI 조언 예시</div>
-        <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6">💡 IRP 미가입 상태예요. 연말정산 세액공제로 최대 <span style="color:#5a9fc4;font-weight:600">148만원</span> 환급 가능해요. 지금 개설하면 올해 혜택 받을 수 있어요.</div>
-      </div>
-    </div>
-
-    <!-- Step 4: 시작 (이름 입력) -->
-    <div style="width:25%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 120px;text-align:center">
-      <div style="font-size:56px;margin-bottom:24px;line-height:1">👫</div>
-      <div style="font-size:22px;font-weight:700;color:#f0f0f0;margin-bottom:10px;letter-spacing:-.5px">함께 시작해요</div>
-      <div style="font-size:14px;color:rgba(255,255,255,0.45);line-height:1.7;margin-bottom:32px;max-width:280px">이름을 입력하면 자산을<br>누구의 것인지 구분할 수 있어요</div>
+    <!-- Step 2: 이름 설정 -->
+    <div style="width:50%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 160px;text-align:center">
+      <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#f0f0f0;margin-bottom:10px;letter-spacing:-.5px">이름을 알려주세요</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.45);line-height:1.7;margin-bottom:32px;max-width:280px">자산과 소비를 누가 한 건지 구분할 때 써요.<br>혼자 쓰신다면 배우자 이름은 비워도 돼요.</div>
       <div style="width:100%;max-width:300px;display:flex;flex-direction:column;gap:12px;text-align:left">
         <div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:.5px">배우자 1</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:.5px">나</div>
           <input id="ob-name1" type="text" placeholder="예: 민석" maxlength="10"
-            style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;padding:12px 16px;outline:none;box-sizing:border-box;-webkit-appearance:none">
+            style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;padding:13px 16px;outline:none;box-sizing:border-box;-webkit-appearance:none">
         </div>
         <div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:.5px">배우자 2</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:.5px">배우자 <span style="color:rgba(255,255,255,0.25)">(선택)</span></div>
           <input id="ob-name2" type="text" placeholder="예: 시윤" maxlength="10"
-            style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;padding:12px 16px;outline:none;box-sizing:border-box;-webkit-appearance:none">
+            style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;padding:13px 16px;outline:none;box-sizing:border-box;-webkit-appearance:none">
         </div>
       </div>
     </div>
@@ -1032,8 +1004,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <!-- 점 인디케이터 -->
     <div id="ob-dots" style="display:flex;justify-content:center;gap:6px;margin-bottom:20px">
       <div class="ob-dot" style="width:20px;height:4px;border-radius:2px;background:#5a9fc4;transition:all .3s"></div>
-      <div class="ob-dot" style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);transition:all .3s"></div>
-      <div class="ob-dot" style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);transition:all .3s"></div>
       <div class="ob-dot" style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);transition:all .3s"></div>
     </div>
     <!-- 버튼 -->
@@ -1341,6 +1311,22 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
 
 
+  <!-- ① ⓑ 파트너 최근 활동 (신규) -->
+  <div data-card="partner-activity" id="home-card-partner-activity">
+    <div id="home-partner-activity"
+      style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 1px 8px var(--shadow)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">COUPLE</div>
+          <div style="font-size:14px;font-weight:700;color:var(--text)">파트너 최근 활동</div>
+        </div>
+        <div id="partner-activity-status" style="font-size:11px;color:var(--muted);font-weight:500"></div>
+      </div>
+      <div id="partner-activity-content"></div>
+    </div>
+  </div>
+
+
   <!-- ② AI 코멘트 -->
   <div data-card="ai" id="home-card-ai">
   <div class="siri-card" id="ai-comment-card" onclick="toggleAiComment()">
@@ -1404,7 +1390,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
   <!-- ② -2 주식 포트폴리오 요약 -->
   <div data-card="stocks-summary" id="home-card-stocks-summary">
-  <div class="card" style="border-color:rgba(90,159,196,.2);cursor:pointer" onclick="goPage('stocks',document.querySelectorAll('.nav-item')[3])">
+  <div class="card" style="border-color:rgba(90,159,196,.2);cursor:pointer" onclick="goPage('stocks',document.querySelectorAll('.nav-item')[2])">
 
     <!-- 헤더 -->
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
@@ -1429,12 +1415,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
     <!-- 민석/시윤 분리 -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-      <div onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>setStkOwner('minsuk'),300)" style="background:var(--surface2);border-radius:12px;padding:10px;cursor:pointer">
+      <div onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[2]);setTimeout(()=>setStkOwner('minsuk'),300)" style="background:var(--surface2);border-radius:12px;padding:10px;cursor:pointer">
         <div id="home-stock-ms-label" style="font-size:10px;color:var(--minsuk);font-weight:600;margin-bottom:6px">나 ›</div>
         <div id="home-stock-ms-val" style="font-size:14px;font-weight:800;color:var(--text)">-</div>
         <div id="home-stock-ms-pnl" style="font-size:11px;font-weight:600;margin-top:2px">-</div>
       </div>
-      <div onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[3]);setTimeout(()=>setStkOwner('siyun'),300)" style="background:var(--surface2);border-radius:12px;padding:10px;cursor:pointer">
+      <div onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[2]);setTimeout(()=>setStkOwner('siyun'),300)" style="background:var(--surface2);border-radius:12px;padding:10px;cursor:pointer">
         <div id="home-stock-sy-label" style="font-size:10px;color:var(--siyun);font-weight:600;margin-bottom:6px">배우자 ›</div>
         <div id="home-stock-sy-val" style="font-size:14px;font-weight:800;color:var(--text)">-</div>
         <div id="home-stock-sy-pnl" style="font-size:11px;font-weight:600;margin-top:2px">-</div>
@@ -1889,11 +1875,19 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div class="eyebrow">자산 관리</div>
       <h1>자산<br>기록</h1>
     </div>
-    <button onclick="goPage('goals',{classList:{add:()=>{},remove:()=>{}}})"
-      style="background:none;border:none;color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s;flex-shrink:0;margin-bottom:6px"
-      ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-    </button>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <button onclick="goPage('stocks',document.querySelectorAll('.nav-item')[2])"
+        style="background:none;border:none;color:var(--muted);height:32px;padding:0 10px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s;flex-shrink:0;gap:4px"
+        ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        <span style="font-size:11px;font-weight:700;letter-spacing:0.3px">주식</span>
+      </button>
+      <button onclick="goPage('goals',{classList:{add:()=>{},remove:()=>{}}})"
+        style="background:none;border:none;color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s;flex-shrink:0"
+        ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+      </button>
+    </div>
   </div>
   <!-- 순자산 변화 그래프 -->
   <div class="card" style="margin-bottom:14px;cursor:pointer" onclick="openModal(null)">
@@ -2099,6 +2093,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">카테고리</button>
     <button id="stab-data" onclick="setSettingsTab('data')"
       style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">계정</button>
+    <button id="stab-notif" onclick="setSettingsTab('notif')"
+      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">알림</button>
   </div>
 
   <!-- 홈 설정 -->
@@ -2149,6 +2145,70 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
   <!-- API 탭 제거됨 -->
   <div id="stab-content-api" style="display:none"></div>
+
+  <!-- 알림 설정 -->
+  <div id="stab-content-notif" style="display:none">
+
+    <!-- 알림 권한 상태 -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title" style="color:var(--muted)">알림 권한</div>
+      <div id="notif-permission-status" style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--surface2);border-radius:12px;margin-bottom:14px">
+        <div id="notif-permission-dot" style="width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0"></div>
+        <div>
+          <div id="notif-permission-label" style="font-size:13px;font-weight:600;color:var(--text)">확인 중...</div>
+          <div id="notif-permission-desc" style="font-size:11px;color:var(--muted2);margin-top:2px"></div>
+        </div>
+      </div>
+      <button id="notif-enable-btn" onclick="requestPushPermission()" style="display:none;width:100%;padding:13px;border-radius:12px;background:rgba(90,159,196,0.12);border:1px solid rgba(90,159,196,0.3);color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
+        알림 켜기
+      </button>
+    </div>
+
+    <!-- 알림 동작 설정 -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title" style="color:var(--muted)">알림 동작</div>
+      <p style="font-size:12px;color:var(--muted2);line-height:1.7;margin-bottom:16px">
+        파트너가 소비를 기록하면 알림을 받고,<br>내 소비도 파트너에게 즉시 전달돼요.
+      </p>
+
+      <!-- 수신 알림 토글 -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-size:14px;font-weight:600;color:var(--text)">파트너 알림 받기</div>
+          <div style="font-size:11px;color:var(--muted2);margin-top:3px">파트너가 소비 기록 시 알림</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:46px;height:26px;cursor:pointer">
+          <input type="checkbox" id="notif-receive-toggle" onchange="toggleReceiveNotif(this.checked)"
+            style="opacity:0;width:0;height:0;position:absolute">
+          <span id="notif-receive-track" style="position:absolute;inset:0;border-radius:13px;background:var(--border2);transition:background .2s">
+            <span id="notif-receive-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:white;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></span>
+          </span>
+        </label>
+      </div>
+
+      <!-- 송신 알림 토글 -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0">
+        <div>
+          <div style="font-size:14px;font-weight:600;color:var(--text)">내 소비 파트너에게 공개</div>
+          <div style="font-size:11px;color:var(--muted2);margin-top:3px">끄면 파트너에게 알림이 전송됩니다</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:46px;height:26px;cursor:pointer">
+          <input type="checkbox" id="notif-send-toggle" onchange="toggleSendNotif(this.checked)"
+            style="opacity:0;width:0;height:0;position:absolute">
+          <span id="notif-send-track" style="position:absolute;inset:0;border-radius:13px;background:var(--border2);transition:background .2s">
+            <span id="notif-send-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:white;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></span>
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <!-- 안내 -->
+    <div style="padding:14px;background:var(--surface2);border-radius:12px;font-size:12px;color:var(--muted2);line-height:1.8">
+      iOS 사용자는 홈 화면에 앱을 추가해야 알림이 작동합니다.<br>
+      홈 화면에 추가 → 사파리 공유 버튼 → "홈 화면에 추가"
+    </div>
+
+  </div>
 
 
   <!-- 🏢 부동산 -->
@@ -2973,6 +3033,148 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
 </div>
 
+<!-- ══ 푸시 알림 온보딩 모달 ══ -->
+<div id="push-onboarding-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:9100;display:none;align-items:flex-end">
+  <div style="width:100%;max-width:680px;margin:0 auto;background:var(--surface);border-radius:24px 24px 0 0;padding:8px 20px max(32px,env(safe-area-inset-bottom,32px));animation:slideUp .35s cubic-bezier(.32,0,.15,1)">
+
+    <!-- 핸들 -->
+    <div style="width:36px;height:4px;border-radius:2px;background:var(--border2);margin:12px auto 20px"></div>
+
+    <!-- iOS 가이드 -->
+    <div id="push-ios-guide" style="display:none">
+      <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--text);font-weight:700;margin-bottom:6px">알림 설정하기</div>
+      <p style="font-size:13px;color:var(--muted2);line-height:1.7;margin-bottom:24px">
+        파트너의 소비를 실시간으로 받으려면<br>홈 화면에 앱 추가가 필요해요.
+      </p>
+
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px">
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:var(--surface2);border-radius:14px">
+          <div style="width:28px;height:28px;border-radius:50%;background:rgba(90,159,196,0.15);border:1px solid rgba(90,159,196,0.3);color:var(--blue);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">사파리 하단 공유 버튼 탭</div>
+            <div style="font-size:11px;color:var(--muted2)">화면 아래 가운데 아이콘을 누르세요</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:var(--surface2);border-radius:14px">
+          <div style="width:28px;height:28px;border-radius:50%;background:rgba(90,159,196,0.15);border:1px solid rgba(90,159,196,0.3);color:var(--blue);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">"홈 화면에 추가" 선택</div>
+            <div style="font-size:11px;color:var(--muted2)">목록을 스크롤해서 찾으세요</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:var(--surface2);border-radius:14px">
+          <div style="width:28px;height:28px;border-radius:50%;background:rgba(90,159,196,0.15);border:1px solid rgba(90,159,196,0.3);color:var(--blue);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">홈 화면 앱 아이콘으로 재실행</div>
+            <div style="font-size:11px;color:var(--muted2)">그 다음 알림 허용하면 완료</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px">
+        <button onclick="closePushOnboarding()" style="flex:1;padding:14px;border-radius:14px;background:transparent;border:1px solid var(--border2);color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer">나중에</button>
+        <button onclick="closePushOnboarding(true)" style="flex:2;padding:14px;border-radius:14px;background:var(--blue);border:none;color:white;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">완료했어요</button>
+      </div>
+    </div>
+
+    <!-- iOS 독립 실행 - 알림 권한 요청 -->
+    <div id="push-ios-standalone-guide" style="display:none">
+      <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--text);font-weight:700;margin-bottom:6px">알림 허용하기</div>
+      <p style="font-size:13px;color:var(--muted2);line-height:1.7;margin-bottom:24px">
+        파트너가 소비를 기록하면 즉시 알림이 와요.<br>허용해주시면 연결이 완성돼요.
+      </p>
+      <div style="display:flex;gap:10px">
+        <button onclick="closePushOnboarding()" style="flex:1;padding:14px;border-radius:14px;background:transparent;border:1px solid var(--border2);color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer">나중에</button>
+        <button onclick="requestPushPermission(true)" style="flex:2;padding:14px;border-radius:14px;background:var(--blue);border:none;color:white;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">알림 허용</button>
+      </div>
+    </div>
+
+    <!-- Android / Desktop 가이드 -->
+    <div id="push-android-guide" style="display:none">
+      <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--text);font-weight:700;margin-bottom:6px">알림 허용하기</div>
+      <p style="font-size:13px;color:var(--muted2);line-height:1.7;margin-bottom:24px">
+        파트너가 소비를 기록하면 즉시 알림이 와요.<br>허용해주시면 연결이 완성돼요.
+      </p>
+      <div style="padding:16px;background:rgba(90,159,196,0.08);border:1px solid rgba(90,159,196,0.2);border-radius:14px;margin-bottom:20px">
+        <div style="font-size:13px;color:var(--blue);font-weight:600;margin-bottom:4px">알림을 허용하면</div>
+        <div style="font-size:12px;color:var(--muted2);line-height:1.8">
+          파트너 소비 실시간 알림<br>
+          구매 협의 요청 알림<br>
+          앱이 꺼져있어도 수신 가능
+        </div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button onclick="closePushOnboarding()" style="flex:1;padding:14px;border-radius:14px;background:transparent;border:1px solid var(--border2);color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer">나중에</button>
+        <button onclick="requestPushPermission(true)" style="flex:2;padding:14px;border-radius:14px;background:var(--blue);border:none;color:white;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">알림 허용</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ 구매 협의 모달 ══ -->
+<div id="proposals-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:400;overflow-y:auto">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 80px">
+
+    <!-- 헤더 -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">COUPLE</div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:26px;color:var(--text);font-weight:700;line-height:1.1">구매 협의</h2>
+      </div>
+      <button onclick="closeProposalsModal()" style="width:36px;height:36px;border-radius:50%;background:var(--surface2);border:none;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- 제안 목록 -->
+    <div id="proposals-list"></div>
+
+    <!-- 새 제안 버튼 -->
+    <button onclick="openAddProposal()" style="width:100%;padding:15px;border-radius:16px;background:rgba(90,159,196,0.10);border:1px dashed rgba(90,159,196,0.35);color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px">
+      + 새 구매 제안
+    </button>
+  </div>
+</div>
+
+<!-- ══ 구매 제안 추가 시트 ══ -->
+<div id="add-proposal-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:9200;display:none;align-items:flex-end">
+  <div style="width:100%;max-width:680px;margin:0 auto;background:var(--surface);border-radius:24px 24px 0 0;padding:8px 20px max(32px,env(safe-area-inset-bottom,32px));animation:slideUp .35s cubic-bezier(.32,0,.15,1)">
+    <div style="width:36px;height:4px;border-radius:2px;background:var(--border2);margin:12px auto 20px"></div>
+
+    <div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--text);font-weight:700;margin-bottom:20px">새 구매 제안</div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+      <div>
+        <label style="font-size:11px;color:var(--muted);font-weight:700;display:block;margin-bottom:6px">항목</label>
+        <input type="text" id="proposal-title" placeholder="예: 아이패드 프로 13인치"
+          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:12px 14px;outline:none;box-sizing:border-box"
+          onfocus="this.style.borderColor='rgba(90,159,196,0.5)'"
+          onblur="this.style.borderColor='var(--border)'">
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--muted);font-weight:700;display:block;margin-bottom:6px">금액 (원)</label>
+        <input type="number" id="proposal-amount" placeholder="0" inputmode="numeric"
+          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:12px 14px;outline:none;box-sizing:border-box"
+          onfocus="this.style.borderColor='rgba(90,159,196,0.5)'"
+          onblur="this.style.borderColor='var(--border)'">
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--muted);font-weight:700;display:block;margin-bottom:6px">메모 (선택)</label>
+        <input type="text" id="proposal-memo" placeholder="구매 이유나 참고 링크"
+          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:12px 14px;outline:none;box-sizing:border-box"
+          onfocus="this.style.borderColor='rgba(90,159,196,0.5)'"
+          onblur="this.style.borderColor='var(--border)'">
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button onclick="closeAddProposal()" style="flex:1;padding:14px;border-radius:14px;background:transparent;border:1px solid var(--border2);color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer">취소</button>
+      <button onclick="saveProposal()" style="flex:2;padding:14px;border-radius:14px;background:var(--blue);border:none;color:white;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">제안하기</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ 예산 설정 모달 ══ -->
 <div id="budget-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:300;overflow-y:auto">
   <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
@@ -3722,13 +3924,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </svg>
       <span>자산</span>
     </div>
-    <div class="nav-item" onclick="goPage('stocks',this)">
-      <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
-        <polyline points="16 7 22 7 22 13"/>
-      </svg>
-      <span>주식</span>
-    </div>
     <div class="nav-item" onclick="goPage('settings',this)">
       <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3"/>
@@ -3748,10 +3943,22 @@ const SUPABASE_URL = 'https://pjxdfhozjuteckbtavmw.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_aPUdJabOmrwe3nwD161Cjw_3_kr1Eno';
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// ── Web Push VAPID 공개키 (supabase/functions/send-push에서 동일한 키 쌍 사용)
+const VAPID_PUBLIC_KEY = 'BBI1p4ve4Wu3ak0S2cRcSqxBxnkr9nc3Z8N9vP9TcaJGiWGbbr7JWDY2visCcLgT6M-xH3qbGGjgisfQrLT1xeg';
+
 // 현재 로그인된 유저 정보
 let currentUser = null;
 let currentProfile = null;
 let currentCoupleId = null;
+
+// 파트너 유저 ID (커플 연결 시 저장)
+let partnerUserId = null;
+// Supabase Realtime 채널 (인앱 알림용)
+let realtimeChannel = null;
+// 알림 설정
+let notifSettings = load('notif-settings', { receiveEnabled: true, sendEnabled: true });
+// 구매 제안 목록
+let proposals = load('proposals', []);
 
 // 파트너 이름 전역 관리
 let PARTNER_NAMES = load('partner-names', {
@@ -3799,13 +4006,13 @@ async function loadProfile() {
   currentCoupleId = data.couple_id;
 
   if (!currentCoupleId) {
-    // 커플 연결 없어도 혼자 사용 가능 → 바로 앱 진입
     hideAuthScreens();
     await loadAllDataFromSupabase();
+    initPushNotifications();
   } else {
-    // 커플 연결된 경우도 동일하게 진입
     hideAuthScreens();
     await loadAllDataFromSupabase();
+    await setupCoupleFeatures();
   }
 }
 
@@ -4152,7 +4359,8 @@ async function loadAllDataFromSupabase() {
       goalsRes,
       schedulesRes,
       appDataRes,
-      molitKeyRes
+      molitKeyRes,
+      proposalsRes
     ] = await Promise.all([
       _supabase.from('asset_history').select('data').eq(keyField, keyValue).single(),
       _supabase.from('ledger_txs').select('data').eq(keyField, keyValue).single(),
@@ -4160,7 +4368,8 @@ async function loadAllDataFromSupabase() {
       _supabase.from('goals').select('data').eq(keyField, keyValue).single(),
       _supabase.from('schedules').select('data').eq(keyField, keyValue).single(),
       _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'budgets').single(),
-      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'molit-api-key').single()
+      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'molit-api-key').single(),
+      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'proposals').single()
     ]);
 
     const hasSupabaseData =
@@ -4178,6 +4387,11 @@ async function loadAllDataFromSupabase() {
         food:50, cafe:15, trans:20, shop:30, health:10,
         leisure:20, child:0, edu:10, house:0, etc:20
       };
+
+      if (proposalsRes.data && proposalsRes.data.data) {
+        proposals = proposalsRes.data.data;
+        store('proposals', proposals);
+      }
 
       store('asset-history', assetHistory);
       store('ledger-txs', ledgerTxs);
@@ -6373,16 +6587,16 @@ function openModal(month) {
   updatePreview();
 }
 
-// ── 온보딩 ──
+// ── 온보딩 (심플: 2단계) ──
 var _obStep = 0;
-var _obTotal = 4;
+var _obTotal = 2;
 
 function obUpdateUI() {
   var slides = document.getElementById('ob-slides');
   var dots = document.querySelectorAll('.ob-dot');
   var nextBtn = document.getElementById('ob-next-btn');
   var skipBtn = document.getElementById('ob-skip-btn');
-  if (slides) slides.style.transform = 'translateX(-' + (_obStep * 25) + '%)';
+  if (slides) slides.style.transform = 'translateX(-' + (_obStep * 50) + '%)';
   dots.forEach(function(d, i) {
     d.style.width = i === _obStep ? '20px' : '4px';
     d.style.background = i === _obStep ? '#5a9fc4' : 'rgba(255,255,255,0.2)';
@@ -6398,7 +6612,7 @@ function obNext() {
     if (_obStep === _obTotal - 1) {
       setTimeout(function() {
         var el = document.getElementById('ob-name1');
-        if (el) el.focus();
+        if (el && !el.value) el.focus();
       }, 400);
     }
   } else {
@@ -6728,6 +6942,7 @@ function initHome() {
   renderHomeApt();
   renderCoupleCard();
   renderHomeStocksSummary();
+  renderPartnerActivity();
 
   applyPartnerNamesToUI();
   setDonutTab('all');
@@ -7230,6 +7445,84 @@ function importBackup(event) {
     }
   };
   reader.readAsText(file);
+}
+
+
+// ── 파트너 최근 활동 피드 (홈)
+function renderPartnerActivity() {
+  const wrap = document.getElementById('partner-activity-content');
+  const statusEl = document.getElementById('partner-activity-status');
+  if (!wrap) return;
+
+  // 커플 연결 안 된 경우: 파트너 초대 CTA
+  if (!currentCoupleId) {
+    if (statusEl) statusEl.textContent = '미연결';
+    wrap.innerHTML = '<div style="padding:20px 4px;text-align:center">'
+      + '<div style="font-size:13px;color:var(--text);font-weight:600;margin-bottom:6px">혼자 쓰고 계신가요?</div>'
+      + '<div style="font-size:12px;color:var(--muted2);line-height:1.7;margin-bottom:14px">배우자와 연결하면 서로의 소비를<br>실시간으로 확인할 수 있어요</div>'
+      + '<button onclick="goPage(\'settings\',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab(\'data\'),200)" '
+      + 'style="padding:10px 18px;border-radius:10px;background:rgba(90,159,196,0.10);border:1px solid rgba(90,159,196,0.25);color:var(--blue);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:700;cursor:pointer">'
+      + '파트너 초대하기</button>'
+      + '</div>';
+    return;
+  }
+
+  // 파트너의 owner 코드 판별 (내가 p1이면 파트너는 p2)
+  const myRole = currentProfile && currentProfile.role;
+  const partnerOwner = myRole === 'partner1' ? 'p2' : 'p1';
+  const partnerName = partnerOwner === 'p1' ? getP1Name() : getP2Name();
+
+  // 파트너 거래 중 최근 3건
+  const partnerTxs = (ledgerTxs || [])
+    .filter(function(t) { return t.owner === partnerOwner; })
+    .sort(function(a, b) { return (b.date || '').localeCompare(a.date || '') || (parseInt(b.id||'0',10) - parseInt(a.id||'0',10)); })
+    .slice(0, 3);
+
+  if (partnerTxs.length === 0) {
+    if (statusEl) statusEl.textContent = partnerName;
+    wrap.innerHTML = '<div style="padding:16px 4px;text-align:center;color:var(--muted2);font-size:12px;line-height:1.7">'
+      + partnerName + '의 기록을 기다리고 있어요<br>'
+      + '<span style="color:var(--muted);font-size:11px">소비가 기록되면 여기에 표시돼요</span>'
+      + '</div>';
+    return;
+  }
+
+  if (statusEl) statusEl.textContent = partnerName;
+
+  // 시간 상대표기
+  function timeAgo(dateStr) {
+    if (!dateStr) return '';
+    const now = new Date();
+    const d = new Date(dateStr + 'T00:00:00');
+    const diffDays = Math.floor((now - d) / (1000 * 60 * 60 * 24));
+    if (diffDays <= 0) return '오늘';
+    if (diffDays === 1) return '어제';
+    if (diffDays < 7) return diffDays + '일 전';
+    const m = d.getMonth() + 1;
+    const day = d.getDate();
+    return m + '월 ' + day + '일';
+  }
+
+  wrap.innerHTML = partnerTxs.map(function(tx) {
+    const cat = (CATEGORIES[tx.type] || []).find(function(c) { return c.id === tx.category; });
+    const catName = cat ? cat.name : '';
+    const amountRaw = Math.round((tx.amount || 0) * 10000);
+    const typeColor = tx.type === 'expense' ? 'var(--red)' : '#22c55e';
+    const typeSign = tx.type === 'expense' ? '-' : '+';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)">'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font-size:13px;color:var(--text);font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (tx.memo || catName || '기록') + '</div>'
+      + '<div style="font-size:11px;color:var(--muted2)">' + timeAgo(tx.date) + (catName ? ' · ' + catName : '') + '</div>'
+      + '</div>'
+      + '<div style="font-size:14px;font-weight:700;color:' + typeColor + ';flex-shrink:0;margin-left:12px">' + typeSign + amountRaw.toLocaleString() + '원</div>'
+      + '</div>';
+  }).join('');
+
+  // 마지막 항목 border 제거
+  setTimeout(function() {
+    const rows = wrap.querySelectorAll('div[style*="border-bottom"]');
+    if (rows.length > 0) rows[rows.length - 1].style.borderBottom = 'none';
+  }, 0);
 }
 
 
@@ -8958,22 +9251,23 @@ function applyRecurring() {
 
 // ── 홈 카드 순서/표시 설정
 const HOME_CARD_DEFAULTS = [
-  { id:'widget',        label:'💰 지출 위젯',           desc:'오늘/이번달 지출 금액',       visible:true  },
-  { id:'ai',            label:'AI 코멘트',               desc:'자산 분석 한마디',             visible:true  },
-  { id:'schedule',      label:'📅 주요 일정',           desc:'D-day 일정 목록',             visible:true  },
-  { id:'goalguage',     label:'🎯 목표 달성률',         desc:'순자산 목표 진행률',           visible:true  },
-  { id:'summary',       label:'📊 자산 요약',           desc:'순자산 큰 숫자 + 비율 바',    visible:true  },
-  { id:'couple',        label:'👫 절약 배틀',           desc:'민석 vs 시윤 지출 비교',       visible:false },
-  { id:'stocks-summary',label:'📈 주식 요약',           desc:'보유 종목 수익률',             visible:false },
-  { id:'ledger',        label:'💳 이달 가계부',         desc:'수입/지출/잔액 요약',          visible:false },
-  { id:'chart',         label:'📉 자산 그래프',         desc:'월별 순자산 변화 차트',        visible:false },
-  { id:'apt',           label:'🏢 실거래가',            desc:'등록된 아파트 최신 시세',      visible:false },
+  { id:'widget',           label:'지출 위젯',         desc:'오늘/이번달 지출 금액',        visible:true  },
+  { id:'partner-activity', label:'파트너 활동',       desc:'파트너의 최근 소비',           visible:true  },
+  { id:'summary',          label:'자산 요약',         desc:'순자산 큰 숫자',              visible:true  },
+  { id:'goalguage',        label:'목표 달성률',       desc:'순자산 목표 진행률',           visible:false },
+  { id:'ai',               label:'AI 코멘트',         desc:'자산 분석 한마디',             visible:false },
+  { id:'schedule',         label:'주요 일정',         desc:'D-day 일정 목록',             visible:false },
+  { id:'couple',           label:'절약 배틀',         desc:'부부 지출 비교',               visible:false },
+  { id:'ledger',           label:'이달 가계부',       desc:'수입/지출 요약',              visible:false },
+  { id:'chart',            label:'자산 그래프',       desc:'월별 순자산 변화',             visible:false },
+  { id:'stocks-summary',   label:'주식 요약',         desc:'보유 종목 수익률',             visible:false },
+  { id:'apt',              label:'실거래가',          desc:'등록된 아파트 시세',           visible:false },
 ];
 
 
 // ── 홈 카드 설정 버전 마이그레이션 ──
-// v2: 기본 표시 카드를 5개로 축소 (widget, ai, schedule, goalguage, summary만 visible)
-const HOME_CARD_SETTINGS_VERSION = 2;
+// v3: 심플 모드 — 기본 표시 3개 (widget, partner-activity, summary)
+const HOME_CARD_SETTINGS_VERSION = 3;
 
 const _saved = load('home-card-settings', null);
 const _savedVersion = load('home-card-settings-version', 0);
@@ -9366,7 +9660,7 @@ function setSettingsTab(tab) {
       HOME_CARD_DEFAULTS.map(function(c) { return Object.assign({}, c); });
   }
   currentSettingsTab = tab;
-  ['home','apt','cat','data'].forEach(t => {
+  ['home','apt','cat','data','notif'].forEach(t => {
     const btn = document.getElementById('stab-' + t);
     const con = document.getElementById('stab-content-' + t);
     const isActive = t === tab;
@@ -9385,6 +9679,7 @@ function setSettingsTab(tab) {
   if (tab === 'cat') renderCatSettings();
   if (tab === 'data') renderCoupleSettings();
   if (tab === 'home') loadPartnerNamesUI();
+  if (tab === 'notif') renderNotifSettings();
 }
 
 
@@ -17180,14 +17475,27 @@ function saveTx() {
     editingTxId = null;
   } else {
     // 새 거래 추가
-    ledgerTxs.push({ id: Date.now().toString(), type: currentTxType, amount, date, owner: currentTxOwner, category: selectedCategory, memo });
+    const newTx = { id: Date.now().toString(), type: currentTxType, amount, date, owner: currentTxOwner, category: selectedCategory, memo };
+    ledgerTxs.push(newTx);
     haptic('success');
     showToast(`✅ ${currentTxType==='expense'?'지출':'수입'} ${amountRaw.toLocaleString()}원 추가!`);
+    // 파트너에게 알림 전송
+    if (currentCoupleId && notifSettings.sendEnabled) {
+      const catObj = (CATEGORIES[currentTxType] || []).find(c => c.id === selectedCategory);
+      sendPartnerNotification({
+        type: 'tx',
+        txType: currentTxType,
+        amount: amountRaw,
+        category: catObj ? catObj.name : '',
+        memo: memo
+      });
+    }
   }
   store('ledger-txs', ledgerTxs);
   ledgerMonth = date.substring(0,7);
   renderLedger();
   renderHomeLedgerSummary();
+  renderPartnerActivity();
   closeLedgerAdd();
   // 방금 추가한 날짜의 거래로 자동 스크롤
   setTimeout(function() {
@@ -17642,6 +17950,568 @@ window.addEventListener('popstate', function() {
     window.history.pushState(null, '', location.href);
   }
 });
+
+// ══════════════════════════════════════
+// ── 푸시 알림 시스템 ──
+// ══════════════════════════════════════
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+  return outputArray;
+}
+
+function detectDevice() {
+  const ua = navigator.userAgent;
+  if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) return 'ios';
+  if (/Android/.test(ua)) return 'android';
+  return 'desktop';
+}
+
+function isStandaloneMode() {
+  return window.navigator.standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches;
+}
+
+// 커플 연결 후 공통 초기화
+async function setupCoupleFeatures() {
+  // 파트너 유저ID 로드
+  if (currentCoupleId && currentUser) {
+    const { data: members } = await _supabase
+      .from('profiles')
+      .select('id')
+      .eq('couple_id', currentCoupleId)
+      .neq('id', currentUser.id);
+    if (members && members.length > 0) partnerUserId = members[0].id;
+  }
+  // Realtime 채널 구독 (인앱 알림)
+  setupRealtimeChannel();
+  // 푸시 알림 초기화
+  initPushNotifications();
+}
+
+function setupRealtimeChannel() {
+  if (!currentCoupleId || realtimeChannel) return;
+  realtimeChannel = _supabase.channel('couple:' + currentCoupleId)
+    .on('broadcast', { event: 'tx-notification' }, function(payload) {
+      if (!notifSettings.receiveEnabled) return;
+      const d = payload.payload || {};
+      const myName = currentProfile && currentProfile.role === 'partner1' ? getP1Name() : getP2Name();
+      const senderName = d.senderName || '파트너';
+      if (d.senderUserId === (currentUser && currentUser.id)) return; // 내가 보낸 것 무시
+      const typeLabel = d.txType === 'expense' ? '지출' : '수입';
+      const amountStr = Number(d.amount || 0).toLocaleString();
+      const catStr = d.category ? ' · ' + d.category : '';
+      showToast(senderName + '  ' + amountStr + '원 ' + typeLabel + catStr, 'info', 4000);
+      // 파트너 활동 피드 갱신 (Supabase 데이터 리로드 후)
+      setTimeout(function() { loadAllDataFromSupabase().then(function() { renderPartnerActivity(); }); }, 800);
+    })
+    .on('broadcast', { event: 'proposal-notification' }, function(payload) {
+      if (!notifSettings.receiveEnabled) return;
+      const d = payload.payload || {};
+      if (d.senderUserId === (currentUser && currentUser.id)) return;
+      const senderName = d.senderName || '파트너';
+      if (d.event === 'new') {
+        showToast(senderName + '가 구매 제안했어요: ' + d.title, 'info', 4000);
+      } else if (d.event === 'reaction') {
+        showToast(senderName + '가 반응했어요: ' + d.reactionLabel, 'info', 4000);
+      }
+      // 로컬 proposals 업데이트
+      loadProposalsFromSupabase();
+    })
+    .subscribe();
+}
+
+async function initPushNotifications() {
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
+  const perm = Notification.permission;
+  if (perm === 'granted') {
+    await subscribeToPush();
+  } else if (perm === 'default') {
+    // 커플 연결된 경우에만 온보딩 표시
+    if (currentCoupleId && !load('push-onboarding-shown', false)) {
+      store('push-onboarding-shown', true);
+      setTimeout(showPushOnboarding, 1200);
+    }
+  }
+}
+
+function showPushOnboarding() {
+  const modal = document.getElementById('push-onboarding-modal');
+  if (!modal) return;
+  const device = detectDevice();
+  const standalone = isStandaloneMode();
+
+  document.getElementById('push-ios-guide').style.display = 'none';
+  document.getElementById('push-ios-standalone-guide').style.display = 'none';
+  document.getElementById('push-android-guide').style.display = 'none';
+
+  if (device === 'ios') {
+    if (standalone) {
+      document.getElementById('push-ios-standalone-guide').style.display = 'block';
+    } else {
+      document.getElementById('push-ios-guide').style.display = 'block';
+    }
+  } else {
+    document.getElementById('push-android-guide').style.display = 'block';
+  }
+
+  modal.style.display = 'flex';
+}
+
+function closePushOnboarding(didAdd) {
+  const modal = document.getElementById('push-onboarding-modal');
+  if (modal) modal.style.display = 'none';
+  // iOS 홈 화면 추가 완료 후 알림 권한 재시도
+  if (didAdd && isStandaloneMode()) {
+    requestPushPermission(false);
+  }
+}
+
+async function requestPushPermission(closeModal) {
+  if (closeModal) closePushOnboarding();
+  try {
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted') {
+      await subscribeToPush();
+      showToast('알림이 설정됐어요');
+      renderNotifSettings();
+    } else {
+      showToast('알림 권한이 거부됐어요. 브라우저 설정에서 허용해주세요');
+    }
+  } catch(e) {
+    console.warn('알림 권한 오류:', e);
+  }
+}
+
+async function subscribeToPush() {
+  if (!('PushManager' in window)) return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+      });
+    }
+    await savePushSubscriptionToSupabase(sub.toJSON());
+    return sub;
+  } catch(e) {
+    console.warn('푸시 구독 오류:', e);
+  }
+}
+
+async function savePushSubscriptionToSupabase(subJson) {
+  if (!currentUser) return;
+  const { data: existing } = await _supabase
+    .from('app_data')
+    .select('id')
+    .eq('user_id', currentUser.id)
+    .eq('key', 'push-subscription')
+    .single();
+  if (existing) {
+    await _supabase
+      .from('app_data')
+      .update({ data: subJson, updated_at: new Date().toISOString() })
+      .eq('user_id', currentUser.id)
+      .eq('key', 'push-subscription');
+  } else {
+    await _supabase
+      .from('app_data')
+      .insert({ user_id: currentUser.id, key: 'push-subscription', data: subJson });
+  }
+}
+
+// 파트너에게 알림 전송 (Realtime + Edge Function)
+async function sendPartnerNotification(payload) {
+  if (!currentCoupleId || !currentUser) return;
+  const senderName = currentProfile && currentProfile.role === 'partner1' ? getP1Name() : getP2Name();
+  const fullPayload = { ...payload, senderUserId: currentUser.id, senderName };
+
+  // 1) Realtime broadcast (인앱 알림)
+  if (realtimeChannel) {
+    realtimeChannel.send({ type: 'broadcast', event: 'tx-notification', payload: fullPayload });
+  }
+
+  // 2) Edge Function 호출 (백그라운드 푸시)
+  try {
+    const notifBody = payload.txType === 'expense'
+      ? senderName + '  ' + Number(payload.amount).toLocaleString() + '원 지출'
+      : senderName + '  ' + Number(payload.amount).toLocaleString() + '원 수입';
+    await fetch(SUPABASE_URL + '/functions/v1/send-push', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+      },
+      body: JSON.stringify({
+        coupleId: currentCoupleId,
+        senderUserId: currentUser.id,
+        notification: {
+          title: 'Wealth AI',
+          body: notifBody + (payload.category ? ' · ' + payload.category : ''),
+          tag: 'tx-notif',
+          url: '/'
+        }
+      })
+    });
+  } catch(e) {
+    // Edge Function 미배포 시 무시
+  }
+}
+
+// 알림 설정 UI 렌더링
+function renderNotifSettings() {
+  const perm = 'Notification' in window ? Notification.permission : 'unsupported';
+  const dot = document.getElementById('notif-permission-dot');
+  const label = document.getElementById('notif-permission-label');
+  const desc = document.getElementById('notif-permission-desc');
+  const btn = document.getElementById('notif-enable-btn');
+
+  if (perm === 'granted') {
+    if (dot) { dot.style.background = '#22c55e'; }
+    if (label) label.textContent = '알림 허용됨';
+    if (desc) desc.textContent = '파트너 소비 알림을 받을 수 있어요';
+    if (btn) btn.style.display = 'none';
+  } else if (perm === 'denied') {
+    if (dot) { dot.style.background = 'var(--red)'; }
+    if (label) label.textContent = '알림 차단됨';
+    if (desc) desc.textContent = '브라우저 설정에서 직접 허용해주세요';
+    if (btn) btn.style.display = 'none';
+  } else if (perm === 'default') {
+    if (dot) { dot.style.background = 'var(--gold)'; }
+    if (label) label.textContent = '알림 미설정';
+    if (desc) desc.textContent = '아직 알림 권한을 허용하지 않았어요';
+    if (btn) btn.style.display = 'block';
+  } else {
+    if (dot) { dot.style.background = 'var(--muted)'; }
+    if (label) label.textContent = '지원되지 않는 환경';
+    if (desc) {
+      if (detectDevice() === 'ios' && !isStandaloneMode()) {
+        desc.textContent = 'iOS는 홈 화면에 앱 추가 후 사용 가능해요';
+      } else {
+        desc.textContent = '이 브라우저에서는 푸시 알림을 지원하지 않아요';
+      }
+    }
+    if (btn) btn.style.display = 'none';
+  }
+
+  // 토글 상태 동기화
+  const receiveToggle = document.getElementById('notif-receive-toggle');
+  const receiveTrack = document.getElementById('notif-receive-track');
+  const receiveThumb = document.getElementById('notif-receive-thumb');
+  if (receiveToggle) {
+    receiveToggle.checked = notifSettings.receiveEnabled;
+    if (receiveTrack) receiveTrack.style.background = notifSettings.receiveEnabled ? 'var(--blue)' : 'var(--border2)';
+    if (receiveThumb) receiveThumb.style.transform = notifSettings.receiveEnabled ? 'translateX(20px)' : 'translateX(0)';
+  }
+
+  const sendToggle = document.getElementById('notif-send-toggle');
+  const sendTrack = document.getElementById('notif-send-track');
+  const sendThumb = document.getElementById('notif-send-thumb');
+  if (sendToggle) {
+    sendToggle.checked = notifSettings.sendEnabled;
+    if (sendTrack) sendTrack.style.background = notifSettings.sendEnabled ? 'var(--blue)' : 'var(--border2)';
+    if (sendThumb) sendThumb.style.transform = notifSettings.sendEnabled ? 'translateX(20px)' : 'translateX(0)';
+  }
+}
+
+async function toggleReceiveNotif(enabled) {
+  notifSettings.receiveEnabled = enabled;
+  store('notif-settings', notifSettings);
+  renderNotifSettings();
+  if (enabled) {
+    showToast('파트너 알림 수신이 켜졌어요');
+    if (Notification.permission === 'default') await requestPushPermission(false);
+  } else {
+    showToast('파트너 알림 수신이 꺼졌어요');
+  }
+}
+
+async function toggleSendNotif(enabled) {
+  if (!enabled) {
+    // 끄기 전 파트너에게 알림되는 것 확인
+    const ok = await showConfirm(
+      '내 소비 공개를 끄면 파트너에게 알림이 전송됩니다.\n계속하시겠어요?',
+      '끄기'
+    );
+    if (!ok) {
+      // 토글 원복
+      const toggle = document.getElementById('notif-send-toggle');
+      if (toggle) toggle.checked = true;
+      renderNotifSettings();
+      return;
+    }
+    // 파트너에게 알림 전송
+    if (currentCoupleId && realtimeChannel) {
+      const senderName = currentProfile && currentProfile.role === 'partner1' ? getP1Name() : getP2Name();
+      realtimeChannel.send({
+        type: 'broadcast',
+        event: 'tx-notification',
+        payload: {
+          senderUserId: currentUser && currentUser.id,
+          senderName,
+          type: 'system',
+          message: senderName + '이 소비 공개 알림을 껐어요'
+        }
+      });
+    }
+  }
+  notifSettings.sendEnabled = enabled;
+  store('notif-settings', notifSettings);
+  renderNotifSettings();
+  if (enabled) showToast('내 소비 공개가 다시 켜졌어요');
+}
+
+
+// ══════════════════════════════════════
+// ── 구매 협의 시스템 ──
+// ══════════════════════════════════════
+
+function openProposalsModal() {
+  const modal = document.getElementById('proposals-modal');
+  if (modal) { modal.style.display = 'block'; renderProposals(); }
+  lockScroll();
+}
+
+function closeProposalsModal() {
+  const modal = document.getElementById('proposals-modal');
+  if (modal) modal.style.display = 'none';
+  unlockScroll();
+}
+
+function openAddProposal() {
+  const modal = document.getElementById('add-proposal-modal');
+  if (modal) modal.style.display = 'flex';
+  const titleInput = document.getElementById('proposal-title');
+  if (titleInput) { titleInput.value = ''; setTimeout(() => titleInput.focus(), 300); }
+  const amountInput = document.getElementById('proposal-amount');
+  if (amountInput) amountInput.value = '';
+  const memoInput = document.getElementById('proposal-memo');
+  if (memoInput) memoInput.value = '';
+}
+
+function closeAddProposal() {
+  const modal = document.getElementById('add-proposal-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+async function saveProposal() {
+  const title = (document.getElementById('proposal-title').value || '').trim();
+  const amount = parseInt(document.getElementById('proposal-amount').value || '0', 10);
+  const memo = (document.getElementById('proposal-memo').value || '').trim();
+
+  if (!title) { showToast('항목 이름을 입력해주세요'); return; }
+  if (!amount || amount <= 0) { showToast('금액을 입력해주세요'); return; }
+
+  const senderName = currentProfile && currentProfile.role === 'partner1' ? getP1Name() : getP2Name();
+  const newProposal = {
+    id: Date.now().toString(),
+    proposerUserId: currentUser ? currentUser.id : null,
+    proposerName: senderName,
+    title,
+    amount,
+    memo,
+    createdAt: new Date().toISOString(),
+    reaction: null  // { type: 'approved'|'maybe'|'declined', comment: '', reactedAt: '' }
+  };
+
+  proposals.unshift(newProposal);
+  store('proposals', proposals);
+  await saveAppDataToSupabase('proposals', proposals);
+
+  closeAddProposal();
+  renderProposals();
+  showToast('제안을 보냈어요');
+
+  // 파트너 알림
+  if (currentCoupleId) {
+    const payload = {
+      event: 'new',
+      senderUserId: currentUser && currentUser.id,
+      senderName,
+      title,
+      amount
+    };
+    if (realtimeChannel) {
+      realtimeChannel.send({ type: 'broadcast', event: 'proposal-notification', payload });
+    }
+    try {
+      await fetch(SUPABASE_URL + '/functions/v1/send-push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
+        body: JSON.stringify({
+          coupleId: currentCoupleId,
+          senderUserId: currentUser && currentUser.id,
+          notification: {
+            title: 'Wealth AI',
+            body: senderName + '가 구매 제안: ' + title + '  ' + amount.toLocaleString() + '원',
+            tag: 'proposal-notif',
+            url: '/'
+          }
+        })
+      });
+    } catch(e) {}
+  }
+}
+
+async function reactToProposal(id, reactionType) {
+  const idx = proposals.findIndex(p => p.id === id);
+  if (idx < 0) return;
+
+  const REACTION_LABELS = { approved: '좋아요', maybe: '보류', declined: '반대' };
+  const label = REACTION_LABELS[reactionType] || reactionType;
+
+  // 댓글 입력 시트 (간단한 prompt 대체)
+  let comment = '';
+  const commentEl = document.getElementById('proposal-comment-' + id);
+  if (commentEl) comment = commentEl.value.trim();
+
+  proposals[idx].reaction = {
+    type: reactionType,
+    label,
+    comment,
+    reactorUserId: currentUser ? currentUser.id : null,
+    reactedAt: new Date().toISOString()
+  };
+
+  store('proposals', proposals);
+  await saveAppDataToSupabase('proposals', proposals);
+  renderProposals();
+  showToast('반응을 남겼어요');
+
+  // 파트너(제안자)에게 알림
+  if (currentCoupleId) {
+    const senderName = currentProfile && currentProfile.role === 'partner1' ? getP1Name() : getP2Name();
+    const payload = {
+      event: 'reaction',
+      senderUserId: currentUser && currentUser.id,
+      senderName,
+      title: proposals[idx].title,
+      reactionLabel: label
+    };
+    if (realtimeChannel) {
+      realtimeChannel.send({ type: 'broadcast', event: 'proposal-notification', payload });
+    }
+    try {
+      await fetch(SUPABASE_URL + '/functions/v1/send-push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
+        body: JSON.stringify({
+          coupleId: currentCoupleId,
+          senderUserId: currentUser && currentUser.id,
+          notification: {
+            title: 'Wealth AI',
+            body: senderName + '가 "' + proposals[idx].title + '"에 ' + label + '했어요',
+            tag: 'proposal-reaction',
+            url: '/'
+          }
+        })
+      });
+    } catch(e) {}
+  }
+}
+
+async function deleteProposal(id) {
+  const ok = await showConfirm('이 제안을 삭제할까요?', '삭제');
+  if (!ok) return;
+  proposals = proposals.filter(p => p.id !== id);
+  store('proposals', proposals);
+  await saveAppDataToSupabase('proposals', proposals);
+  renderProposals();
+  showToast('삭제됐어요');
+}
+
+async function loadProposalsFromSupabase() {
+  if (!currentUser) return;
+  const keyField = currentCoupleId ? 'couple_id' : 'user_id';
+  const keyValue = currentCoupleId ? currentCoupleId : currentUser.id;
+  const { data } = await _supabase
+    .from('app_data')
+    .select('data')
+    .eq(keyField, keyValue)
+    .eq('key', 'proposals')
+    .single();
+  if (data && data.data) {
+    proposals = data.data;
+    store('proposals', proposals);
+    renderProposals();
+  }
+}
+
+function renderProposals() {
+  const container = document.getElementById('proposals-list');
+  if (!container) return;
+
+  const myUserId = currentUser ? currentUser.id : null;
+
+  if (!proposals || proposals.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:40px 0;color:var(--muted);font-size:13px;line-height:1.8">아직 구매 제안이 없어요.<br>큰 소비 전에 먼저 물어보세요.</div>';
+    return;
+  }
+
+  const REACTION_COLORS = {
+    approved: { bg: 'rgba(34,197,94,0.10)', border: 'rgba(34,197,94,0.25)', text: '#22c55e' },
+    maybe:    { bg: 'rgba(201,168,76,0.10)', border: 'rgba(201,168,76,0.25)', text: 'var(--gold)' },
+    declined: { bg: 'rgba(239,68,68,0.10)', border: 'rgba(239,68,68,0.25)', text: 'var(--red)' }
+  };
+  const REACTION_LABELS = { approved: '좋아요', maybe: '보류', declined: '반대' };
+
+  container.innerHTML = proposals.map(p => {
+    const isMyProposal = p.proposerUserId === myUserId;
+    const dateStr = p.createdAt ? new Date(p.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) : '';
+    const amountStr = Number(p.amount).toLocaleString();
+    const hasReaction = p.reaction && p.reaction.type;
+    const reactionColor = hasReaction ? (REACTION_COLORS[p.reaction.type] || REACTION_COLORS.maybe) : null;
+
+    const reactionSection = hasReaction
+      ? `<div style="margin-top:12px;padding:10px 12px;background:${reactionColor.bg};border:1px solid ${reactionColor.border};border-radius:10px;display:flex;align-items:center;gap:8px">
+          <span style="font-size:13px;font-weight:700;color:${reactionColor.text}">${p.reaction.label}</span>
+          ${p.reaction.comment ? `<span style="font-size:12px;color:var(--muted2)">· ${p.reaction.comment}</span>` : ''}
+        </div>`
+      : (!isMyProposal
+          ? `<div style="margin-top:12px">
+              <input type="text" id="proposal-comment-${p.id}" placeholder="한 마디 남기기 (선택)" maxlength="30"
+                style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:12px;padding:9px 12px;outline:none;box-sizing:border-box;margin-bottom:8px"
+                onfocus="this.style.borderColor='rgba(90,159,196,0.5)'" onblur="this.style.borderColor='var(--border)'">
+              <div style="display:flex;gap:6px">
+                <button onclick="reactToProposal('${p.id}','approved')"
+                  style="flex:1;padding:9px 4px;border-radius:10px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:#22c55e;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer">
+                  좋아요
+                </button>
+                <button onclick="reactToProposal('${p.id}','maybe')"
+                  style="flex:1;padding:9px 4px;border-radius:10px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);color:var(--gold);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer">
+                  보류
+                </button>
+                <button onclick="reactToProposal('${p.id}','declined')"
+                  style="flex:1;padding:9px 4px;border-radius:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer">
+                  반대
+                </button>
+              </div>
+            </div>`
+          : `<div style="margin-top:10px;font-size:11px;color:var(--muted2);padding:8px 0">파트너의 반응을 기다리는 중...</div>`
+        );
+
+    return `<div style="background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:16px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px">${p.title}</div>
+          <div style="font-size:18px;font-weight:800;color:var(--blue);font-family:'Playfair Display',serif">${amountStr}<span style="font-size:12px;font-weight:400;color:var(--muted);margin-left:2px">원</span></div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;margin-left:12px">
+          <div style="font-size:11px;color:var(--muted2);margin-bottom:4px">${p.proposerName} · ${dateStr}</div>
+          ${isMyProposal ? `<button onclick="deleteProposal('${p.id}')" style="background:transparent;border:none;color:var(--muted2);font-size:11px;cursor:pointer;padding:2px 4px">삭제</button>` : ''}
+        </div>
+      </div>
+      ${p.memo ? `<div style="font-size:12px;color:var(--muted2);margin-bottom:6px;padding:8px 10px;background:var(--surface2);border-radius:8px">${p.memo}</div>` : ''}
+      ${reactionSection}
+    </div>`;
+  }).join('');
+}
 
 // ── Service Worker 등록 ──
 if ('serviceWorker' in navigator) {

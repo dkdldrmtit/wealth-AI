@@ -119,3 +119,42 @@ self.addEventListener('message', function(e) {
     });
   }
 });
+
+// ── 푸시 알림 수신
+self.addEventListener('push', function(e) {
+  var data = {};
+  try { data = e.data ? e.data.json() : {}; } catch(err) {}
+
+  var title = data.title || 'Wealth AI';
+  var options = {
+    body: data.body || '',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    data: { url: data.url || '/' },
+    vibrate: [150, 80, 150],
+    tag: data.tag || 'wealth-notif',
+    renotify: true,
+    requireInteraction: false
+  };
+
+  e.waitUntil(self.registration.showNotification(title, options));
+});
+
+// ── 알림 클릭 시 앱 열기
+self.addEventListener('notificationclick', function(e) {
+  e.notification.close();
+  var targetUrl = (e.notification.data && e.notification.data.url) ? e.notification.data.url : '/';
+
+  e.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+      for (var i = 0; i < clientList.length; i++) {
+        var client = clientList[i];
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          client.postMessage({ type: 'NOTIF_CLICK', url: targetUrl });
+          return client.focus();
+        }
+      }
+      return clients.openWindow(targetUrl);
+    })
+  );
+});
