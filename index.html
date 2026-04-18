@@ -3608,14 +3608,19 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 </div>
 
 <!-- ══ 자산 항목 추가 모달 ══ -->
-<div id="add-item-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:400;overflow-y:auto">
-  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
-    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
+<div id="add-item-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);z-index:400;align-items:flex-end;overflow-y:auto">
+  <div style="width:100%;max-width:680px;margin:0 auto;animation:slideUp .32s cubic-bezier(.32,0,.15,1)">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px 24px 0 0;padding:8px 20px max(28px,env(safe-area-inset-bottom,28px))">
+
+      <!-- 핸들 -->
+      <div style="width:36px;height:4px;border-radius:2px;background:var(--border2);margin:10px auto 16px"></div>
 
       <!-- 헤더 -->
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
         <div id="add-item-modal-title" style="font-size:16px;font-weight:700;color:var(--text)">항목 추가</div>
-        <button onclick="closeAddItemModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer">✕</button>
+        <button onclick="closeAddItemModal()" aria-label="닫기" style="background:var(--surface2);border:none;border-radius:50%;color:var(--muted);font-size:14px;width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
 
       <!-- 카테고리 선택 (모달 안으로 이동) -->
@@ -5794,7 +5799,7 @@ function openAddItemModal() {
 
   // 선택된 카테고리 프리셋 렌더
   renderAddItemPresets();
-  document.getElementById('add-item-modal').style.display = 'block';
+  document.getElementById('add-item-modal').style.display = 'flex';
 }
 
 function selectAddItemCat(catId) {
