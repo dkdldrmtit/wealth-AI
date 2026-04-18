@@ -972,7 +972,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div style="font-size:10px;color:rgba(90,159,196,0.6);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase">방금 알림이 왔어요</div>
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div>
-            <div style="font-size:13px;color:#f0f0f0;font-weight:600">민석 · 5분 전</div>
+            <div style="font-size:13px;color:#f0f0f0;font-weight:600">나 · 5분 전</div>
             <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px">카페</div>
           </div>
           <div style="font-size:14px;font-weight:700;color:#ef4444">-5,500원</div>
@@ -987,12 +987,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="width:100%;max-width:300px;display:flex;flex-direction:column;gap:12px;text-align:left">
         <div>
           <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:.5px">나</div>
-          <input id="ob-name1" type="text" placeholder="예: 민석" maxlength="10"
+          <input id="ob-name1" type="text" placeholder="이름 입력" maxlength="10"
             style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;padding:13px 16px;outline:none;box-sizing:border-box;-webkit-appearance:none">
         </div>
         <div>
           <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:.5px">배우자 <span style="color:rgba(255,255,255,0.25)">(선택)</span></div>
-          <input id="ob-name2" type="text" placeholder="예: 시윤" maxlength="10"
+          <input id="ob-name2" type="text" placeholder="배우자 이름 (선택)" maxlength="10"
             style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;padding:13px 16px;outline:none;box-sizing:border-box;-webkit-appearance:none">
         </div>
       </div>
@@ -1868,6 +1868,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <h1>자산<br>기록</h1>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:6px">
+      <button onclick="goPage('realestate',{classList:{add:()=>{},remove:()=>{}}})"
+        style="background:none;border:none;color:var(--muted);height:32px;padding:0 10px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s;flex-shrink:0;gap:4px"
+        ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span style="font-size:11px;font-weight:700;letter-spacing:0.3px">부동산</span>
+      </button>
       <button onclick="goPage('stocks',document.querySelectorAll('.nav-item')[2])"
         style="background:none;border:none;color:var(--muted);height:32px;padding:0 10px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s;flex-shrink:0;gap:4px"
         ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
@@ -3215,6 +3221,48 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 </div>
 
 
+<!-- ══ REALESTATE ══ -->
+<div class="page" id="page-realestate" style="padding-bottom:0">
+  <div class="page-header" style="margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end">
+      <div>
+        <div class="eyebrow">자산 관리</div>
+        <h1>부동산</h1>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <button onclick="fetchAllApts().then(renderRealEstatePage)"
+          style="background:none;border:none;color:var(--muted);height:32px;padding:0 10px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;gap:4px"
+          ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          <span style="font-size:11px;font-weight:700">전체 조회</span>
+        </button>
+        <button onclick="openAptModal(null)"
+          style="background:rgba(30,58,82,0.10);border:1px solid rgba(30,58,82,0.20);color:var(--blue);height:28px;padding:0 10px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:20px;gap:4px;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;flex-shrink:0"
+          ontouchstart="this.style.background='rgba(30,58,82,0.20)'" ontouchend="this.style.background='rgba(30,58,82,0.10)'">
+          + 추가
+        </button>
+      </div>
+    </div>
+    <!-- 부동산 요약 -->
+    <div id="re-summary" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border-radius:14px;overflow:hidden;margin-top:16px">
+      <div style="background:var(--surface);padding:14px 8px;text-align:center">
+        <div style="font-size:9px;color:var(--muted);margin-bottom:4px">총 시세</div>
+        <div id="re-total-price" style="font-size:14px;font-weight:800;color:var(--text)">—</div>
+      </div>
+      <div style="background:var(--surface);padding:14px 8px;text-align:center">
+        <div style="font-size:9px;color:var(--muted);margin-bottom:4px">총 대출</div>
+        <div id="re-total-loan" style="font-size:14px;font-weight:800;color:var(--red)">—</div>
+      </div>
+      <div style="background:var(--surface);padding:14px 8px;text-align:center">
+        <div style="font-size:9px;color:var(--muted);margin-bottom:4px">순자산</div>
+        <div id="re-total-equity" style="font-size:14px;font-weight:800;color:var(--teal, #2dd4bf)">—</div>
+      </div>
+    </div>
+  </div>
+  <!-- 부동산 목록 -->
+  <div id="re-list" style="padding:0 16px 120px"></div>
+</div>
+
 <!-- ══ STOCKS ══ -->
 <div class="page" id="page-stocks">
   <div class="page-header">
@@ -4513,7 +4561,7 @@ function migrateAssetCategories() {
       var n = (item.name || '').toLowerCase();
 
       // 구버전 금융자산 분류
-      if (c === '민석 금융자산' || c === '시윤 금융자산' || c === '금융자산') {
+      if (c === 'p1금융자산' || c === 'p2금융자산' || c === '금융자산') {
         if (n.includes('주식') || n.includes('etf') || n.includes('사주') || n.includes('toss') || n.includes('토스') || n.includes('펀드') || n.includes('코인')) {
           item.category = 'stocks';
         } else if (n.includes('irp') || n.includes('연금') || n.includes('퇴직')) {
@@ -4642,7 +4690,7 @@ function goPage(name, el) {
   if (pageHistory.length > 10) pageHistory.shift();
 
   // 탭 순서 정의 (왼쪽→오른쪽)
-  const PAGE_ORDER = ['home','ledger','input','stocks','settings'];
+  const PAGE_ORDER = ['home','ledger','input','realestate','stocks','settings'];
   const prevIdx = PAGE_ORDER.indexOf(current);
   const nextIdx = PAGE_ORDER.indexOf(name);
   const animClass = nextIdx > prevIdx ? 'page-anim-left' : nextIdx < prevIdx ? 'page-anim-right' : 'page-anim-up';
@@ -4656,7 +4704,7 @@ function goPage(name, el) {
   nextPage.classList.add('active', animClass);
 
   // 네비 탭 하이라이트: el이 실제 DOM 요소이면 그것을 활성화, 아니면 page name으로 인덱스 추론
-  const _navPageOrder = ['home','ledger','input','stocks','settings'];
+  const _navPageOrder = ['home','ledger','input','realestate','stocks','settings'];
   const _navItems = document.querySelectorAll('.nav-item');
   const _navIdx = _navPageOrder.indexOf(name);
   if (el && el.tagName) {
@@ -4701,6 +4749,7 @@ function goPage(name, el) {
     renderLedger();
   }
   if (name === 'input') { renderInputAptSection(); }
+  if (name === 'realestate') { renderRealEstatePage(); }
   if (name === 'ai') { renderQuickButtons(); }
   if (name === 'stocks') initStocks();
   if (name === 'settings') {
@@ -5096,6 +5145,20 @@ function resetGoalForm() {
   const cancelBtn = document.getElementById('goal-cancel-btn');
   if (cancelBtn) cancelBtn.remove();
 }
+// ── 구버전 카테고리명 마이그레이션 (민석/시윤 → p1/p2) ──
+(function migrateAssetCategories() {
+  const history = load('asset-history', []);
+  let changed = false;
+  history.forEach(function(rec) {
+    if (!rec.items) return;
+    rec.items.forEach(function(item) {
+      if (item.category === '민석 금융자산') { item.category = 'p1금융자산'; changed = true; }
+      else if (item.category === '시윤 금융자산') { item.category = 'p2금융자산'; changed = true; }
+    });
+  });
+  if (changed) store('asset-history', history);
+})();
+
 // ── History ──
 let assetHistory = load('asset-history', []);
 
@@ -5202,8 +5265,8 @@ function updateHomeFromItems(rec) {
   renderDonutCard();
 
   // 민석/시윤 항목 (owner 기준으로 조회, 구버전 카테고리명도 호환)
-  const msItems = rec.items.filter(i=>i.type==='asset' && (i.owner==='minsuk' || i.category==='민석 금융자산'));
-  const syItems = rec.items.filter(i=>i.type==='asset' && (i.owner==='siyun'  || i.category==='시윤 금융자산'));
+  const msItems = rec.items.filter(i=>i.type==='asset' && (i.owner==='minsuk' || i.category==='p1금융자산'));
+  const syItems = rec.items.filter(i=>i.type==='asset' && (i.owner==='siyun'  || i.category==='p2금융자산'));
   const msTotal = msItems.reduce((s,i)=>s+i.amount,0);
   const syTotal = syItems.reduce((s,i)=>s+i.amount,0);
   if(el('h-minsuk-amt')) el('h-minsuk-amt').textContent = msTotal > 0 ? msTotal.toLocaleString()+'만' : '—';
@@ -5391,7 +5454,7 @@ function renderItemView() {
     'credit-loan': 'var(--red)', 'other-debt': 'var(--red)',
     'housing-debt': 'var(--red)', 'credit-debt': 'var(--red)',
     '부동산': 'var(--blue)', '금융자산': 'var(--gold)',
-    '민석 금융자산': 'var(--gold)', '시윤 금융자산': 'var(--gold)',
+    'p1금융자산': 'var(--gold)', 'p2금융자산': 'var(--gold)',
     '기타자산': 'var(--muted2)', '부채': 'var(--red)',
     '주식·ETF': 'var(--gold)', '저축·예금': 'var(--green)',
     '연금': '#a78bfa', '보증금': '#fb923c', '현금·기타': 'var(--muted2)',
@@ -5405,7 +5468,7 @@ function renderItemView() {
     'credit-loan': '#ef4444', 'other-debt': '#ef4444',
     'housing-debt': '#ef4444', 'credit-debt': '#ef4444',
     '부동산': '#5a9fc4', '금융자산': '#f59e0b',
-    '민석 금융자산': '#f59e0b', '시윤 금융자산': '#f59e0b',
+    'p1금융자산': '#f59e0b', 'p2금융자산': '#f59e0b',
     '기타자산': '#9ca3af', '부채': '#ef4444',
     '주식·ETF': '#f59e0b', '저축·예금': '#22c55e',
     '연금': '#a78bfa', '보증금': '#fb923c', '현금·기타': '#9ca3af',
@@ -5418,7 +5481,7 @@ function renderItemView() {
     'realestate', 'stocks', 'savings', 'pension', 'deposit', 'cash',
     'mortgage', 'jeonse-loan', 'credit-loan', 'other-debt',
     'housing-debt', 'credit-debt',
-    '부동산', '민석 금융자산', '시윤 금융자산', '기타자산', '부채',
+    '부동산', 'p1금융자산', 'p2금융자산', '기타자산', '부채',
     '주식·ETF', '저축·예금', '연금', '보증금', '현금·기타',
     '주택담보대출', '전세자금대출', '신용대출', '기타대출'
   ];
@@ -5700,7 +5763,7 @@ const CATEGORY_COLORS = {
   'housing-debt': 'var(--red)', 'credit-debt': 'var(--red)',
   '부동산': 'var(--blue)', '금융자산': 'var(--gold)',
   '기타자산': 'var(--muted2)', '부채': 'var(--red)',
-  '민석 금융자산': 'var(--gold)', '시윤 금융자산': 'var(--gold)'
+  'p1금융자산': 'var(--gold)', 'p2금융자산': 'var(--gold)'
 };
 
 const CATEGORY_LABELS = {
@@ -6302,7 +6365,7 @@ function renderAssetItems() {
     'housing-debt':'#ef4444','credit-debt':'#ef4444',
     // 구버전 호환
     '부동산':'#5a9fc4','금융자산':'#f59e0b',
-    '민석 금융자산':'#f59e0b','시윤 금융자산':'#f59e0b',
+    'p1금융자산':'#f59e0b','p2금융자산':'#f59e0b',
     '기타자산':'#9ca3af','부채':'#ef4444'
   };
 
@@ -8745,7 +8808,7 @@ function normalizeCatId(cat) {
   const map = {
     '부동산': 'realestate',
     '금융자산': 'stocks',
-    '민석 금융자산': 'stocks', '시윤 금융자산': 'stocks',
+    'p1금융자산': 'stocks', 'p2금융자산': 'stocks',
     '주식·ETF': 'stocks',
     '기타자산': 'cash',
     '부채': 'mortgage',
@@ -10591,7 +10654,7 @@ function buildSystemPrompt(questionText) {
         hasCash = true;
         cashAmt += amt;
       }
-      if (item.category === '민석 금융자산' || item.category === '시윤 금융자산') {
+      if (item.category === 'p1금융자산' || item.category === 'p2금융자산') {
         finAmt += amt;
       }
     });
@@ -11171,15 +11234,15 @@ function renderDonutCard() {
     // 구버전 호환
     '부동산':       '#7ab8d8',
     '금융자산':     '#fbbf24',
-    '민석 금융자산':'#fbbf24',
-    '시윤 금융자산':'#a78bfa',
+    'p1금융자산':'#fbbf24',
+    'p2금융자산':'#a78bfa',
     '저축·예금':    '#34d399',
     '연금':         '#a78bfa',
     '현금':         '#94a3b8',
     '기타자산':     '#6b7280',
   };
   // 카테고리 표시명
-  const CAT_LABELS_DONUT = Object.assign({ '부동산':'부동산','금융자산':'주식·금융','민석 금융자산':'주식·금융','시윤 금융자산':'주식·금융','기타자산':'기타' }, CATEGORY_LABELS);
+  const CAT_LABELS_DONUT = Object.assign({ '부동산':'부동산','금융자산':'주식·금융','p1금융자산':getP1Name()+' 금융자산','p2금융자산':getP2Name()+' 금융자산','기타자산':'기타' }, CATEGORY_LABELS);
 
   const sorted = Object.entries(catMap).sort(function(a,b) { return b[1]-a[1]; });
 
@@ -12038,6 +12101,8 @@ function saveAptFromModal() {
   store('apt-list', aptList);
   renderAptList();
   renderHomeApt();
+  renderInputAptSection();
+  renderRealEstatePage();
   closeAptModal();
   showToast('✅ 아파트가 ' + (_aptEditingId ? '수정' : '추가') + '됐어요!');
 }
@@ -12082,6 +12147,134 @@ async function fetchSingleApt(aptId) {
   renderHomeApt();
   renderInputAptSection();
   showToast('✅ ' + apt.name + ' ' + (latest.price/10000).toFixed(2) + '억 업데이트!');
+}
+
+// ── 부동산 전용 페이지 렌더 ──
+function renderRealEstatePage() {
+  aptList = load('apt-list', []);
+  const listEl = document.getElementById('re-list');
+  if (!listEl) return;
+
+  // 요약 계산
+  let totalPrice = 0, totalLoan = 0;
+  aptList.forEach(function(a) {
+    if (a.cache && a.cache.price) totalPrice += a.cache.price * 10000;
+    totalLoan += (a.loanAmount || 0) * 10000;
+  });
+  const equity = totalPrice - totalLoan;
+  const fmt = function(won) { return (won / 100000000).toFixed(2) + '억'; };
+  const pp = document.getElementById('re-total-price');
+  const pl = document.getElementById('re-total-loan');
+  const pe = document.getElementById('re-total-equity');
+  if (pp) pp.textContent = totalPrice ? fmt(totalPrice) : '—';
+  if (pl) pl.textContent = totalLoan ? fmt(totalLoan) : '—';
+  if (pe) pe.textContent = (totalPrice || totalLoan) ? fmt(equity) : '—';
+
+  if (!aptList.length) {
+    listEl.innerHTML = '<div class="card" style="text-align:center;padding:32px 16px">'
+      + '<div style="font-size:40px;margin-bottom:12px">🏢</div>'
+      + '<div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px">등록된 부동산이 없어요</div>'
+      + '<div style="font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:20px">아파트를 등록하면 국토부 실거래가로<br>자산 가치를 자동 계산해드려요</div>'
+      + '<button onclick="openAptModal(null)" style="padding:12px 24px;border-radius:14px;background:var(--blue);border:none;color:#fff;font-family:\'Noto Sans KR\',sans-serif;font-size:14px;font-weight:700;cursor:pointer">부동산 등록하기</button>'
+      + '</div>';
+    return;
+  }
+
+  const p1 = getP1Name(), p2 = getP2Name(), cm = getCommonName();
+  listEl.innerHTML = aptList.map(function(apt) {
+    const ownerLabel = apt.owner === 'minsuk' ? p1 : apt.owner === 'siyun' ? p2 : cm;
+    const ownerColor = apt.owner === 'minsuk' ? 'var(--blue)' : apt.owner === 'siyun' ? 'var(--siyun, #22c55e)' : 'var(--muted2)';
+    const hasPrice = apt.cache && apt.cache.price > 0;
+    const priceWon = hasPrice ? apt.cache.price * 10000 : 0;
+    const purchaseWon = (apt.purchasePrice || 0) * 10000;
+    const loanWon = (apt.loanAmount || 0) * 10000;
+    const equity = hasPrice ? priceWon - loanWon : 0;
+    const gain = (hasPrice && purchaseWon > 0) ? priceWon - purchaseWon : null;
+    const gainPct = gain !== null ? ((gain / purchaseWon) * 100).toFixed(1) : null;
+
+    // 스파크라인
+    let sparkHtml = '';
+    if (hasPrice && apt.cache.results && apt.cache.results.length > 1) {
+      const pts = apt.cache.results.slice().reverse();
+      const prices = pts.map(function(r) { return r.price; });
+      const minP = Math.min.apply(null, prices), maxP = Math.max.apply(null, prices);
+      const range = maxP - minP || 1;
+      const W = 200, H = 48;
+      const coords = prices.map(function(p, i) {
+        const x = (i / (prices.length - 1)) * W;
+        const y = H - ((p - minP) / range) * (H - 8) - 4;
+        return x.toFixed(1) + ',' + y.toFixed(1);
+      });
+      sparkHtml = '<div style="margin:12px 0 4px">'
+        + '<div style="font-size:10px;color:var(--muted);margin-bottom:6px">최근 실거래 추이 (' + pts.length + '건)</div>'
+        + '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" style="display:block;width:100%;max-width:' + W + 'px">'
+        + '<polyline points="' + coords.join(' ') + '" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+        + '<circle cx="' + coords[coords.length-1].split(',')[0] + '" cy="' + coords[coords.length-1].split(',')[1] + '" r="4" fill="var(--blue)"/>'
+        + '</svg>'
+        + '<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-top:2px">'
+        + '<span>' + pts[0].date + '</span>'
+        + '<span>' + pts[pts.length-1].date + '</span>'
+        + '</div></div>';
+    }
+
+    // 최근 거래 내역 (최대 3건)
+    let historyHtml = '';
+    if (hasPrice && apt.cache.results && apt.cache.results.length) {
+      const recent = apt.cache.results.slice(0, 3);
+      historyHtml = '<div style="margin-top:12px;padding:10px 12px;background:var(--surface2);border-radius:10px">'
+        + '<div style="font-size:10px;color:var(--muted);margin-bottom:8px;font-weight:600">최근 실거래 내역</div>'
+        + recent.map(function(r) {
+          return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)">'
+            + '<div style="font-size:12px;color:var(--muted)">' + r.date + (r.floor ? ' · ' + r.floor + '층' : '') + '</div>'
+            + '<div style="font-size:13px;font-weight:700;color:var(--text)">' + (r.price / 10000).toFixed(2) + '억</div>'
+            + '</div>';
+        }).join('')
+        + '</div>';
+    }
+
+    return '<div class="card" style="margin-bottom:12px">'
+      + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">'
+      + '<div>'
+      + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'
+      + '<span style="font-size:15px;font-weight:700;color:var(--text)">' + apt.name + '</span>'
+      + '<span style="font-size:10px;font-weight:600;color:' + ownerColor + ';background:' + ownerColor + '22;padding:2px 6px;border-radius:6px">' + ownerLabel + '</span>'
+      + '</div>'
+      + '<div style="font-size:11px;color:var(--muted)">' + (apt.sigungu || '') + (apt.areaMin ? ' · ' + apt.areaMin + '~' + apt.areaMax + '㎡' : '') + '</div>'
+      + '</div>'
+      + '<div style="display:flex;gap:6px">'
+      + '<button onclick="fetchSingleApt(\'' + apt.id + '\').then(renderRealEstatePage)" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;cursor:pointer">조회</button>'
+      + '<button onclick="openAptModal(\'' + apt.id + '\')" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;cursor:pointer">수정</button>'
+      + '</div>'
+      + '</div>'
+      + (hasPrice
+        ? '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'
+          + '<div style="background:var(--surface2);border-radius:12px;padding:12px">'
+          + '<div style="font-size:9px;color:var(--muted);margin-bottom:4px">최근 실거래가</div>'
+          + '<div style="font-size:18px;font-weight:900;color:var(--text)">' + (priceWon / 100000000).toFixed(2) + '<span style="font-size:11px;font-weight:400;color:var(--muted)">억</span></div>'
+          + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + (apt.cache.fetchedAt || '') + '</div>'
+          + '</div>'
+          + '<div style="background:var(--surface2);border-radius:12px;padding:12px">'
+          + '<div style="font-size:9px;color:var(--muted);margin-bottom:4px">순자산 (시세-대출)</div>'
+          + '<div style="font-size:18px;font-weight:900;color:var(--teal,#2dd4bf)">' + (equity / 100000000).toFixed(2) + '<span style="font-size:11px;font-weight:400;color:var(--muted)">억</span></div>'
+          + (loanWon > 0 ? '<div style="font-size:10px;color:var(--red);margin-top:2px">대출 ' + (loanWon / 100000000).toFixed(2) + '억</div>' : '<div style="font-size:10px;color:var(--muted);margin-top:2px">대출 없음</div>')
+          + '</div>'
+          + '</div>'
+          + (gain !== null
+            ? '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--surface2);border-radius:10px;margin-bottom:10px">'
+              + '<div>'
+              + '<div style="font-size:9px;color:var(--muted);margin-bottom:2px">매입가 대비</div>'
+              + '<div style="font-size:11px;color:var(--muted)">' + (purchaseWon / 100000000).toFixed(2) + '억 → ' + (priceWon / 100000000).toFixed(2) + '억</div>'
+              + '</div>'
+              + '<div style="font-size:16px;font-weight:800;color:' + (gain >= 0 ? 'var(--red)' : 'var(--blue)') + '">'
+              + (gain >= 0 ? '▲ +' : '▼ ') + (Math.abs(gain) / 100000000).toFixed(2) + '억'
+              + '<span style="font-size:11px;font-weight:600;margin-left:4px">' + (gain >= 0 ? '+' : '') + gainPct + '%</span>'
+              + '</div>'
+              + '</div>'
+            : '')
+          + sparkHtml + historyHtml
+        : '<div style="text-align:center;padding:16px 0;color:var(--muted);font-size:12px">조회 버튼을 눌러 최신 실거래가를 불러오세요</div>')
+      + '</div>';
+  }).join('');
 }
 
 // ── 자산 탭 부동산 섹션 렌더 ──
@@ -14850,7 +15043,7 @@ let ledgerMonth = (() => {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 })();
 let ledgerOwnerFilter = 'all';
-let ledgerTab = 'list';
+let ledgerTab = load('ledger-tab', 'list');
 let currentTxType = 'expense';
 let currentTxOwner = 'minsuk';
 let selectedCategory = 'food';
@@ -14876,6 +15069,7 @@ function ledgerNextMonth() {
 // ── 탭
 function setLedgerTab(tab) {
   ledgerTab = tab;
+  store('ledger-tab', tab);
   ['list','chart','proposal','budget','calendar'].forEach(function(t) {
     const btn = document.getElementById('ltab-'+t);
     const cont = document.getElementById('ltab-content-'+t);
@@ -17819,7 +18013,7 @@ function moveAssetItem(id, dir) {
 
 // ── 카테고리 순 자동 정렬
 function sortAssetItems() {
-  const order = ['부동산','민석 금융자산','시윤 금융자산','기타자산','부채'];
+  const order = ['부동산','p1금융자산','p2금융자산','기타자산','부채'];
   modalAssetItems.sort((a,b) => {
     const ai = order.indexOf(a.category);
     const bi = order.indexOf(b.category);
