@@ -2084,17 +2084,19 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
 
   <!-- 설정 탭 내비 -->
-  <div style="display:flex;background:var(--surface2);border-radius:14px;padding:4px;margin-bottom:20px;gap:2px">
+  <div style="display:flex;background:var(--surface2);border-radius:14px;padding:4px;margin-bottom:20px;gap:2px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch">
     <button id="stab-home" onclick="setSettingsTab('home')"
-      style="flex:1;padding:8px 4px;border-radius:9px;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:rgba(30,58,82,0.10);color:var(--text);border:0.5px solid rgba(30,58,82,0.25)">홈</button>
-    <button id="stab-apt" onclick="setSettingsTab('apt')"
-      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">부동산</button>
-    <button id="stab-cat" onclick="setSettingsTab('cat')"
-      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">카테고리</button>
-    <button id="stab-data" onclick="setSettingsTab('data')"
-      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">계정</button>
+      style="flex:1;min-width:56px;padding:8px 4px;border-radius:9px;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:rgba(30,58,82,0.10);color:var(--text);border:0.5px solid rgba(30,58,82,0.25);white-space:nowrap">홈</button>
+    <button id="stab-account" onclick="setSettingsTab('account')"
+      style="flex:1;min-width:56px;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);white-space:nowrap">계정</button>
     <button id="stab-notif" onclick="setSettingsTab('notif')"
-      style="flex:1;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">알림</button>
+      style="flex:1;min-width:56px;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);white-space:nowrap">알림</button>
+    <button id="stab-cat" onclick="setSettingsTab('cat')"
+      style="flex:1;min-width:64px;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);white-space:nowrap">카테고리</button>
+    <button id="stab-apt" onclick="setSettingsTab('apt')"
+      style="flex:1;min-width:56px;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);white-space:nowrap">부동산</button>
+    <button id="stab-data" onclick="setSettingsTab('data')"
+      style="flex:1;min-width:56px;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);white-space:nowrap">백업</button>
   </div>
 
   <!-- 홈 설정 -->
@@ -2257,62 +2259,26 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     </div>
   </div>
 
-  <!-- 💾 데이터 -->
-  <div id="stab-content-data" style="display:none">
-    <div class="card" style="border-color:rgba(167,139,250,.25)">
-      <div class="card-title" style="color:var(--muted)">데이터 백업 / 복원</div>
-      <p style="font-size:12px;color:var(--muted2);line-height:1.7;margin-bottom:14px">
-        파일을 새로 받을 때 데이터가 초기화돼요.<br>백업해두고 복원하면 유지할 수 있어요.
-      </p>
-      <div style="display:flex;gap:10px;margin-bottom:10px">
-        <button onclick="exportBackup()"
-          style="flex:1;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:12px;
-          color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;padding:13px;cursor:pointer">
-          JSON 백업
-        </button>
-        <button onclick="document.getElementById('import-file').click()"
-          style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;
-          color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:13px;cursor:pointer">
-          불러오기
-        </button>
-      </div>
-      <!-- Excel 내보내기 -->
-      <div style="display:flex;gap:10px;margin-bottom:10px">
-        <button onclick="exportLedgerExcel()"
-          style="flex:1;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.3);border-radius:12px;
-          color:var(--green);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:13px;cursor:pointer">
-          가계부 Excel
-        </button>
-        <button onclick="exportAssetExcel()"
-          style="flex:1;background:rgba(90,159,196,.12);border:1px solid rgba(90,159,196,.3);border-radius:12px;
-          color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:13px;cursor:pointer">
-          🏦 자산 Excel
-        </button>
-      </div>
-      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importBackup(event)">
-      <div id="backup-status" style="font-size:12px;text-align:center;color:var(--muted);display:none"></div>
-      <div id="last-sync-info" style="padding:10px 12px;background:var(--surface2);border-radius:10px;font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:10px">
-        ☁️ 마지막 동기화: 확인 중...
-      </div>
-      <div style="padding:10px 12px;background:var(--surface2);border-radius:10px;font-size:11px;color:var(--muted);line-height:1.7">
-        💡 새 파일 받기 전 <strong style="color:var(--text)">내보내기</strong> → 새 파일 열고 <strong style="color:var(--text)">불러오기</strong>
-      </div>
-    </div>
+  <!-- 계정 탭 -->
+  <div id="stab-content-account" style="display:none">
 
-    <!-- 커플 관리 섹션 -->
-    <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
-      <div class="card-title" style="color:var(--muted);margin-bottom:14px">계정 정보</div>
-
-      <!-- 내 정보 -->
+    <!-- 내 정보 -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title" style="color:var(--muted)">내 계정</div>
       <div style="padding:12px;background:var(--surface2);border-radius:12px;margin-bottom:12px">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">내 계정</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">이메일</div>
         <div id="couple-my-email" style="font-size:14px;font-weight:600;color:var(--text)">-</div>
         <div id="couple-my-name" style="font-size:12px;color:var(--muted2);margin-top:2px">-</div>
       </div>
+    </div>
+
+    <!-- 파트너 연결 -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title" style="color:var(--muted)">파트너 연결</div>
 
       <!-- 파트너 정보 -->
       <div style="padding:12px;background:var(--surface2);border-radius:12px;margin-bottom:12px">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">파트너</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">연결된 파트너</div>
         <div id="couple-partner-info" style="font-size:14px;font-weight:600;color:var(--text)">-</div>
       </div>
 
@@ -2322,23 +2288,21 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div id="couple-invite-code-display" style="font-size:24px;font-weight:900;color:#22c55e;letter-spacing:4px;text-align:center;padding:12px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:10px;margin-bottom:10px">-</div>
         <button onclick="copyInviteCode()"
           style="width:100%;padding:11px;border-radius:10px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:#22c55e;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
-          📋 초대 코드 복사
+          초대 코드 복사
         </button>
         <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.6">파트너에게 이 코드를 알려주면<br>같은 공간에서 재무를 관리할 수 있어요</div>
       </div>
 
       <!-- 커플 연결 (미연결 상태일 때만 표시) -->
       <div id="couple-connect-section" style="display:none;margin-bottom:12px">
-        <div style="padding:14px;background:var(--surface2);border-radius:12px;margin-bottom:8px">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:10px">🔗 커플 연결하기</div>
+        <div style="padding:14px;background:var(--surface2);border-radius:12px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px">커플 연결하기</div>
 
-          <!-- 새로 만들기 -->
           <button onclick="handleCreateCoupleFromSettings()"
-            style="width:100%;padding:12px;border-radius:10px;background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.2);color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">
-            🆕 커플 공간 만들기
+            style="width:100%;padding:12px;border-radius:10px;background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.2);color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px">
+            커플 공간 만들기
           </button>
 
-          <!-- 초대 코드로 참여 -->
           <div style="font-size:11px;color:var(--muted);margin-bottom:6px">또는 파트너 코드로 참여</div>
           <div style="display:flex;gap:8px">
             <input type="text" id="settings-invite-input" placeholder="초대 코드 입력"
@@ -2353,13 +2317,48 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           <div id="settings-couple-msg" style="display:none;margin-top:8px;font-size:12px;text-align:center;padding:8px;border-radius:8px"></div>
         </div>
       </div>
+    </div>
+
+    <!-- 로그아웃 -->
+    <button onclick="handleLogout()"
+      style="width:100%;padding:13px;border-radius:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
+      로그아웃
+    </button>
+  </div>
 
 
-      <!-- 로그아웃 -->
-      <button onclick="handleLogout()"
-        style="width:100%;padding:13px;border-radius:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
-        로그아웃
-      </button>
+  <!-- 백업/데이터 탭 -->
+  <div id="stab-content-data" style="display:none">
+    <div class="card">
+      <div class="card-title" style="color:var(--muted)">데이터 백업 / 복원</div>
+      <p style="font-size:12px;color:var(--muted2);line-height:1.7;margin-bottom:14px">
+        기기를 바꾸거나 데이터를 옮길 때 사용하세요.<br>클라우드(Supabase)에도 자동 저장돼요.
+      </p>
+      <div style="display:flex;gap:10px;margin-bottom:10px">
+        <button onclick="exportBackup()"
+          style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:13px;cursor:pointer">
+          JSON 백업
+        </button>
+        <button onclick="document.getElementById('import-file').click()"
+          style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:13px;cursor:pointer">
+          불러오기
+        </button>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:10px">
+        <button onclick="exportLedgerExcel()"
+          style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:13px;cursor:pointer">
+          가계부 Excel
+        </button>
+        <button onclick="exportAssetExcel()"
+          style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:13px;cursor:pointer">
+          자산 Excel
+        </button>
+      </div>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importBackup(event)">
+      <div id="backup-status" style="font-size:12px;text-align:center;color:var(--muted);display:none"></div>
+      <div id="last-sync-info" style="padding:10px 12px;background:var(--surface2);border-radius:10px;font-size:11px;color:var(--muted);line-height:1.7;margin-top:10px">
+        마지막 동기화: 확인 중...
+      </div>
     </div>
   </div>
 
@@ -7470,7 +7469,7 @@ function renderPartnerActivity() {
     wrap.innerHTML = '<div style="padding:20px 4px;text-align:center">'
       + '<div style="font-size:13px;color:var(--text);font-weight:600;margin-bottom:6px">혼자 쓰고 계신가요?</div>'
       + '<div style="font-size:12px;color:var(--muted2);line-height:1.7;margin-bottom:14px">파트너와 연결하면 서로의 소비를<br>실시간으로 확인할 수 있어요</div>'
-      + '<button onclick="goPage(\'settings\',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab(\'data\'),200)" '
+      + '<button onclick="goPage(\'settings\',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab(\'account\'),200)" '
       + 'style="padding:10px 18px;border-radius:10px;background:rgba(90,159,196,0.10);border:1px solid rgba(90,159,196,0.25);color:var(--blue);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:700;cursor:pointer">'
       + '파트너 초대하기</button>'
       + '</div>';
@@ -9670,7 +9669,7 @@ function setSettingsTab(tab) {
       HOME_CARD_DEFAULTS.map(function(c) { return Object.assign({}, c); });
   }
   currentSettingsTab = tab;
-  ['home','apt','cat','data','notif'].forEach(t => {
+  ['home','account','apt','cat','data','notif'].forEach(t => {
     const btn = document.getElementById('stab-' + t);
     const con = document.getElementById('stab-content-' + t);
     const isActive = t === tab;
@@ -9687,7 +9686,7 @@ function setSettingsTab(tab) {
     if (con) con.style.display = isActive ? 'block' : 'none';
   });
   if (tab === 'cat') renderCatSettings();
-  if (tab === 'data') renderCoupleSettings();
+  if (tab === 'account') renderCoupleSettings();
   if (tab === 'home') loadPartnerNamesUI();
   if (tab === 'notif') renderNotifSettings();
 }
