@@ -6930,6 +6930,17 @@ function initHome() {
   if (assetHistory.length > 0) {
     updateHomeFromItems(assetHistory[assetHistory.length - 1]);
   }
+  // 자산 기록이 없으면 요약 카드 숨김 (빈 상태 처리)
+  const summaryCard = document.getElementById('home-card-summary');
+  if (summaryCard) {
+    if (assetHistory.length === 0) {
+      summaryCard.style.display = 'none';
+    } else if (!summaryCard.dataset.forceHidden) {
+      // homeCardSettings에 의해 명시적으로 숨겨지지 않았다면 표시
+      const setting = homeCardSettings.find(function(s) { return s.id === 'summary'; });
+      summaryCard.style.display = (setting && setting.visible) ? '' : 'none';
+    }
+  }
   setChartPeriod(chartPeriod);
   renderGoalGauge();
   renderSchedules();
@@ -8165,6 +8176,19 @@ function updateHomeWidget() {
   const today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
   const thisMonth = today.substring(0,7);
   const el = function(id){ return document.getElementById(id); };
+
+  // 데이터가 전혀 없을 때: 빈 상태 표시
+  if (!ledgerTxs || ledgerTxs.length === 0) {
+    const amount = el('widget-amount');
+    if (amount) amount.innerHTML = '<span style="font-size:15px;font-weight:600;color:var(--muted);letter-spacing:0">첫 지출을 기록해보세요</span>';
+    const bar = el('widget-exp-bar');
+    if (bar) { bar.style.width = '0%'; bar.style.background = 'var(--blue)'; bar.style.opacity = '0.3'; }
+    const status = el('widget-status-text');
+    if (status) status.textContent = '+ 버튼으로 바로 기록';
+    const pct = el('widget-exp-pct');
+    if (pct) pct.textContent = '';
+    return;
+  }
 
   // 이번달 지출
   const monthTxs = ledgerTxs.filter(function(t){ return t.date.startsWith(thisMonth); });
