@@ -2387,20 +2387,11 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/></svg>
             AI
           </button>
-          <button onclick="openVoiceParser()"
-            style="background:none;border:none;color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px"
+          <button onclick="openImportMenu()" id="ledger-import-menu-btn" aria-label="가져오기 메뉴" title="음성·문자·엑셀로 가져오기"
+            style="background:none;border:none;color:var(--muted);padding:0 10px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px;gap:4px"
             ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-          </button>
-          <button onclick="openSmsParser()"
-            style="background:none;border:none;color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px"
-            ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-          </button>
-          <button onclick="openExcelImport()"
-            style="background:none;border:none;color:var(--muted);width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px"
-            ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><line x1="8" y1="9" x2="10" y2="9"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span style="font-size:11px;font-weight:700">가져오기</span>
           </button>
 
         </div>
@@ -3025,6 +3016,45 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         </button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ══ 가져오기 메뉴 (음성·문자·엑셀) ══ -->
+<div id="import-menu-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:8500;align-items:flex-end" onclick="closeImportMenu(event)">
+  <div style="width:100%;max-width:680px;margin:0 auto;background:var(--surface);border-radius:24px 24px 0 0;padding:8px 20px max(24px,env(safe-area-inset-bottom,24px));animation:slideUp .3s cubic-bezier(.32,0,.15,1)">
+    <div style="width:36px;height:4px;border-radius:2px;background:var(--border2);margin:12px auto 20px"></div>
+    <div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--text);font-weight:700;margin-bottom:4px">가져오기</div>
+    <div style="font-size:12px;color:var(--muted2);margin-bottom:20px">다양한 방법으로 거래를 한 번에 추가하세요</div>
+
+    <button onclick="closeImportMenu();openVoiceParser()" style="width:100%;display:flex;align-items:center;gap:14px;padding:14px;margin-bottom:8px;background:var(--surface2);border:1px solid var(--border);border-radius:14px;cursor:pointer;text-align:left">
+      <div style="width:40px;height:40px;border-radius:12px;background:rgba(90,159,196,0.12);display:flex;align-items:center;justify-content:center;color:var(--blue);flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:700;color:var(--text)">음성으로 입력</div>
+        <div style="font-size:11px;color:var(--muted2);margin-top:2px">"스타벅스 5천원" 같이 말하면 자동 인식</div>
+      </div>
+    </button>
+
+    <button onclick="closeImportMenu();openSmsParser()" style="width:100%;display:flex;align-items:center;gap:14px;padding:14px;margin-bottom:8px;background:var(--surface2);border:1px solid var(--border);border-radius:14px;cursor:pointer;text-align:left">
+      <div style="width:40px;height:40px;border-radius:12px;background:rgba(90,159,196,0.12);display:flex;align-items:center;justify-content:center;color:var(--blue);flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:700;color:var(--text)">문자에서 가져오기</div>
+        <div style="font-size:11px;color:var(--muted2);margin-top:2px">카드사 결제 알림 문자를 붙여넣기</div>
+      </div>
+    </button>
+
+    <button onclick="closeImportMenu();openExcelImport()" style="width:100%;display:flex;align-items:center;gap:14px;padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:14px;cursor:pointer;text-align:left">
+      <div style="width:40px;height:40px;border-radius:12px;background:rgba(90,159,196,0.12);display:flex;align-items:center;justify-content:center;color:var(--blue);flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:700;color:var(--text)">엑셀에서 가져오기</div>
+        <div style="font-size:11px;color:var(--muted2);margin-top:2px">은행·카드사 거래내역 파일 업로드</div>
+      </div>
+    </button>
   </div>
 </div>
 
@@ -16106,6 +16136,19 @@ let voiceOwner = 'common';
 let voiceRecognition = null;
 let voiceIsRecording = false;
 let voiceParsedTxs = [];
+
+function openImportMenu() {
+  const modal = document.getElementById('import-menu-modal');
+  if (modal) modal.style.display = 'flex';
+  lockScroll();
+}
+
+function closeImportMenu(e) {
+  if (e && e.target && e.target.id !== 'import-menu-modal') return;
+  const modal = document.getElementById('import-menu-modal');
+  if (modal) modal.style.display = 'none';
+  unlockScroll();
+}
 
 function openVoiceParser() {
   voiceOwner = 'common';
