@@ -2433,6 +2433,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:0;gap:2px">
       <button id="ltab-list" onclick="setLedgerTab('list')" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s">내역</button>
       <button id="ltab-chart" onclick="setLedgerTab('chart')" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">분석</button>
+      <button id="ltab-proposal" onclick="setLedgerTab('proposal')" data-couple-only="1" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">협의</button>
       <button id="ltab-budget" onclick="setLedgerTab('budget')" data-advanced="1" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">예산</button>
       <button id="ltab-calendar" onclick="setLedgerTab('calendar')" data-advanced="1" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">캘린더</button>
     </div>
@@ -2659,6 +2660,14 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
   </div>
 
+
+  <!-- 협의 탭 -->
+  <div id="ltab-content-proposal" style="display:none;padding:16px 16px 120px">
+    <div id="proposals-inline-list"></div>
+    <button onclick="openAddProposal()" style="width:100%;padding:15px;border-radius:16px;background:rgba(90,159,196,0.08);border:1.5px dashed rgba(90,159,196,0.35);color:var(--blue);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px">
+      + 새 구매 제안
+    </button>
+  </div>
 
   <!-- 예산 탭 -->
   <div id="ltab-content-budget" style="display:none;padding:16px 16px 120px">
@@ -14717,7 +14726,7 @@ function ledgerNextMonth() {
 // ── 탭
 function setLedgerTab(tab) {
   ledgerTab = tab;
-  ['list','chart','budget','calendar'].forEach(function(t) {
+  ['list','chart','proposal','budget','calendar'].forEach(function(t) {
     const btn = document.getElementById('ltab-'+t);
     const cont = document.getElementById('ltab-content-'+t);
     const isActive = t === tab;
@@ -14732,6 +14741,7 @@ function setLedgerTab(tab) {
       if (isActive) cont.scrollTop = 0;
     }
   });
+  if (tab === 'proposal') renderProposals();
 
   // FAB 거래추가 - 내역 탭에서만 표시
   const ledgerFab = document.getElementById('ledger-fab-add');
@@ -18512,15 +18522,11 @@ async function loadProposalsFromSupabase() {
 }
 
 function renderProposals() {
-  const container = document.getElementById('proposals-list');
-  if (!container) return;
+  const modalContainer = document.getElementById('proposals-list');
+  const inlineContainer = document.getElementById('proposals-inline-list');
+  if (!modalContainer && !inlineContainer) return;
 
   const myUserId = currentUser ? currentUser.id : null;
-
-  if (!proposals || proposals.length === 0) {
-    container.innerHTML = '<div style="text-align:center;padding:40px 0;color:var(--muted);font-size:13px;line-height:1.8">아직 구매 제안이 없어요.<br>큰 소비 전에 먼저 물어보세요.</div>';
-    return;
-  }
 
   const REACTION_COLORS = {
     approved: { bg: 'rgba(34,197,94,0.10)', border: 'rgba(34,197,94,0.25)', text: '#22c55e' },
@@ -18529,7 +18535,14 @@ function renderProposals() {
   };
   const REACTION_LABELS = { approved: '좋아요', maybe: '보류', declined: '반대' };
 
-  container.innerHTML = proposals.map(p => {
+  if (!proposals || proposals.length === 0) {
+    const emptyHtml = '<div style="text-align:center;padding:40px 0;color:var(--muted);font-size:13px;line-height:1.8">아직 구매 제안이 없어요.<br>큰 소비 전에 먼저 물어보세요.</div>';
+    if (modalContainer) modalContainer.innerHTML = emptyHtml;
+    if (inlineContainer) inlineContainer.innerHTML = emptyHtml;
+    return;
+  }
+
+  const html = proposals.map(p => {
     const isMyProposal = p.proposerUserId === myUserId;
     const dateStr = p.createdAt ? new Date(p.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) : '';
     const amountStr = Number(p.amount).toLocaleString();
@@ -18579,6 +18592,9 @@ function renderProposals() {
       ${reactionSection}
     </div>`;
   }).join('');
+
+  if (modalContainer) modalContainer.innerHTML = html;
+  if (inlineContainer) inlineContainer.innerHTML = html;
 }
 
 // ── Service Worker 등록 ──
