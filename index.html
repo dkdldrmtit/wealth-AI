@@ -1754,17 +1754,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   +
 </button>
 
-<!-- FAB 음성 입력 버튼 (홈 전용, page 밖 고정) -->
-<button id="home-fab-mic" onclick="openHomeMic()"
-
-  style="position:fixed;bottom:90px;right:20px;width:58px;height:58px;border-radius:29px;
-  color:#fff;font-size:22px;cursor:pointer;z-index:50;
-  display:flex;align-items:center;justify-content:center;
-  transition:transform .15s"
-  ontouchstart="this.style.transform='scale(0.88)';this.style.animation='none'"
-  ontouchend="this.style.transform='scale(1)';this.style.animation=''">
-  🎙️
-</button>
+<!-- FAB 음성 입력 제거됨 — 음성 입력은 가계부 > 가져오기 메뉴로 통합 -->
+<!-- home-fab-mic 호환용 더미 (기존 JS 참조 오류 방지) -->
+<button id="home-fab-mic" style="display:none !important" aria-hidden="true"></button>
 
 <!-- ══ GOALS ══ -->
 <div class="page" id="page-goals">
