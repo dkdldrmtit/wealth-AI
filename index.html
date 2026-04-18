@@ -2524,8 +2524,25 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <!-- 분석 탭 -->
   <div id="ltab-content-chart" style="display:none;padding:16px 16px 120px">
 
+    <!-- 1. 카테고리별 지출 -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title">카테고리별 지출</div>
+      <div id="category-chart"></div>
+    </div>
 
-    <!-- AI 월말 리포트 -->
+    <!-- 2. 월별 추이 차트 -->
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="card-title" style="margin-bottom:0">월별 지출 추이</div>
+        <div style="display:flex;gap:4px">
+          <button id="trend-btn-3" onclick="setTrendMonths(3)" style="padding:4px 10px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:rgba(30,58,82,0.10);color:var(--text)">3개월</button>
+          <button id="trend-btn-6" onclick="setTrendMonths(6)" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">6개월</button>
+        </div>
+      </div>
+      <div id="ledger-trend-chart" style="overflow-x:auto"></div>
+    </div>
+
+    <!-- 3. AI 월말 리포트 -->
     <div class="siri-card" id="ai-report-card" onclick="toggleAiReport()" style="margin-bottom:12px">
       <div class="siri-card-inner">
         <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;min-height:44px">
@@ -2549,65 +2566,20 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
     </div>
 
-    <!-- 지출 대결 -->
+    <!-- 4. 커플 지출 비교 -->
     <div class="card" style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div class="card-title" style="margin-bottom:0">👫 절약 배틀</div>
+        <div class="card-title" style="margin-bottom:0">커플 지출 비교</div>
         <div id="ledger-couple-winner-badge" style="font-size:11px;font-weight:700"></div>
       </div>
       <div id="ledger-couple-battle-area"></div>
       <div id="ledger-couple-comment" style="margin-top:10px;padding:10px 14px;background:rgba(255,255,255,.03);border-top:1px solid var(--border);font-size:11px;color:var(--muted);text-align:center;line-height:1.6;border-radius:0 0 12px 12px"></div>
     </div>
 
-    <!-- 자동 인사이트 카드 -->
-    <div id="ledger-insight-card" style="margin-bottom:12px"></div>
-
-    <!-- 지출 히트맵 캘린더 -->
-<div class="card" style="margin-bottom:12px">
-
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-    <div class="card-title" style="margin-bottom:0">📅 이달 지출 히트맵</div>
-    <div id="heatmap-month-label" style="font-size:11px;color:var(--muted)"></div>
-  </div>
-  <!-- 요일 헤더 -->
-  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px">
-    <div style="text-align:center;font-size:9px;color:var(--muted);font-weight:700">월</div>
-    <div style="text-align:center;font-size:9px;color:var(--muted);font-weight:700">화</div>
-    <div style="text-align:center;font-size:9px;color:var(--muted);font-weight:700">수</div>
-    <div style="text-align:center;font-size:9px;color:var(--muted);font-weight:700">목</div>
-    <div style="text-align:center;font-size:9px;color:var(--muted);font-weight:700">금</div>
-    <div style="text-align:center;font-size:9px;color:var(--blue);font-weight:700">토</div>
-    <div style="text-align:center;font-size:9px;color:var(--red);font-weight:700">일</div>
-  </div>
-  <div id="expense-heatmap" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px"></div>
-  <!-- 범례 -->
-  <div style="display:flex;align-items:center;gap:6px;margin-top:10px;justify-content:flex-end">
-    <span style="font-size:10px;color:var(--muted)">적음</span>
-    <div style="width:12px;height:12px;border-radius:3px;background:rgba(239,68,68,0.12)"></div>
-    <div style="width:12px;height:12px;border-radius:3px;background:rgba(239,68,68,0.35)"></div>
-    <div style="width:12px;height:12px;border-radius:3px;background:rgba(239,68,68,0.6)"></div>
-    <div style="width:12px;height:12px;border-radius:3px;background:rgba(239,68,68,0.85)"></div>
-    <div style="width:12px;height:12px;border-radius:3px;background:#ef4444"></div>
-    <span style="font-size:10px;color:var(--muted)">많음</span>
-  </div>
-</div>
-    
-    <!-- 월별 추이 차트 -->
-    <div class="card" style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div class="card-title" style="margin-bottom:0">월별 지출 추이</div>
-        <div style="display:flex;gap:4px">
-          <button id="trend-btn-3" onclick="setTrendMonths(3)" style="padding:4px 10px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:rgba(30,58,82,0.10);color:var(--text)">3개월</button>
-          <button id="trend-btn-6" onclick="setTrendMonths(6)" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">6개월</button>
-        </div>
-      </div>
-      <div id="ledger-trend-chart" style="overflow-x:auto"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">카테고리별 지출</div>
-      <div id="category-chart"></div>
-    </div>
+    <!-- 숨겨진 자동 인사이트 + 히트맵은 고급 모드로 이동 예정 -->
+    <div id="ledger-insight-card" style="display:none"></div>
+    <div id="heatmap-month-label" style="display:none"></div>
+    <div id="expense-heatmap" style="display:none"></div>
 
   </div>
 
