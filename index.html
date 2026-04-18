@@ -2585,11 +2585,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
             <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;color:rgba(180,155,80,0.6);text-transform:uppercase;writing-mode:vertical-rl;transform:rotate(180deg)">AI</div>
           </div>
           <div style="flex:1;overflow:hidden;height:18px;position:relative">
-            <div id="ai-report-ticker" style="font-size:12.5px;color:var(--text);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:absolute;width:100%;line-height:1.5;animation:ai-fade-in 0.5s ease both">분석 버튼을 눌러주세요</div>
+            <div id="ai-report-ticker" style="font-size:12.5px;color:var(--text);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:absolute;width:100%;line-height:1.5;animation:ai-fade-in 0.5s ease both">이번 달 소비 분석 중...</div>
           </div>
           <button onclick="event.stopPropagation();generateMonthlyReport()" id="report-gen-btn"
-            style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer;flex-shrink:0">
-            생성
+            title="다시 생성"
+            style="background:transparent;border:none;color:rgba(180,155,80,0.5);cursor:pointer;flex-shrink:0;padding:4px;display:flex;align-items:center;justify-content:center">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
           </button>
           <div id="ai-report-chevron" style="font-size:10px;color:rgba(180,155,80,0.45);flex-shrink:0;transition:transform 0.3s">▾</div>
         </div>
@@ -7575,14 +7576,10 @@ function renderPartnerActivity() {
     return;
   }
 
-  // 배우자의 owner 코드 판별 (내가 p1이면 배우자는 p2)
-  const myRole = currentProfile && currentProfile.role;
-  const partnerOwner = myRole === 'partner1' ? 'p2' : 'p1';
-  const partnerName = partnerOwner === 'p1' ? getP1Name() : getP2Name();
-
-  // 배우자 거래 중 최근 3건
+  // 배우자(siyun)의 최근 거래
+  const partnerName = getP2Name();
   const partnerTxs = (ledgerTxs || [])
-    .filter(function(t) { return t.owner === partnerOwner; })
+    .filter(function(t) { return t.owner === 'siyun'; })
     .sort(function(a, b) { return (b.date || '').localeCompare(a.date || '') || (parseInt(b.id||'0',10) - parseInt(a.id||'0',10)); })
     .slice(0, 3);
 
@@ -15086,6 +15083,13 @@ function setLedgerTab(tab) {
     }
   });
   if (tab === 'proposal') renderProposals();
+  if (tab === 'chart') {
+    const ticker = document.getElementById('ai-report-ticker');
+    const reportContent = document.getElementById('ai-report-content');
+    if (ticker && (!reportContent || !reportContent.textContent.trim())) {
+      setTimeout(generateMonthlyReport, 400);
+    }
+  }
 
   // FAB 거래추가 - 내역 탭에서만 표시
   const ledgerFab = document.getElementById('ledger-fab-add');
@@ -18781,30 +18785,36 @@ async function saveProposal() {
   }
 }
 
-async function reactToProposal(id, reactionType) {
+async function reactToProposal(id) {
   const idx = proposals.findIndex(p => p.id === id);
   if (idx < 0) return;
 
-  const REACTION_LABELS = { approved: '좋아요', maybe: '보류', declined: '반대' };
+  const reactionType = _selectedReactions[id];
+  if (!reactionType) { showToast('의견 유형을 선택해주세요 (동의 / 보류 / 반대)'); return; }
+
+  const REACTION_LABELS = { approved: '동의', maybe: '보류', declined: '반대' };
   const label = REACTION_LABELS[reactionType] || reactionType;
 
-  // 댓글 입력 시트 (간단한 prompt 대체)
   let comment = '';
   const commentEl = document.getElementById('proposal-comment-' + id);
   if (commentEl) comment = commentEl.value.trim();
+
+  const respondentName = currentProfile && currentProfile.role === 'partner2' ? getP2Name() : getP1Name();
 
   proposals[idx].reaction = {
     type: reactionType,
     label,
     comment,
+    respondentName,
     reactorUserId: currentUser ? currentUser.id : null,
-    reactedAt: new Date().toISOString()
+    at: new Date().toISOString()
   };
 
   store('proposals', proposals);
   await saveAppDataToSupabase('proposals', proposals);
+  delete _selectedReactions[id];
   renderProposals();
-  showToast('반응을 남겼어요');
+  showToast('의견을 보냈어요');
 
   // 배우자(제안자)에게 알림
   if (currentCoupleId) {
@@ -18865,6 +18875,30 @@ async function loadProposalsFromSupabase() {
   }
 }
 
+// 반응 선택 임시 저장 (proposal id → type)
+const _selectedReactions = {};
+
+function selectProposalReaction(proposalId, type) {
+  _selectedReactions[proposalId] = type;
+  const opts = { approved: '동의', maybe: '보류', declined: '반대' };
+  Object.keys(opts).forEach(function(t) {
+    const btn = document.getElementById('react-opt-' + t + '-' + proposalId);
+    if (!btn) return;
+    const isSelected = t === type;
+    if (isSelected) {
+      btn.style.borderColor = t === 'approved' ? 'var(--teal,#2dd4bf)' : t === 'maybe' ? 'var(--gold)' : 'var(--muted)';
+      btn.style.background = t === 'approved' ? 'rgba(45,212,191,0.08)' : t === 'maybe' ? 'rgba(201,168,76,0.08)' : 'rgba(100,100,100,0.08)';
+      btn.style.color = t === 'approved' ? 'var(--teal,#2dd4bf)' : t === 'maybe' ? 'var(--gold)' : 'var(--text)';
+      btn.style.fontWeight = '700';
+    } else {
+      btn.style.borderColor = 'var(--border2)';
+      btn.style.background = 'transparent';
+      btn.style.color = 'var(--muted2)';
+      btn.style.fontWeight = '500';
+    }
+  });
+}
+
 function renderProposals() {
   const modalContainer = document.getElementById('proposals-list');
   const inlineContainer = document.getElementById('proposals-inline-list');
@@ -18872,67 +18906,74 @@ function renderProposals() {
 
   const myUserId = currentUser ? currentUser.id : null;
 
-  const REACTION_COLORS = {
-    approved: { bg: 'rgba(34,197,94,0.10)', border: 'rgba(34,197,94,0.25)', text: '#22c55e' },
-    maybe:    { bg: 'rgba(201,168,76,0.10)', border: 'rgba(201,168,76,0.25)', text: 'var(--gold)' },
-    declined: { bg: 'rgba(239,68,68,0.10)', border: 'rgba(239,68,68,0.25)', text: 'var(--red)' }
-  };
-  const REACTION_LABELS = { approved: '좋아요', maybe: '보류', declined: '반대' };
-
   if (!proposals || proposals.length === 0) {
-    const emptyHtml = '<div style="text-align:center;padding:40px 0;color:var(--muted);font-size:13px;line-height:1.8">아직 구매 제안이 없어요.<br>큰 소비 전에 먼저 물어보세요.</div>';
+    const emptyHtml = '<div style="text-align:center;padding:40px 0;color:var(--muted);font-size:13px;line-height:1.8">아직 구매 협의가 없어요.<br>큰 소비 전에 먼저 물어보세요.</div>';
     if (modalContainer) modalContainer.innerHTML = emptyHtml;
     if (inlineContainer) inlineContainer.innerHTML = emptyHtml;
     return;
   }
+
+  const REACTION_META = {
+    approved: { label: '동의',  icon: '✓', color: 'var(--teal,#2dd4bf)',  bg: 'rgba(45,212,191,0.08)',  border: 'rgba(45,212,191,0.25)' },
+    maybe:    { label: '보류',  icon: '—', color: 'var(--gold)',            bg: 'rgba(201,168,76,0.08)',  border: 'rgba(201,168,76,0.25)' },
+    declined: { label: '반대',  icon: '×', color: 'var(--muted)',           bg: 'rgba(100,100,100,0.08)', border: 'rgba(100,100,100,0.2)' }
+  };
 
   const html = proposals.map(p => {
     const isMyProposal = p.proposerUserId === myUserId;
     const dateStr = p.createdAt ? new Date(p.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) : '';
     const amountStr = Number(p.amount).toLocaleString();
     const hasReaction = p.reaction && p.reaction.type;
-    const reactionColor = hasReaction ? (REACTION_COLORS[p.reaction.type] || REACTION_COLORS.maybe) : null;
+    const rm = hasReaction ? REACTION_META[p.reaction.type] : null;
 
+    // 반응 표시 (이미 반응 있음)
     const reactionSection = hasReaction
-      ? `<div style="margin-top:12px;padding:10px 12px;background:${reactionColor.bg};border:1px solid ${reactionColor.border};border-radius:10px;display:flex;align-items:center;gap:8px">
-          <span style="font-size:13px;font-weight:700;color:${reactionColor.text}">${p.reaction.label}</span>
-          ${p.reaction.comment ? `<span style="font-size:12px;color:var(--muted2)">· ${p.reaction.comment}</span>` : ''}
+      ? `<div style="margin-top:12px;padding:12px 14px;background:${rm.bg};border:1px solid ${rm.border};border-radius:12px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:${p.reaction.comment ? '8px' : '0'}">
+            <span style="font-size:14px;font-weight:700;color:${rm.color}">${rm.label}</span>
+            <span style="font-size:10px;color:var(--muted2)">${p.reaction.respondentName || ''} · ${p.reaction.at ? new Date(p.reaction.at).toLocaleDateString('ko-KR',{month:'short',day:'numeric'}) : ''}</span>
+          </div>
+          ${p.reaction.comment ? `<div style="font-size:13px;color:var(--text);line-height:1.6">${p.reaction.comment}</div>` : ''}
         </div>`
       : (!isMyProposal
-          ? `<div style="margin-top:12px">
-              <input type="text" id="proposal-comment-${p.id}" placeholder="한 마디 남기기 (선택)" maxlength="30"
-                style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:12px;padding:9px 12px;outline:none;box-sizing:border-box;margin-bottom:8px"
-                onfocus="this.style.borderColor='rgba(90,159,196,0.5)'" onblur="this.style.borderColor='var(--border)'">
-              <div style="display:flex;gap:6px">
-                <button onclick="reactToProposal('${p.id}','approved')"
-                  style="flex:1;padding:9px 4px;border-radius:10px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:#22c55e;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer">
-                  좋아요
-                </button>
-                <button onclick="reactToProposal('${p.id}','maybe')"
-                  style="flex:1;padding:9px 4px;border-radius:10px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);color:var(--gold);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer">
-                  보류
-                </button>
-                <button onclick="reactToProposal('${p.id}','declined')"
-                  style="flex:1;padding:9px 4px;border-radius:10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer">
-                  반대
-                </button>
+          // 배우자가 반응 입력하는 UI
+          ? `<div style="margin-top:14px;padding:14px;background:var(--surface2);border-radius:12px">
+              <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:10px;letter-spacing:.3px">의견 남기기</div>
+              <div style="display:flex;gap:6px;margin-bottom:12px">
+                ${Object.entries(REACTION_META).map(([t, m]) =>
+                  `<button id="react-opt-${t}-${p.id}" onclick="selectProposalReaction('${p.id}','${t}')"
+                    style="flex:1;padding:10px 4px;border-radius:10px;border:1px solid var(--border2);background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s;font-family:'Noto Sans KR',sans-serif;color:var(--muted2);font-size:11px;font-weight:500">
+                    <span style="font-size:16px;font-weight:400;line-height:1">${m.icon}</span>
+                    <span>${m.label}</span>
+                  </button>`
+                ).join('')}
               </div>
+              <textarea id="proposal-comment-${p.id}" placeholder="의견을 자유롭게 적어주세요 (선택)" maxlength="150" rows="3"
+                style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:10px 12px;outline:none;box-sizing:border-box;resize:none;line-height:1.6"
+                onfocus="this.style.borderColor='rgba(90,159,196,0.5)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+              <button onclick="reactToProposal('${p.id}')"
+                style="width:100%;margin-top:10px;padding:12px;border-radius:12px;background:var(--text);border:none;color:var(--bg);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
+                의견 보내기
+              </button>
             </div>`
-          : `<div style="margin-top:10px;font-size:11px;color:var(--muted2);padding:8px 0">배우자의 반응을 기다리는 중...</div>`
+          : `<div style="margin-top:10px;padding:10px 0;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px">
+              <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;animation:ai-dot-pulse 2s ease infinite"></span>
+              배우자의 의견을 기다리는 중
+            </div>`
         );
 
     return `<div style="background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:16px;margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
-        <div style="flex:1">
-          <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px">${p.title}</div>
-          <div style="font-size:18px;font-weight:800;color:var(--blue);font-family:'Playfair Display',serif">${amountStr}<span style="font-size:12px;font-weight:400;color:var(--muted);margin-left:2px">원</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">${p.title}</div>
+          <div style="font-size:20px;font-weight:900;color:var(--text);letter-spacing:-0.5px">${amountStr}<span style="font-size:12px;font-weight:400;color:var(--muted);margin-left:2px">원</span></div>
         </div>
         <div style="text-align:right;flex-shrink:0;margin-left:12px">
-          <div style="font-size:11px;color:var(--muted2);margin-bottom:4px">${p.proposerName} · ${dateStr}</div>
-          ${isMyProposal ? `<button onclick="deleteProposal('${p.id}')" style="background:transparent;border:none;color:var(--muted2);font-size:11px;cursor:pointer;padding:2px 4px">삭제</button>` : ''}
+          <div style="font-size:11px;color:var(--muted2);margin-bottom:6px">${p.proposerName} · ${dateStr}</div>
+          ${isMyProposal ? `<button onclick="deleteProposal('${p.id}')" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:6px;color:var(--muted2);font-size:10px;font-weight:600;cursor:pointer;padding:3px 8px;font-family:'Noto Sans KR',sans-serif">삭제</button>` : ''}
         </div>
       </div>
-      ${p.memo ? `<div style="font-size:12px;color:var(--muted2);margin-bottom:6px;padding:8px 10px;background:var(--surface2);border-radius:8px">${p.memo}</div>` : ''}
+      ${p.memo ? `<div style="font-size:12px;color:var(--muted2);padding:9px 11px;background:var(--surface2);border-radius:8px;line-height:1.6;margin-bottom:4px">${p.memo}</div>` : ''}
       ${reactionSection}
     </div>`;
   }).join('');
