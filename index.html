@@ -5194,6 +5194,24 @@ function resetGoalForm() {
   if (hChanged) store('asset-history', hist);
 })();
 
+// ── apt cache results migration: {year,month,day} → {date} ──
+(function migrateAptCacheDates() {
+  var apts = load('apt-list', []);
+  var changed = false;
+  apts.forEach(function(apt) {
+    if (!apt.cache || !apt.cache.results) return;
+    apt.cache.results = apt.cache.results.map(function(r) {
+      if (r.date) return r;
+      if (r.year && r.month && r.day) {
+        changed = true;
+        return { date: r.year + '.' + r.month + '.' + r.day, price: r.price, floor: r.floor };
+      }
+      return r;
+    });
+  });
+  if (changed) store('apt-list', apts);
+})();
+
 // ── History ──
 let assetHistory = load('asset-history', []);
 
