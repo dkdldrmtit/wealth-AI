@@ -2095,7 +2095,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       style="flex:1;min-width:56px;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);white-space:nowrap">계정</button>
     <button id="stab-notif" onclick="setSettingsTab('notif')"
       style="flex:1;min-width:56px;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);white-space:nowrap">알림</button>
-    <button id="stab-cat" onclick="setSettingsTab('cat')" data-advanced="1"
+    <button id="stab-cat" onclick="setSettingsTab('cat')"
       style="flex:1;min-width:64px;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);white-space:nowrap">카테고리</button>
     <button id="stab-apt" onclick="setSettingsTab('apt')"
       style="flex:1;min-width:56px;padding:8px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);white-space:nowrap">부동산</button>
@@ -2105,23 +2105,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
   <!-- 홈 설정 -->
   <div id="stab-content-home">
-
-    <!-- 고급 기능 모드 -->
-    <div class="card" style="margin-bottom:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div style="flex:1;padding-right:12px">
-          <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px">고급 기능</div>
-          <div style="font-size:11px;color:var(--muted2);line-height:1.6">주식, 부동산, 일정, 정기지출, 구매 협의, 일괄 편집 등을 표시합니다.</div>
-        </div>
-        <label style="position:relative;display:inline-block;width:46px;height:26px;cursor:pointer;flex-shrink:0">
-          <input type="checkbox" id="advanced-mode-toggle" onchange="toggleAdvancedMode(this.checked)"
-            style="opacity:0;width:0;height:0;position:absolute">
-          <span id="advanced-mode-track" style="position:absolute;inset:0;border-radius:13px;background:var(--border2);transition:background .2s">
-            <span id="advanced-mode-thumb" style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:white;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></span>
-          </span>
-        </label>
-      </div>
-    </div>
 
     <div class="card">
       <div class="card-title" style="color:var(--muted)">홈 카드 순서</div>
@@ -9938,31 +9921,10 @@ function loadPartnerNamesUI() {
   renderAdvancedModeToggle();
 }
 
-// ── 고급 기능 모드 ──
-function renderAdvancedModeToggle() {
-  const t = document.getElementById('advanced-mode-toggle');
-  const track = document.getElementById('advanced-mode-track');
-  const thumb = document.getElementById('advanced-mode-thumb');
-  if (!t) return;
-  t.checked = !!advancedMode;
-  if (track) track.style.background = advancedMode ? 'var(--blue)' : 'var(--border2)';
-  if (thumb) thumb.style.transform = advancedMode ? 'translateX(20px)' : 'translateX(0)';
-}
-
-function toggleAdvancedMode(on) {
-  advancedMode = !!on;
-  store('advanced-mode', advancedMode);
-  renderAdvancedModeToggle();
-  applyAdvancedModeVisibility();
-  showToast(advancedMode ? '고급 기능이 켜졌어요' : '고급 기능이 꺼졌어요');
-}
-
-function applyAdvancedModeVisibility() {
-  // 고급 기능 그룹: data-advanced="1" 요소들
-  document.querySelectorAll('[data-advanced="1"]').forEach(function(el) {
-    el.style.display = advancedMode ? '' : 'none';
-  });
-}
+// ── 고급 기능 모드: deprecated (toggle removed, no-op for back compat) ──
+function renderAdvancedModeToggle() {}
+function toggleAdvancedMode() {}
+function applyAdvancedModeVisibility() {}
 
 // ── 혼자 모드 감지 및 배우자 UI 제어 ──
 function isSoloMode() {
