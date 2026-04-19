@@ -44,12 +44,23 @@
   --p1color: #7ab8d8;
   --p2color: #fb7185;
   --shadow: rgba(0,0,0,0.4);
+  /* 추가 액센트 (이전에 하드코딩되던 색) */
+  --orange: #fb923c;
+  --lavender: #a78bfa;
   /* 여백 토큰 */
   --space-xs: 4px;
   --space-sm: 8px;
   --space-md: 16px;
   --space-lg: 24px;
   --space-xl: 32px;
+  /* 타이포그래피 스케일 */
+  --fs-xs: 10px;    /* micro/timestamp */
+  --fs-sm: 12px;    /* caption/secondary */
+  --fs-base: 14px;  /* body */
+  --fs-md: 16px;    /* emphasis */
+  --fs-lg: 18px;    /* subheading */
+  --fs-xl: 24px;    /* section heading */
+  --fs-2xl: 32px;   /* hero number */
 }
 
 /* ── 라이트 모드 ── */
@@ -80,6 +91,8 @@
     --p1color: #1e3a52;
     --p2color: #f43f5e;
     --shadow: rgba(0,0,0,0.08);
+    --orange: #f97316;
+    --lavender: #8b5cf6;
   }
   body::before {
     background: none;
@@ -101,6 +114,19 @@ html { overscroll-behavior-y: none; }
 }
 /* 긴 한글 텍스트 자동 줄임 유틸 */
 .truncate { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+/* 수평 스크롤 영역 우측 fade 힌트 */
+.h-scroll-fade { position:relative; }
+.h-scroll-fade::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 24px;
+  background: linear-gradient(to right, transparent, var(--bg));
+  pointer-events: none;
+  border-radius: 0 8px 8px 0;
+}
+/* 최소 터치 타겟 보조 클래스 (가능한 경우 사용) */
+.tap-target { min-width:36px; min-height:36px; }
 /* 다크/라이트 전환 부드럽게 */
 *, *::before, *::after {
   transition: background-color .25s ease, border-color .25s ease, color .15s ease;
@@ -241,11 +267,11 @@ input, textarea, select {
 .card-meta { font-size:11px; color:var(--muted2); }
 
 /* 타이포그래피 위계 */
-.t-display { font-size:32px; font-weight:700; letter-spacing:-0.5px; line-height:1.1; }
-.t-title   { font-size:18px; font-weight:600; letter-spacing:-0.2px; }
-.t-subtitle{ font-size:14px; font-weight:500; color:var(--text2); }
-.t-body    { font-size:14px; font-weight:400; }
-.t-caption { font-size:12px; font-weight:400; color:var(--text3); letter-spacing:0.2px; }
+.t-display { font-size:var(--fs-2xl); font-weight:700; letter-spacing:-0.5px; line-height:1.1; }
+.t-title   { font-size:var(--fs-lg); font-weight:600; letter-spacing:-0.2px; }
+.t-subtitle{ font-size:var(--fs-base); font-weight:500; color:var(--text2); }
+.t-body    { font-size:var(--fs-base); font-weight:400; }
+.t-caption { font-size:var(--fs-sm); font-weight:400; color:var(--text3); letter-spacing:0.2px; }
 .t-mono    { font-variant-numeric:tabular-nums; font-feature-settings:"tnum"; letter-spacing:-0.3px; }
 
 /* SUMMARY */
@@ -481,6 +507,8 @@ body[data-theme="dark"] {
   --p1color: #7ab8d8;
   --p2color: #fb7185;
   --shadow: rgba(0,0,0,0.4);
+  --orange: #fb923c;
+  --lavender: #a78bfa;
 }
 
 /* ── 라이트 강제 모드 ── */
@@ -510,6 +538,8 @@ body[data-theme="light"] {
   --p1color: #1e3a52;
   --p2color: #f43f5e;
   --shadow: rgba(0,0,0,0.08);
+  --orange: #f97316;
+  --lavender: #8b5cf6;
 }
 
 /* ═══════════════════════════════════════════
@@ -628,17 +658,17 @@ select:active {
   text-align: left;
 }
 .toast.toast-success {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
+  background: linear-gradient(135deg, var(--green), #16a34a);
   color: #fff;
   box-shadow: 0 4px 20px rgba(34,197,94,.4);
 }
 .toast.toast-error {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
+  background: linear-gradient(135deg, var(--red), #dc2626);
   color: #fff;
   box-shadow: 0 4px 20px rgba(239,68,68,.4);
 }
 .toast.toast-info {
-  background: linear-gradient(135deg, #5a9fc4, #1e3a52);
+  background: linear-gradient(135deg, var(--blue), #1e3a52);
   color: #fff;
   box-shadow: 0 4px 20px rgba(30,58,82,.35);
 }
@@ -650,10 +680,10 @@ select:active {
 }
 
 /* ── 4. 목표 달성률 바 색상 단계 ── */
-.goal-bar-fill.pct-low    { background: linear-gradient(90deg, #ef4444, #fb923c); }
-.goal-bar-fill.pct-mid    { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
-.goal-bar-fill.pct-high   { background: linear-gradient(90deg, #22c55e, #22c55e); }
-.goal-bar-fill.pct-done   { background: linear-gradient(90deg, #1e3a52, #22c55e); }
+.goal-bar-fill.pct-low    { background: linear-gradient(90deg, var(--red), var(--orange)); }
+.goal-bar-fill.pct-mid    { background: linear-gradient(90deg, #fbbf24, var(--gold)); }
+.goal-bar-fill.pct-high   { background: linear-gradient(90deg, var(--green), var(--green)); }
+.goal-bar-fill.pct-done   { background: linear-gradient(90deg, #1e3a52, var(--green)); }
 
 /* ── 5. FAB 마이크 버튼 펄스 애니메이션 ── */
 @keyframes fabPulse {
@@ -744,14 +774,14 @@ button[style*="background:#2a2a2a"] {
 }
 
 /* ── 9. 일정 D-day 배지 색상 개선 ── */
-.dday-urgent { background: rgba(239,68,68,.18); color: #ef4444; border: 1px solid rgba(239,68,68,.35); }
+.dday-urgent { background: rgba(239,68,68,.18); color: var(--red); border: 1px solid rgba(239,68,68,.35); }
 .dday-soon   { background: rgba(251,191,36,.15);  color: #fbbf24; border: 1px solid rgba(251,191,36,.3); }
 .dday-normal { background: rgba(90,159,196,.08); color: var(--blue); border: 1px solid rgba(90,159,196,.2); }
-.dday-past   { background: rgba(107,114,128,.12); color: #6b7280; border: 1px solid rgba(107,114,128,.2); }
+.dday-past   { background: rgba(107,114,128,.12); color: var(--muted); border: 1px solid rgba(107,114,128,.2); }
 
 /* ── 10. 스와이프 삭제 버튼 개선 ── */
 .swipe-del-btn {
-  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+  background: linear-gradient(135deg, var(--red), #dc2626) !important;
   border-radius: 0 14px 14px 0 !important;
   box-shadow: -4px 0 12px rgba(239,68,68,.3) !important;
 }
@@ -928,7 +958,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       font-size:13px;font-weight:300;
       letter-spacing:12px;
       margin-top:8px;
-      background:linear-gradient(90deg, rgba(30,58,82,0.35), #5a9fc4, rgba(30,58,82,0.35));
+      background:linear-gradient(90deg, rgba(30,58,82,0.35), var(--blue), rgba(30,58,82,0.35));
       -webkit-background-clip:text;
       -webkit-text-fill-color:transparent;
       background-clip:text;
@@ -982,7 +1012,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
             <div style="font-size:13px;color:#f0f0f0;font-weight:600">나 · 5분 전</div>
             <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px">카페</div>
           </div>
-          <div style="font-size:14px;font-weight:700;color:#ef4444">-5,500원</div>
+          <div style="font-size:14px;font-weight:700;color:var(--red)">-5,500원</div>
         </div>
       </div>
     </div>
@@ -1010,12 +1040,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div style="position:absolute;bottom:0;left:0;right:0;padding:24px 32px max(32px,env(safe-area-inset-bottom,32px));background:linear-gradient(0deg,#080808 60%,transparent)">
     <!-- 점 인디케이터 -->
     <div id="ob-dots" style="display:flex;justify-content:center;gap:6px;margin-bottom:20px">
-      <div class="ob-dot" style="width:20px;height:4px;border-radius:2px;background:#5a9fc4;transition:all .3s"></div>
+      <div class="ob-dot" style="width:20px;height:4px;border-radius:2px;background:var(--blue);transition:all .3s"></div>
       <div class="ob-dot" style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);transition:all .3s"></div>
     </div>
     <!-- 버튼 -->
     <button id="ob-next-btn" onclick="obNext()"
-      style="width:100%;padding:16px;border-radius:14px;border:none;background:#5a9fc4;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:-.3px">
+      style="width:100%;padding:16px;border-radius:14px;border:none;background:var(--blue);color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:-.3px">
       다음
     </button>
     <button id="ob-skip-btn" onclick="obSkip()"
@@ -1032,7 +1062,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div style="text-align:center;padding:max(80px, calc(env(safe-area-inset-top, 0px) + 60px)) 32px 40px">
     <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:11px;font-weight:400;letter-spacing:6px;color:rgba(255,255,255,0.25);margin-bottom:16px;text-transform:uppercase">M & S</div>
     <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:38px;font-weight:100;letter-spacing:8px;color:#f0f0f0;line-height:1;filter:drop-shadow(0 0 30px rgba(30,58,82,0.2))">WEALTH</div>
-    <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:12px;font-weight:300;letter-spacing:12px;margin-top:8px;background:linear-gradient(90deg,rgba(30,58,82,0.35),#5a9fc4,rgba(30,58,82,0.35));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">A I</div>
+    <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:12px;font-weight:300;letter-spacing:12px;margin-top:8px;background:linear-gradient(90deg,rgba(30,58,82,0.35),var(--blue),rgba(30,58,82,0.35));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">A I</div>
     <div style="width:40px;height:0.5px;background:linear-gradient(90deg,transparent,rgba(90,159,196,0.3),transparent);margin:20px auto 0"></div>
   </div>
 
@@ -1042,7 +1072,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <!-- 탭 -->
     <div style="display:flex;background:#111111;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:4px;margin-bottom:28px;gap:3px">
       <button id="auth-tab-login" onclick="setAuthTab('login')"
-        style="flex:1;padding:11px;border-radius:11px;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:rgba(30,58,82,0.15);color:#5a9fc4;border:0.5px solid rgba(30,58,82,0.25);transition:all .2s">
+        style="flex:1;padding:11px;border-radius:11px;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:rgba(30,58,82,0.15);color:var(--blue);border:0.5px solid rgba(30,58,82,0.25);transition:all .2s">
         로그인
       </button>
       <button id="auth-tab-signup" onclick="setAuthTab('signup')"
@@ -1083,7 +1113,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         </button>
       </div>
 
-      <div id="login-error" style="display:none;margin-top:14px;padding:12px 16px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:12px;font-size:12px;color:#ef4444;text-align:center;line-height:1.6"></div>
+      <div id="login-error" style="display:none;margin-top:14px;padding:12px 16px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:12px;font-size:12px;color:var(--red);text-align:center;line-height:1.6"></div>
     </div>
 
     <!-- 회원가입 폼 -->
@@ -1126,8 +1156,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         회원가입
       </button>
 
-      <div id="signup-error" style="display:none;margin-top:14px;padding:12px 16px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:12px;font-size:12px;color:#ef4444;text-align:center;line-height:1.6"></div>
-      <div id="signup-success" style="display:none;margin-top:14px;padding:12px 16px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:12px;font-size:12px;color:#22c55e;text-align:center;line-height:1.6"></div>
+      <div id="signup-error" style="display:none;margin-top:14px;padding:12px 16px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:12px;font-size:12px;color:var(--red);text-align:center;line-height:1.6"></div>
+      <div id="signup-success" style="display:none;margin-top:14px;padding:12px 16px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:12px;font-size:12px;color:var(--green);text-align:center;line-height:1.6"></div>
     </div>
 
     <!-- 하단 여백 -->
@@ -1181,8 +1211,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </button>
     </div>
 
-    <div id="couple-setup-error" style="display:none;margin-top:8px;padding:12px 16px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:12px;font-size:12px;color:#ef4444;text-align:center;line-height:1.6"></div>
-    <div id="couple-setup-success" style="display:none;margin-top:8px;padding:12px 16px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:12px;font-size:12px;color:#22c55e;text-align:center;line-height:1.6"></div>
+    <div id="couple-setup-error" style="display:none;margin-top:8px;padding:12px 16px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:12px;font-size:12px;color:var(--red);text-align:center;line-height:1.6"></div>
+    <div id="couple-setup-success" style="display:none;margin-top:8px;padding:12px 16px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:12px;font-size:12px;color:var(--green);text-align:center;line-height:1.6"></div>
 
     <!-- 로그아웃 -->
     <div style="text-align:center;margin-top:28px">
@@ -2274,9 +2304,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <!-- 초대 코드 -->
       <div id="couple-code-section" style="padding:14px;background:var(--surface2);border-radius:12px;margin-bottom:12px">
         <div style="font-size:11px;color:var(--muted);margin-bottom:8px">초대 코드</div>
-        <div id="couple-invite-code-display" style="font-size:24px;font-weight:900;color:#22c55e;letter-spacing:4px;text-align:center;padding:12px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:10px;margin-bottom:10px">-</div>
+        <div id="couple-invite-code-display" style="font-size:24px;font-weight:900;color:var(--green);letter-spacing:4px;text-align:center;padding:12px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:10px;margin-bottom:10px">-</div>
         <button onclick="copyInviteCode()"
-          style="width:100%;padding:11px;border-radius:10px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:#22c55e;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
+          style="width:100%;padding:11px;border-radius:10px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:var(--green);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
           초대 코드 복사
         </button>
         <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.6">배우자에게 이 코드를 알려주면<br>같은 공간에서 재무를 관리할 수 있어요</div>
@@ -2299,7 +2329,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
               onfocus="this.style.borderColor='rgba(34,197,94,0.4)'"
               onblur="this.style.borderColor='var(--border2)'">
             <button onclick="handleJoinCoupleFromSettings()"
-              style="padding:11px 16px;border-radius:10px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:#22c55e;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">
+              style="padding:11px 16px;border-radius:10px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:var(--green);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">
               참여
             </button>
           </div>
@@ -2604,10 +2634,10 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
     <!-- 범례 -->
     <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:#5a9fc4"></div><span style="font-size:10px;color:var(--muted)">일정</span></div>
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:var(--blue)"></div><span style="font-size:10px;color:var(--muted)">일정</span></div>
       <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:#7ab8d8"></div><span style="font-size:10px;color:var(--muted)">정기지출</span></div>
-      <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:#ef4444"></div><span style="font-size:10px;color:var(--muted)">지출</span></div>
-      <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:#22c55e"></div><span style="font-size:10px;color:var(--muted)">수입</span></div>
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:var(--red)"></div><span style="font-size:10px;color:var(--muted)">지출</span></div>
+      <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:50%;background:var(--green)"></div><span style="font-size:10px;color:var(--muted)">수입</span></div>
     </div>
 
     <!-- 캘린더 그리드 -->
@@ -2620,7 +2650,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div style="text-align:center;font-size:10px;font-weight:700;color:var(--muted);padding:10px 0">목</div>
         <div style="text-align:center;font-size:10px;font-weight:700;color:var(--muted);padding:10px 0">금</div>
         <div style="text-align:center;font-size:10px;font-weight:700;color:#7ab8d8;padding:10px 0">토</div>
-        <div style="text-align:center;font-size:10px;font-weight:700;color:#ef4444;padding:10px 0">일</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:var(--red);padding:10px 0">일</div>
       </div>
       <!-- 날짜 그리드 -->
       <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr)"></div>
@@ -3602,9 +3632,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         </div>
         <div style="display:flex;align-items:center;gap:10px">
           <div style="font-size:11px;color:var(--muted)">직접 입력:</div>
-          <input type="color" id="cat-color-picker" value="#ef4444"
+          <input type="color" id="cat-color-picker" value="var(--red)"
             style="width:44px;height:36px;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);cursor:pointer;padding:2px">
-          <input type="text" id="cat-color-input" placeholder="#ef4444" maxlength="7"
+          <input type="text" id="cat-color-input" placeholder="var(--red)" maxlength="7"
             style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:monospace;font-size:13px;padding:9px 12px;outline:none"
             oninput="syncColorFromText(this.value)">
         </div>
@@ -3614,10 +3644,10 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="margin-bottom:18px;padding:12px;background:var(--surface2);border-radius:12px">
         <div style="font-size:11px;color:var(--muted);margin-bottom:8px">미리보기</div>
         <div style="display:flex;align-items:center;gap:10px">
-          <div id="cat-preview-badge" style="width:10px;height:10px;border-radius:50%;background:#ef4444;flex-shrink:0"></div>
+          <div id="cat-preview-badge" style="width:10px;height:10px;border-radius:50%;background:var(--red);flex-shrink:0"></div>
           <div>
             <div id="cat-preview-name" style="font-size:13px;font-weight:700;color:var(--text)">카테고리명</div>
-            <div id="cat-preview-label" style="font-size:11px;font-weight:600;color:#ef4444">카테고리명</div>
+            <div id="cat-preview-label" style="font-size:11px;font-weight:600;color:var(--red)">카테고리명</div>
           </div>
         </div>
       </div>
@@ -4127,7 +4157,7 @@ function setAuthTab(tab) {
     loginForm.style.display = 'block';
     signupForm.style.display = 'none';
     loginTab.style.background = 'rgba(30,58,82,0.15)';
-    loginTab.style.color = '#5a9fc4';
+    loginTab.style.color = 'var(--blue)';
     loginTab.style.border = '0.5px solid rgba(30,58,82,0.25)';
     signupTab.style.background = 'transparent';
     signupTab.style.color = '#505050';
@@ -4136,7 +4166,7 @@ function setAuthTab(tab) {
     loginForm.style.display = 'none';
     signupForm.style.display = 'block';
     signupTab.style.background = 'rgba(30,58,82,0.15)';
-    signupTab.style.color = '#5a9fc4';
+    signupTab.style.color = 'var(--blue)';
     signupTab.style.border = '0.5px solid rgba(30,58,82,0.25)';
     loginTab.style.background = 'transparent';
     loginTab.style.color = '#505050';
@@ -4341,7 +4371,7 @@ async function handleCreateCouple() {
   successEl.style.display = 'block';
   successEl.innerHTML = '✅ 커플 공간이 만들어졌어요!<br><br>'
     + '<div style="font-size:11px;color:#505050;margin-bottom:6px">배우자 초대 코드</div>'
-    + '<div style="font-size:20px;font-weight:900;color:#22c55e;letter-spacing:3px">' + couple.invite_code + '</div>'
+    + '<div style="font-size:20px;font-weight:900;color:var(--green);letter-spacing:3px">' + couple.invite_code + '</div>'
     + '<div style="font-size:11px;color:#404040;margin-top:6px">배우자에게 이 코드를 알려주세요</div>';
 
   btn.textContent = '커플 공간 만들기';
@@ -5038,7 +5068,7 @@ function renderGoals() {
     const pct = Math.min(100, Math.round(current / g.target * 100));
     // 달성률에 따라 색상 클래스 + 텍스트 색상 결정
     const barClass = pct >= 100 ? 'pct-done' : pct >= 70 ? 'pct-high' : pct >= 40 ? 'pct-mid' : 'pct-low';
-    const pctColor = pct >= 100 ? '#5a9fc4' : pct >= 70 ? '#22c55e' : pct >= 40 ? '#fbbf24' : '#ef4444';
+    const pctColor = pct >= 100 ? 'var(--blue)' : pct >= 70 ? 'var(--green)' : pct >= 40 ? '#fbbf24' : 'var(--red)';
     const pctEmoji = '';
     const months = monthDiff(new Date(), new Date(g.deadline));
     const isAutoLinked = latestMonth !== null;
@@ -5582,7 +5612,7 @@ function renderItemView() {
 
   const colorMap = {
     'realestate': 'var(--blue)', 'stocks': 'var(--gold)', 'savings': 'var(--green)',
-    'pension': '#a78bfa', 'deposit': '#fb923c', 'cash': 'var(--muted2)',
+    'pension': 'var(--lavender)', 'deposit': 'var(--orange)', 'cash': 'var(--muted2)',
     'mortgage': 'var(--red)', 'jeonse-loan': 'var(--red)',
     'credit-loan': 'var(--red)', 'other-debt': 'var(--red)',
     'housing-debt': 'var(--red)', 'credit-debt': 'var(--red)',
@@ -5590,23 +5620,23 @@ function renderItemView() {
     'p1금융자산': 'var(--gold)', 'p2금융자산': 'var(--gold)',
     '기타자산': 'var(--muted2)', '부채': 'var(--red)',
     '주식·ETF': 'var(--gold)', '저축·예금': 'var(--green)',
-    '연금': '#a78bfa', '보증금': '#fb923c', '현금·기타': 'var(--muted2)',
+    '연금': 'var(--lavender)', '보증금': 'var(--orange)', '현금·기타': 'var(--muted2)',
     '주택담보대출': 'var(--red)', '전세자금대출': 'var(--red)',
     '신용대출': 'var(--red)', '기타대출': 'var(--red)'
   };
   const colorHex = {
-    'realestate': '#5a9fc4', 'stocks': '#f59e0b', 'savings': '#22c55e',
-    'pension': '#a78bfa', 'deposit': '#fb923c', 'cash': '#9ca3af',
-    'mortgage': '#ef4444', 'jeonse-loan': '#ef4444',
-    'credit-loan': '#ef4444', 'other-debt': '#ef4444',
-    'housing-debt': '#ef4444', 'credit-debt': '#ef4444',
-    '부동산': '#5a9fc4', '금융자산': '#f59e0b',
-    'p1금융자산': '#f59e0b', 'p2금융자산': '#f59e0b',
-    '기타자산': '#9ca3af', '부채': '#ef4444',
-    '주식·ETF': '#f59e0b', '저축·예금': '#22c55e',
-    '연금': '#a78bfa', '보증금': '#fb923c', '현금·기타': '#9ca3af',
-    '주택담보대출': '#ef4444', '전세자금대출': '#ef4444',
-    '신용대출': '#ef4444', '기타대출': '#ef4444'
+    'realestate': 'var(--blue)', 'stocks': 'var(--gold)', 'savings': 'var(--green)',
+    'pension': 'var(--lavender)', 'deposit': 'var(--orange)', 'cash': '#9ca3af',
+    'mortgage': 'var(--red)', 'jeonse-loan': 'var(--red)',
+    'credit-loan': 'var(--red)', 'other-debt': 'var(--red)',
+    'housing-debt': 'var(--red)', 'credit-debt': 'var(--red)',
+    '부동산': 'var(--blue)', '금융자산': 'var(--gold)',
+    'p1금융자산': 'var(--gold)', 'p2금융자산': 'var(--gold)',
+    '기타자산': '#9ca3af', '부채': 'var(--red)',
+    '주식·ETF': 'var(--gold)', '저축·예금': 'var(--green)',
+    '연금': 'var(--lavender)', '보증금': 'var(--orange)', '현금·기타': '#9ca3af',
+    '주택담보대출': 'var(--red)', '전세자금대출': 'var(--red)',
+    '신용대출': 'var(--red)', '기타대출': 'var(--red)'
   };
 
 
@@ -5670,7 +5700,7 @@ function renderItemView() {
   // 부채 섹션 (있을 때만)
   const debtSection = debtTotal > 0
     ? '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px">'
-      + '<div style="width:7px;height:7px;border-radius:50%;background:#ef4444;flex-shrink:0"></div>'
+      + '<div style="width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0"></div>'
       + '<div style="flex:1;font-size:12px;color:var(--muted2);font-weight:500">부채</div>'
       + '<div style="font-size:12px;color:var(--red);font-weight:700;font-variant-numeric:tabular-nums">−' + fmtAmt(debtTotal) + '</div>'
       + '<div style="font-size:11px;color:var(--muted);min-width:34px;text-align:right;font-variant-numeric:tabular-nums">' + Math.round((debtTotal/assetTotal)*100) + '%</div>'
@@ -5754,7 +5784,7 @@ function renderItemView() {
         const x = idx * (barW + barGap);
         const isLast = idx === sparkVals.length - 1;
         const fillColor = isLast
-          ? (isDebt ? '#ef4444' : '#5a9fc4')
+          ? (isDebt ? 'var(--red)' : 'var(--blue)')
           : (isDebt ? 'rgba(239,68,68,0.3)' : 'rgba(90,159,196,0.25)');
         return '<rect x="' + x + '" y="' + (svgH - h) + '" width="' + barW + '" height="' + h + '" rx="2" fill="' + fillColor + '"/>';
       }).join('');
@@ -5821,7 +5851,7 @@ function renderQuickMonthBtns(selectedMonth, isEdit) {
     return `<button onclick="selectQuickMonth('${m.val}')"
       style="flex:1;padding:8px 4px;border-radius:10px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;
       background:${isSelected ? 'rgba(30,58,82,0.10)' : 'var(--surface3)'};
-      color:${isSelected ? '#5a9fc4' : 'var(--muted2)'};
+      color:${isSelected ? 'var(--blue)' : 'var(--muted2)'};
       border:0.5px solid ${isSelected ? 'rgba(30,58,82,0.25)' : 'var(--border2)'};
       position:relative;">
       ${m.label}
@@ -5873,8 +5903,8 @@ const CATEGORY_COLORS = {
   'realestate':   'var(--blue)',
   'stocks':       'var(--gold)',
   'savings':      'var(--green)',
-  'pension':      '#a78bfa',
-  'deposit':      '#fb923c',
+  'pension':      'var(--lavender)',
+  'deposit':      'var(--orange)',
   'cash':         'var(--muted2)',
   'mortgage':     'var(--red)',
   'jeonse-loan':  'var(--red)',
@@ -6479,18 +6509,18 @@ function renderAssetItems() {
 
   wrap.innerHTML = '';
   const colorMap = {
-    'realestate':'#5a9fc4','stocks':'#f59e0b','savings':'#22c55e',
-    'pension':'#a78bfa','deposit':'#fb923c','cash':'#9ca3af',
-    'housing-debt':'#ef4444','credit-debt':'#ef4444',
+    'realestate':'var(--blue)','stocks':'var(--gold)','savings':'var(--green)',
+    'pension':'var(--lavender)','deposit':'var(--orange)','cash':'#9ca3af',
+    'housing-debt':'var(--red)','credit-debt':'var(--red)',
     // 구버전 호환
-    '부동산':'#5a9fc4','금융자산':'#f59e0b',
-    'p1금융자산':'#f59e0b','p2금융자산':'#f59e0b',
-    '기타자산':'#9ca3af','부채':'#ef4444'
+    '부동산':'var(--blue)','금융자산':'var(--gold)',
+    'p1금융자산':'var(--gold)','p2금융자산':'var(--gold)',
+    '기타자산':'#9ca3af','부채':'var(--red)'
   };
 
   modalAssetItems.forEach(function(item, idx) {
     const isDebt = item.type === 'debt';
-    const color = colorMap[item.category] || '#6b7280';
+    const color = colorMap[item.category] || 'var(--muted)';
     const isFirst = idx === 0;
     const isLast = idx === modalAssetItems.length - 1;
 
@@ -6506,13 +6536,13 @@ function renderAssetItems() {
     moveWrap.style.cssText = 'display:flex;flex-direction:column;gap:1px;flex-shrink:0';
     const upBtn = document.createElement('button');
     upBtn.textContent = '▲';
-    upBtn.style.cssText = 'background:none;border:none;color:' + (isFirst?'var(--border2)':'var(--muted)') + ';font-size:9px;cursor:pointer;padding:0;width:14px;height:12px;line-height:1';
+    upBtn.style.cssText = 'background:none;border:none;color:' + (isFirst?'var(--border2)':'var(--muted)') + ';font-size:10px;cursor:pointer;padding:4px 6px;width:24px;height:22px;line-height:1;border-radius:4px';
     upBtn.disabled = isFirst;
     upBtn.dataset.id = item.id;
     upBtn.addEventListener('click', function() { moveAssetItem(this.dataset.id, -1); });
     const downBtn = document.createElement('button');
     downBtn.textContent = '▼';
-    downBtn.style.cssText = 'background:none;border:none;color:' + (isLast?'var(--border2)':'var(--muted)') + ';font-size:9px;cursor:pointer;padding:0;width:14px;height:12px;line-height:1';
+    downBtn.style.cssText = 'background:none;border:none;color:' + (isLast?'var(--border2)':'var(--muted)') + ';font-size:10px;cursor:pointer;padding:4px 6px;width:24px;height:22px;line-height:1;border-radius:4px';
     downBtn.disabled = isLast;
     downBtn.dataset.id = item.id;
     downBtn.addEventListener('click', function() { moveAssetItem(this.dataset.id, 1); });
@@ -6813,7 +6843,7 @@ function obUpdateUI() {
   if (slides) slides.style.transform = 'translateX(-' + (_obStep * 50) + '%)';
   dots.forEach(function(d, i) {
     d.style.width = i === _obStep ? '20px' : '4px';
-    d.style.background = i === _obStep ? '#5a9fc4' : 'rgba(255,255,255,0.2)';
+    d.style.background = i === _obStep ? 'var(--blue)' : 'rgba(255,255,255,0.2)';
   });
   if (nextBtn) nextBtn.textContent = _obStep === _obTotal - 1 ? '시작하기' : '다음';
   if (skipBtn) skipBtn.style.display = _obStep === _obTotal - 1 ? 'none' : 'block';
@@ -7019,15 +7049,15 @@ function renderSchedules() {
     // D-day 배지 클래스 + 도트 색상 결정
     let ddayClass, dotColor, nameColor;
     if (isPast) {
-      ddayClass = 'dday-past'; dotColor = '#6b7280'; nameColor = 'var(--muted)';
+      ddayClass = 'dday-past'; dotColor = 'var(--muted)'; nameColor = 'var(--muted)';
     } else if (diff === 0) {
-      ddayClass = 'dday-urgent'; dotColor = '#ef4444'; nameColor = 'var(--text)';
+      ddayClass = 'dday-urgent'; dotColor = 'var(--red)'; nameColor = 'var(--text)';
     } else if (diff <= 30) {
-      ddayClass = 'dday-urgent'; dotColor = '#ef4444'; nameColor = 'var(--text)';
+      ddayClass = 'dday-urgent'; dotColor = 'var(--red)'; nameColor = 'var(--text)';
     } else if (diff <= 90) {
       ddayClass = 'dday-soon'; dotColor = '#fbbf24'; nameColor = 'var(--text)';
     } else {
-      ddayClass = 'dday-normal'; dotColor = '#5a9fc4'; nameColor = 'var(--text)';
+      ddayClass = 'dday-normal'; dotColor = 'var(--blue)'; nameColor = 'var(--text)';
     }
 
     const diffBadge = isPast
@@ -7237,8 +7267,8 @@ const DEFAULT_CAT_IDS = {
 
 // 색상 프리셋
 const CAT_COLOR_PRESETS = [
-  '#ef4444','#fb923c','#fbbf24','#22c55e','#34d399',
-  '#7ab8d8','#5a9fc4','#f472b6','#94a3b8','#ffffff',
+  'var(--red)','var(--orange)','#fbbf24','var(--green)','#34d399',
+  '#7ab8d8','var(--blue)','#f472b6','#94a3b8','#ffffff',
   '#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#c77dff',
 ];
 
@@ -7273,8 +7303,8 @@ function openAddCatModal(type) {
   document.getElementById('cat-emoji-input').value = '';
   document.getElementById('cat-name-input').value = '';
   document.getElementById('cat-delete-btn').style.display = 'none';
-  renderCatColorPresets('#ef4444');
-  syncColorToInputs('#ef4444');
+  renderCatColorPresets('var(--red)');
+  syncColorToInputs('var(--red)');
   updateCatPreview();
   document.getElementById('cat-modal').style.display = 'block';
   lockScroll();
@@ -7357,7 +7387,7 @@ function syncColorFromText(val) {
 
 function updateCatPreview() {
   const name = document.getElementById('cat-name-input').value || '카테고리명';
-  const color = document.getElementById('cat-color-input').value || '#ef4444';
+  const color = document.getElementById('cat-color-input').value || 'var(--red)';
 
   const badge = document.getElementById('cat-preview-badge');
   const nameEl = document.getElementById('cat-preview-name');
@@ -7727,7 +7757,7 @@ function renderPartnerActivity() {
   wrap.innerHTML = recent.map(function(tx, i) {
     const cat = (CATEGORIES[tx.type] || []).find(function(c) { return c.id === tx.category; });
     const catLabel = cat ? cat.label : (tx.type === 'expense' ? '지출' : '수입');
-    const catColor = cat ? cat.color : '#6b7280';
+    const catColor = cat ? cat.color : 'var(--muted)';
     const amountRaw = Math.round((tx.amount || 0) * 10000);
     const amtColor = tx.type === 'expense' ? 'var(--red)' : 'var(--blue)';
     const amtSign = tx.type === 'expense' ? '-' : '+';
@@ -7811,7 +7841,7 @@ function renderHomeLedgerSummary() {
   if (top3.length) {
     html += '<div style="font-size:10px;color:var(--muted);font-weight:700;margin-bottom:6px">TOP 지출</div>';
     top3.forEach(function(e, i) {
-      const cat = CATEGORIES.expense.find(c=>c.id===e[0]) || {label:e[0], color:'#6b7280'};
+      const cat = CATEGORIES.expense.find(c=>c.id===e[0]) || {label:e[0], color:'var(--muted)'};
       const pct = Math.round(e[1]/expense*100);
       html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">';
       html += '<span style="font-size:12px;min-width:70px">' + cat.label + '</span>';
@@ -7851,11 +7881,11 @@ function renderCoupleCard() {
   // 이기는 사람이 왼쪽
   var L, R;
   if (syWins) {
-    L = { name: getP2Name(), amt: syExp, hex: '#22c55e', cssVar: 'var(--p2color)', badge: getP2Name(), badgeBg: 'rgba(34,197,94,0.15)' };
-    R = { name: getP1Name(), amt: msExp, hex: '#5a9fc4', cssVar: 'var(--p1color)', badge: getP1Name(), badgeBg: 'rgba(30,58,82,0.15)' };
+    L = { name: getP2Name(), amt: syExp, hex: 'var(--green)', cssVar: 'var(--p2color)', badge: getP2Name(), badgeBg: 'rgba(34,197,94,0.15)' };
+    R = { name: getP1Name(), amt: msExp, hex: 'var(--blue)', cssVar: 'var(--p1color)', badge: getP1Name(), badgeBg: 'rgba(30,58,82,0.15)' };
   } else {
-    L = { name: getP1Name(), amt: msExp, hex: '#5a9fc4', cssVar: 'var(--p1color)', badge: getP1Name(), badgeBg: 'rgba(30,58,82,0.15)' };
-    R = { name: getP2Name(), amt: syExp, hex: '#22c55e', cssVar: 'var(--p2color)', badge: getP2Name(), badgeBg: 'rgba(34,197,94,0.15)' };
+    L = { name: getP1Name(), amt: msExp, hex: 'var(--blue)', cssVar: 'var(--p1color)', badge: getP1Name(), badgeBg: 'rgba(30,58,82,0.15)' };
+    R = { name: getP2Name(), amt: syExp, hex: 'var(--green)', cssVar: 'var(--p2color)', badge: getP2Name(), badgeBg: 'rgba(34,197,94,0.15)' };
   }
 
   var lWins = msWins || syWins; // 무승부가 아닌 경우
@@ -8657,7 +8687,7 @@ function setLedgerPeriod(period) {
     if (!btn) return;
     const isActive = p === period;
     btn.style.background = isActive ? 'rgba(30,58,82,0.10)' : 'transparent';
-    btn.style.color = isActive ? '#5a9fc4' : 'var(--muted2)';
+    btn.style.color = isActive ? 'var(--blue)' : 'var(--muted2)';
     btn.style.border = isActive ? 'none' : '1px solid var(--border2)';
     btn.style.fontWeight = isActive ? '700' : '600';
   });
@@ -9429,7 +9459,7 @@ function renderRecurringList() {
   }
   const total = recurringItems.reduce((s,r) => s + r.amount, 0);
   wrap.innerHTML = recurringItems.map((r, i) => {
-    const cat = CATEGORIES.expense.find(c => c.id === r.category) || {label:'💡 기타', color:'#6b7280'};
+    const cat = CATEGORIES.expense.find(c => c.id === r.category) || {label:'💡 기타', color:'var(--muted)'};
     const isRMs = r.owner === 'partner1', isRSy = r.owner === 'partner2';
     const ownerBadge = (isRMs || isRSy)
       ? '<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:6px;margin-right:4px;'
@@ -9796,7 +9826,7 @@ async function handleCreateCoupleFromSettings() {
 
   msgEl.style.display = 'block';
   msgEl.style.background = 'rgba(34,197,94,0.08)';
-  msgEl.style.color = '#22c55e';
+  msgEl.style.color = 'var(--green)';
   msgEl.textContent = '✅ 커플 공간이 만들어졌어요!';
 
   btn.textContent = '🆕 커플 공간 만들기';
@@ -9871,7 +9901,7 @@ async function handleJoinCoupleFromSettings() {
   currentCoupleId = couple.id;
 
   msgEl.style.background = 'rgba(34,197,94,0.08)';
-  msgEl.style.color = '#22c55e';
+  msgEl.style.color = 'var(--green)';
   msgEl.textContent = '✅ 배우자와 연결됐어요! 🎉';
 
   // 데이터 동기화 후 UI 갱신
@@ -9909,7 +9939,7 @@ function setSettingsTab(tab) {
     const isActive = t === tab;
     if (btn) {
       btn.style.background = isActive ? 'rgba(30,58,82,0.10)' : 'transparent';
-      btn.style.color = isActive ? '#5a9fc4' : 'var(--muted2)';
+      btn.style.color = isActive ? 'var(--blue)' : 'var(--muted2)';
       btn.style.fontWeight = isActive ? '700' : '600';
       if (isActive) {
         btn.style.border = '0.5px solid rgba(30,58,82,0.25)';
@@ -10341,7 +10371,7 @@ document.addEventListener('DOMContentLoaded', function() {
       'will-change:transform'
     ].join(';');
 
-    indicator.innerHTML = '<svg id="ptr-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5a9fc4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .3s"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>';
+    indicator.innerHTML = '<svg id="ptr-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .3s"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>';
     document.body.appendChild(indicator);
 
     // safe-area 높이를 측정해서 인디케이터의 "보이는 기준점" 계산
@@ -11320,20 +11350,20 @@ function renderDonutCard() {
     'realestate':   '#7ab8d8',
     'stocks':       '#fbbf24',
     'savings':      '#34d399',
-    'pension':      '#a78bfa',
-    'deposit':      '#fb923c',
+    'pension':      'var(--lavender)',
+    'deposit':      'var(--orange)',
     'cash':         '#94a3b8',
-    'housing-debt': '#ef4444',
+    'housing-debt': 'var(--red)',
     'credit-debt':  '#f87171',
     // 구버전 호환
     '부동산':       '#7ab8d8',
     '금융자산':     '#fbbf24',
     'p1금융자산':'#fbbf24',
-    'p2금융자산':'#a78bfa',
+    'p2금융자산':'var(--lavender)',
     '저축·예금':    '#34d399',
-    '연금':         '#a78bfa',
+    '연금':         'var(--lavender)',
     '현금':         '#94a3b8',
-    '기타자산':     '#6b7280',
+    '기타자산':     'var(--muted)',
   };
   // 카테고리 표시명
   const CAT_LABELS_DONUT = Object.assign({ '부동산':'부동산','금융자산':'주식·금융','p1금융자산':getP1Name()+' 금융자산','p2금융자산':getP2Name()+' 금융자산','기타자산':'기타' }, CATEGORY_LABELS);
@@ -11345,7 +11375,7 @@ function renderDonutCard() {
   if (bar && totalAsset > 0) {
     bar.innerHTML = sorted.map(function(e) {
       const pct = Math.max(1, Math.round(e[1] / totalAsset * 100));
-      const color = CAT_COLORS[e[0]] || '#6b7280';
+      const color = CAT_COLORS[e[0]] || 'var(--muted)';
       return '<div style="height:100%;width:' + pct + '%;background:' + color + ';transition:width .8s ease;border-radius:2px"></div>';
     }).join('');
   }
@@ -11355,7 +11385,7 @@ function renderDonutCard() {
   if (legend && totalAsset > 0) {
     legend.innerHTML = sorted.map(function(e) {
       const pct = Math.round(e[1] / totalAsset * 100);
-      const color = CAT_COLORS[e[0]] || '#6b7280';
+      const color = CAT_COLORS[e[0]] || 'var(--muted)';
       const amtStr = e[1] >= 10000 ? (e[1]/10000).toFixed(2) + '억' : e[1].toLocaleString() + '만';
 
       // 해당 카테고리 하위 항목들
@@ -12282,7 +12312,7 @@ function renderRealEstatePage() {
   const p1 = getP1Name(), p2 = getP2Name(), cm = getCommonName();
   listEl.innerHTML = aptList.map(function(apt) {
     const ownerLabel = apt.owner === 'partner1' ? p1 : apt.owner === 'partner2' ? p2 : cm;
-    const ownerColor = apt.owner === 'partner1' ? 'var(--blue)' : apt.owner === 'partner2' ? 'var(--p2color, #22c55e)' : 'var(--muted2)';
+    const ownerColor = apt.owner === 'partner1' ? 'var(--blue)' : apt.owner === 'partner2' ? 'var(--p2color, var(--green))' : 'var(--muted2)';
     const hasPrice = apt.cache && apt.cache.price > 0;
     const priceWon = hasPrice ? apt.cache.price * 10000 : 0;
     const purchaseWon = (apt.purchasePrice || 0) * 10000;
@@ -12410,7 +12440,7 @@ function renderInputAptSection() {
 
   aptList.forEach(function(apt) {
     const ownerLabel = apt.owner === 'partner1' ? p1 : apt.owner === 'partner2' ? p2 : cm;
-    const ownerColor = apt.owner === 'partner1' ? 'var(--blue)' : apt.owner === 'partner2' ? 'var(--p2color, #22c55e)' : 'var(--muted2)';
+    const ownerColor = apt.owner === 'partner1' ? 'var(--blue)' : apt.owner === 'partner2' ? 'var(--p2color, var(--green))' : 'var(--muted2)';
     const hasPrice = apt.cache && apt.cache.price > 0;
     const priceWon = hasPrice ? apt.cache.price * 10000 : 0;
     const purchaseWon = (apt.purchasePrice || 0) * 10000;
@@ -12884,7 +12914,7 @@ function renderAssetTabChart() {
     + '</linearGradient></defs>';
 
   svgHtml += '<path d="' + areaD + '" fill="url(#acg)"/>';
-  svgHtml += '<path d="' + pathD + '" fill="none" stroke="#5a9fc4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+  svgHtml += '<path d="' + pathD + '" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
 
   pts.forEach(function(p, i) {
     const isLast = i === pts.length - 1;
@@ -12897,7 +12927,7 @@ function renderAssetTabChart() {
       svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + labelY + '" text-anchor="middle" fill="' + (isLast?'var(--text)':'var(--muted2)') + '" font-size="9" font-weight="700" font-family="Noto Sans KR">' + (p.r.net/10000).toFixed(1) + '억</text>';
     }
     if (showLabel || data.length <= 12) {
-      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + (H-4) + '" text-anchor="middle" fill="#6b7280" font-size="8" font-family="Noto Sans KR">' + parseInt(mo) + '월</text>';
+      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + (H-4) + '" text-anchor="middle" fill="var(--muted)" font-size="8" font-family="Noto Sans KR">' + parseInt(mo) + '월</text>';
     }
   });
 
@@ -12982,7 +13012,7 @@ function renderMiniChart() {
 
   // 영역 + 선
   svgHtml += '<path d="' + areaD + '" fill="url(#cg)"/>';
-  svgHtml += '<path d="' + pathD + '" fill="none" stroke="#5a9fc4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+  svgHtml += '<path d="' + pathD + '" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
 
   // 포인트 + 레이블
   pts.forEach(function(p, i) {
@@ -12996,12 +13026,12 @@ function renderMiniChart() {
     if (showLabel) {
       const above = p.y > pad.t + 15;
       const labelY = above ? p.y - 7 : p.y + 14;
-      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + labelY + '" text-anchor="middle" fill="' + (isLast?'var(--text)':(isHighest?'#22c55e':(isLowest?'#ef4444':'var(--muted2)'))) + '" font-size="9" font-weight="700" font-family="Noto Sans KR">' + (p.r.net/10000).toFixed(1) + '억</text>';
+      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + labelY + '" text-anchor="middle" fill="' + (isLast?'var(--text)':(isHighest?'var(--green)':(isLowest?'var(--red)':'var(--muted2)'))) + '" font-size="9" font-weight="700" font-family="Noto Sans KR">' + (p.r.net/10000).toFixed(1) + '억</text>';
     }
 
     // 월 레이블 (하단)
     if (showLabel || data.length <= 12) {
-      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + (H-4) + '" text-anchor="middle" fill="#6b7280" font-size="8" font-family="Noto Sans KR"'
+      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + (H-4) + '" text-anchor="middle" fill="var(--muted)" font-size="8" font-family="Noto Sans KR"'
         + ' style="cursor:pointer" onclick="goPage(\'input\',document.querySelectorAll(\'.nav-item\')[2]);setTimeout(function(){openAssetDetail(\'' + p.r.month + '\')},300)">';
       svgHtml += (data.length > 12 ? yr.slice(2)+'/' : '') + parseInt(mo) + '월</text>';
     }
@@ -15124,23 +15154,23 @@ goPage = function(name, el) {
 // ══════════════════════════════════════
 const CATEGORIES = {
   expense: [
-    { id:'food',    label:'식비',    color:'#ef4444' },
-    { id:'cafe',    label:'카페',    color:'#fb923c' },
+    { id:'food',    label:'식비',    color:'var(--red)' },
+    { id:'cafe',    label:'카페',    color:'var(--orange)' },
     { id:'trans',   label:'교통',    color:'#fbbf24' },
-    { id:'shop',    label:'쇼핑',    color:'#5a9fc4' },
+    { id:'shop',    label:'쇼핑',    color:'var(--blue)' },
     { id:'health',  label:'의료',    color:'#34d399' },
     { id:'leisure', label:'여가',    color:'#7ab8d8' },
     { id:'child',   label:'육아',    color:'#f472b6' },
-    { id:'edu',     label:'교육',    color:'#a78bfa' },
+    { id:'edu',     label:'교육',    color:'var(--lavender)' },
     { id:'house',   label:'주거',    color:'#94a3b8' },
-    { id:'etc',     label:'기타',    color:'#6b7280' },
+    { id:'etc',     label:'기타',    color:'var(--muted)' },
   ],
   income: [
-    { id:'salary',  label:'급여',    color:'#22c55e' },
+    { id:'salary',  label:'급여',    color:'var(--green)' },
     { id:'bonus',   label:'보너스',  color:'#a3e635' },
     { id:'invest',  label:'투자',    color:'#34d399' },
     { id:'side',    label:'부업',    color:'#7ab8d8' },
-    { id:'etc_in',  label:'기타',    color:'#6b7280' },
+    { id:'etc_in',  label:'기타',    color:'var(--muted)' },
   ]
 };
 
@@ -15373,22 +15403,22 @@ function renderCalendar() {
 
     let dayColor = 'var(--text)';
     if (isSat) dayColor = '#7ab8d8';
-    if (isSun) dayColor = '#ef4444';
+    if (isSun) dayColor = 'var(--red)';
 
     let bg = 'transparent';
     if (isSelected) bg = 'rgba(30,58,82,0.06)';
     if (isToday) bg = 'rgba(30,58,82,0.04)';
 
     let dots = '';
-    if (data.schedules.length) dots += '<div style="width:5px;height:5px;border-radius:50%;background:#5a9fc4;flex-shrink:0"></div>';
+    if (data.schedules.length) dots += '<div style="width:5px;height:5px;border-radius:50%;background:var(--blue);flex-shrink:0"></div>';
     if (data.recurring.length) dots += '<div style="width:5px;height:5px;border-radius:50%;background:#7ab8d8;flex-shrink:0"></div>';
-    if (data.expense > 0) dots += '<div style="width:5px;height:5px;border-radius:50%;background:#ef4444;flex-shrink:0"></div>';
-    if (data.income > 0) dots += '<div style="width:5px;height:5px;border-radius:50%;background:#22c55e;flex-shrink:0"></div>';
+    if (data.expense > 0) dots += '<div style="width:5px;height:5px;border-radius:50%;background:var(--red);flex-shrink:0"></div>';
+    if (data.income > 0) dots += '<div style="width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0"></div>';
 
     let expLabel = '';
     if (data.expense > 0) {
       const expStr = data.expense >= 100 ? Math.round(data.expense/100)/10 + '백' : Math.round(data.expense) + '만';
-      expLabel = '<div style="font-size:8px;color:#ef4444;font-weight:600;line-height:1.2;margin-top:2px">' + expStr + '</div>';
+      expLabel = '<div style="font-size:8px;color:var(--red);font-weight:600;line-height:1.2;margin-top:2px">' + expStr + '</div>';
     }
 
     html += '<div onclick="selectCalDate(\'' + dateStr + '\')" style="'
@@ -15405,7 +15435,7 @@ function renderCalendar() {
       + 'display:flex;align-items:center;justify-content:center;'
       + 'font-size:11px;font-weight:' + (isToday ? '900' : '600') + ';'
       + 'color:' + (isToday ? '#0a0a0a' : dayColor) + ';'
-      + 'background:' + (isToday ? '#5a9fc4' : 'transparent') + ';'
+      + 'background:' + (isToday ? 'var(--blue)' : 'transparent') + ';'
       + 'margin:0 auto 3px;'
       + (isSelected && !isToday ? 'outline:2px solid rgba(30,58,82,0.4);' : '')
       + '">' + d + '</div>'
@@ -15450,9 +15480,9 @@ function renderCalDayDetail(dateStr) {
     const today2 = new Date(); today2.setHours(0,0,0,0);
     const diff = Math.ceil((new Date(s.date) - today2) / 86400000);
     const diffStr = diff === 0 ? '오늘' : diff > 0 ? 'D-' + diff : Math.abs(diff) + '일 전';
-    const diffColor = diff <= 7 && diff >= 0 ? '#ef4444' : diff <= 30 && diff >= 0 ? '#fbbf24' : 'var(--muted)';
+    const diffColor = diff <= 7 && diff >= 0 ? 'var(--red)' : diff <= 30 && diff >= 0 ? '#fbbf24' : 'var(--muted)';
     html += '<div onclick="openScheduleEdit(' + schedules.indexOf(s) + ')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:12px;margin-bottom:8px;cursor:pointer">'
-      + '<div style="width:8px;height:8px;border-radius:50%;background:#5a9fc4;flex-shrink:0"></div>'
+      + '<div style="width:8px;height:8px;border-radius:50%;background:var(--blue);flex-shrink:0"></div>'
       + '<div style="flex:1">'
       + '<div style="font-size:13px;font-weight:700;color:var(--text)">' + escHtml(s.name) + '</div>'
       + (s.amount ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + (s.amountType==='in'?'+':'-') + s.amount.toLocaleString() + '만원</div>' : '')
@@ -15469,7 +15499,7 @@ function renderCalDayDetail(dateStr) {
         + '<div style="font-size:13px;font-weight:700;color:var(--text)">🔄 ' + escHtml(r.name) + '</div>'
         + '<div style="font-size:11px;color:var(--muted);margin-top:2px">정기지출 · ' + (r.owner==='partner1'?getP1Name():r.owner==='partner2'?getP2Name():getCommonName()) + '</div>'
         + '</div>'
-        + '<span style="font-size:13px;font-weight:800;color:#ef4444">-' + Math.round(r.amount * 10000).toLocaleString() + '원</span>'
+        + '<span style="font-size:13px;font-weight:800;color:var(--red)">-' + Math.round(r.amount * 10000).toLocaleString() + '원</span>'
         + '</div>';
     });
   }
@@ -15489,7 +15519,7 @@ function renderCalDayDetail(dateStr) {
 
     dayTxs.forEach(function(t) {
       const allCats = [...CATEGORIES.expense, ...CATEGORIES.income];
-      const cat = allCats.find(function(c){ return c.id === t.category; }) || { label:'기타', color:'#6b7280' };
+      const cat = allCats.find(function(c){ return c.id === t.category; }) || { label:'기타', color:'var(--muted)' };
       html += '<div onclick="openTxEdit(\'' + t.id + '\')" style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer">'
         + '<div style="width:28px;height:28px;border-radius:8px;background:' + cat.color + '22;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">' + cat.label.split(' ')[0] + '</div>'
         + '<div style="flex:1;min-width:0">'
@@ -15542,9 +15572,9 @@ function renderCalUpcoming() {
     const [iy, im, id2] = item.date.split('-');
     const isPast = item.diff < 0;
     const isToday3 = item.diff === 0;
-    const dotColor = item.type === 'schedule' ? '#5a9fc4' : '#7ab8d8';
+    const dotColor = item.type === 'schedule' ? 'var(--blue)' : '#7ab8d8';
     const diffStr = isToday3 ? '🔥 오늘' : isPast ? Math.abs(item.diff) + '일 전' : 'D-' + item.diff;
-    const diffColor = isToday3 ? '#ef4444' : isPast ? 'var(--muted)' : item.diff <= 7 ? '#fbbf24' : 'var(--muted2)';
+    const diffColor = isToday3 ? 'var(--red)' : isPast ? 'var(--muted)' : item.diff <= 7 ? '#fbbf24' : 'var(--muted2)';
     const amtStr = item.amount
       ? '<span style="font-size:11px;font-weight:700;color:' + (item.amountType==='in'?'var(--blue)':'var(--red)') + ';margin-left:6px">' + (item.amountType==='in'?'+':'-') + Math.round(item.amount).toLocaleString() + '원</span>'
       : '';
@@ -15655,7 +15685,7 @@ function onLedgerSearchInput(q) {
       const key = 'memo::' + t.memo;
       if (!seen.has(key) && t.memo.toLowerCase().includes(trimmed)) {
         seen.add(key);
-        const cat = allCats.find(function(c) { return c.id === t.category; }) || { label: '💡 기타', color: '#6b7280' };
+        const cat = allCats.find(function(c) { return c.id === t.category; }) || { label: '💡 기타', color: 'var(--muted)' };
         candidates.push({ type: 'memo', text: t.memo, cat: cat, catId: t.category });
       }
     }
@@ -16020,7 +16050,7 @@ function renderLedgerList(txs) {
     var dayName = dayNames[dateObj.getDay()];
     var isSat = dateObj.getDay() === 6;
     var isSun = dateObj.getDay() === 0;
-    var dayColor = isSat ? '#7ab8d8' : isSun ? '#ef4444' : 'var(--muted)';
+    var dayColor = isSat ? '#7ab8d8' : isSun ? 'var(--red)' : 'var(--muted)';
     var isToday = date === todayStr2;
     var dayIncome  = items.filter(function(t){ return t.type==='income'; }).reduce(function(s,t){ return s+t.amount; },0);
     var dayExpense = items.filter(function(t){ return t.type==='expense'; }).reduce(function(s,t){ return s+t.amount; },0);
@@ -16039,7 +16069,7 @@ function renderLedgerList(txs) {
     var allCats = CATEGORIES.expense.concat(CATEGORIES.income);
 
     var rows = items.map(function(t, i) {
-      var cat = allCats.find(function(c){ return c.id===t.category; }) || {label:'기타', color:'#6b7280'};
+      var cat = allCats.find(function(c){ return c.id===t.category; }) || {label:'기타', color:'var(--muted)'};
       var isLast = i === items.length - 1;
       var isSelected = ledgerSelectedIds.has(t.id);
       var catName = cat.label.split(' ').slice(1).join(' ');
@@ -16282,7 +16312,7 @@ function renderLedgerInsights() {
   });
   const topCat = Object.entries(byCat).sort(function(a,b){ return b[1]-a[1]; })[0];
   if (topCat && thisExp > 0) {
-    const catInfo = CATEGORIES.expense.find(function(c){ return c.id===topCat[0]; }) || { label:'기타', color:'#6b7280' };
+    const catInfo = CATEGORIES.expense.find(function(c){ return c.id===topCat[0]; }) || { label:'기타', color:'var(--muted)' };
     const pct = Math.round(topCat[1]/thisExp*100);
     if (pct >= 30) {
       insights.push({
@@ -16352,10 +16382,10 @@ function renderLedgerInsights() {
     const dayName = dayNames[new Date(maxDay[0]).getDay()];
     insights.push({
       emoji: '🔥',
-      color: '#fb923c',
+      color: 'var(--orange)',
       bg: 'rgba(251,146,60,0.08)',
       border: 'rgba(251,146,60,0.2)',
-      text: parseInt(dm) + '/' + parseInt(dd) + '(' + dayName + ')에 <strong style="color:#fb923c">' + Math.round(maxDay[1]).toLocaleString() + '만원</strong> 최대 지출'
+      text: parseInt(dm) + '/' + parseInt(dd) + '(' + dayName + ')에 <strong style="color:var(--orange)">' + Math.round(maxDay[1]).toLocaleString() + '만원</strong> 최대 지출'
     });
   }
 
@@ -16422,10 +16452,10 @@ function renderExpenseHeatmap() {
       textColor = 'var(--muted)';
     } else if (ratio < 0.2) {
       bg = 'rgba(239,68,68,0.15)';
-      textColor = '#ef4444';
+      textColor = 'var(--red)';
     } else if (ratio < 0.4) {
       bg = 'rgba(239,68,68,0.30)';
-      textColor = '#ef4444';
+      textColor = 'var(--red)';
     } else if (ratio < 0.6) {
       bg = 'rgba(239,68,68,0.50)';
       textColor = '#fff';
@@ -16433,13 +16463,13 @@ function renderExpenseHeatmap() {
       bg = 'rgba(239,68,68,0.72)';
       textColor = '#fff';
     } else {
-      bg = '#ef4444';
+      bg = 'var(--red)';
       textColor = '#fff';
     }
 
-    const border = isToday ? '2px solid #5a9fc4' : '1px solid transparent';
+    const border = isToday ? '2px solid var(--blue)' : '1px solid transparent';
     const expStr = exp > 0 ? (exp >= 10 ? Math.round(exp) + '만' : Math.round(exp * 10000 / 1000) + 'k') : '';
-    const dayNumColor = exp === 0 ? (isSat ? '#7ab8d8' : isSun ? '#ef4444' : 'var(--muted)') : textColor;
+    const dayNumColor = exp === 0 ? (isSat ? '#7ab8d8' : isSun ? 'var(--red)' : 'var(--muted)') : textColor;
 
     html += '<div onclick="showDayDetail(\'' + dateStr + '\')" style="'
       + 'background:' + bg + ';'
@@ -16491,7 +16521,7 @@ function renderCategoryChart(txs) {
   const total = Object.values(bycat).reduce((s,v)=>s+v,0);
   const sorted = Object.entries(bycat).sort((a,b)=>b[1]-a[1]);
   wrap.innerHTML = sorted.map(([catId, amt]) => {
-    const cat = CATEGORIES.expense.find(c=>c.id===catId) || {label:'💡 기타', color:'#6b7280'};
+    const cat = CATEGORIES.expense.find(c=>c.id===catId) || {label:'💡 기타', color:'var(--muted)'};
     const pct = Math.round(amt/total*100);
     return `<div style="margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;margin-bottom:5px">
@@ -16514,7 +16544,7 @@ function setTrendMonths(n) {
     if (!btn) return;
     const isActive = m === n;
     btn.style.background = isActive ? 'rgba(30,58,82,0.10)' : 'transparent';
-    btn.style.color = isActive ? '#5a9fc4' : 'var(--muted2)';
+    btn.style.color = isActive ? 'var(--blue)' : 'var(--muted2)';
     btn.style.border = isActive ? 'none' : '1px solid var(--border2)';
     btn.style.fontWeight = isActive ? '700' : '600';
   });
@@ -16920,7 +16950,7 @@ function renderVoiceResult() {
   }
   wrap.innerHTML = voiceParsedTxs.map(function(t) {
     const allCats = [...CATEGORIES.expense, ...CATEGORIES.income];
-    const cat = allCats.find(function(c) { return c.id === t.category; }) || { label: '💡 기타', color: '#6b7280' };
+    const cat = allCats.find(function(c) { return c.id === t.category; }) || { label: '💡 기타', color: 'var(--muted)' };
     const amtWon = Math.round(t.amount * 10000);
     const isIncome = t.type === 'income';
     return '<div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--surface2);border:1px solid rgba(255,255,255,.3);border-radius:14px;margin-bottom:8px">'
@@ -17177,7 +17207,7 @@ function renderPendingList() {
   }
   const allCats = [...CATEGORIES.expense, ...CATEGORIES.income];
   wrap.innerHTML = pendingTxs.map(function(t, i) {
-    const cat = allCats.find(function(c) { return c.id === t.category; }) || { label: '💡 기타', color: '#6b7280' };
+    const cat = allCats.find(function(c) { return c.id === t.category; }) || { label: '💡 기타', color: 'var(--muted)' };
     const amtWon = Math.round(t.amount * 10000);
     const isIncome = t.type === 'income';
     const ownerLabel = t.owner === 'partner1' ? getP1Name() : t.owner === 'partner2' ? getP2Name() : getCommonName();
@@ -17491,9 +17521,9 @@ function renderExcelResult() {
 
   const allCats = [...CATEGORIES.expense, ...CATEGORIES.income];
   wrap.innerHTML = excelParsedTxs.map(function(t, i) {
-    const cat = allCats.find(function(c) { return c.id === t.category; }) || { label: '💡 기타', color: '#6b7280' };
+    const cat = allCats.find(function(c) { return c.id === t.category; }) || { label: '💡 기타', color: 'var(--muted)' };
     return '<div onclick="toggleExcelItem(' + i + ')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:' + (t.selected ? 'var(--surface2)' : 'transparent') + ';border:1px solid ' + (t.selected ? 'rgba(74,222,128,.3)' : 'var(--border)') + ';border-radius:10px;margin-bottom:6px;cursor:pointer">'
-      + '<div style="width:22px;height:22px;border-radius:6px;background:' + (t.selected ? '#22c55e' : 'var(--surface3)') + ';display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;color:#000;font-weight:900">' + (t.selected ? '✓' : '') + '</div>'
+      + '<div style="width:22px;height:22px;border-radius:6px;background:' + (t.selected ? 'var(--green)' : 'var(--surface3)') + ';display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;color:#000;font-weight:900">' + (t.selected ? '✓' : '') + '</div>'
       + '<div style="flex:1;min-width:0">'
       + '<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + t.memo + '</div>'
       + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + t.date + ' · ' + cat.label + '</div>'
@@ -17930,7 +17960,7 @@ function renderSmsResult() {
   }
   wrap.innerHTML = smsParsedTxs.map(function(t, i) {
     const allCats = [...CATEGORIES.expense, ...CATEGORIES.income];
-    const cat = allCats.find(function(c) { return c.id === t.category; }) || { label: '💡 기타', color: '#6b7280' };
+    const cat = allCats.find(function(c) { return c.id === t.category; }) || { label: '💡 기타', color: 'var(--muted)' };
     const amtWon = Math.round(t.amount * 10000);
     const isIncome = t.type === 'income';
     const ownerLabel = t.owner === 'partner1' ? getP1Name() : t.owner === 'partner2' ? getP2Name() : getCommonName();
@@ -18219,7 +18249,7 @@ function renderLoadMonthBtns(currentMonth) {
     return `<button onclick="loadMonthDataToModal('${r.month}')"
       style="flex-shrink:0;padding:4px 10px;border-radius:16px;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;
       background:${isCurrent ? 'rgba(30,58,82,0.12)' : 'var(--surface3)'};
-      color:${isCurrent ? '#5a9fc4' : 'var(--muted2)'};
+      color:${isCurrent ? 'var(--blue)' : 'var(--muted2)'};
       border:0.5px solid ${isCurrent ? 'rgba(30,58,82,0.25)' : 'var(--border2)'};
       white-space:nowrap">
       ${parseInt(y)}년 ${parseInt(m)}월
@@ -18776,7 +18806,7 @@ function renderNotifSettings() {
   const btn = document.getElementById('notif-enable-btn');
 
   if (perm === 'granted') {
-    if (dot) { dot.style.background = '#22c55e'; }
+    if (dot) { dot.style.background = 'var(--green)'; }
     if (label) label.textContent = '알림 허용됨';
     if (desc) desc.textContent = '배우자 소비 알림을 받을 수 있어요';
     if (btn) btn.style.display = 'none';
