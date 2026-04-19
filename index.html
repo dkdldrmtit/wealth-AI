@@ -1891,10 +1891,10 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div class="card" style="margin-bottom:14px;cursor:pointer;padding:18px 16px" onclick="openModal(null)">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <div id="hero-net-label" style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:0.5px">순자산</div>
-      <div style="display:flex;gap:4px" onclick="event.stopPropagation()">
-        <span id="asset-chart-period-3" onclick="setAssetChartPeriod(3)" style="font-size:10px;color:var(--text);cursor:pointer;font-weight:600;letter-spacing:0.3px;padding:4px 8px;border-radius:6px;background:var(--surface2)">3M</span>
-        <span id="asset-chart-period-6" onclick="setAssetChartPeriod(6)" style="font-size:10px;color:var(--muted2);cursor:pointer;font-weight:500;letter-spacing:0.3px;padding:4px 8px;border-radius:6px">6M</span>
-        <span id="asset-chart-period-12" onclick="setAssetChartPeriod(12)" style="font-size:10px;color:var(--muted2);cursor:pointer;font-weight:500;letter-spacing:0.3px;padding:4px 8px;border-radius:6px">12M</span>
+      <div style="display:flex;gap:2px" onclick="event.stopPropagation()">
+        <span id="asset-chart-period-3" onclick="setAssetChartPeriod(3)" style="font-size:10px;color:var(--text);cursor:pointer;font-weight:700;padding:4px 9px;border-radius:7px;background:var(--surface2)">3개월</span>
+        <span id="asset-chart-period-6" onclick="setAssetChartPeriod(6)" style="font-size:10px;color:var(--muted2);cursor:pointer;font-weight:500;padding:4px 9px;border-radius:7px">6개월</span>
+        <span id="asset-chart-period-12" onclick="setAssetChartPeriod(12)" style="font-size:10px;color:var(--muted2);cursor:pointer;font-weight:500;padding:4px 9px;border-radius:7px">1년</span>
       </div>
     </div>
     <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px">
@@ -5623,72 +5623,60 @@ function renderItemView() {
   const months = assetHistory.map(function(r) { return r.month; });
   const latestMonth = months[months.length - 1];
 
-  // ── 도넛 차트 ──
+  // ── 카테고리별 합계 ──
   const catTotals = {};
   catOrder.forEach(function(cat) {
     if (!latestRec || !latestRec.items) return;
     catTotals[cat] = latestRec.items.filter(function(i) { return i.category === cat; }).reduce(function(s,i) { return s+i.amount; }, 0);
   });
   const assetTotal = catOrder.filter(c=>c!=='부채').reduce(function(s,c){ return s+(catTotals[c]||0); }, 0) || 1;
+  const debtTotal = catOrder.filter(function(c) { return ['mortgage','jeonse-loan','credit-loan','other-debt','housing-debt','credit-debt','부채'].includes(c); }).reduce(function(s,c){ return s+(catTotals[c]||0); }, 0);
 
-  // SVG 도넛 생성
-  const R = 54, cx = 70, cy = 70, stroke = 22;
-  const C = 2 * Math.PI * R;
-  let offset = 0;
-  const segments = catOrder.filter(c=>c!=='부채' && catTotals[c]>0).map(function(cat) {
-    const pct = (catTotals[cat]||0) / assetTotal;
-    const dash = pct * C;
-    const seg = { cat, dash, offset, color: colorHex[cat] };
-    offset += dash;
-    return seg;
-  });
+  const fmtAmt = function(v) { return v >= 10000 ? (v/10000).toFixed(2) + '억' : v.toLocaleString() + '만'; };
+  const catLabel = function(cat) { return CATEGORY_LABELS[cat] || (cat||'').replace(' 금융자산','').replace('금융자산','금융'); };
 
-  const donutSvg = '<svg width="140" height="140" viewBox="0 0 140 140">'
-    + '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="' + stroke + '"/>'
-    + segments.map(function(s) {
-        return '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="none"'
-          + ' stroke="' + s.color + '" stroke-width="' + stroke + '"'
-          + ' stroke-dasharray="' + s.dash.toFixed(2) + ' ' + (C - s.dash).toFixed(2) + '"'
-          + ' stroke-dashoffset="' + (C/4 - s.offset).toFixed(2) + '"'
-          + ' stroke-linecap="butt"/>';
-      }).join('')
-    + '<text x="' + cx + '" y="' + (cy-6) + '" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="Noto Sans KR">총자산</text>'
-    + '<text x="' + cx + '" y="' + (cy+10) + '" text-anchor="middle" font-size="13" font-weight="700" fill="var(--text)" font-family="Noto Sans KR">' + (assetTotal>=10000?(assetTotal/10000).toFixed(1)+'억':assetTotal.toLocaleString()+'만') + '</text>'
-    + '</svg>';
+  // 자산 구성: 상위 카테고리만 표시, 부채는 따로 섹션
+  const assetCats = catOrder
+    .filter(function(c) { return c !== '부채' && !['mortgage','jeonse-loan','credit-loan','other-debt','housing-debt','credit-debt'].includes(c) && (catTotals[c]||0) > 0; })
+    .map(function(cat) { return { cat: cat, amt: catTotals[cat], pct: (catTotals[cat]/assetTotal) * 100, color: colorHex[cat] }; })
+    .sort(function(a, b) { return b.amt - a.amt; });
 
-  const legendHtml = catOrder.filter(c=>c!=='부채' && catTotals[c]>0).map(function(cat) {
-    const pct = Math.round((catTotals[cat]||0)/assetTotal*100);
-    const amt = catTotals[cat]>=10000?(catTotals[cat]/10000).toFixed(1)+'억':catTotals[cat].toLocaleString()+'만';
-    return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:7px">'
-      + '<div style="width:8px;height:8px;border-radius:2px;background:' + colorHex[cat] + ';flex-shrink:0"></div>'
-      + '<div style="font-size:11px;color:var(--muted2);flex:1">' + cat.replace(' 금융자산','') + '</div>'
-      + '<div style="font-size:11px;font-weight:700;color:var(--text)">' + amt + '</div>'
-      + '<div style="font-size:10px;color:var(--muted);min-width:28px;text-align:right">' + pct + '%</div>'
+  // 가로 스택드 바
+  const stackedBar = '<div style="display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--surface3);margin-bottom:14px">'
+    + assetCats.map(function(c) { return '<div style="background:' + c.color + ';width:' + c.pct + '%"></div>'; }).join('')
+    + '</div>';
+
+  // 리스트 행
+  const catRows = assetCats.map(function(c) {
+    return '<div style="display:flex;align-items:center;gap:10px;padding:7px 0">'
+      + '<div style="width:7px;height:7px;border-radius:50%;background:' + c.color + ';flex-shrink:0"></div>'
+      + '<div style="flex:1;font-size:12px;color:var(--text);font-weight:500">' + catLabel(c.cat) + '</div>'
+      + '<div style="font-size:12px;color:var(--text);font-weight:700;font-variant-numeric:tabular-nums">' + fmtAmt(c.amt) + '</div>'
+      + '<div style="font-size:11px;color:var(--muted);min-width:34px;text-align:right;font-variant-numeric:tabular-nums">' + Math.round(c.pct) + '%</div>'
       + '</div>';
   }).join('');
 
-  // 부채 비율 바
-  const debtTotal = catTotals['부채'] || 0;
-  const totalWithDebt = assetTotal;
-  const debtPct = Math.round(debtTotal / totalWithDebt * 100);
-  const debtBar = debtTotal > 0
-    ? '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">'
-      + '<div style="display:flex;justify-content:space-between;margin-bottom:5px">'
-      + '<div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:#ef4444"></div><span style="font-size:11px;color:var(--muted2)">부채</span></div>'
-      + '<div style="font-size:11px;font-weight:700;color:var(--red)">' + (debtTotal>=10000?(debtTotal/10000).toFixed(1)+'억':debtTotal.toLocaleString()+'만') + ' <span style="font-size:10px;color:var(--muted);font-weight:400">' + debtPct + '%</span></div>'
+  // 부채 섹션 (있을 때만)
+  const debtSection = debtTotal > 0
+    ? '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px">'
+      + '<div style="width:7px;height:7px;border-radius:50%;background:#ef4444;flex-shrink:0"></div>'
+      + '<div style="flex:1;font-size:12px;color:var(--muted2);font-weight:500">부채</div>'
+      + '<div style="font-size:12px;color:var(--red);font-weight:700;font-variant-numeric:tabular-nums">−' + fmtAmt(debtTotal) + '</div>'
+      + '<div style="font-size:11px;color:var(--muted);min-width:34px;text-align:right;font-variant-numeric:tabular-nums">' + Math.round((debtTotal/assetTotal)*100) + '%</div>'
       + '</div>'
-      + '<div style="background:rgba(255,255,255,.06);border-radius:4px;height:6px;overflow:hidden">'
-      + '<div style="height:100%;background:#ef4444;border-radius:4px;width:' + debtPct + '%"></div>'
-      + '</div></div>'
     : '';
 
-  let html = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:16px;margin-bottom:20px">'
-    + '<div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px;margin-bottom:12px">'
-    + latestMonth.replace('-','년 ').replace(/(\d+)$/, function(m){ return parseInt(m)+'월'; }) + ' 자산 구성</div>'
-    + '<div style="display:flex;align-items:center;gap:12px">'
-    + donutSvg
-    + '<div style="flex:1">' + legendHtml + debtBar + '</div>'
-    + '</div></div>';
+  const monthLabel = latestMonth.replace(/^(\d+)-(\d+)$/, function(_,y,m){ return y + '년 ' + parseInt(m) + '월'; });
+
+  let html = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px">'
+    + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">'
+    + '<div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.3px">' + monthLabel + ' 자산 구성</div>'
+    + '<div style="font-size:14px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums">' + fmtAmt(assetTotal) + '</div>'
+    + '</div>'
+    + stackedBar
+    + catRows
+    + debtSection
+    + '</div>';
 
   catOrder.forEach(function(cat) {
     const items = byCategory[cat];
