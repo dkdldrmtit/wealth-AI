@@ -3248,7 +3248,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div id="re-total-price" style="font-size:14px;font-weight:800;color:var(--text)">—</div>
       </div>
       <div style="background:var(--surface);padding:14px 8px;text-align:center">
-        <div style="font-size:9px;color:var(--muted);margin-bottom:4px">총 대출</div>
+        <div style="font-size:9px;color:var(--muted);margin-bottom:4px">총 부채</div>
         <div id="re-total-loan" style="font-size:14px;font-weight:800;color:var(--red)">—</div>
       </div>
       <div style="background:var(--surface);padding:14px 8px;text-align:center">
@@ -3827,8 +3827,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
 
 
-      <!-- 매입가 / 대출 잔액 -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+      <!-- 매입가 / 대출 잔액 / 전세 보증금 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
         <div>
           <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:6px">매입가 <span style="font-weight:400">(만원)</span></label>
           <input type="number" id="apt-purchase-price" placeholder="예: 72000" inputmode="numeric"
@@ -3841,6 +3841,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
             style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 12px;outline:none;box-sizing:border-box"
             onfocus="this.style.borderColor='rgba(90,159,196,0.5)'" onblur="this.style.borderColor='var(--border)'">
         </div>
+      </div>
+      <div style="margin-bottom:20px">
+        <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:6px">전세 보증금 <span style="font-weight:400">(만원 · 세입자에게 받은 금액)</span></label>
+        <input type="number" id="apt-jeonse-deposit" placeholder="전세를 놓은 경우 입력 (예: 35000)" inputmode="numeric"
+          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 12px;outline:none;box-sizing:border-box"
+          onfocus="this.style.borderColor='rgba(249,115,22,0.5)'" onblur="this.style.borderColor='var(--border)'">
       </div>
 
       <!-- 저장 버튼 -->
@@ -11606,11 +11612,13 @@ function openAptModal(id) {
     document.getElementById('apt-name-search').style.opacity = '1';
     document.getElementById('apt-region-input').value = apt.sigungu || '';
 
-    // 매입가/대출 복원
+    // 매입가/대출/전세 복원
     const ppEl = document.getElementById('apt-purchase-price');
     const laEl = document.getElementById('apt-loan-amount');
+    const jdEl = document.getElementById('apt-jeonse-deposit');
     if (ppEl) ppEl.value = apt.purchasePrice || '';
     if (laEl) laEl.value = apt.loanAmount || '';
+    if (jdEl) jdEl.value = apt.jeonseDeposit || '';
 
 
   } else {
@@ -11620,8 +11628,10 @@ function openAptModal(id) {
     setAptOwner('common');
     const ppEl = document.getElementById('apt-purchase-price');
     const laEl = document.getElementById('apt-loan-amount');
+    const jdEl = document.getElementById('apt-jeonse-deposit');
     if (ppEl) ppEl.value = '';
     if (laEl) laEl.value = '';
+    if (jdEl) jdEl.value = '';
   }
 
   document.getElementById('apt-modal').style.display = 'block';
@@ -12100,8 +12110,10 @@ function saveAptFromModal() {
 
   const ppVal = document.getElementById('apt-purchase-price');
   const laVal = document.getElementById('apt-loan-amount');
+  const jdVal = document.getElementById('apt-jeonse-deposit');
   const purchasePrice = ppVal && ppVal.value ? parseInt(ppVal.value) : 0;
   const loanAmount = laVal && laVal.value ? parseInt(laVal.value) : 0;
+  const jeonseDeposit = jdVal && jdVal.value ? parseInt(jdVal.value) : 0;
 
   const aptData = {
     id: _aptEditingId || 'apt_' + Date.now(),
@@ -12113,6 +12125,7 @@ function saveAptFromModal() {
     owner: _aptModalOwner,
     purchasePrice: purchasePrice,
     loanAmount: loanAmount,
+    jeonseDeposit: jeonseDeposit,
     cache: null,
   };
 
@@ -12166,7 +12179,9 @@ async function fetchSingleApt(aptId) {
     aptList[idx].cache = {
       price: latest.price,
       fetchedAt: latest.year + '.' + latest.month + '.' + latest.day + ' 거래',
-      results: results.slice(0, 5)
+      results: results.slice(0, 10).map(function(r) {
+        return { date: r.year + '.' + r.month + '.' + r.day, price: r.price, floor: r.floor };
+      })
     };
   }
   store('apt-list', aptList);
@@ -12183,19 +12198,21 @@ function renderRealEstatePage() {
   if (!listEl) return;
 
   // 요약 계산
-  let totalPrice = 0, totalLoan = 0;
+  let totalPrice = 0, totalLoan = 0, totalJeonse = 0;
   aptList.forEach(function(a) {
     if (a.cache && a.cache.price) totalPrice += a.cache.price * 10000;
     totalLoan += (a.loanAmount || 0) * 10000;
+    totalJeonse += (a.jeonseDeposit || 0) * 10000;
   });
-  const equity = totalPrice - totalLoan;
+  const equity = totalPrice - totalLoan - totalJeonse;
   const fmt = function(won) { return (won / 100000000).toFixed(2) + '억'; };
   const pp = document.getElementById('re-total-price');
   const pl = document.getElementById('re-total-loan');
   const pe = document.getElementById('re-total-equity');
+  const totalDebt = totalLoan + totalJeonse;
   if (pp) pp.textContent = totalPrice ? fmt(totalPrice) : '—';
-  if (pl) pl.textContent = totalLoan ? fmt(totalLoan) : '—';
-  if (pe) pe.textContent = (totalPrice || totalLoan) ? fmt(equity) : '—';
+  if (pl) pl.textContent = totalDebt ? fmt(totalDebt) : '—';
+  if (pe) pe.textContent = (totalPrice || totalDebt) ? fmt(equity) : '—';
 
   if (!aptList.length) {
     listEl.innerHTML = '<div class="card" style="text-align:center;padding:32px 16px">'
@@ -12215,7 +12232,8 @@ function renderRealEstatePage() {
     const priceWon = hasPrice ? apt.cache.price * 10000 : 0;
     const purchaseWon = (apt.purchasePrice || 0) * 10000;
     const loanWon = (apt.loanAmount || 0) * 10000;
-    const equity = hasPrice ? priceWon - loanWon : 0;
+    const jeonseWon = (apt.jeonseDeposit || 0) * 10000;
+    const equity = hasPrice ? priceWon - loanWon - jeonseWon : 0;
     const gain = (hasPrice && purchaseWon > 0) ? priceWon - purchaseWon : null;
     const gainPct = gain !== null ? ((gain / purchaseWon) * 100).toFixed(1) : null;
 
@@ -12226,7 +12244,7 @@ function renderRealEstatePage() {
       const prices = pts.map(function(r) { return r.price; });
       const minP = Math.min.apply(null, prices), maxP = Math.max.apply(null, prices);
       const range = maxP - minP || 1;
-      const W = 200, H = 48;
+      const W = 300, H = 48;
       const coords = prices.map(function(p, i) {
         const x = (i / (prices.length - 1)) * W;
         const y = H - ((p - minP) / range) * (H - 8) - 4;
@@ -12234,7 +12252,7 @@ function renderRealEstatePage() {
       });
       sparkHtml = '<div style="margin:12px 0 4px">'
         + '<div style="font-size:10px;color:var(--muted);margin-bottom:6px">최근 실거래 추이 (' + pts.length + '건)</div>'
-        + '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" style="display:block;width:100%;max-width:' + W + 'px">'
+        + '<svg viewBox="0 0 ' + W + ' ' + H + '" style="display:block;width:100%;height:' + H + 'px">'
         + '<polyline points="' + coords.join(' ') + '" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
         + '<circle cx="' + coords[coords.length-1].split(',')[0] + '" cy="' + coords[coords.length-1].split(',')[1] + '" r="4" fill="var(--blue)"/>'
         + '</svg>'
@@ -12281,9 +12299,13 @@ function renderRealEstatePage() {
           + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + (apt.cache.fetchedAt || '') + '</div>'
           + '</div>'
           + '<div style="background:var(--surface2);border-radius:12px;padding:12px">'
-          + '<div style="font-size:9px;color:var(--muted);margin-bottom:4px">순자산 (시세-대출)</div>'
+          + '<div style="font-size:9px;color:var(--muted);margin-bottom:4px">순자산</div>'
           + '<div style="font-size:18px;font-weight:900;color:var(--teal,#2dd4bf)">' + (equity / 100000000).toFixed(2) + '<span style="font-size:11px;font-weight:400;color:var(--muted)">억</span></div>'
-          + (loanWon > 0 ? '<div style="font-size:10px;color:var(--red);margin-top:2px">대출 ' + (loanWon / 100000000).toFixed(2) + '억</div>' : '<div style="font-size:10px;color:var(--muted);margin-top:2px">대출 없음</div>')
+          + '<div style="font-size:10px;color:var(--muted);margin-top:2px;display:flex;gap:6px;flex-wrap:wrap">'
+          + (loanWon > 0 ? '<span style="color:var(--red)">대출 ' + (loanWon / 100000000).toFixed(2) + '억</span>' : '')
+          + (jeonseWon > 0 ? '<span style="color:#f97316">전세 ' + (jeonseWon / 100000000).toFixed(2) + '억</span>' : '')
+          + (loanWon === 0 && jeonseWon === 0 ? '<span>부채 없음</span>' : '')
+          + '</div>'
           + '</div>'
           + '</div>'
           + (gain !== null
@@ -12335,10 +12357,11 @@ function renderInputAptSection() {
     const ownerLabel = apt.owner === 'partner1' ? p1 : apt.owner === 'partner2' ? p2 : cm;
     const ownerColor = apt.owner === 'partner1' ? 'var(--blue)' : apt.owner === 'partner2' ? 'var(--p2color, #22c55e)' : 'var(--muted2)';
     const hasPrice = apt.cache && apt.cache.price > 0;
-    const priceWon = hasPrice ? apt.cache.price * 10000 : 0; // cache.price는 만원 단위
+    const priceWon = hasPrice ? apt.cache.price * 10000 : 0;
     const purchaseWon = (apt.purchasePrice || 0) * 10000;
     const loanWon = (apt.loanAmount || 0) * 10000;
-    const equity = hasPrice ? priceWon - loanWon : 0;
+    const jeonseWon = (apt.jeonseDeposit || 0) * 10000;
+    const equity = hasPrice ? priceWon - loanWon - jeonseWon : 0;
     const gain = (hasPrice && purchaseWon > 0) ? priceWon - purchaseWon : null;
 
     // 스파크라인 차트 (최근 거래 이력)
@@ -12380,9 +12403,12 @@ function renderInputAptSection() {
         + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + (apt.cache.fetchedAt || '') + '</div>'
         + '</div>'
         + '<div style="background:var(--surface2);border-radius:10px;padding:10px">'
-        + '<div style="font-size:9px;color:var(--muted);margin-bottom:3px">순자산 (시세-대출)</div>'
+        + '<div style="font-size:9px;color:var(--muted);margin-bottom:3px">순자산</div>'
         + '<div style="font-size:16px;font-weight:800;color:var(--teal, #2dd4bf)">' + (equity / 100000000).toFixed(2) + '<span style="font-size:10px;font-weight:400;color:var(--muted)">억</span></div>'
-        + (loanWon > 0 ? '<div style="font-size:10px;color:var(--red);margin-top:1px">대출 ' + (loanWon / 100000000).toFixed(2) + '억</div>' : '')
+        + '<div style="font-size:10px;margin-top:1px;display:flex;gap:5px;flex-wrap:wrap">'
+        + (loanWon > 0 ? '<span style="color:var(--red)">대출 ' + (loanWon / 100000000).toFixed(2) + '억</span>' : '')
+        + (jeonseWon > 0 ? '<span style="color:#f97316">전세 ' + (jeonseWon / 100000000).toFixed(2) + '억</span>' : '')
+        + '</div>'
         + '</div>'
         + '</div>';
 
