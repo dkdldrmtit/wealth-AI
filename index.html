@@ -9492,22 +9492,18 @@ function applyRecurring() {
 // ── 홈 카드 순서/표시 설정
 const HOME_CARD_DEFAULTS = [
   { id:'widget',           label:'지출 위젯',         desc:'오늘/이번달 지출 금액',        visible:true  },
-  { id:'partner-activity', label:'배우자 활동',       desc:'배우자의 최근 소비',           visible:true  },
+  { id:'partner-activity', label:'최근 기록',         desc:'우리 둘의 최근 거래',           visible:true  },
   { id:'summary',          label:'자산 요약',         desc:'순자산 큰 숫자',              visible:true  },
   { id:'goalguage',        label:'목표 달성률',       desc:'순자산 목표 진행률',           visible:false },
   { id:'ai',               label:'AI 코멘트',         desc:'자산 분석 한마디',             visible:false },
   { id:'schedule',         label:'주요 일정',         desc:'D-day 일정 목록',             visible:false },
-  { id:'couple',           label:'절약 배틀',         desc:'부부 지출 비교',               visible:false },
   { id:'ledger',           label:'이달 가계부',       desc:'수입/지출 요약',              visible:false },
-  { id:'chart',            label:'자산 그래프',       desc:'월별 순자산 변화',             visible:false },
-  { id:'stocks-summary',   label:'주식 요약',         desc:'보유 종목 수익률',             visible:false },
-  { id:'apt',              label:'실거래가',          desc:'등록된 아파트 시세',           visible:false },
 ];
 
 
 // ── 홈 카드 설정 버전 마이그레이션 ──
-// v3: 심플 모드 — 기본 표시 3개 (widget, partner-activity, summary)
-const HOME_CARD_SETTINGS_VERSION = 3;
+// v4: 중복 카드 제거 (chart/apt/stocks-summary/couple) — 각 탭에 큰 버전이 있음
+const HOME_CARD_SETTINGS_VERSION = 4;
 
 const _saved = load('home-card-settings', null);
 const _savedVersion = load('home-card-settings-version', 0);
@@ -9542,12 +9538,19 @@ if (!_saved || _savedVersion < HOME_CARD_SETTINGS_VERSION) {
 function applyHomeCardOrder() {
   const anchor = document.getElementById('home-cards-anchor');
   if (!anchor) return;
-  // 표시/숨김 + 순서 적용
+  // 1. settings에 없는 카드(지원 중단)는 숨김
+  const supportedIds = new Set(homeCardSettings.map(function(s) { return s.id; }));
+  anchor.querySelectorAll('[data-card]').forEach(function(el) {
+    if (!supportedIds.has(el.getAttribute('data-card'))) {
+      el.style.display = 'none';
+    }
+  });
+  // 2. settings 기반 표시/숨김 + 순서
   homeCardSettings.forEach(function(setting) {
     const card = document.getElementById('home-card-' + setting.id);
     if (!card) return;
     card.style.display = setting.visible ? '' : 'none';
-    anchor.appendChild(card); // anchor 안에서 순서대로 재배치
+    anchor.appendChild(card);
   });
 }
 
