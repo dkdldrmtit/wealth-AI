@@ -1906,7 +1906,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     </div>
   </div>
 
-
+  <!-- 부부 자산 요약 (커플 모드 전용) -->
+  <div id="couple-asset-summary" data-couple-only="1" style="margin-bottom:14px"></div>
 
 
   <!-- 월별 / 자산별 토글 -->
@@ -2402,12 +2403,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         </div>
         <!-- 우측 상단 아이콘 버튼들 -->
         <div style="display:flex;align-items:center;gap:2px;margin-top:8px">
-          <button onclick="goPage('ai',{classList:{add:()=>{},remove:()=>{}}})"
-            style="background:rgba(180,155,80,0.10);border:1px solid rgba(180,155,80,0.20);color:var(--gold);height:28px;padding:0 10px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:20px;gap:4px;transition:all .2s;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;margin-right:4px"
-            ontouchstart="this.style.background='rgba(180,155,80,0.20)'" ontouchend="this.style.background='rgba(180,155,80,0.10)'">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/></svg>
-            AI
-          </button>
           <button onclick="openImportMenu()" id="ledger-import-menu-btn" aria-label="가져오기 메뉴" title="음성·문자·엑셀로 가져오기"
             style="background:none;border:none;color:var(--muted);padding:0 10px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px;gap:4px"
             ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
@@ -3269,12 +3264,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div class="eyebrow">주식 포트폴리오</div>
         <h1>내 주식<br>현황</h1>
       </div>
-      <button onclick="goPage('ai',{classList:{add:()=>{},remove:()=>{}}})"
-        style="background:rgba(180,155,80,0.10);border:1px solid rgba(180,155,80,0.20);color:var(--gold);height:28px;padding:0 10px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:20px;gap:4px;transition:all .2s;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;margin-top:8px;flex-shrink:0"
-        ontouchstart="this.style.background='rgba(180,155,80,0.20)'" ontouchend="this.style.background='rgba(180,155,80,0.10)'">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/></svg>
-        AI
-      </button>
     </div>
   </div>
 
@@ -5338,10 +5327,61 @@ function updateHomeFromItems(rec) {
   renderGoalGauge();
 }
 
+function renderCoupleAssetSummary() {
+  const wrap = document.getElementById('couple-asset-summary');
+  if (!wrap) return;
+  const latest = assetHistory[assetHistory.length - 1];
+  if (!latest || !latest.items || !latest.items.length) { wrap.innerHTML = ''; return; }
+
+  let p1 = 0, p2 = 0, cm = 0;
+  latest.items.forEach(function(it) {
+    if (it.type === 'debt') return;
+    const amt = it.amount || 0;
+    if (it.owner === 'partner1') p1 += amt;
+    else if (it.owner === 'partner2') p2 += amt;
+    else cm += amt;
+  });
+  const total = p1 + p2 + cm;
+  if (total === 0) { wrap.innerHTML = ''; return; }
+
+  const p1Name = getP1Name(), p2Name = getP2Name();
+  const pct = function(v) { return Math.round((v / total) * 100); };
+  const fmt = function(v) { return v >= 10000 ? (v/10000).toFixed(2) + '억' : v.toLocaleString() + '만'; };
+
+  const cell = function(label, amt, color, bg) {
+    const p = pct(amt);
+    return '<div style="flex:1;text-align:center">'
+      + '<div style="font-size:10px;color:var(--muted);font-weight:600;margin-bottom:4px">' + label + '</div>'
+      + '<div style="font-size:15px;font-weight:900;color:var(--text);line-height:1.1">' + fmt(amt) + '</div>'
+      + '<div style="font-size:10px;color:' + color + ';font-weight:700;margin-top:2px">' + p + '%</div>'
+      + '</div>';
+  };
+
+  wrap.innerHTML = '<div class="card" style="padding:14px 16px">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
+    + '<div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px">부부 자산 구성</div>'
+    + '<div style="font-size:11px;color:var(--muted)">' + fmt(total) + '</div>'
+    + '</div>'
+    + '<div style="display:flex;gap:8px;margin-bottom:10px">'
+    + cell(p1Name, p1, 'var(--blue)')
+    + '<div style="width:1px;background:var(--border)"></div>'
+    + cell(p2Name, p2, 'var(--green)')
+    + '<div style="width:1px;background:var(--border)"></div>'
+    + cell(getCommonName(), cm, 'var(--muted2)')
+    + '</div>'
+    + '<div style="display:flex;height:6px;border-radius:3px;overflow:hidden;background:var(--surface3)">'
+    + '<div style="background:var(--blue);width:' + pct(p1) + '%"></div>'
+    + '<div style="background:var(--green);width:' + pct(p2) + '%"></div>'
+    + '<div style="background:var(--muted2);width:' + pct(cm) + '%"></div>'
+    + '</div>'
+    + '</div>';
+}
+
 function renderMonthCards() {
   const wrap = document.getElementById('month-cards');
   if (!wrap) return;
   setTimeout(renderAssetTabChart, 100);
+  renderCoupleAssetSummary();
 
   if (!assetHistory.length) {
     wrap.innerHTML = '<div class="empty-state"><div class="es-icon">📊</div><div class="es-title">아직 자산 기록이 없어요</div><div class="es-sub">위 버튼을 눌러<br>첫 번째 자산 기록을 추가해보세요!</div></div>';
@@ -5483,6 +5523,7 @@ function setAssetView(view) {
 function renderItemView() {
   const wrap = document.getElementById('item-view-cards');
   if (!wrap) return;
+  renderCoupleAssetSummary();
   if (!assetHistory.length) {
     wrap.innerHTML = '<div class="empty-state"><div class="es-icon">📈</div><div class="es-title">항목별 내역이 없어요</div><div class="es-sub">월별 탭에서 자산 기록을 추가하면<br>항목별로 확인할 수 있어요.</div></div>';
     return;
