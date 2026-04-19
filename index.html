@@ -94,6 +94,13 @@
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 html { overscroll-behavior-y: none; }
+/* iOS 입력 자동 줌 방지: 터치 기기에서 input/textarea/select 최소 16px */
+@media (hover:none) and (pointer:coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea, select { font-size: 16px !important; }
+}
+/* 긴 한글 텍스트 자동 줄임 유틸 */
+.truncate { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
 /* 다크/라이트 전환 부드럽게 */
 *, *::before, *::after {
   transition: background-color .25s ease, border-color .25s ease, color .15s ease;
@@ -268,7 +275,7 @@ input, textarea, select {
 /* OWNER SPLIT */
 .owner-split { display:flex; gap:10px; }
 .owner-box { flex:1; background:var(--surface2); border:1px solid var(--border); border-radius:14px; padding:14px; text-align:center; }
-.owner-box .ob-name { font-size:11px; font-weight:700; margin-bottom:6px; }
+.owner-box .ob-name { font-size:11px; font-weight:700; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .owner-box .ob-amt { font-size:20px; font-weight:900; }
 .owner-box .ob-items { font-size:10px; color:var(--muted); margin-top:6px; line-height:1.7; }
 
@@ -276,7 +283,7 @@ input, textarea, select {
 .goal-item { margin-bottom:16px; }
 .goal-item:last-child { margin-bottom:0; }
 .goal-header { display:flex; justify-content:space-between; margin-bottom:8px; }
-.goal-name { font-size:14px; font-weight:600; }
+.goal-name { font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
 .goal-pct { font-size:14px; font-weight:700; color:var(--gold); }
 .goal-bar-bg { background:rgba(255,255,255,0.06); border-radius:6px; height:8px; overflow:hidden; }
 .goal-bar-fill { height:100%; border-radius:6px; transition:width 1.2s cubic-bezier(.4,0,.2,1); }
@@ -4715,7 +4722,6 @@ function goPage(name, el) {
     setLedgerTab(ledgerTab || 'list');
     renderLedger();
   }
-  if (name === 'input') { renderInputAptSection(); }
   if (name === 'realestate') { renderRealEstatePage(); }
   if (name === 'ai') { renderQuickButtons(); }
   if (name === 'stocks') initStocks();
@@ -4770,7 +4776,15 @@ const APP_DEFAULTS = {
 // ══════════════════════════════════════
 
 // ── Storage ──
-function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+function store(k, v) {
+  try { localStorage.setItem(k, JSON.stringify(v)); }
+  catch(e) {
+    console.warn('저장 실패:', k, e);
+    if (e && (e.name === 'QuotaExceededError' || e.code === 22)) {
+      try { showToast && showToast('저장 공간이 부족해요. 백업 후 정리해주세요'); } catch(_) {}
+    }
+  }
+}
 // localStorage에 값이 있으면 사용, 없으면 APP_DEFAULTS → 인자 기본값 순으로 fallback
 function load(k, d) {
   try {
@@ -6349,7 +6363,6 @@ function setAddItemOwner(owner) {
 }
 
 function confirmAddItem() {
-  console.log('pendingStockLink:', window._pendingStockLink); // 디버그
   const name = (document.getElementById('add-item-name').value || '').trim();
 
   const amount = parseFloat(document.getElementById('add-item-amount').value) || 0;
@@ -6386,8 +6399,7 @@ function confirmAddItem() {
     aptLinkTimeVal = modal.dataset.aptLinkTime;
   }
 
-  console.log('저장될 stockLink:', stockLinkVal); // 디버그
-  console.log('저장될 aptLink:', aptLinkVal);     // 디버그
+
 
   modalAssetItems.push({
     id,
@@ -7129,14 +7141,14 @@ function initHome() {
   renderPartnerActivity();
 
   applyPartnerNamesToUI();
-  applyAdvancedModeVisibility();
   applySoloModeVisibility();
   setDonutTab('all');
   restoreDonutExpanded();
 
   // 대기목록 체크 (앱 열릴 때 + 30초마다)
   checkPendingTxs();
-  setInterval(checkPendingTxs, 30000);
+  if (window._pendingTxsTimer) clearInterval(window._pendingTxsTimer);
+  window._pendingTxsTimer = setInterval(checkPendingTxs, 30000);
   checkAssetReminder();
   // ── 홈 카드 stagger 애니메이션
   setTimeout(applyStagger, 100);
@@ -9893,14 +9905,7 @@ function loadPartnerNamesUI() {
   if (p1) p1.value = PARTNER_NAMES.partner1 || '';
   if (p2) p2.value = PARTNER_NAMES.partner2 || '';
   if (cm) cm.value = PARTNER_NAMES.common || '';
-  // 고급 모드 토글 동기화
-  renderAdvancedModeToggle();
 }
-
-// ── 고급 기능 모드: deprecated (toggle removed, no-op for back compat) ──
-function renderAdvancedModeToggle() {}
-function toggleAdvancedMode() {}
-function applyAdvancedModeVisibility() {}
 
 // ── 혼자 모드 감지 및 배우자 UI 제어 ──
 function isSoloMode() {
@@ -11874,9 +11879,6 @@ async function searchAptComplex() {
         }
       });
 
-      if (Object.keys(complexMap).length === 0 && allNames.size > 0) {
-        console.log('🏢 ' + ym + ' 전체 단지 (' + allNames.size + '개):', Array.from(allNames).slice(0, 10).join(', '));
-      }
     } catch(e) {}
   }));
 
@@ -11992,9 +11994,6 @@ async function selectAptComplex(name, lawdCd, sigungu) {
     } catch(e) {}
   }));
 
-  console.log('📊 단지명 검색어:', name);
-  console.log('📊 수집된 평형 목록:', Object.keys(areaTradeMap).sort(function(a,b){return a-b;}).join(', ') + '㎡');
-  console.log('📊 총 수집 개월수: 12개월 조회 완료');
 
   if (!Object.keys(areaTradeMap).length) {
 
