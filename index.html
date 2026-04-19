@@ -17534,7 +17534,9 @@ let smsParsedTxs = [];
 let smsImageFiles = [];
 
 function openSmsParser() {
-  smsOwner = 'common';
+  // 현재 로그인 사용자를 기본 owner로
+  const defaultOwner = currentProfile && currentProfile.role === 'partner2' ? 'siyun' : 'minsuk';
+  smsOwner = defaultOwner;
   smsParsedTxs = [];
   smsImageFiles = [];
   const msBtn = document.getElementById('sms-owner-ms');
@@ -17552,7 +17554,7 @@ function openSmsParser() {
   document.getElementById('sms-parse-btn').disabled = false;
   document.getElementById('sms-drop-zone').style.display = 'block';
   document.getElementById('sms-img-input').value = '';
-  setSmsOwner('common');
+  setSmsOwner(defaultOwner);
   document.getElementById('sms-modal').style.display = 'block';
   lockScroll();
 }
@@ -17578,6 +17580,19 @@ function setSmsOwner(owner) {
     btn.style.border = isActive ? '0.5px solid ' + styles[k].border : '0.5px solid transparent';
     btn.style.fontWeight = isActive ? '700' : '600';
   });
+  // 이미 파싱된 항목들도 일괄 변경
+  if (smsParsedTxs.length) {
+    smsParsedTxs.forEach(function(t) { t.owner = owner; });
+    renderSmsResult();
+  }
+}
+
+function cycleSmsItemOwner(i, e) {
+  e.stopPropagation();
+  const owners = ['minsuk', 'siyun', 'common'];
+  const cur = smsParsedTxs[i].owner;
+  smsParsedTxs[i].owner = owners[(owners.indexOf(cur) + 1) % owners.length];
+  renderSmsResult();
 }
 
 function onSmsImagesSelected(e) {
@@ -17758,11 +17773,16 @@ function renderSmsResult() {
     const cat = allCats.find(function(c) { return c.id === t.category; }) || { label: '💡 기타', color: '#6b7280' };
     const amtWon = Math.round(t.amount * 10000);
     const isIncome = t.type === 'income';
+    const ownerLabel = t.owner === 'minsuk' ? getP1Name() : t.owner === 'siyun' ? getP2Name() : getCommonName();
+    const ownerColor = t.owner === 'minsuk' ? 'var(--blue)' : t.owner === 'siyun' ? 'var(--green)' : 'var(--purple)';
     return '<div onclick="toggleSmsItem(' + i + ')" style="display:flex;align-items:center;gap:12px;padding:12px;background:' + (t.selected?'var(--surface2)':'transparent') + ';border:1px solid ' + (t.selected?'rgba(167,139,250,.4)':'var(--border)') + ';border-radius:12px;margin-bottom:8px;cursor:pointer;transition:all .2s">'
       + '<div style="width:28px;height:28px;border-radius:8px;background:' + (t.selected?'var(--purple)':'var(--surface3)') + ';display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;color:#fff;font-weight:700">' + (t.selected?'✓':'') + '</div>'
       + '<div style="flex:1;min-width:0">'
       + '<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (t.memo || cat.label) + '</div>'
-      + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + t.date + ' · ' + cat.label + '</div>'
+      + '<div style="font-size:10px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:6px">'
+      + t.date + ' · ' + cat.label
+      + '<span onclick="cycleSmsItemOwner(' + i + ',event)" style="padding:1px 7px;border-radius:5px;background:rgba(0,0,0,.15);color:' + ownerColor + ';font-weight:700;cursor:pointer">' + ownerLabel + '</span>'
+      + '</div>'
       + '</div>'
       + '<div style="font-size:15px;font-weight:800;color:' + (isIncome?'var(--blue)':'var(--red)') + ';flex-shrink:0">' + (isIncome?'+':'-') + amtWon.toLocaleString() + '원</div>'
       + '</div>';
