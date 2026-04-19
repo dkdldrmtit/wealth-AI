@@ -1887,38 +1887,44 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </button>
     </div>
   </div>
-  <!-- 순자산 변화 그래프 -->
-  <div class="card" style="margin-bottom:14px;cursor:pointer" onclick="openModal(null)">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <div style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px">순자산 변화 추이</div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="display:flex;gap:8px">
-          <span id="asset-chart-period-3" onclick="event.stopPropagation();setAssetChartPeriod(3)" style="font-size:10px;color:var(--text);cursor:pointer;font-weight:600;letter-spacing:0.3px;padding:8px 6px;margin:-8px -6px">3개월</span>
-          <span id="asset-chart-period-6" onclick="event.stopPropagation();setAssetChartPeriod(6)" style="font-size:10px;color:var(--muted2);cursor:pointer;font-weight:400;letter-spacing:0.3px;padding:8px 6px;margin:-8px -6px">6개월</span>
-          <span id="asset-chart-period-12" onclick="event.stopPropagation();setAssetChartPeriod(12)" style="font-size:10px;color:var(--muted2);cursor:pointer;font-weight:400;letter-spacing:0.3px;padding:8px 6px;margin:-8px -6px">12개월</span>
-        </div>
-        <div id="asset-chart-change-badge" style="font-size:11px;font-weight:700"></div>
+  <!-- 히어로: 순자산 + 추이 + 부부 구성 (통합 카드) -->
+  <div class="card" style="margin-bottom:14px;cursor:pointer;padding:18px 16px" onclick="openModal(null)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div id="hero-net-label" style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:0.5px">순자산</div>
+      <div style="display:flex;gap:4px" onclick="event.stopPropagation()">
+        <span id="asset-chart-period-3" onclick="setAssetChartPeriod(3)" style="font-size:10px;color:var(--text);cursor:pointer;font-weight:600;letter-spacing:0.3px;padding:4px 8px;border-radius:6px;background:var(--surface2)">3M</span>
+        <span id="asset-chart-period-6" onclick="setAssetChartPeriod(6)" style="font-size:10px;color:var(--muted2);cursor:pointer;font-weight:500;letter-spacing:0.3px;padding:4px 8px;border-radius:6px">6M</span>
+        <span id="asset-chart-period-12" onclick="setAssetChartPeriod(12)" style="font-size:10px;color:var(--muted2);cursor:pointer;font-weight:500;letter-spacing:0.3px;padding:4px 8px;border-radius:6px">12M</span>
       </div>
     </div>
-    <div id="asset-tab-chart-wrap" style="position:relative;height:90px;width:100%;overflow-x:auto;overflow-y:hidden">
-      <svg id="asset-tab-chart" height="90" style="display:block"></svg>
-      <div id="asset-tab-chart-empty" style="display:none;text-align:center;padding:20px 0;font-size:12px;color:var(--muted)">기록이 2개 이상 있어야 차트가 그려져요</div>
+    <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px">
+      <div id="hero-net-amount" style="font-size:32px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-1px">—<span style="font-size:15px;font-weight:400;color:var(--muted);margin-left:3px">억</span></div>
+      <div id="asset-chart-change-badge" style="font-size:12px;font-weight:700"></div>
     </div>
+    <div id="asset-tab-chart-wrap" style="position:relative;height:80px;width:100%;overflow-x:auto;overflow-y:hidden">
+      <svg id="asset-tab-chart" height="80" style="display:block"></svg>
+      <div id="asset-tab-chart-empty" style="display:none;text-align:center;padding:20px 0;font-size:12px;color:var(--muted)">기록이 2개 이상 있어야 추이가 그려져요</div>
+    </div>
+    <!-- 부부 자산 구성 (커플 모드 전용 · 얇게 통합) -->
+    <div id="couple-asset-summary" data-couple-only="1"></div>
   </div>
 
-  <!-- 부부 자산 요약 (커플 모드 전용) -->
-  <div id="couple-asset-summary" data-couple-only="1" style="margin-bottom:14px"></div>
-
-
-  <!-- 월별 / 자산별 토글 -->
-  <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:16px;gap:4px">
-    <button id="asset-view-month" onclick="setAssetView('month')"
-      style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s">
-      📅 월별
-    </button>
-    <button id="asset-view-item" onclick="setAssetView('item')"
-      style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">
-      자산별
+  <!-- 월별 / 자산별 토글 + 빠른 기록 -->
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+    <div style="display:flex;flex:1;background:var(--surface2);border-radius:12px;padding:4px;gap:4px">
+      <button id="asset-view-month" onclick="setAssetView('month')"
+        style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s">
+        월별
+      </button>
+      <button id="asset-view-item" onclick="setAssetView('item')"
+        style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">
+        자산별
+      </button>
+    </div>
+    <button onclick="quickCopyLastMonth()" aria-label="전월 복사 빠른 기록" title="전월 데이터로 이번 달 빠른 기록"
+      style="flex-shrink:0;height:38px;padding:0 12px;border-radius:10px;background:rgba(45,212,191,0.10);border:1px solid rgba(45,212,191,0.25);color:var(--teal,#2dd4bf);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      전월 복사
     </button>
   </div>
 
@@ -5327,6 +5333,22 @@ function updateHomeFromItems(rec) {
   renderGoalGauge();
 }
 
+function renderHeroNetWorth() {
+  const el = document.getElementById('hero-net-amount');
+  const label = document.getElementById('hero-net-label');
+  if (!el) return;
+  const latest = assetHistory[assetHistory.length - 1];
+  if (!latest) {
+    el.innerHTML = '—<span style="font-size:15px;font-weight:400;color:var(--muted);margin-left:3px">억</span>';
+    return;
+  }
+  const net = latest.net || 0;
+  el.innerHTML = (net/10000).toFixed(2) + '<span style="font-size:15px;font-weight:400;color:var(--muted);margin-left:3px">억</span>';
+  if (label) {
+    label.textContent = isSoloMode() ? '순자산' : '우리 둘의 순자산';
+  }
+}
+
 function renderCoupleAssetSummary() {
   const wrap = document.getElementById('couple-asset-summary');
   if (!wrap) return;
@@ -5346,41 +5368,44 @@ function renderCoupleAssetSummary() {
 
   const p1Name = getP1Name(), p2Name = getP2Name();
   const pct = function(v) { return Math.round((v / total) * 100); };
-  const fmt = function(v) { return v >= 10000 ? (v/10000).toFixed(2) + '억' : v.toLocaleString() + '만'; };
 
-  const cell = function(label, amt, color, bg) {
-    const p = pct(amt);
-    return '<div style="flex:1;text-align:center">'
-      + '<div style="font-size:10px;color:var(--muted);font-weight:600;margin-bottom:4px">' + label + '</div>'
-      + '<div style="font-size:15px;font-weight:900;color:var(--text);line-height:1.1">' + fmt(amt) + '</div>'
-      + '<div style="font-size:10px;color:' + color + ';font-weight:700;margin-top:2px">' + p + '%</div>'
-      + '</div>';
-  };
-
-  wrap.innerHTML = '<div class="card" style="padding:14px 16px">'
-    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
-    + '<div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px">부부 자산 구성</div>'
-    + '<div style="font-size:11px;color:var(--muted)">' + fmt(total) + '</div>'
-    + '</div>'
-    + '<div style="display:flex;gap:8px;margin-bottom:10px">'
-    + cell(p1Name, p1, 'var(--blue)')
-    + '<div style="width:1px;background:var(--border)"></div>'
-    + cell(p2Name, p2, 'var(--green)')
-    + '<div style="width:1px;background:var(--border)"></div>'
-    + cell(getCommonName(), cm, 'var(--muted2)')
-    + '</div>'
-    + '<div style="display:flex;height:6px;border-radius:3px;overflow:hidden;background:var(--surface3)">'
+  wrap.innerHTML = '<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">'
+    + '<div style="display:flex;height:5px;border-radius:3px;overflow:hidden;background:var(--surface3);margin-bottom:8px">'
     + '<div style="background:var(--blue);width:' + pct(p1) + '%"></div>'
     + '<div style="background:var(--green);width:' + pct(p2) + '%"></div>'
     + '<div style="background:var(--muted2);width:' + pct(cm) + '%"></div>'
     + '</div>'
+    + '<div style="display:flex;gap:12px;font-size:10px;color:var(--muted2);font-weight:600">'
+    + '<span><span style="display:inline-block;width:7px;height:7px;border-radius:2px;background:var(--blue);margin-right:5px;vertical-align:middle"></span>' + p1Name + ' ' + pct(p1) + '%</span>'
+    + '<span><span style="display:inline-block;width:7px;height:7px;border-radius:2px;background:var(--green);margin-right:5px;vertical-align:middle"></span>' + p2Name + ' ' + pct(p2) + '%</span>'
+    + '<span><span style="display:inline-block;width:7px;height:7px;border-radius:2px;background:var(--muted2);margin-right:5px;vertical-align:middle"></span>' + getCommonName() + ' ' + pct(cm) + '%</span>'
+    + '</div>'
     + '</div>';
+}
+
+function quickCopyLastMonth() {
+  if (!assetHistory.length) {
+    showToast('❗ 복사할 전월 데이터가 없어요. 먼저 자산을 기록해주세요');
+    setTimeout(function() { openModal(null); }, 400);
+    return;
+  }
+  const now = new Date();
+  const curMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  const existing = assetHistory.find(function(r) { return r.month === curMonth; });
+  if (existing) {
+    showToast('ℹ️ 이번 달 기록이 이미 있어요. 수정할게요');
+    openModal(curMonth);
+    return;
+  }
+  openModal(null);
+  showToast('✅ 전월 데이터를 불러왔어요. 금액만 수정하세요');
 }
 
 function renderMonthCards() {
   const wrap = document.getElementById('month-cards');
   if (!wrap) return;
   setTimeout(renderAssetTabChart, 100);
+  renderHeroNetWorth();
   renderCoupleAssetSummary();
 
   if (!assetHistory.length) {
@@ -5523,6 +5548,7 @@ function setAssetView(view) {
 function renderItemView() {
   const wrap = document.getElementById('item-view-cards');
   if (!wrap) return;
+  renderHeroNetWorth();
   renderCoupleAssetSummary();
   if (!assetHistory.length) {
     wrap.innerHTML = '<div class="empty-state"><div class="es-icon">📈</div><div class="es-title">항목별 내역이 없어요</div><div class="es-sub">월별 탭에서 자산 기록을 추가하면<br>항목별로 확인할 수 있어요.</div></div>';
@@ -12863,8 +12889,8 @@ function renderAssetTabChart() {
 
   const wrapW = wrap.getBoundingClientRect().width || wrap.offsetWidth || 300;
   const chartW = wrapW;
-  const H = 90;
-  const pad = { t:20, b:20, l:10, r:10 };
+  const H = 80;
+  const pad = { t:18, b:18, l:10, r:10 };
   const innerW = chartW - pad.l - pad.r;
   const innerH = H - pad.t - pad.b;
 
