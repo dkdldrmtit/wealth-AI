@@ -2561,13 +2561,35 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <!-- 분석 탭 -->
   <div id="ltab-content-chart" style="display:none;padding:16px 16px 0">
 
-    <!-- 1. 카테고리별 지출 -->
+    <!-- 1. AI 월말 리포트 (상단, 컴팩트) -->
+    <div class="siri-card" id="ai-report-card" onclick="toggleAiReport()" style="margin-bottom:12px">
+      <div class="siri-card-inner">
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;min-height:36px">
+          <div style="width:4px;height:4px;border-radius:50%;background:#c9a84c;animation:ai-dot-pulse 2.5s ease infinite;flex-shrink:0"></div>
+          <div style="flex:1;overflow:hidden;height:16px;position:relative">
+            <div id="ai-report-ticker" style="font-size:12px;color:var(--text);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:absolute;width:100%;line-height:1.4;animation:ai-fade-in 0.5s ease both">이번 달 소비 분석 중...</div>
+          </div>
+          <button onclick="event.stopPropagation();generateMonthlyReport()" id="report-gen-btn"
+            title="다시 생성"
+            style="background:transparent;border:none;color:rgba(180,155,80,0.5);cursor:pointer;flex-shrink:0;padding:2px;display:flex;align-items:center;justify-content:center">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          </button>
+          <div id="ai-report-chevron" style="font-size:9px;color:rgba(180,155,80,0.45);flex-shrink:0;transition:transform 0.3s">▾</div>
+        </div>
+        <div id="ai-report-expand" style="display:none;padding:0 12px 12px;border-top:0.5px solid rgba(180,155,80,0.12)">
+          <div id="ai-report-content" style="font-size:13px;color:var(--text);line-height:1.85;padding-top:10px"></div>
+          <div style="margin-top:8px;font-size:9px;color:rgba(180,155,80,0.35);letter-spacing:2px;text-transform:uppercase">M&S Wealth · AI Analysis</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 카테고리별 지출 -->
     <div class="card" style="margin-bottom:12px">
       <div class="card-title">카테고리별 지출</div>
       <div id="category-chart"></div>
     </div>
 
-    <!-- 2. 월별 추이 차트 -->
+    <!-- 3. 월별 추이 차트 -->
     <div class="card" style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <div class="card-title" style="margin-bottom:0">월별 지출 추이</div>
@@ -2577,31 +2599,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         </div>
       </div>
       <div id="ledger-trend-chart" style="overflow-x:auto"></div>
-    </div>
-
-    <!-- 3. AI 월말 리포트 -->
-    <div class="siri-card" id="ai-report-card" onclick="toggleAiReport()" style="margin-bottom:12px">
-      <div class="siri-card-inner">
-        <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;min-height:44px">
-          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0">
-            <div style="width:4px;height:4px;border-radius:50%;background:#c9a84c;animation:ai-dot-pulse 2.5s ease infinite"></div>
-            <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;color:rgba(180,155,80,0.6);text-transform:uppercase;writing-mode:vertical-rl;transform:rotate(180deg)">AI</div>
-          </div>
-          <div style="flex:1;overflow:hidden;height:18px;position:relative">
-            <div id="ai-report-ticker" style="font-size:12.5px;color:var(--text);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:absolute;width:100%;line-height:1.5;animation:ai-fade-in 0.5s ease both">이번 달 소비 분석 중...</div>
-          </div>
-          <button onclick="event.stopPropagation();generateMonthlyReport()" id="report-gen-btn"
-            title="다시 생성"
-            style="background:transparent;border:none;color:rgba(180,155,80,0.5);cursor:pointer;flex-shrink:0;padding:4px;display:flex;align-items:center;justify-content:center">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-          </button>
-          <div id="ai-report-chevron" style="font-size:10px;color:rgba(180,155,80,0.45);flex-shrink:0;transition:transform 0.3s">▾</div>
-        </div>
-        <div id="ai-report-expand" style="display:none;padding:0 14px 14px;border-top:0.5px solid rgba(180,155,80,0.12)">
-          <div id="ai-report-content" style="font-size:13px;color:var(--text);line-height:1.85;padding-top:12px"></div>
-          <div style="margin-top:10px;font-size:9px;color:rgba(180,155,80,0.35);letter-spacing:2px;text-transform:uppercase">M&S Wealth · AI Analysis</div>
-        </div>
-      </div>
     </div>
 
     <!-- 숨겨진 자동 인사이트 + 히트맵은 향후 재검토 -->
@@ -2681,20 +2678,22 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <!-- 예산 탭 -->
   <div id="ltab-content-budget" style="display:none;padding:0 16px 120px">
 
-    <!-- 예산 현황 -->
-    <div class="card" style="margin-bottom:12px">
+    <!-- 예산 현황 + 정기 지출 통합 카드 -->
+    <div class="card">
+      <!-- 예산 현황 헤더 -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
         <div class="card-title" style="margin-bottom:0">이달 예산 현황</div>
         <button onclick="openBudgetEdit()" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer">✏️ 수정</button>
       </div>
       <div id="budget-bars"></div>
-    </div>
 
-    <!-- 정기 지출 (기본 접힘) -->
-    <div class="card">
+      <!-- 구분선 -->
+      <div style="margin:16px 0;border-top:0.5px solid var(--border)"></div>
+
+      <!-- 정기 지출 (접힘) -->
       <div onclick="toggleRecurringCard()" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer">
         <div style="display:flex;align-items:center;gap:8px">
-          <div class="card-title" style="margin-bottom:0">정기 지출</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text)">정기 지출</div>
           <span id="recurring-count-badge" style="font-size:10px;color:var(--muted);font-weight:600"></span>
         </div>
         <span id="recurring-card-chevron" style="font-size:11px;color:var(--muted);transition:transform .2s">▾</span>
