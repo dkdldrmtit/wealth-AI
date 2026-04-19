@@ -2438,16 +2438,13 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <!-- 여백 -->
     <div style="height:20px"></div>
 
-    <!-- 탭 (내역/분석/협의/예산/캘린더) - 스크롤 가능 -->
-    <div style="position:relative">
-      <div id="ledger-tab-bar" style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;gap:2px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none">
-        <button id="ltab-list" onclick="setLedgerTab('list')" style="flex-shrink:0;padding:9px 14px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s;white-space:nowrap">내역</button>
-        <button id="ltab-chart" onclick="setLedgerTab('chart')" style="flex-shrink:0;padding:9px 14px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s;white-space:nowrap">분석</button>
-        <button id="ltab-proposal" onclick="setLedgerTab('proposal')" data-couple-only="1" style="flex-shrink:0;padding:9px 14px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s;white-space:nowrap">협의</button>
-        <button id="ltab-budget" onclick="setLedgerTab('budget')" style="flex-shrink:0;padding:9px 14px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s;white-space:nowrap">예산</button>
-        <button id="ltab-calendar" onclick="setLedgerTab('calendar')" style="flex-shrink:0;padding:9px 14px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s;white-space:nowrap">캘린더</button>
-      </div>
-      <div style="position:absolute;right:0;top:0;bottom:0;width:28px;background:linear-gradient(to right,transparent,var(--bg));border-radius:0 12px 12px 0;pointer-events:none"></div>
+    <!-- 탭 (내역/분석/협의/예산/캘린더) -->
+    <div id="ledger-tab-bar" style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;gap:2px">
+      <button id="ltab-list" onclick="setLedgerTab('list')" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s">내역</button>
+      <button id="ltab-chart" onclick="setLedgerTab('chart')" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">분석</button>
+      <button id="ltab-proposal" onclick="setLedgerTab('proposal')" data-couple-only="1" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">협의</button>
+      <button id="ltab-budget" onclick="setLedgerTab('budget')" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">예산</button>
+      <button id="ltab-calendar" onclick="setLedgerTab('calendar')" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">캘린더</button>
     </div>
 
 
