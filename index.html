@@ -4020,9 +4020,36 @@ let PARTNER_NAMES = load('partner-names', {
   common: '공동'
 });
 
-function getP1Name() { return PARTNER_NAMES.partner1 || '나'; }
-function getP2Name() { return PARTNER_NAMES.partner2 || '배우자'; }
+// 관점 기반 라벨: 사용자가 커스텀 이름('민석'/'시윤' 등)을 설정했으면 그대로,
+// 기본값(나/배우자)이면 현재 로그인한 사용자 관점으로 뒤집어서 반환.
+function _isDefaultName(v) { return !v || v === '나' || v === '배우자'; }
+function getP1Name() {
+  const custom = PARTNER_NAMES.partner1;
+  if (!_isDefaultName(custom)) return custom;
+  return (currentProfile && currentProfile.role === 'partner2') ? '배우자' : '나';
+}
+function getP2Name() {
+  const custom = PARTNER_NAMES.partner2;
+  if (!_isDefaultName(custom)) return custom;
+  return (currentProfile && currentProfile.role === 'partner2') ? '나' : '배우자';
+}
 function getCommonName() { return PARTNER_NAMES.common || '공동'; }
+// 현재 사용자 본인 표시명
+function getMyName() {
+  if (!currentProfile) return '나';
+  return currentProfile.role === 'partner2' ? getP2Name() : getP1Name();
+}
+// 현재 사용자의 배우자 표시명
+function getPartnerName() {
+  if (!currentProfile) return '배우자';
+  return currentProfile.role === 'partner2' ? getP1Name() : getP2Name();
+}
+// userId 기준 표시명 (본인이면 '나', 아니면 '배우자')
+function getDisplayNameForUserId(userId) {
+  if (!userId) return '';
+  if (currentUser && userId === currentUser.id) return getMyName();
+  return getPartnerName();
+}
 
 function savePartnerNames() { store('partner-names', PARTNER_NAMES); }
 
@@ -4057,6 +4084,8 @@ async function loadProfile() {
 
   currentProfile = data;
   currentCoupleId = data.couple_id;
+  // 현재 사용자 관점으로 이름 라벨 재적용 (partner1/partner2 역전 문제 수정)
+  if (typeof applyPartnerNamesToUI === 'function') applyPartnerNamesToUI();
 
   if (!currentCoupleId) {
     hideAuthScreens();
@@ -19131,7 +19160,7 @@ function renderProposals() {
       ? `<div style="margin-top:12px;padding:12px 14px;background:${rm.bg};border:1px solid ${rm.border};border-radius:12px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:${p.reaction.comment ? '8px' : '0'}">
             <span style="font-size:14px;font-weight:700;color:${rm.color}">${rm.label}</span>
-            <span style="font-size:10px;color:var(--muted2)">${p.reaction.respondentName || ''} · ${p.reaction.at ? new Date(p.reaction.at).toLocaleDateString('ko-KR',{month:'short',day:'numeric'}) : ''}</span>
+            <span style="font-size:10px;color:var(--muted2)">${(p.reaction.reactorUserId ? getDisplayNameForUserId(p.reaction.reactorUserId) : (p.reaction.respondentName || ''))} · ${p.reaction.at ? new Date(p.reaction.at).toLocaleDateString('ko-KR',{month:'short',day:'numeric'}) : ''}</span>
           </div>
           ${p.reaction.comment ? `<div style="font-size:13px;color:var(--text);line-height:1.6">${p.reaction.comment}</div>` : ''}
         </div>${purchaseAction}`
@@ -19169,7 +19198,7 @@ function renderProposals() {
           <div style="font-size:20px;font-weight:900;color:var(--text);letter-spacing:-0.5px">${amountStr}<span style="font-size:12px;font-weight:400;color:var(--muted);margin-left:2px">원</span></div>
         </div>
         <div style="text-align:right;flex-shrink:0;margin-left:12px">
-          <div style="font-size:11px;color:var(--muted2);margin-bottom:6px">${p.proposerName} · ${dateStr}</div>
+          <div style="font-size:11px;color:var(--muted2);margin-bottom:6px">${p.proposerUserId ? getDisplayNameForUserId(p.proposerUserId) : (p.proposerName || '')} · ${dateStr}</div>
           ${isMyProposal ? `<button onclick="deleteProposal('${p.id}')" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:6px;color:var(--muted2);font-size:10px;font-weight:600;cursor:pointer;padding:3px 8px;font-family:'Noto Sans KR',sans-serif">삭제</button>` : ''}
         </div>
       </div>
