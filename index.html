@@ -1868,7 +1868,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <h1>자산<br>기록</h1>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:6px">
-      <button onclick="goPage('realestate',{classList:{add:()=>{},remove:()=>{}}})"
+      <button onclick="goPage('realestate',document.querySelectorAll('.nav-item')[2])"
         style="background:none;border:none;color:var(--muted);height:32px;padding:0 10px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:color .2s;flex-shrink:0;gap:4px"
         ontouchstart="this.style.color='var(--text)'" ontouchend="this.style.color='var(--muted)'">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
