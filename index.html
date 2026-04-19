@@ -41,8 +41,8 @@
   /* aliases */
   --teal: #5a9fc4;
   --purple: #5a9fc4;
-  --minsuk: #7ab8d8;
-  --siyun: #fb7185;
+  --p1color: #7ab8d8;
+  --p2color: #fb7185;
   --shadow: rgba(0,0,0,0.4);
   /* 여백 토큰 */
   --space-xs: 4px;
@@ -77,8 +77,8 @@
     --muted2: #6a6a75;
     --teal: #1e3a52;
     --purple: #1e3a52;
-    --minsuk: #1e3a52;
-    --siyun: #f43f5e;
+    --p1color: #1e3a52;
+    --p2color: #f43f5e;
     --shadow: rgba(0,0,0,0.08);
   }
   body::before {
@@ -471,8 +471,8 @@ body[data-theme="dark"] {
   --muted2: #7a8090;
   --teal: #5a9fc4;
   --purple: #5a9fc4;
-  --minsuk: #7ab8d8;
-  --siyun: #fb7185;
+  --p1color: #7ab8d8;
+  --p2color: #fb7185;
   --shadow: rgba(0,0,0,0.4);
 }
 
@@ -500,8 +500,8 @@ body[data-theme="light"] {
   --muted2: #6a6a75;
   --teal: #1e3a52;
   --purple: #1e3a52;
-  --minsuk: #1e3a52;
-  --siyun: #f43f5e;
+  --p1color: #1e3a52;
+  --p2color: #f43f5e;
   --shadow: rgba(0,0,0,0.08);
 }
 
@@ -1211,8 +1211,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <input id="recur-amount-input" type="number" placeholder="금액 (원 단위, 예: 17000)" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:11px 13px;outline:none">
       <div style="font-size:12px;color:var(--muted)">소유자</div>
       <div style="display:flex;gap:8px">
-        <button onclick="setRecurOwner('minsuk')" id="recur-owner-minsuk" style="flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer">나</button>
-        <button onclick="setRecurOwner('siyun')" id="recur-owner-siyun" style="flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer">배우자</button>
+        <button onclick="setRecurOwner('partner1')" id="recur-owner-p1" style="flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer">나</button>
+        <button onclick="setRecurOwner('partner2')" id="recur-owner-p2" style="flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer">배우자</button>
         <button onclick="setRecurOwner('common')" id="recur-owner-common" style="flex:1;padding:9px;border-radius:10px;border:1px solid var(--teal);background:rgba(20,184,166,.15);color:var(--teal);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">공동</button>
       </div>
     </div>
@@ -1415,13 +1415,13 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
     <!-- 민석/시윤 분리 -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-      <div onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[2]);setTimeout(()=>setStkOwner('minsuk'),300)" style="background:var(--surface2);border-radius:12px;padding:10px;cursor:pointer">
-        <div id="home-stock-ms-label" style="font-size:10px;color:var(--minsuk);font-weight:600;margin-bottom:6px">나 ›</div>
+      <div onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[2]);setTimeout(()=>setStkOwner('partner1'),300)" style="background:var(--surface2);border-radius:12px;padding:10px;cursor:pointer">
+        <div id="home-stock-ms-label" style="font-size:10px;color:var(--p1color);font-weight:600;margin-bottom:6px">나 ›</div>
         <div id="home-stock-ms-val" style="font-size:14px;font-weight:800;color:var(--text)">-</div>
         <div id="home-stock-ms-pnl" style="font-size:11px;font-weight:600;margin-top:2px">-</div>
       </div>
-      <div onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[2]);setTimeout(()=>setStkOwner('siyun'),300)" style="background:var(--surface2);border-radius:12px;padding:10px;cursor:pointer">
-        <div id="home-stock-sy-label" style="font-size:10px;color:var(--siyun);font-weight:600;margin-bottom:6px">배우자 ›</div>
+      <div onclick="event.stopPropagation();goPage('stocks',document.querySelectorAll('.nav-item')[2]);setTimeout(()=>setStkOwner('partner2'),300)" style="background:var(--surface2);border-radius:12px;padding:10px;cursor:pointer">
+        <div id="home-stock-sy-label" style="font-size:10px;color:var(--p2color);font-weight:600;margin-bottom:6px">배우자 ›</div>
         <div id="home-stock-sy-val" style="font-size:14px;font-weight:800;color:var(--text)">-</div>
         <div id="home-stock-sy-pnl" style="font-size:11px;font-weight:600;margin-top:2px">-</div>
       </div>
@@ -1646,8 +1646,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <!-- 소유자 -->
       <div style="display:flex;background:var(--surface2);border-radius:10px;padding:3px;gap:2px;margin-bottom:16px">
         <button id="hm-owner-cm" onclick="setHomeMicOwner('common')" style="flex:1;padding:7px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:rgba(30,58,82,0.10);color:var(--text)">공동</button>
-        <button id="hm-owner-ms" onclick="setHomeMicOwner('minsuk')" style="flex:1;padding:7px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2)">나</button>
-        <button id="hm-owner-sy" onclick="setHomeMicOwner('siyun')" style="flex:1;padding:7px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2)">배우자</button>
+        <button id="hm-owner-ms" onclick="setHomeMicOwner('partner1')" style="flex:1;padding:7px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2)">나</button>
+        <button id="hm-owner-sy" onclick="setHomeMicOwner('partner2')" style="flex:1;padding:7px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2)">배우자</button>
       </div>
       <!-- 상태 표시 -->
       <div style="text-align:center;margin-bottom:16px">
@@ -2530,9 +2530,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
               style="flex:1;padding:6px 4px;border-radius:8px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface3);color:var(--text)">전체</button>
             <button id="lf-owner-common" onclick="setLedgerFilterOwner('common')"
               style="flex:1;padding:6px 4px;border-radius:8px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">공동</button>
-            <button id="lf-owner-minsuk" onclick="setLedgerFilterOwner('minsuk')"
+            <button id="lf-owner-p1" onclick="setLedgerFilterOwner('partner1')"
               style="flex:1;padding:6px 4px;border-radius:8px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">나</button>
-            <button id="lf-owner-siyun" onclick="setLedgerFilterOwner('siyun')"
+            <button id="lf-owner-p2" onclick="setLedgerFilterOwner('partner2')"
               style="flex:1;padding:6px 4px;border-radius:8px;border:1px solid var(--border2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">배우자</button>
           </div>
         </div>
@@ -2744,8 +2744,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <span style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0">누구</span>
         <div style="display:flex;gap:6px">
           <button id="tx-owner-cm" onclick="setTxOwner('common')" style="padding:6px 14px;border-radius:16px;border:1px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;color:var(--muted2);cursor:pointer;transition:all .2s">공동</button>
-          <button id="tx-owner-ms" onclick="setTxOwner('minsuk')" style="padding:6px 14px;border-radius:16px;border:1px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;color:var(--muted2);cursor:pointer;transition:all .2s">나</button>
-          <button id="tx-owner-sy" onclick="setTxOwner('siyun')" style="padding:6px 14px;border-radius:16px;border:1px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;color:var(--muted2);cursor:pointer;transition:all .2s">배우자</button>
+          <button id="tx-owner-ms" onclick="setTxOwner('partner1')" style="padding:6px 14px;border-radius:16px;border:1px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;color:var(--muted2);cursor:pointer;transition:all .2s">나</button>
+          <button id="tx-owner-sy" onclick="setTxOwner('partner2')" style="padding:6px 14px;border-radius:16px;border:1px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;color:var(--muted2);cursor:pointer;transition:all .2s">배우자</button>
         </div>
       </div>
 
@@ -2829,8 +2829,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <!-- 소유자 선택 -->
       <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:16px;gap:2px">
         <button id="voice-owner-cm" onclick="setVoiceOwner('common')" style="flex:1;padding:9px;border-radius:9px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:rgba(30,58,82,0.10);color:var(--text);border:0.5px solid rgba(30,58,82,0.25);transition:all .2s">공동</button>
-        <button id="voice-owner-ms" onclick="setVoiceOwner('minsuk')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">나</button>
-        <button id="voice-owner-sy" onclick="setVoiceOwner('siyun')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">배우자</button>
+        <button id="voice-owner-ms" onclick="setVoiceOwner('partner1')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">나</button>
+        <button id="voice-owner-sy" onclick="setVoiceOwner('partner2')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">배우자</button>
 
       </div>
 
@@ -2928,8 +2928,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:8px">지출 주체</div>
         <div style="display:flex;background:var(--surface2);border-radius:10px;padding:3px;gap:2px">
           <button id="excel-owner-joint" onclick="setExcelOwner('joint')" style="flex:1;padding:7px;border-radius:8px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:rgba(30,58,82,0.10);color:var(--text);border:0.5px solid rgba(30,58,82,0.25)">공동</button>
-          <button id="excel-owner-minsuk" onclick="setExcelOwner('minsuk')" style="flex:1;padding:7px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2)">나</button>
-          <button id="excel-owner-siyun" onclick="setExcelOwner('siyun')" style="flex:1;padding:7px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2)">배우자</button>
+          <button id="excel-owner-p1" onclick="setExcelOwner('partner1')" style="flex:1;padding:7px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2)">나</button>
+          <button id="excel-owner-p2" onclick="setExcelOwner('partner2')" style="flex:1;padding:7px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2)">배우자</button>
         </div>
       </div>
 
@@ -2978,8 +2978,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <!-- 소유자 선택 -->
       <div style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:14px;gap:2px">
         <button id="sms-owner-cm" onclick="setSmsOwner('common')" style="flex:1;padding:9px;border-radius:9px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:rgba(30,58,82,0.10);color:var(--text);border:0.5px solid rgba(30,58,82,0.25);transition:all .2s">공동</button>
-        <button id="sms-owner-ms" onclick="setSmsOwner('minsuk')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">나</button>
-        <button id="sms-owner-sy" onclick="setSmsOwner('siyun')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">배우자</button>
+        <button id="sms-owner-ms" onclick="setSmsOwner('partner1')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">나</button>
+        <button id="sms-owner-sy" onclick="setSmsOwner('partner2')" style="flex:1;padding:9px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">배우자</button>
 
       </div>
 
@@ -3314,9 +3314,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div id="stk-owner-seg" style="display:flex;align-items:center;gap:0">
         <button id="stk-own-all" onclick="setStkOwner('all')"
           style="padding:6px 10px;border:none;border-bottom:1.5px solid var(--text);background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;color:var(--text);line-height:1">전체</button>
-        <button id="stk-own-ms" onclick="setStkOwner('minsuk')"
+        <button id="stk-own-ms" onclick="setStkOwner('partner1')"
           style="padding:6px 10px;border:none;border-bottom:1.5px solid transparent;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted2);line-height:1">나</button>
-        <button id="stk-own-sy" onclick="setStkOwner('siyun')"
+        <button id="stk-own-sy" onclick="setStkOwner('partner2')"
           style="padding:6px 10px;border:none;border-bottom:1.5px solid transparent;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted2);line-height:1">배우자</button>
       </div>
       <div style="display:flex;gap:6px;align-items:center">
@@ -3438,8 +3438,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)">
         <span style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0">소유자</span>
         <div style="display:flex;gap:8px">
-          <button id="stock-owner-ms" onclick="setStockOwner('minsuk')" style="padding:7px 18px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted2);transition:all .2s">나</button>
-          <button id="stock-owner-sy" onclick="setStockOwner('siyun')" style="padding:7px 18px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted2);transition:all .2s">배우자</button>
+          <button id="stock-owner-ms" onclick="setStockOwner('partner1')" style="padding:7px 18px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted2);transition:all .2s">나</button>
+          <button id="stock-owner-sy" onclick="setStockOwner('partner2')" style="padding:7px 18px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted2);transition:all .2s">배우자</button>
         </div>
       </div>
 
@@ -3709,11 +3709,11 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
             style="flex:1;padding:8px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s">
             공동
           </button>
-          <button id="add-owner-minsuk" onclick="setAddItemOwner('minsuk')"
+          <button id="add-owner-p1" onclick="setAddItemOwner('partner1')"
             style="flex:1;padding:8px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">
             나
           </button>
-          <button id="add-owner-siyun" onclick="setAddItemOwner('siyun')"
+          <button id="add-owner-p2" onclick="setAddItemOwner('partner2')"
             style="flex:1;padding:8px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">
             배우자
           </button>
@@ -3754,9 +3754,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div style="display:flex;background:var(--surface2);border-radius:10px;padding:3px;gap:2px">
           <button id="apt-owner-common" onclick="setAptOwner('common')"
             style="flex:1;padding:8px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text)">공동</button>
-          <button id="apt-owner-minsuk" onclick="setAptOwner('minsuk')"
+          <button id="apt-owner-p1" onclick="setAptOwner('partner1')"
             style="flex:1;padding:8px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">나</button>
-          <button id="apt-owner-siyun" onclick="setAptOwner('siyun')"
+          <button id="apt-owner-p2" onclick="setAptOwner('partner2')"
             style="flex:1;padding:8px;border-radius:8px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted2)">배우자</button>
 
         </div>
@@ -4865,8 +4865,8 @@ function openRecurringModal() {
   if (nameInput) { nameInput.value = ''; nameInput.focus(); }
   if (amtInput) amtInput.value = '';
   // 버튼 텍스트 동적 업데이트
-  const msBtn = document.getElementById('recur-owner-minsuk');
-  const syBtn = document.getElementById('recur-owner-siyun');
+  const msBtn = document.getElementById('recur-owner-p1');
+  const syBtn = document.getElementById('recur-owner-p2');
   if (msBtn) msBtn.textContent = getP1Name();
   if (syBtn) syBtn.textContent = getP2Name();
   setRecurOwner('common');
@@ -4880,11 +4880,11 @@ function closeRecurringModal() {
 function setRecurOwner(owner) {
   _recurOwner = owner;
   const colorMap = {
-    minsuk: { bg: 'rgba(90,159,196,.12)', border: 'rgba(90,159,196,.35)', color: 'var(--blue)' },
-    siyun:  { bg: 'rgba(34,197,94,.15)',  border: 'rgba(34,197,94,.4)',  color: 'var(--green)' },
+    partner1: { bg: 'rgba(90,159,196,.12)', border: 'rgba(90,159,196,.35)', color: 'var(--blue)' },
+    partner2:  { bg: 'rgba(34,197,94,.15)',  border: 'rgba(34,197,94,.4)',  color: 'var(--green)' },
     common: { bg: 'rgba(20,184,166,.15)', border: 'var(--teal)',          color: 'var(--teal)' }
   };
-  ['minsuk','siyun','common'].forEach(function(o) {
+  ['partner1','partner2','common'].forEach(function(o) {
     const btn = document.getElementById('recur-owner-' + o);
     if (!btn) return;
     if (o === owner) {
@@ -5001,8 +5001,8 @@ function getGoalCurrent(g) {
       return fin;
     }
     if (latest.detail) {
-      const ms = latest.detail.minsuk || {};
-      const sy = latest.detail.siyun || {};
+      const ms = latest.detail.partner1 || latest.detail.minsuk || {};
+      const sy = latest.detail.partner2 || latest.detail.siyun || {};
       return (ms.irp||0)+(ms.msSub||0)+(ms.s1||0)+(ms.toss||0)+(sy.cash||0)+(sy.sySub||0)+(sy.jump||0)+(sy.fund||0)+(sy.s2||0);
     }
   }
@@ -5157,6 +5157,37 @@ function resetGoalForm() {
   if (changed) store('asset-history', history);
 })();
 
+// ── owner key migration: minsuk→partner1, siyun→partner2 ──
+(function migrateOwnerKeys() {
+  function migrate(arr) {
+    var changed = false;
+    arr.forEach(function(item) {
+      if (item.owner === 'minsuk') { item.owner = 'partner1'; changed = true; }
+      else if (item.owner === 'siyun') { item.owner = 'partner2'; changed = true; }
+    });
+    return changed;
+  }
+  var txs = load('ledger-txs', []);
+  if (migrate(txs)) store('ledger-txs', txs);
+  var stk = load('stocks', []);
+  if (migrate(stk)) store('stocks', stk);
+  var rec = load('recurring-items', []);
+  if (migrate(rec)) store('recurring-items', rec);
+  var apt = load('apt-list', []);
+  if (migrate(apt)) store('apt-list', apt);
+  var hist = load('asset-history', []);
+  var hChanged = false;
+  hist.forEach(function(r) {
+    if (r.items && migrate(r.items)) hChanged = true;
+    if (r.detail && r.detail.minsuk !== undefined && r.detail.partner1 === undefined) {
+      r.detail.partner1 = r.detail.minsuk; delete r.detail.minsuk;
+      r.detail.partner2 = r.detail.siyun;  delete r.detail.siyun;
+      hChanged = true;
+    }
+  });
+  if (hChanged) store('asset-history', hist);
+})();
+
 // ── History ──
 let assetHistory = load('asset-history', []);
 
@@ -5165,10 +5196,12 @@ function updateHome(rec) {
   const total = rec.total, debt = rec.debt;
   const apt = rec.detail?.apt || 0;
   const rental = rec.detail?.rental || 0;
-  const fin = rec.detail ? (rec.detail.minsuk.irp + rec.detail.minsuk.msSub + rec.detail.minsuk.s1 + rec.detail.minsuk.toss + rec.detail.siyun.cash + rec.detail.siyun.sySub + rec.detail.siyun.jump + rec.detail.siyun.fund + rec.detail.siyun.s2) : 0;
+  const _p1d = rec.detail ? (rec.detail.partner1 || rec.detail.minsuk || {}) : {};
+  const _p2d = rec.detail ? (rec.detail.partner2 || rec.detail.siyun || {}) : {};
+  const fin = rec.detail ? ((_p1d.irp||0) + (_p1d.msSub||0) + (_p1d.s1||0) + (_p1d.toss||0) + (_p2d.cash||0) + (_p2d.sySub||0) + (_p2d.jump||0) + (_p2d.fund||0) + (_p2d.s2||0)) : 0;
   const liquid = rec.detail?.liquid || 0;
-  const minsukTotal = rec.detail ? (rec.detail.minsuk.irp + rec.detail.minsuk.msSub + rec.detail.minsuk.s1 + rec.detail.minsuk.toss) : 0;
-  const siyunTotal = rec.detail ? (rec.detail.siyun.cash + rec.detail.siyun.sySub + rec.detail.siyun.jump + rec.detail.siyun.fund + rec.detail.siyun.s2) : 0;
+  const p1Total = (_p1d.irp||0) + (_p1d.msSub||0) + (_p1d.s1||0) + (_p1d.toss||0);
+  const p2Total = (_p2d.cash||0) + (_p2d.sySub||0) + (_p2d.jump||0) + (_p2d.fund||0) + (_p2d.s2||0);
   const el = id => document.getElementById(id);
   if (el('h-total')) el('h-total').textContent = (total/10000).toFixed(2);
   if (el('h-debt')) el('h-debt').textContent = (debt/10000).toFixed(2);
@@ -5187,12 +5220,12 @@ function updateHome(rec) {
     if (el('d-fin')) { el('d-fin').setAttribute('stroke-dasharray',`${finD} ${C}`); el('d-fin').setAttribute('stroke-dashoffset', -(aptD+rentalD-IO)); }
     if (el('d-liq')) { el('d-liq').setAttribute('stroke-dasharray',`${liqD} ${C}`); el('d-liq').setAttribute('stroke-dashoffset', -(aptD+rentalD+finD-IO)); }
   }
-  if (el('h-minsuk-amt')) el('h-minsuk-amt').textContent = minsukTotal.toLocaleString() + '만';
-  if (el('h-siyun-amt')) el('h-siyun-amt').textContent = siyunTotal.toLocaleString() + '만';
+  if (el('h-p1-amt')) el('h-p1-amt').textContent = p1Total.toLocaleString() + '만';
+  if (el('h-p2-amt')) el('h-p2-amt').textContent = p2Total.toLocaleString() + '만';
   if (rec.detail) {
-    const ms = rec.detail.minsuk, sy = rec.detail.siyun;
-    if (el('h-minsuk-items')) el('h-minsuk-items').innerHTML = `IRP ${ms.irp.toLocaleString()} · 청약 ${ms.msSub.toLocaleString()}<br>우리사주 ${ms.s1.toLocaleString()} · 토스 ${ms.toss.toLocaleString()}`;
-    if (el('h-siyun-items')) el('h-siyun-items').innerHTML = `현금 ${sy.cash.toLocaleString()} · 청약 ${sy.sySub.toLocaleString()}<br>청년도약 ${sy.jump.toLocaleString()} · 펀드 ${sy.fund.toLocaleString()} · 주식 ${sy.s2.toLocaleString()}`;
+    const ms = rec.detail.partner1 || rec.detail.minsuk || {}, sy = rec.detail.partner2 || rec.detail.siyun || {};
+    if (el('h-p1-items')) el('h-p1-items').innerHTML = `IRP ${ms.irp.toLocaleString()} · 청약 ${ms.msSub.toLocaleString()}<br>우리사주 ${ms.s1.toLocaleString()} · 토스 ${ms.toss.toLocaleString()}`;
+    if (el('h-p2-items')) el('h-p2-items').innerHTML = `현금 ${sy.cash.toLocaleString()} · 청약 ${sy.sySub.toLocaleString()}<br>청년도약 ${sy.jump.toLocaleString()} · 펀드 ${sy.fund.toLocaleString()} · 주식 ${sy.s2.toLocaleString()}`;
   }
 }
 
@@ -5263,16 +5296,16 @@ function updateHomeFromItems(rec) {
   renderDonutCard();
 
   // 민석/시윤 항목 (owner 기준으로 조회, 구버전 카테고리명도 호환)
-  const msItems = rec.items.filter(i=>i.type==='asset' && (i.owner==='minsuk' || i.category==='p1금융자산'));
-  const syItems = rec.items.filter(i=>i.type==='asset' && (i.owner==='siyun'  || i.category==='p2금융자산'));
+  const msItems = rec.items.filter(i=>i.type==='asset' && (i.owner==='partner1' || i.category==='p1금융자산'));
+  const syItems = rec.items.filter(i=>i.type==='asset' && (i.owner==='partner2'  || i.category==='p2금융자산'));
   const msTotal = msItems.reduce((s,i)=>s+i.amount,0);
   const syTotal = syItems.reduce((s,i)=>s+i.amount,0);
-  if(el('h-minsuk-amt')) el('h-minsuk-amt').textContent = msTotal > 0 ? msTotal.toLocaleString()+'만' : '—';
-  if(el('h-siyun-amt'))  el('h-siyun-amt').textContent  = syTotal > 0 ? syTotal.toLocaleString()+'만' : '—';
-  if(el('h-minsuk-items')) el('h-minsuk-items').innerHTML = msItems.length
+  if(el('h-p1-amt')) el('h-p1-amt').textContent = msTotal > 0 ? msTotal.toLocaleString()+'만' : '—';
+  if(el('h-p2-amt'))  el('h-p2-amt').textContent  = syTotal > 0 ? syTotal.toLocaleString()+'만' : '—';
+  if(el('h-p1-items')) el('h-p1-items').innerHTML = msItems.length
     ? msItems.map(i => i.name + ' ' + i.amount.toLocaleString()).join('<br>')
     : '<span style="color:var(--muted)">항목 없음</span>';
-  if(el('h-siyun-items'))  el('h-siyun-items').innerHTML  = syItems.length
+  if(el('h-p2-items'))  el('h-p2-items').innerHTML  = syItems.length
     ? syItems.map(i => i.name + ' ' + i.amount.toLocaleString()).join('<br>')
     : '<span style="color:var(--muted)">항목 없음</span>';
   // 자산구성 카드 갱신
@@ -5952,10 +5985,10 @@ function renderAddItemPresets() {
         }, 0);
     }
 
-    const msKr = Math.round(calcOwnerMarket('minsuk', 'KR') / 10000);
-    const msUs = Math.round(calcOwnerMarket('minsuk', 'US') / 10000);
-    const syKr = Math.round(calcOwnerMarket('siyun', 'KR') / 10000);
-    const syUs = Math.round(calcOwnerMarket('siyun', 'US') / 10000);
+    const msKr = Math.round(calcOwnerMarket('partner1', 'KR') / 10000);
+    const msUs = Math.round(calcOwnerMarket('partner1', 'US') / 10000);
+    const syKr = Math.round(calcOwnerMarket('partner2', 'KR') / 10000);
+    const syUs = Math.round(calcOwnerMarket('partner2', 'US') / 10000);
 
     const p1Name = getP1Name();
     const p2Name = getP2Name();
@@ -6067,8 +6100,8 @@ function renderAddItemPresets() {
         ? '<div style="margin-bottom:8px">'
           + '<div style="font-size:10px;color:var(--muted2);font-weight:600;margin-bottom:5px">🇰🇷 국내주식·ETF</div>'
           + '<div style="display:flex;gap:8px">'
-          + stockCard('minsuk', 'KR', msKr, p1Name, '👤')
-          + stockCard('siyun',  'KR', syKr, p2Name, '👤')
+          + stockCard('partner1', 'KR', msKr, p1Name, '👤')
+          + stockCard('partner2',  'KR', syKr, p2Name, '👤')
           + '</div></div>'
         : '')
       // 해외주식 행
@@ -6076,8 +6109,8 @@ function renderAddItemPresets() {
         ? '<div style="margin-bottom:8px">'
           + '<div style="font-size:10px;color:var(--muted2);font-weight:600;margin-bottom:5px">🇺🇸 해외주식·ETF</div>'
           + '<div style="display:flex;gap:8px">'
-          + stockCard('minsuk', 'US', msUs, p1Name, '👤')
-          + stockCard('siyun',  'US', syUs, p2Name, '👤')
+          + stockCard('partner1', 'US', msUs, p1Name, '👤')
+          + stockCard('partner2',  'US', syUs, p2Name, '👤')
           + '</div></div>'
         : '')
       // 계좌종류별 행
@@ -6177,7 +6210,7 @@ function linkStockToItem(market, owner) {
 
   // 소유자 자동 설정 + 버튼 잠금
   setAddItemOwner(owner);
-  ['common','minsuk','siyun'].forEach(function(o) {
+  ['common','partner1','partner2'].forEach(function(o) {
 
     const btn = document.getElementById('add-owner-' + o);
     if (!btn) return;
@@ -6206,7 +6239,7 @@ function closeAddItemModal() {
   document.getElementById('add-item-modal').style.display = 'none';
 
   // ── 소유자 버튼 잠금 해제
-  ['common','minsuk','siyun'].forEach(function(o) {
+  ['common','partner1','partner2'].forEach(function(o) {
     const btn = document.getElementById('add-owner-' + o);
     if (btn) {
       btn.disabled = false;
@@ -6254,10 +6287,10 @@ function setAddItemOwner(owner) {
   _addItemOwner = owner;
   const colorMap = {
     common: { bg: 'var(--surface)', color: 'var(--text)' },
-    minsuk: { bg: 'rgba(30,58,82,.12)', color: 'var(--blue)' },
-    siyun:  { bg: 'rgba(34,197,94,.12)',  color: 'var(--green)' }
+    partner1: { bg: 'rgba(30,58,82,.12)', color: 'var(--blue)' },
+    partner2:  { bg: 'rgba(34,197,94,.12)',  color: 'var(--green)' }
   };
-  ['common', 'minsuk', 'siyun'].forEach(function(o) {
+  ['common', 'partner1', 'partner2'].forEach(function(o) {
     const btn = document.getElementById('add-owner-' + o);
     if (!btn) return;
     const isActive = o === owner;
@@ -6509,8 +6542,8 @@ function renderAssetItems() {
     const ownerWrap = document.createElement('div');
     ownerWrap.style.cssText = 'display:flex;background:var(--surface3);border-radius:7px;padding:2px;gap:1px';
 
-      ['common','minsuk','siyun'].forEach(function(o) {
-        const label = o === 'common' ? getCommonName() : o === 'minsuk' ? getP1Name() : getP2Name();
+      ['common','partner1','partner2'].forEach(function(o) {
+        const label = o === 'common' ? getCommonName() : o === 'partner1' ? getP1Name() : getP2Name();
       const isActive = (item.owner || 'common') === o;
       const btn = document.createElement('button');
       btn.textContent = label;
@@ -6600,23 +6633,23 @@ function getItemsDefault(rec) {
   if (rec.items) return rec.items;
   if (!rec.detail) return [];
   const d = rec.detail;
-  const ms = d.minsuk || {};
-  const sy = d.siyun || {};
+  const ms = d.partner1 || d.minsuk || {};
+  const sy = d.partner2 || d.siyun || {};
   const items = [];
   if (d.apt) {
     const aptName = load('apt-settings', null)?.name || '아파트';
     items.push({ category:'realestate', emoji:'🏢', type:'asset', name: aptName, amount:d.apt, memo:'', owner:'common' });
   }
 if (d.rental) items.push({ category:'deposit', emoji:'🔑', type:'asset', name:'월세 보증금', amount:d.rental, memo:'', owner:'common' });
-if (ms.irp) items.push({ category:'pension', emoji:'💛', type:'asset', name:'IRP 연금', amount:ms.irp, memo:'', owner:'minsuk' });
-if (ms.msSub) items.push({ category:'savings', emoji:'💰', type:'asset', name:'청약', amount:ms.msSub, memo:'', owner:'minsuk' });
-if (ms.s1) items.push({ category:'stocks', emoji:'📈', type:'asset', name:'우리사주', amount:ms.s1, memo:'', owner:'minsuk' });
-if (ms.toss) items.push({ category:'stocks', emoji:'📈', type:'asset', name:'토스증권', amount:ms.toss, memo:'', owner:'minsuk' });
-if (sy.cash) items.push({ category:'cash', emoji:'💵', type:'asset', name:'현금', amount:sy.cash, memo:'', owner:'siyun' });
-if (sy.sySub) items.push({ category:'savings', emoji:'💰', type:'asset', name:'청약', amount:sy.sySub, memo:'', owner:'siyun' });
-if (sy.jump) items.push({ category:'savings', emoji:'💰', type:'asset', name:'청년도약', amount:sy.jump, memo:'', owner:'siyun' });
-if (sy.fund) items.push({ category:'stocks', emoji:'📈', type:'asset', name:'신한펀드', amount:sy.fund, memo:'', owner:'siyun' });
-if (sy.s2) items.push({ category:'stocks', emoji:'📈', type:'asset', name:'주식', amount:sy.s2, memo:'', owner:'siyun' });
+if (ms.irp) items.push({ category:'pension', emoji:'💛', type:'asset', name:'IRP 연금', amount:ms.irp, memo:'', owner:'partner1' });
+if (ms.msSub) items.push({ category:'savings', emoji:'💰', type:'asset', name:'청약', amount:ms.msSub, memo:'', owner:'partner1' });
+if (ms.s1) items.push({ category:'stocks', emoji:'📈', type:'asset', name:'우리사주', amount:ms.s1, memo:'', owner:'partner1' });
+if (ms.toss) items.push({ category:'stocks', emoji:'📈', type:'asset', name:'토스증권', amount:ms.toss, memo:'', owner:'partner1' });
+if (sy.cash) items.push({ category:'cash', emoji:'💵', type:'asset', name:'현금', amount:sy.cash, memo:'', owner:'partner2' });
+if (sy.sySub) items.push({ category:'savings', emoji:'💰', type:'asset', name:'청약', amount:sy.sySub, memo:'', owner:'partner2' });
+if (sy.jump) items.push({ category:'savings', emoji:'💰', type:'asset', name:'청년도약', amount:sy.jump, memo:'', owner:'partner2' });
+if (sy.fund) items.push({ category:'stocks', emoji:'📈', type:'asset', name:'신한펀드', amount:sy.fund, memo:'', owner:'partner2' });
+if (sy.s2) items.push({ category:'stocks', emoji:'📈', type:'asset', name:'주식', amount:sy.s2, memo:'', owner:'partner2' });
 if (d.liquid) items.push({ category:'cash', emoji:'💵', type:'asset', name:'예정 유동성', amount:d.liquid, memo:'', owner:'common' });
 if (d.debt) items.push({ category:'housing-debt', emoji:'🔴', type:'debt', name:'전세보증금', amount:d.debt, memo:'', owner:'common' });
   return items;
@@ -7329,7 +7362,7 @@ function exportLedgerExcel() {
     .sort(function(a, b) { return b.date.localeCompare(a.date); })
     .map(function(t) {
       const cat = allCats.find(function(c) { return c.id === t.category; }) || { label: '기타' };
-      const ownerLabel = t.owner === 'minsuk' ? getP1Name() : t.owner === 'siyun' ? getP2Name() : getCommonName();
+      const ownerLabel = t.owner === 'partner1' ? getP1Name() : t.owner === 'partner2' ? getP2Name() : getCommonName();
       return {
         '날짜': t.date,
         '유형': t.type === 'income' ? '수입' : '지출',
@@ -7573,10 +7606,10 @@ function renderPartnerActivity() {
     return;
   }
 
-  // 배우자(siyun)의 최근 거래
+  // 배우자(partner2)의 최근 거래
   const partnerName = getP2Name();
   const partnerTxs = (ledgerTxs || [])
-    .filter(function(t) { return t.owner === 'siyun'; })
+    .filter(function(t) { return t.owner === 'partner2'; })
     .sort(function(a, b) { return (b.date || '').localeCompare(a.date || '') || (parseInt(b.id||'0',10) - parseInt(a.id||'0',10)); })
     .slice(0, 3);
 
@@ -7709,8 +7742,8 @@ function renderCoupleCard() {
   var now = new Date();
   var thisMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
 
-  var msTxs = ledgerTxs.filter(function(t) { return t.date.startsWith(thisMonth) && t.owner === 'minsuk'; });
-  var syTxs = ledgerTxs.filter(function(t) { return t.date.startsWith(thisMonth) && t.owner === 'siyun'; });
+  var msTxs = ledgerTxs.filter(function(t) { return t.date.startsWith(thisMonth) && t.owner === 'partner1'; });
+  var syTxs = ledgerTxs.filter(function(t) { return t.date.startsWith(thisMonth) && t.owner === 'partner2'; });
 
   var msExp = msTxs.filter(function(t) { return t.type === 'expense'; }).reduce(function(s,t) { return s+t.amount; }, 0);
   var syExp = syTxs.filter(function(t) { return t.type === 'expense'; }).reduce(function(s,t) { return s+t.amount; }, 0);
@@ -7728,11 +7761,11 @@ function renderCoupleCard() {
   // 이기는 사람이 왼쪽
   var L, R;
   if (syWins) {
-    L = { name: getP2Name(), amt: syExp, hex: '#22c55e', cssVar: 'var(--siyun)', badge: getP2Name(), badgeBg: 'rgba(34,197,94,0.15)' };
-    R = { name: getP1Name(), amt: msExp, hex: '#5a9fc4', cssVar: 'var(--minsuk)', badge: getP1Name(), badgeBg: 'rgba(30,58,82,0.15)' };
+    L = { name: getP2Name(), amt: syExp, hex: '#22c55e', cssVar: 'var(--p2color)', badge: getP2Name(), badgeBg: 'rgba(34,197,94,0.15)' };
+    R = { name: getP1Name(), amt: msExp, hex: '#5a9fc4', cssVar: 'var(--p1color)', badge: getP1Name(), badgeBg: 'rgba(30,58,82,0.15)' };
   } else {
-    L = { name: getP1Name(), amt: msExp, hex: '#5a9fc4', cssVar: 'var(--minsuk)', badge: getP1Name(), badgeBg: 'rgba(30,58,82,0.15)' };
-    R = { name: getP2Name(), amt: syExp, hex: '#22c55e', cssVar: 'var(--siyun)', badge: getP2Name(), badgeBg: 'rgba(34,197,94,0.15)' };
+    L = { name: getP1Name(), amt: msExp, hex: '#5a9fc4', cssVar: 'var(--p1color)', badge: getP1Name(), badgeBg: 'rgba(30,58,82,0.15)' };
+    R = { name: getP2Name(), amt: syExp, hex: '#22c55e', cssVar: 'var(--p2color)', badge: getP2Name(), badgeBg: 'rgba(34,197,94,0.15)' };
   }
 
   var lWins = msWins || syWins; // 무승부가 아닌 경우
@@ -7837,10 +7870,10 @@ function renderLedgerCoupleCard(txs) {
   if (!battleArea) return;
 
   const msExp = (txs||ledgerTxs.filter(function(t){ return t.date.startsWith(ledgerMonth); }))
-    .filter(function(t){ return t.owner==='minsuk' && t.type==='expense'; })
+    .filter(function(t){ return t.owner==='partner1' && t.type==='expense'; })
     .reduce(function(s,t){ return s+t.amount; }, 0);
   const syExp = (txs||ledgerTxs.filter(function(t){ return t.date.startsWith(ledgerMonth); }))
-    .filter(function(t){ return t.owner==='siyun' && t.type==='expense'; })
+    .filter(function(t){ return t.owner==='partner2' && t.type==='expense'; })
     .reduce(function(s,t){ return s+t.amount; }, 0);
 
   function fmtExp(v) {
@@ -7973,10 +8006,10 @@ function renderHomeStockRankList() {
     const pctColor = isUp ? 'var(--red)' : 'var(--blue)';
     const pnlColor = pnl >= 0 ? 'var(--red)' : 'var(--blue)';
     const ownerBadge = '<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:6px;margin-left:4px;'
-      + 'background:' + (s.owner === 'minsuk' ? 'rgba(30,58,82,.12)' : 'rgba(34,197,94,.12)') + ';'
-      + 'color:' + (s.owner === 'minsuk' ? 'var(--minsuk)' : 'var(--siyun)') + ';'
-      + 'border:0.5px solid ' + (s.owner === 'minsuk' ? 'rgba(30,58,82,.3)' : 'rgba(34,197,94,.3)') + '">'
-      + (s.owner === 'minsuk' ? getP1Name() : getP2Name()) + '</span>';
+      + 'background:' + (s.owner === 'partner1' ? 'rgba(30,58,82,.12)' : 'rgba(34,197,94,.12)') + ';'
+      + 'color:' + (s.owner === 'partner1' ? 'var(--p1color)' : 'var(--p2color)') + ';'
+      + 'border:0.5px solid ' + (s.owner === 'partner1' ? 'rgba(30,58,82,.3)' : 'rgba(34,197,94,.3)') + '">'
+      + (s.owner === 'partner1' ? getP1Name() : getP2Name()) + '</span>';
     const acctBadge = s.accountType
       ? '<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:6px;margin-left:4px;'
         + 'background:rgba(201,168,76,.10);color:var(--gold);border:0.5px solid rgba(201,168,76,.25)">'
@@ -8079,8 +8112,8 @@ function renderHomeStocksSummary() {
     return { eval: eval_, buy: buy_, pnl: eval_ - buy_, pct: buy_ > 0 ? (eval_ - buy_) / buy_ * 100 : 0, hasPrice };
   }
 
-  const ms = calcOwner('minsuk');
-  const sy = calcOwner('siyun');
+  const ms = calcOwner('partner1');
+  const sy = calcOwner('partner2');
 
   // 이름 라벨 동적 업데이트
   const msLabelEl = document.getElementById('home-stock-ms-label');
@@ -8483,7 +8516,7 @@ function updateFilterBadges() {
     badges.push({ text: periodLabels[ledgerPeriodFilter] || ledgerPeriodFilter, clear: function(){ setLedgerPeriod('month'); } });
   }
   if (ledgerFilterOwner !== 'all') {
-    const ownerLabels = { 'common': getCommonName(), 'minsuk': getP1Name(), 'siyun': getP2Name() };
+    const ownerLabels = { 'common': getCommonName(), 'partner1': getP1Name(), 'partner2': getP2Name() };
     badges.push({ text: ownerLabels[ledgerFilterOwner], clear: function(){ setLedgerFilterOwner('all'); } });
   }
   if (ledgerCatFilter.length > 0) {
@@ -8547,18 +8580,18 @@ function setLedgerPeriod(period) {
 
 function setLedgerFilterOwner(owner) {
   ledgerFilterOwner = owner;
-  ['all','common','minsuk','siyun'].forEach(function(o) {
+  ['all','common','partner1','partner2'].forEach(function(o) {
     const btn = document.getElementById('lf-owner-' + o);
     if (!btn) return;
     const isActive = o === owner;
     if (isActive) {
-      if (o === 'minsuk') {
+      if (o === 'partner1') {
         btn.style.background = 'rgba(30,58,82,.12)';
-        btn.style.color = 'var(--minsuk)';
+        btn.style.color = 'var(--p1color)';
         btn.style.border = '1px solid rgba(30,58,82,.35)';
-      } else if (o === 'siyun') {
+      } else if (o === 'partner2') {
         btn.style.background = 'rgba(34,197,94,.12)';
-        btn.style.color = 'var(--siyun)';
+        btn.style.color = 'var(--p2color)';
         btn.style.border = '1px solid rgba(34,197,94,.35)';
       } else {
         btn.style.background = 'var(--surface3)';
@@ -8891,11 +8924,11 @@ function renderDetailByCategory(items, totalAsset, prev) {
 
 // ── 사용자별 렌더
 function renderDetailByOwner(items, totalAsset, prev) {
-  const owners = ['minsuk', 'siyun', 'common'];
-  const ownerLabels = { minsuk: getP1Name(), siyun: getP2Name(), common: getCommonName() };
+  const owners = ['partner1', 'partner2', 'common'];
+  const ownerLabels = { partner1: getP1Name(), partner2: getP2Name(), common: getCommonName() };
   let html = '';
 
-  const ownerColors = { minsuk: 'var(--minsuk)', siyun: 'var(--siyun)', common: 'var(--muted)' };
+  const ownerColors = { partner1: 'var(--p1color)', partner2: 'var(--p2color)', common: 'var(--muted)' };
   owners.forEach(function(owner) {
     const ownerItems = items.filter(i => i.type === 'asset' && (i.owner === owner || (!i.owner && owner === 'common')));
     if (!ownerItems.length) return;
@@ -8951,11 +8984,11 @@ function renderDetailItem(item, totalAsset, prev, isDebt, cid, showOwner) {
   // 소유자 표시
   var ownerHtml = '';
   if (showOwner && item.owner && item.owner !== 'common') {
-    var isMs = item.owner === 'minsuk';
+    var isMs = item.owner === 'partner1';
     var ownerLabelText = isMs ? getP1Name() : getP2Name();
     ownerHtml = '<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:6px;margin-left:5px;vertical-align:middle;'
       + 'background:' + (isMs?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';'
-      + 'color:' + (isMs?'var(--minsuk)':'var(--siyun)') + ';'
+      + 'color:' + (isMs?'var(--p1color)':'var(--p2color)') + ';'
       + 'border:0.5px solid ' + (isMs?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">'
       + ownerLabelText + '</span>';
   }
@@ -9307,11 +9340,11 @@ function renderRecurringList() {
   const total = recurringItems.reduce((s,r) => s + r.amount, 0);
   wrap.innerHTML = recurringItems.map((r, i) => {
     const cat = CATEGORIES.expense.find(c => c.id === r.category) || {label:'💡 기타', color:'#6b7280'};
-    const isRMs = r.owner === 'minsuk', isRSy = r.owner === 'siyun';
+    const isRMs = r.owner === 'partner1', isRSy = r.owner === 'partner2';
     const ownerBadge = (isRMs || isRSy)
       ? '<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:6px;margin-right:4px;'
         + 'background:' + (isRMs?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';'
-        + 'color:' + (isRMs?'var(--minsuk)':'var(--siyun)') + ';'
+        + 'color:' + (isRMs?'var(--p1color)':'var(--p2color)') + ';'
         + 'border:0.5px solid ' + (isRMs?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">'
         + (isRMs?getP1Name():getP2Name()) + '</span>'
       : '';
@@ -9892,8 +9925,8 @@ function applyPartnerNamesToUI() {
   const cm = getCommonName();
 
   // 가계부 탭 소유자 버튼
-  const ownerMinsuk = document.getElementById('owner-minsuk');
-  const ownerSiyun = document.getElementById('owner-siyun');
+  const ownerMinsuk = document.getElementById('owner-p1');
+  const ownerSiyun = document.getElementById('owner-p2');
   const ownerCommon = document.getElementById('owner-common');
   if (ownerMinsuk) ownerMinsuk.textContent = '👤 ' + p1;
   if (ownerSiyun) ownerSiyun.textContent = (p2 ? '👤 ' + p2 : '');
@@ -9915,16 +9948,16 @@ function applyPartnerNamesToUI() {
   if (stkOwnSy) { stkOwnSy.textContent = p2 || '배우자'; stkOwnSy.style.display = p2 ? '' : 'none'; }
 
   // 가계부 필터 소유자 버튼
-  const lfMs = document.getElementById('lf-owner-minsuk');
-  const lfSy = document.getElementById('lf-owner-siyun');
+  const lfMs = document.getElementById('lf-owner-p1');
+  const lfSy = document.getElementById('lf-owner-p2');
   const lfCm = document.getElementById('lf-owner-common');
   if (lfMs) lfMs.textContent = p1;
   if (lfSy) { lfSy.textContent = p2; lfSy.style.display = p2 ? '' : 'none'; }
   if (lfCm) lfCm.textContent = cm;
 
   // 자산 항목 추가 모달 소유자 버튼
-  const addMs = document.getElementById('add-owner-minsuk');
-  const addSy = document.getElementById('add-owner-siyun');
+  const addMs = document.getElementById('add-owner-p1');
+  const addSy = document.getElementById('add-owner-p2');
   const addCm = document.getElementById('add-owner-common');
   if (addMs) addMs.textContent = p1;
   if (addSy) { addSy.textContent = p2; addSy.style.display = p2 ? '' : 'none'; }
@@ -9932,8 +9965,8 @@ function applyPartnerNamesToUI() {
 
   // 아파트 모달 소유자 버튼
   const aptCm = document.getElementById('apt-owner-common');
-  const aptMs = document.getElementById('apt-owner-minsuk');
-  const aptSy = document.getElementById('apt-owner-siyun');
+  const aptMs = document.getElementById('apt-owner-p1');
+  const aptSy = document.getElementById('apt-owner-p2');
   if (aptCm) aptCm.textContent = cm;
   if (aptMs) aptMs.textContent = p1;
   if (aptSy) { aptSy.textContent = p2; aptSy.style.display = p2 ? '' : 'none'; }
@@ -9956,8 +9989,8 @@ function applyPartnerNamesToUI() {
 
   // 엑셀 업로드 모달 소유자 버튼
   const excelCm = document.getElementById('excel-owner-joint');
-  const excelMs = document.getElementById('excel-owner-minsuk');
-  const excelSy = document.getElementById('excel-owner-siyun');
+  const excelMs = document.getElementById('excel-owner-p1');
+  const excelSy = document.getElementById('excel-owner-p2');
   if (excelCm) excelCm.textContent = cm;
   if (excelMs) excelMs.textContent = p1;
   if (excelSy) { excelSy.textContent = p2; excelSy.style.display = p2 ? '' : 'none'; }
@@ -9978,8 +10011,8 @@ function applyPartnerNamesToUI() {
 
   // 정기지출 추가 모달 소유자 버튼
   const recurCm = document.getElementById('recur-owner-common');
-  const recurMs = document.getElementById('recur-owner-minsuk');
-  const recurSy = document.getElementById('recur-owner-siyun');
+  const recurMs = document.getElementById('recur-owner-p1');
+  const recurSy = document.getElementById('recur-owner-p2');
   if (recurCm) recurCm.textContent = cm;
   if (recurMs) recurMs.textContent = p1;
   if (recurSy) { recurSy.textContent = p2; recurSy.style.display = p2 ? '' : 'none'; }
@@ -11125,8 +11158,8 @@ function setDonutTab(tab) {
   const latest = assetHistory.length > 0 ? assetHistory[assetHistory.length - 1] : null;
   if (latest && latest.items) {
     let filterOwner = null;
-    if (tab === 'p1') filterOwner = 'minsuk';
-    if (tab === 'p2') filterOwner = 'siyun';
+    if (tab === 'p1') filterOwner = 'partner1';
+    if (tab === 'p2') filterOwner = 'partner2';
 
     const items = filterOwner
       ? latest.items.filter(function(i) { return i.owner === filterOwner; })
@@ -11183,9 +11216,9 @@ function renderDonutCard() {
   // 소유자 필터
   let items = latest.items;
   if (donutTab === 'p1') {
-    items = latest.items.filter(function(i) { return i.owner === 'minsuk' || i.owner === 'common'; });
+    items = latest.items.filter(function(i) { return i.owner === 'partner1' || i.owner === 'common'; });
   } else if (donutTab === 'p2') {
-    items = latest.items.filter(function(i) { return i.owner === 'siyun' || i.owner === 'common'; });
+    items = latest.items.filter(function(i) { return i.owner === 'partner2' || i.owner === 'common'; });
   }
 
 
@@ -11285,10 +11318,10 @@ function renderDonutCard() {
             // 전체 탭에서만 소유자 배지 표시
             const itemOwnerBadge = (donutTab === 'all' && item.owner && item.owner !== 'common')
               ? '<span style="font-size:9px;font-weight:700;padding:1px 4px;border-radius:4px;margin-left:4px;'
-                + 'background:' + (item.owner==='minsuk'?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';'
-                + 'color:' + (item.owner==='minsuk'?'var(--minsuk)':'var(--siyun)') + ';'
-                + 'border:0.5px solid ' + (item.owner==='minsuk'?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">'
-                + (item.owner==='minsuk'?getP1Name():getP2Name()) + '</span>'
+                + 'background:' + (item.owner==='partner1'?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';'
+                + 'color:' + (item.owner==='partner1'?'var(--p1color)':'var(--p2color)') + ';'
+                + 'border:0.5px solid ' + (item.owner==='partner1'?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">'
+                + (item.owner==='partner1'?getP1Name():getP2Name()) + '</span>'
               : '';
             return '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0 4px 13px">'
               + '<div style="display:flex;align-items:center;gap:6px">'
@@ -11467,8 +11500,8 @@ function renderAptList() {
   }
   const p1 = getP1Name(), p2 = getP2Name();
   wrap.innerHTML = aptList.map(function(apt) {
-    const ownerLabel = apt.owner === 'minsuk' ? p1 : apt.owner === 'siyun' ? p2 : getCommonName();
-    const ownerColor = apt.owner === 'minsuk' ? 'var(--blue)' : apt.owner === 'siyun' ? 'var(--green)' : 'var(--muted2)';
+    const ownerLabel = apt.owner === 'partner1' ? p1 : apt.owner === 'partner2' ? p2 : getCommonName();
+    const ownerColor = apt.owner === 'partner1' ? 'var(--blue)' : apt.owner === 'partner2' ? 'var(--green)' : 'var(--muted2)';
     const priceStr = apt.cache ? (apt.cache.price / 10000).toFixed(2) + '억' : '미조회';
     const fetchedStr = apt.cache ? apt.cache.fetchedAt : '';
     return '<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">'
@@ -11497,8 +11530,8 @@ function openAptModal(id) {
   _aptEditingId = id;
   _aptSelectedComplex = null;
   _aptModalOwner = 'common';
-  const msBtn = document.getElementById('apt-owner-minsuk');
-  const syBtn = document.getElementById('apt-owner-siyun');
+  const msBtn = document.getElementById('apt-owner-p1');
+  const syBtn = document.getElementById('apt-owner-p2');
   if (msBtn) msBtn.textContent = getP1Name();
   if (syBtn) syBtn.textContent = getP2Name();
 
@@ -11608,10 +11641,10 @@ function setAptOwner(owner) {
   _aptModalOwner = owner;
   const colorMap = {
     common: { bg: 'var(--surface)', color: 'var(--text)' },
-    minsuk: { bg: 'rgba(30,58,82,.12)', color: 'var(--blue)' },
-    siyun:  { bg: 'rgba(34,197,94,.12)',  color: 'var(--green)' }
+    partner1: { bg: 'rgba(30,58,82,.12)', color: 'var(--blue)' },
+    partner2:  { bg: 'rgba(34,197,94,.12)',  color: 'var(--green)' }
   };
-  ['common','minsuk','siyun'].forEach(function(o) {
+  ['common','partner1','partner2'].forEach(function(o) {
     const btn = document.getElementById('apt-owner-' + o);
     if (!btn) return;
     const isActive = o === owner;
@@ -12176,8 +12209,8 @@ function renderRealEstatePage() {
 
   const p1 = getP1Name(), p2 = getP2Name(), cm = getCommonName();
   listEl.innerHTML = aptList.map(function(apt) {
-    const ownerLabel = apt.owner === 'minsuk' ? p1 : apt.owner === 'siyun' ? p2 : cm;
-    const ownerColor = apt.owner === 'minsuk' ? 'var(--blue)' : apt.owner === 'siyun' ? 'var(--siyun, #22c55e)' : 'var(--muted2)';
+    const ownerLabel = apt.owner === 'partner1' ? p1 : apt.owner === 'partner2' ? p2 : cm;
+    const ownerColor = apt.owner === 'partner1' ? 'var(--blue)' : apt.owner === 'partner2' ? 'var(--p2color, #22c55e)' : 'var(--muted2)';
     const hasPrice = apt.cache && apt.cache.price > 0;
     const priceWon = hasPrice ? apt.cache.price * 10000 : 0;
     const purchaseWon = (apt.purchasePrice || 0) * 10000;
@@ -12299,8 +12332,8 @@ function renderInputAptSection() {
     + '</div></div>';
 
   aptList.forEach(function(apt) {
-    const ownerLabel = apt.owner === 'minsuk' ? p1 : apt.owner === 'siyun' ? p2 : cm;
-    const ownerColor = apt.owner === 'minsuk' ? 'var(--blue)' : apt.owner === 'siyun' ? 'var(--siyun, #22c55e)' : 'var(--muted2)';
+    const ownerLabel = apt.owner === 'partner1' ? p1 : apt.owner === 'partner2' ? p2 : cm;
+    const ownerColor = apt.owner === 'partner1' ? 'var(--blue)' : apt.owner === 'partner2' ? 'var(--p2color, #22c55e)' : 'var(--muted2)';
     const hasPrice = apt.cache && apt.cache.price > 0;
     const priceWon = hasPrice ? apt.cache.price * 10000 : 0; // cache.price는 만원 단위
     const purchaseWon = (apt.purchasePrice || 0) * 10000;
@@ -12455,8 +12488,8 @@ function renderHomeApt() {
     const p1 = getP1Name(), p2 = getP2Name(), cm = getCommonName();
     html = displayList.map(function(apt) {
       const price = apt.cache.price;
-      const ownerLabel = apt.owner === 'minsuk' ? p1 : apt.owner === 'siyun' ? p2 : cm;
-      const ownerColor = apt.owner === 'minsuk' ? 'var(--blue)' : apt.owner === 'siyun' ? 'var(--green)' : 'var(--muted2)';
+      const ownerLabel = apt.owner === 'partner1' ? p1 : apt.owner === 'partner2' ? p2 : cm;
+      const ownerColor = apt.owner === 'partner1' ? 'var(--blue)' : apt.owner === 'partner2' ? 'var(--green)' : 'var(--muted2)';
 
       // 자산 기록과 비교
       const latest = assetHistory.length ? assetHistory[assetHistory.length-1] : null;
@@ -12572,7 +12605,7 @@ function renderAptPresets(presetsWrap) {
     + '</div>'
     + aptList.map(function(apt) {
         const isDuplicate = alreadyLinked.includes(apt.id);
-        const ownerLabel = apt.owner === 'minsuk' ? p1 : apt.owner === 'siyun' ? p2 : getCommonName();
+        const ownerLabel = apt.owner === 'partner1' ? p1 : apt.owner === 'partner2' ? p2 : getCommonName();
         const priceStr = apt.cache ? (apt.cache.price/10000).toFixed(2) + '억' : '미조회';
         const fetchedStr = apt.cache ? apt.cache.fetchedAt : '';
 
@@ -12636,7 +12669,7 @@ function linkAptToItem(aptId) {
 
   // 소유자 자동 설정 + 잠금
   setAddItemOwner(apt.owner || 'common');
-  ['common','minsuk','siyun'].forEach(function(o) {
+  ['common','partner1','partner2'].forEach(function(o) {
     const btn = document.getElementById('add-owner-' + o);
     if (!btn) return;
     btn.disabled = true;
@@ -13168,7 +13201,7 @@ let currentStkOwner = 'all';
 function setStkOwner(owner) {
   currentStkOwner = owner;
   // 3-pill 세그먼트 업데이트
-  [['all','all'],['ms','minsuk'],['sy','siyun']].forEach(function(pair) {
+  [['all','all'],['ms','partner1'],['sy','partner2']].forEach(function(pair) {
     var btn = document.getElementById('stk-own-' + pair[0]);
     if (!btn) return;
     var active = pair[1] === owner;
@@ -13187,7 +13220,7 @@ function setStkOwner(owner) {
 
 // 통합 → 나 → 배우자 순으로 순환
 function cycleStkOwner() {
-  const order = ['all', 'minsuk', 'siyun'];
+  const order = ['all', 'partner1', 'partner2'];
   const idx = order.indexOf(currentStkOwner);
   const next = order[(idx + 1) % order.length];
   setStkOwner(next);
@@ -13433,22 +13466,22 @@ function calcAvgFromInputs() {
 }
 
 // ── 주식 소유자 설정 (모달)
-let currentStockOwner = 'minsuk';
+let currentStockOwner = 'partner1';
 
 function setStockOwner(owner) {
   currentStockOwner = owner;
   const msBtn = document.getElementById('stock-owner-ms');
   const syBtn = document.getElementById('stock-owner-sy');
   if (msBtn) {
-    msBtn.style.background = owner === 'minsuk' ? 'rgba(30,58,82,.15)' : 'transparent';
-    msBtn.style.borderColor = owner === 'minsuk' ? 'var(--blue)' : 'var(--border2)';
-    msBtn.style.color = owner === 'minsuk' ? 'var(--blue)' : 'var(--muted2)';
+    msBtn.style.background = owner === 'partner1' ? 'rgba(30,58,82,.15)' : 'transparent';
+    msBtn.style.borderColor = owner === 'partner1' ? 'var(--blue)' : 'var(--border2)';
+    msBtn.style.color = owner === 'partner1' ? 'var(--blue)' : 'var(--muted2)';
     msBtn.textContent = getP1Name();
   }
   if (syBtn) {
-    syBtn.style.background = owner === 'siyun' ? 'rgba(34,197,94,.15)' : 'transparent';
-    syBtn.style.borderColor = owner === 'siyun' ? 'var(--green)' : 'var(--border2)';
-    syBtn.style.color = owner === 'siyun' ? 'var(--green)' : 'var(--muted2)';
+    syBtn.style.background = owner === 'partner2' ? 'rgba(34,197,94,.15)' : 'transparent';
+    syBtn.style.borderColor = owner === 'partner2' ? 'var(--green)' : 'var(--border2)';
+    syBtn.style.color = owner === 'partner2' ? 'var(--green)' : 'var(--muted2)';
     syBtn.textContent = getP2Name();
   }
 }
@@ -13532,7 +13565,7 @@ function applyStocksToAsset() {
       updated++;
       const linkLabel = linkVal.startsWith('acct:') ? linkVal.slice(5)
         : linkVal === 'KR' ? '국내' : linkVal === 'US' ? '해외' : '전체';
-      const ownerLabel = owner === 'minsuk' ? getP1Name() : owner === 'siyun' ? getP2Name() : getCommonName();
+      const ownerLabel = owner === 'partner1' ? getP1Name() : owner === 'partner2' ? getP2Name() : getCommonName();
       msgs.push(ownerLabel + ' ' + linkLabel + ' ' + (evalMan >= 10000 ? (evalMan/10000).toFixed(2) + '억' : evalMan.toLocaleString() + '만'));
     }
   });
@@ -13820,8 +13853,8 @@ function renderStkPctChart() {
   }
 
   const allWithPrice = stocks.filter(function(s) { return s.currentPrice > 0; });
-  const msStocks = allWithPrice.filter(function(s) { return s.owner === 'minsuk'; });
-  const syStocks = allWithPrice.filter(function(s) { return s.owner === 'siyun'; });
+  const msStocks = allWithPrice.filter(function(s) { return s.owner === 'partner1'; });
+  const syStocks = allWithPrice.filter(function(s) { return s.owner === 'partner2'; });
 
   if (!msStocks.length && !syStocks.length) {
     compareEl.style.display = 'none';
@@ -13867,12 +13900,12 @@ function renderStkPctChart() {
 
   compareContent.innerHTML =
     '<div style="display:flex;gap:10px;margin-bottom:14px">'
-    + ownerCard(msStocks, getP1Name(), 'var(--minsuk)', 'rgba(30,58,82,.06)')
-    + ownerCard(syStocks, getP2Name(), 'var(--siyun)', 'rgba(34,197,94,.06)')
+    + ownerCard(msStocks, getP1Name(), 'var(--p1color)', 'rgba(30,58,82,.06)')
+    + ownerCard(syStocks, getP2Name(), 'var(--p2color)', 'rgba(34,197,94,.06)')
     + '</div>'
     + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
-    + '<div><div style="font-size:10px;font-weight:700;color:var(--minsuk);margin-bottom:6px">' + getP1Name() + ' TOP</div>' + topRows(msStocks) + '</div>'
-    + '<div><div style="font-size:10px;font-weight:700;color:var(--siyun);margin-bottom:6px">' + getP2Name() + ' TOP</div>' + topRows(syStocks) + '</div>'
+    + '<div><div style="font-size:10px;font-weight:700;color:var(--p1color);margin-bottom:6px">' + getP1Name() + ' TOP</div>' + topRows(msStocks) + '</div>'
+    + '<div><div style="font-size:10px;font-weight:700;color:var(--p2color);margin-bottom:6px">' + getP2Name() + ' TOP</div>' + topRows(syStocks) + '</div>'
     + '</div>';
 
   // 계좌종류별 비중
@@ -13937,7 +13970,7 @@ async function generateStockAnalysis() {
   btn.disabled = true;
   content.innerHTML = '<div style="color:var(--muted);font-size:12px">🤖 분석 중...</div>';
 
-  const ownerLabel = currentStkOwner === 'minsuk' ? getP1Name() : currentStkOwner === 'siyun' ? getP2Name() : getP1Name() + '&' + getP2Name();
+  const ownerLabel = currentStkOwner === 'partner1' ? getP1Name() : currentStkOwner === 'partner2' ? getP2Name() : getP1Name() + '&' + getP2Name();
   const summary = filtered.map(function(s) {
     const pct = s.currentPrice > 0 ? ((s.currentPrice - s.avgPrice) / s.avgPrice * 100).toFixed(1) : null;
     const eval_ = s.currentPrice > 0 ? s.currentPrice * s.qty : null;
@@ -14083,10 +14116,10 @@ function renderStockHistory() {
     const priceStr = t.market === 'KR' ? t.price.toLocaleString() + '원' : '$' + t.price.toFixed(2);
     const totalStr = t.market === 'KR' ? Math.round(t.price * t.qty).toLocaleString() + '원' : '$' + (t.price * t.qty).toFixed(2);
     const ownerBadge = currentStkOwner === 'all'
-      ? (t.owner === 'minsuk'
-          ? '<span style="font-size:9px;background:rgba(30,58,82,.12);color:var(--minsuk);border:0.5px solid rgba(30,58,82,.3);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + getP1Name() + '</span>'
-          : t.owner === 'siyun'
-          ? '<span style="font-size:9px;background:rgba(34,197,94,.12);color:var(--siyun);border:0.5px solid rgba(34,197,94,.3);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + getP2Name() + '</span>'
+      ? (t.owner === 'partner1'
+          ? '<span style="font-size:9px;background:rgba(30,58,82,.12);color:var(--p1color);border:0.5px solid rgba(30,58,82,.3);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + getP1Name() + '</span>'
+          : t.owner === 'partner2'
+          ? '<span style="font-size:9px;background:rgba(34,197,94,.12);color:var(--p2color);border:0.5px solid rgba(34,197,94,.3);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + getP2Name() + '</span>'
           : '')
       : '';
     const acctBadge = t.accountType
@@ -14114,8 +14147,8 @@ function renderStockHistory() {
 
 function initStocks() {
   // 주식 탭 소유자 버튼 이름 동적 업데이트
-  const stkMs = document.getElementById('stk-owner-minsuk');
-  const stkSy = document.getElementById('stk-owner-siyun');
+  const stkMs = document.getElementById('stk-owner-p1');
+  const stkSy = document.getElementById('stk-owner-p2');
   if (stkMs) stkMs.textContent = getP1Name();
   if (stkSy) stkSy.textContent = getP2Name();
   setStkTab(currentStkTab || 'list');
@@ -14152,7 +14185,7 @@ function renderStockList() {
   if (lbl) lbl.textContent = filtered.length ? filtered.length + '종목' : '';
 
   if (!filtered.length) {
-    var ownerLabel = currentStkOwner === 'minsuk' ? getP1Name() : currentStkOwner === 'siyun' ? getP2Name() : '';
+    var ownerLabel = currentStkOwner === 'partner1' ? getP1Name() : currentStkOwner === 'partner2' ? getP2Name() : '';
     wrap.innerHTML = '<div style="text-align:center;padding:40px 16px 20px">'
       + '<div style="font-size:52px;margin-bottom:16px;opacity:0.6">📈</div>'
       + '<div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:8px">'
@@ -14192,9 +14225,9 @@ function renderStockList() {
     var ownerBadge = (currentStkOwner === 'all' && s.owner)
       ? '<span style="font-size:9px;font-weight:600;padding:1px 5px;border-radius:6px;margin-left:4px;flex-shrink:0;'
         + 'background:transparent;'
-        + 'color:' + (s.owner==='minsuk'?'var(--minsuk)':'var(--siyun)') + ';'
-        + 'border:0.5px solid ' + (s.owner==='minsuk'?'rgba(129,140,248,.45)':'rgba(251,113,133,.45)') + '">'
-        + (s.owner==='minsuk'?getP1Name():getP2Name()) + '</span>' : '';
+        + 'color:' + (s.owner==='partner1'?'var(--p1color)':'var(--p2color)') + ';'
+        + 'border:0.5px solid ' + (s.owner==='partner1'?'rgba(129,140,248,.45)':'rgba(251,113,133,.45)') + '">'
+        + (s.owner==='partner1'?getP1Name():getP2Name()) + '</span>' : '';
 
     // 종목별 모드에서 계좌종류 배지, 증권사 텍스트
     var acctBadge = (showAccBadge && s.accountType)
@@ -14366,10 +14399,10 @@ function renderStockList() {
     var nBadge = '<span style="font-size:9px;background:rgba(201,168,76,.1);color:var(--gold);border:0.5px solid rgba(201,168,76,.25);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:5px">' + ss.length + '계좌</span>';
     var ownerBadge = (currentStkOwner === 'all' && group.owner)
       ? '<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;margin-left:4px;flex-shrink:0;'
-        + 'background:' + (group.owner==='minsuk'?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';'
-        + 'color:' + (group.owner==='minsuk'?'var(--minsuk)':'var(--siyun)') + ';'
-        + 'border:0.5px solid ' + (group.owner==='minsuk'?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">'
-        + (group.owner==='minsuk'?getP1Name():getP2Name()) + '</span>' : '';
+        + 'background:' + (group.owner==='partner1'?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';'
+        + 'color:' + (group.owner==='partner1'?'var(--p1color)':'var(--p2color)') + ';'
+        + 'border:0.5px solid ' + (group.owner==='partner1'?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">'
+        + (group.owner==='partner1'?getP1Name():getP2Name()) + '</span>' : '';
     var gk = group.key.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     var sgDomId = group.key.replace(/['"]/g, '').replace(/[\s|]/g, '-');
     var firstId = ss[0].id;
@@ -14815,7 +14848,7 @@ function openStockAdd() {
   const prev = document.getElementById('stock-total-preview');
   if (prev) prev.style.display = 'none';
   setMarket('KR');
-  const defaultOwner = currentStkOwner === 'siyun' ? 'siyun' : 'minsuk';
+  const defaultOwner = currentStkOwner === 'partner2' ? 'partner2' : 'partner1';
   setStockOwner(defaultOwner);
   _resetStockModal(null);
   document.getElementById('stock-modal').style.display = 'block';
@@ -14833,7 +14866,7 @@ function openStockEdit(id) {
   document.getElementById('stock-avg-input').value = s.avgPrice;
   document.getElementById('stock-delete-btn').style.display = 'block';
   setMarket(s.market);
-  setStockOwner(s.owner || 'minsuk');
+  setStockOwner(s.owner || 'partner1');
   _resetStockModal(s);
   document.getElementById('stock-modal').style.display = 'block';
   lockScroll();
@@ -14898,8 +14931,8 @@ function openTradeModal(id) {
     if (s.accountType) badges.push('<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:rgba(201,168,76,.12);color:var(--gold);border:0.5px solid rgba(201,168,76,.3)">' + s.accountType + '</span>');
     if (s.broker) badges.push('<span style="font-size:10px;color:var(--muted2);border:0.5px solid var(--border2);border-radius:7px;padding:2px 7px">' + s.broker + '</span>');
     if (s.owner) {
-      const isMs = s.owner === 'minsuk';
-      badges.push('<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:' + (isMs?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';color:' + (isMs?'var(--minsuk)':'var(--siyun)') + ';border:0.5px solid ' + (isMs?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">' + (isMs?getP1Name():getP2Name()) + '</span>');
+      const isMs = s.owner === 'partner1';
+      badges.push('<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:' + (isMs?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';color:' + (isMs?'var(--p1color)':'var(--p2color)') + ';border:0.5px solid ' + (isMs?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">' + (isMs?getP1Name():getP2Name()) + '</span>');
     }
     acctEl.innerHTML = badges.join('');
     acctEl.style.display = badges.length ? 'flex' : 'none';
@@ -15039,7 +15072,7 @@ let ledgerMonth = (() => {
 let ledgerOwnerFilter = 'all';
 let ledgerTab = load('ledger-tab', 'list');
 let currentTxType = 'expense';
-let currentTxOwner = 'minsuk';
+let currentTxOwner = 'partner1';
 let selectedCategory = 'food';
 let budgets = load('ledger-budgets', {
   food:50, cafe:15, trans:20, shop:30, health:10,
@@ -15103,7 +15136,7 @@ function setLedgerTab(tab) {
 // ── 필터
 function setLedgerOwner(owner) {
   ledgerOwnerFilter = owner;
-  ['all','minsuk','siyun','common'].forEach(function(o) {
+  ['all','partner1','partner2','common'].forEach(function(o) {
     const btn = document.getElementById('owner-'+o);
     if (!btn) return;
     const isActive = o === owner;
@@ -15307,7 +15340,7 @@ function renderCalDayDetail(dateStr) {
         + '<div style="width:8px;height:8px;border-radius:50%;background:#7ab8d8;flex-shrink:0"></div>'
         + '<div style="flex:1">'
         + '<div style="font-size:13px;font-weight:700;color:var(--text)">🔄 ' + escHtml(r.name) + '</div>'
-        + '<div style="font-size:11px;color:var(--muted);margin-top:2px">정기지출 · ' + (r.owner==='minsuk'?getP1Name():r.owner==='siyun'?getP2Name():getCommonName()) + '</div>'
+        + '<div style="font-size:11px;color:var(--muted);margin-top:2px">정기지출 · ' + (r.owner==='partner1'?getP1Name():r.owner==='partner2'?getP2Name():getCommonName()) + '</div>'
         + '</div>'
         + '<span style="font-size:13px;font-weight:800;color:#ef4444">-' + Math.round(r.amount * 10000).toLocaleString() + '원</span>'
         + '</div>';
@@ -15334,7 +15367,7 @@ function renderCalDayDetail(dateStr) {
         + '<div style="width:28px;height:28px;border-radius:8px;background:' + cat.color + '22;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">' + cat.label.split(' ')[0] + '</div>'
         + '<div style="flex:1;min-width:0">'
         + '<div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (t.memo || cat.label.split(' ').slice(1).join(' ')) + '</div>'
-        + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + cat.label + ' · ' + (t.owner==='minsuk'?getP1Name():t.owner==='siyun'?getP2Name():getCommonName()) + '</div>'
+        + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + cat.label + ' · ' + (t.owner==='partner1'?getP1Name():t.owner==='partner2'?getP2Name():getCommonName()) + '</div>'
         + '</div>'
         + '<span style="font-size:13px;font-weight:800;color:' + (t.type==='income'?'var(--blue)':'var(--red)') + ';flex-shrink:0">' + (t.type==='income'?'+':'-') + Math.round(t.amount*10000).toLocaleString() + '원</span>'
         + '</div>';
@@ -15393,7 +15426,7 @@ function renderCalUpcoming() {
       + '<div style="width:8px;height:8px;border-radius:50%;background:' + dotColor + ';flex-shrink:0"></div>'
       + '<div style="flex:1;min-width:0">'
       + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + typeIcon + escHtml(item.name) + amtStr + '</div>'
-      + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + parseInt(im) + '월 ' + parseInt(id2) + '일' + (item.owner ? ' · ' + (item.owner==='minsuk'?getP1Name():item.owner==='siyun'?getP2Name():getCommonName()) : '') + '</div>'
+      + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + parseInt(im) + '월 ' + parseInt(id2) + '일' + (item.owner ? ' · ' + (item.owner==='partner1'?getP1Name():item.owner==='partner2'?getP2Name():getCommonName()) : '') + '</div>'
       + '</div>'
       + '<span style="font-size:11px;font-weight:700;color:' + diffColor + ';flex-shrink:0">' + diffStr + '</span>'
       + '</div>';
@@ -15656,12 +15689,12 @@ function openBulkOwnerChange() {
   const list = document.getElementById('bulk-owner-list');
   const owners = [
     { key: 'common',  label: cm,  icon: '👥', color: 'var(--muted2)' },
-    { key: 'minsuk',  label: p1,  icon: '👤', color: 'var(--blue)' },
-    { key: 'siyun',   label: p2,  icon: '👤', color: 'var(--green)' },
+    { key: 'partner1',  label: p1,  icon: '👤', color: 'var(--blue)' },
+    { key: 'partner2',   label: p2,  icon: '👤', color: 'var(--green)' },
   ];
   list.innerHTML = owners.map(function(o) {
     // p2 이름 없으면 숨김
-    if (o.key === 'siyun' && !p2) return '';
+    if (o.key === 'partner2' && !p2) return '';
     return '<button onclick="applyBulkOwner(\'' + o.key + '\')" style="'
       + 'display:flex;align-items:center;gap:14px;width:100%;padding:16px 18px;'
       + 'background:var(--surface2);border:1px solid var(--border);border-radius:14px;'
@@ -15887,11 +15920,11 @@ function renderLedgerList(txs) {
       // 소유자 표시 (pill 배지)
       var ownerHtml = '';
       if (t.owner !== 'common') {
-        var isMs = t.owner === 'minsuk';
+        var isMs = t.owner === 'partner1';
         var ownerName = isMs ? getP1Name() : getP2Name();
         ownerHtml = ' <span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:6px;'
           + 'background:' + (isMs ? 'rgba(30,58,82,.12)' : 'rgba(34,197,94,.12)') + ';'
-          + 'color:' + (isMs ? 'var(--minsuk)' : 'var(--siyun)') + ';'
+          + 'color:' + (isMs ? 'var(--p1color)' : 'var(--p2color)') + ';'
           + 'border:0.5px solid ' + (isMs ? 'rgba(30,58,82,.3)' : 'rgba(34,197,94,.3)') + '">'
           + ownerName + '</span>';
       }
@@ -16424,11 +16457,11 @@ function renderLedgerTrendChart() {
 function renderOwnerCompare(txs) {
   const wrap = document.getElementById('owner-compare');
   if (!wrap) return;
-  const msExp = txs.filter(t=>t.owner==='minsuk'&&t.type==='expense').reduce((s,t)=>s+t.amount,0);
-  const syExp = txs.filter(t=>t.owner==='siyun'&&t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const msExp = txs.filter(t=>t.owner==='partner1'&&t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const syExp = txs.filter(t=>t.owner==='partner2'&&t.type==='expense').reduce((s,t)=>s+t.amount,0);
   const cmExp = txs.filter(t=>t.owner==='common'&&t.type==='expense').reduce((s,t)=>s+t.amount,0);
-  const msInc = txs.filter(t=>t.owner==='minsuk'&&t.type==='income').reduce((s,t)=>s+t.amount,0);
-  const syInc = txs.filter(t=>t.owner==='siyun'&&t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const msInc = txs.filter(t=>t.owner==='partner1'&&t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const syInc = txs.filter(t=>t.owner==='partner2'&&t.type==='income').reduce((s,t)=>s+t.amount,0);
   const cmInc = txs.filter(t=>t.owner==='common'&&t.type==='income').reduce((s,t)=>s+t.amount,0);
   const totalExp = msExp + syExp || 1;
   const totalExp2 = msExp + syExp + cmExp || 1;
@@ -16438,14 +16471,14 @@ function renderOwnerCompare(txs) {
   wrap.innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
       <div style="background:rgba(90,159,196,.08);border:1px solid rgba(90,159,196,.15);border-radius:12px;padding:10px;text-align:center">
-        <div style="font-size:10px;color:var(--minsuk);font-weight:700;margin-bottom:5px">👨 ${getP1Name()}</div>
+        <div style="font-size:10px;color:var(--p1color);font-weight:700;margin-bottom:5px">👨 ${getP1Name()}</div>
         <div style="font-size:14px;font-weight:900;color:var(--red)">${(msExp*10000).toLocaleString()}원</div>
         <div style="font-size:9px;color:var(--muted)">지출</div>
         <div style="font-size:12px;font-weight:700;color:var(--blue);margin-top:4px">${(msInc*10000).toLocaleString()}원</div>
         <div style="font-size:9px;color:var(--muted)">수입</div>
       </div>
       <div style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.15);border-radius:12px;padding:10px;text-align:center">
-        <div style="font-size:10px;color:var(--siyun);font-weight:700;margin-bottom:5px">👩 ${getP2Name()}</div>
+        <div style="font-size:10px;color:var(--p2color);font-weight:700;margin-bottom:5px">👩 ${getP2Name()}</div>
         <div style="font-size:14px;font-weight:900;color:var(--red)">${(syExp*10000).toLocaleString()}원</div>
         <div style="font-size:9px;color:var(--muted)">지출</div>
         <div style="font-size:12px;font-weight:700;color:var(--blue);margin-top:4px">${(syInc*10000).toLocaleString()}원</div>
@@ -16461,13 +16494,13 @@ function renderOwnerCompare(txs) {
     </div>
     <div style="margin-bottom:6px;font-size:11px;color:var(--muted)">지출 비율</div>
     <div style="display:flex;height:10px;border-radius:6px;overflow:hidden;gap:1px">
-      <div style="background:var(--minsuk);transition:width .8s;width:${msPct}%"></div>
-      <div style="background:var(--siyun);transition:width .8s;width:${syPct}%"></div>
+      <div style="background:var(--p1color);transition:width .8s;width:${msPct}%"></div>
+      <div style="background:var(--p2color);transition:width .8s;width:${syPct}%"></div>
       <div style="background:var(--purple);flex:1"></div>
     </div>
     <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:10px">
-      <span style="color:var(--minsuk)">${getP1Name()} ${msPct}%</span>
-      <span style="color:var(--siyun)">${getP2Name()} ${syPct}%</span>
+      <span style="color:var(--p1color)">${getP1Name()} ${msPct}%</span>
+      <span style="color:var(--p2color)">${getP2Name()} ${syPct}%</span>
       <span style="color:var(--purple)">${getCommonName()} ${cmPct}%</span>
     </div>`;
 }
@@ -16601,7 +16634,7 @@ function setVoiceOwner(owner) {
   ['cm','ms','sy'].forEach(function(k) {
     const btn = document.getElementById('voice-owner-' + k);
     if (!btn) return;
-    const isActive = (k==='cm'&&owner==='common')||(k==='ms'&&owner==='minsuk')||(k==='sy'&&owner==='siyun');
+    const isActive = (k==='cm'&&owner==='common')||(k==='ms'&&owner==='partner1')||(k==='sy'&&owner==='partner2');
     btn.style.background = isActive ? styles[k].bg : 'transparent';
     btn.style.color = isActive ? styles[k].color : 'var(--muted2)';
     btn.style.border = isActive ? '0.5px solid ' + styles[k].border : '0.5px solid transparent';
@@ -16836,7 +16869,7 @@ async function generateMonthlyReport() {
     const byOwner = {};
     expense.forEach(function(t) { byOwner[t.owner] = (byOwner[t.owner]||0) + t.amount; });
     const ownerSummary = Object.entries(byOwner).map(function(e) {
-      const name = e[0]==='minsuk'?getP1Name():e[0]==='siyun'?getP2Name():getCommonName();
+      const name = e[0]==='partner1'?getP1Name():e[0]==='partner2'?getP2Name():getCommonName();
       return name + ' ' + Math.round(e[1]*10000).toLocaleString() + '원';
     }).join(', ');
     // 요일별
@@ -17020,8 +17053,8 @@ function renderPendingList() {
     const cat = allCats.find(function(c) { return c.id === t.category; }) || { label: '💡 기타', color: '#6b7280' };
     const amtWon = Math.round(t.amount * 10000);
     const isIncome = t.type === 'income';
-    const ownerLabel = t.owner === 'minsuk' ? getP1Name() : t.owner === 'siyun' ? getP2Name() : getCommonName();
-    const ownerColor = t.owner === 'minsuk' ? 'var(--minsuk)' : t.owner === 'siyun' ? 'var(--siyun)' : 'var(--purple)';
+    const ownerLabel = t.owner === 'partner1' ? getP1Name() : t.owner === 'partner2' ? getP2Name() : getCommonName();
+    const ownerColor = t.owner === 'partner1' ? 'var(--p1color)' : t.owner === 'partner2' ? 'var(--p2color)' : 'var(--purple)';
     return '<div onclick="togglePendingItem(' + i + ')" style="display:flex;align-items:center;gap:12px;padding:12px;background:' + (t.selected!==false?'var(--surface2)':'transparent') + ';border:1px solid ' + (t.selected!==false?'rgba(167,139,250,.4)':'var(--border)') + ';border-radius:12px;margin-bottom:8px;cursor:pointer;transition:all .2s">'
       + '<div style="width:28px;height:28px;border-radius:8px;background:' + (t.selected!==false?'var(--purple)':'var(--surface3)') + ';display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;color:#fff;font-weight:700">' + (t.selected!==false?'✓':'') + '</div>'
       + '<div style="flex:1;min-width:0">'
@@ -17105,8 +17138,8 @@ function openExcelImport() {
   excelCardType = 'auto';
   excelOwner = 'joint';
   excelParsedTxs = [];
-  const msBtn = document.getElementById('excel-owner-minsuk');
-  const syBtn = document.getElementById('excel-owner-siyun');
+  const msBtn = document.getElementById('excel-owner-p1');
+  const syBtn = document.getElementById('excel-owner-p2');
   if (msBtn) msBtn.textContent = getP1Name();
   if (syBtn) syBtn.textContent = getP2Name();
 
@@ -17150,10 +17183,10 @@ function setExcelOwner(owner) {
   excelOwner = owner;
   const colorMap = {
     joint:  { bg: 'rgba(30,58,82,.10)', color: 'var(--text)',  border: 'rgba(30,58,82,.25)' },
-    minsuk: { bg: 'rgba(30,58,82,.15)', color: 'var(--blue)',  border: 'rgba(30,58,82,.35)' },
-    siyun:  { bg: 'rgba(34,197,94,.15)', color: 'var(--green)', border: 'rgba(34,197,94,.35)' }
+    partner1: { bg: 'rgba(30,58,82,.15)', color: 'var(--blue)',  border: 'rgba(30,58,82,.35)' },
+    partner2:  { bg: 'rgba(34,197,94,.15)', color: 'var(--green)', border: 'rgba(34,197,94,.35)' }
   };
-  ['joint','minsuk','siyun'].forEach(function(o) {
+  ['joint','partner1','partner2'].forEach(function(o) {
     const btn = document.getElementById('excel-owner-' + o);
     if (!btn) return;
     const isActive = o === owner;
@@ -17419,7 +17452,7 @@ function setHomeMicOwner(owner) {
   ['cm','ms','sy'].forEach(function(k) {
     const btn = document.getElementById('hm-owner-' + k);
     if (!btn) return;
-    const isActive = (k==='cm'&&owner==='common')||(k==='ms'&&owner==='minsuk')||(k==='sy'&&owner==='siyun');
+    const isActive = (k==='cm'&&owner==='common')||(k==='ms'&&owner==='partner1')||(k==='sy'&&owner==='partner2');
     btn.style.background = isActive ? styles[k].bg : 'transparent';
     btn.style.color = isActive ? styles[k].color : 'var(--muted2)';
     btn.style.border = isActive ? '0.5px solid ' + styles[k].border : '0.5px solid transparent';
@@ -17488,7 +17521,7 @@ async function runHomeMicParser(text) {
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 150,
-        system: '사용자의 자연어 지출/수입 내용을 JSON 배열로만 응답. 다른 텍스트 절대 금지.\n카테고리: ' + catList + '\n소유자: "' + getP1Name() + '"→minsuk, "' + getP2Name() + '"→siyun, 언급없거나 "공동/우리/같이"→common\n형식: [{"type":"expense","amount":원단위숫자,"memo":"내용","category":"id","owner":"common|minsuk|siyun"}]',
+        system: '사용자의 자연어 지출/수입 내용을 JSON 배열로만 응답. 다른 텍스트 절대 금지.\n카테고리: ' + catList + '\n소유자: "' + getP1Name() + '"→partner1, "' + getP2Name() + '"→partner2, 언급없거나 "공동/우리/같이"→common\n형식: [{"type":"expense","amount":원단위숫자,"memo":"내용","category":"id","owner":"common|partner1|partner2"}]',
         messages: [{ role: 'user', content: '오늘(' + todayStr + ') ' + text }]
       })
     });
@@ -17535,7 +17568,7 @@ let smsImageFiles = [];
 
 function openSmsParser() {
   // 현재 로그인 사용자를 기본 owner로
-  const defaultOwner = currentProfile && currentProfile.role === 'partner2' ? 'siyun' : 'minsuk';
+  const defaultOwner = currentProfile && currentProfile.role === 'partner2' ? 'partner2' : 'partner1';
   smsOwner = defaultOwner;
   smsParsedTxs = [];
   smsImageFiles = [];
@@ -17574,7 +17607,7 @@ function setSmsOwner(owner) {
   ['cm','ms','sy'].forEach(function(k) {
     const btn = document.getElementById('sms-owner-' + k);
     if (!btn) return;
-    const isActive = (k==='cm'&&owner==='common')||(k==='ms'&&owner==='minsuk')||(k==='sy'&&owner==='siyun');
+    const isActive = (k==='cm'&&owner==='common')||(k==='ms'&&owner==='partner1')||(k==='sy'&&owner==='partner2');
     btn.style.background = isActive ? styles[k].bg : 'transparent';
     btn.style.color = isActive ? styles[k].color : 'var(--muted2)';
     btn.style.border = isActive ? '0.5px solid ' + styles[k].border : '0.5px solid transparent';
@@ -17589,7 +17622,7 @@ function setSmsOwner(owner) {
 
 function cycleSmsItemOwner(i, e) {
   e.stopPropagation();
-  const owners = ['minsuk', 'siyun', 'common'];
+  const owners = ['partner1', 'partner2', 'common'];
   const cur = smsParsedTxs[i].owner;
   smsParsedTxs[i].owner = owners[(owners.indexOf(cur) + 1) % owners.length];
   renderSmsResult();
@@ -17773,8 +17806,8 @@ function renderSmsResult() {
     const cat = allCats.find(function(c) { return c.id === t.category; }) || { label: '💡 기타', color: '#6b7280' };
     const amtWon = Math.round(t.amount * 10000);
     const isIncome = t.type === 'income';
-    const ownerLabel = t.owner === 'minsuk' ? getP1Name() : t.owner === 'siyun' ? getP2Name() : getCommonName();
-    const ownerColor = t.owner === 'minsuk' ? 'var(--blue)' : t.owner === 'siyun' ? 'var(--green)' : 'var(--purple)';
+    const ownerLabel = t.owner === 'partner1' ? getP1Name() : t.owner === 'partner2' ? getP2Name() : getCommonName();
+    const ownerColor = t.owner === 'partner1' ? 'var(--blue)' : t.owner === 'partner2' ? 'var(--green)' : 'var(--purple)';
     return '<div onclick="toggleSmsItem(' + i + ')" style="display:flex;align-items:center;gap:12px;padding:12px;background:' + (t.selected?'var(--surface2)':'transparent') + ';border:1px solid ' + (t.selected?'rgba(167,139,250,.4)':'var(--border)') + ';border-radius:12px;margin-bottom:8px;cursor:pointer;transition:all .2s">'
       + '<div style="width:28px;height:28px;border-radius:8px;background:' + (t.selected?'var(--purple)':'var(--surface3)') + ';display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;color:#fff;font-weight:700">' + (t.selected?'✓':'') + '</div>'
       + '<div style="flex:1;min-width:0">'
@@ -17862,14 +17895,14 @@ function setTxOwner(owner) {
   const syBtn = document.getElementById('tx-owner-sy');
   const cmBtn = document.getElementById('tx-owner-cm');
   if (msBtn) {
-    const active = owner === 'minsuk';
+    const active = owner === 'partner1';
     msBtn.style.background = active ? 'rgba(30,58,82,.15)' : 'transparent';
     msBtn.style.borderColor = active ? 'var(--blue)' : 'var(--border2)';
     msBtn.style.color = active ? 'var(--blue)' : 'var(--muted2)';
     msBtn.style.fontWeight = active ? '700' : '600';
   }
   if (syBtn) {
-    const active = owner === 'siyun';
+    const active = owner === 'partner2';
     syBtn.style.background = active ? 'rgba(34,197,94,.15)' : 'transparent';
     syBtn.style.borderColor = active ? 'var(--green)' : 'var(--border2)';
     syBtn.style.color = active ? 'var(--green)' : 'var(--muted2)';
