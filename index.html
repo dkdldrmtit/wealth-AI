@@ -2435,18 +2435,33 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <!-- 여백 -->
     <div style="height:20px"></div>
 
-    <!-- 탭 (내역/분석/협의/예산/캘린더) -->
+    <!-- 탭 (내역/분석/협의) -->
     <div id="ledger-tab-bar" style="display:flex;background:var(--surface2);border-radius:12px;padding:4px;gap:2px">
-      <button id="ltab-list" onclick="setLedgerTab('list')" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s">내역</button>
-      <button id="ltab-chart" onclick="setLedgerTab('chart')" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">분석</button>
-      <button id="ltab-proposal" onclick="setLedgerTab('proposal')" data-couple-only="1" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">협의</button>
-      <button id="ltab-budget" onclick="setLedgerTab('budget')" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">예산</button>
-      <button id="ltab-calendar" onclick="setLedgerTab('calendar')" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">캘린더</button>
+      <button id="ltab-list" onclick="setLedgerTab('list')" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s">내역</button>
+      <button id="ltab-chart" onclick="setLedgerTab('chart')" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">분석</button>
+      <button id="ltab-proposal" onclick="setLedgerTab('proposal')" data-couple-only="1" style="flex:1;padding:9px 4px;border-radius:9px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted2);transition:all .2s">협의</button>
     </div>
 
 
     <!-- 거래 추가 버튼 (FAB 스타일로 이동, 여기선 제거) -->
     <div id="ledger-add-btn" style="display:none"></div>
+  </div>
+
+  <!-- 내역 탭 (리스트 뷰) + 캘린더 뷰는 하단의 ltab-content-calendar에서 처리 -->
+  <!-- 뷰 토글: 리스트 ⇄ 캘린더 -->
+  <div id="list-view-switch-wrap" style="display:none;padding:10px 16px 0;justify-content:flex-end">
+    <div style="display:inline-flex;background:var(--surface2);border-radius:10px;padding:3px;gap:2px">
+      <button id="lview-list" onclick="setListSubView('list')" aria-label="리스트 보기"
+        style="padding:6px 11px;border-radius:7px;border:none;background:var(--surface);color:var(--text);cursor:pointer;display:flex;align-items:center;gap:4px;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        리스트
+      </button>
+      <button id="lview-calendar" onclick="setListSubView('calendar')" aria-label="캘린더 보기"
+        style="padding:6px 11px;border-radius:7px;border:none;background:transparent;color:var(--muted2);cursor:pointer;display:flex;align-items:center;gap:4px;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:500">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        캘린더
+      </button>
+    </div>
   </div>
 
   <!-- 내역 탭 -->
@@ -2550,7 +2565,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
 
   <!-- 분석 탭 -->
-  <div id="ltab-content-chart" style="display:none;padding:16px 16px 120px">
+  <div id="ltab-content-chart" style="display:none;padding:16px 16px 0">
 
     <!-- 1. 카테고리별 지출 -->
     <div class="card" style="margin-bottom:12px">
@@ -2677,7 +2692,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   </div>
 
   <!-- 예산 탭 -->
-  <div id="ltab-content-budget" style="display:none;padding:16px 16px 120px">
+  <div id="ltab-content-budget" style="display:none;padding:0 16px 120px">
 
     <!-- 예산 현황 -->
     <div class="card" style="margin-bottom:12px">
@@ -15190,25 +15205,47 @@ function ledgerNextMonth() {
   renderLedger();
 }
 
-// ── 탭
+// ── 탭 (통합: budget→chart, calendar→list)
+let listSubView = load('ledger-list-subview', 'list'); // 'list' | 'calendar'
+
 function setLedgerTab(tab) {
+  // 레거시 값 정규화
+  if (tab === 'budget') tab = 'chart';
+  if (tab === 'calendar') { tab = 'list'; listSubView = 'calendar'; store('ledger-list-subview', 'calendar'); }
+
   ledgerTab = tab;
   store('ledger-tab', tab);
-  ['list','chart','proposal','budget','calendar'].forEach(function(t) {
+
+  // 탭 버튼 활성화 (3개만)
+  ['list','chart','proposal'].forEach(function(t) {
     const btn = document.getElementById('ltab-'+t);
-    const cont = document.getElementById('ltab-content-'+t);
     const isActive = t === tab;
     if (btn) {
       btn.style.background = isActive ? 'var(--surface)' : 'transparent';
       btn.style.color = isActive ? 'var(--text)' : 'var(--muted2)';
       btn.style.fontWeight = isActive ? '700' : '500';
-      btn.style.borderBottom = 'none';
-    }
-    if (cont) {
-      cont.style.display = isActive ? 'block' : 'none';
-      if (isActive) cont.scrollTop = 0;
     }
   });
+
+  // 컨텐츠 표시
+  const listEl = document.getElementById('ltab-content-list');
+  const calEl = document.getElementById('ltab-content-calendar');
+  const chartEl = document.getElementById('ltab-content-chart');
+  const budgetEl = document.getElementById('ltab-content-budget');
+  const proposalEl = document.getElementById('ltab-content-proposal');
+  const switchWrap = document.getElementById('list-view-switch-wrap');
+
+  const showList = (tab === 'list' && listSubView === 'list');
+  const showCal = (tab === 'list' && listSubView === 'calendar');
+
+  if (listEl) listEl.style.display = showList ? 'block' : 'none';
+  if (calEl) calEl.style.display = showCal ? 'block' : 'none';
+  if (chartEl) chartEl.style.display = tab === 'chart' ? 'block' : 'none';
+  if (budgetEl) budgetEl.style.display = tab === 'chart' ? 'block' : 'none';
+  if (proposalEl) proposalEl.style.display = tab === 'proposal' ? 'block' : 'none';
+  if (switchWrap) switchWrap.style.display = tab === 'list' ? 'flex' : 'none';
+  if (tab === 'list') syncListSubViewButtons();
+
   if (tab === 'proposal') renderProposals();
   if (tab === 'chart') {
     const ticker = document.getElementById('ai-report-ticker');
@@ -15218,15 +15255,39 @@ function setLedgerTab(tab) {
     }
   }
 
-  // FAB 거래추가 - 내역 탭에서만 표시
+  // FAB 거래추가 - 리스트 뷰에서만 표시
   const ledgerFab = document.getElementById('ledger-fab-add');
-  if (ledgerFab) ledgerFab.style.display = tab === 'list' ? 'flex' : 'none';
+  if (ledgerFab) ledgerFab.style.display = (tab === 'list' && listSubView === 'list') ? 'flex' : 'none';
 
   // 엑셀/문자/음성 버튼 영역 숨김 (FAB으로 대체)
   const addBtn = document.getElementById('ledger-add-btn');
   if (addBtn) addBtn.style.display = 'none';
 
   renderLedger();
+}
+
+function syncListSubViewButtons() {
+  const view = listSubView;
+  const listBtn = document.getElementById('lview-list');
+  const calBtn = document.getElementById('lview-calendar');
+  if (listBtn) {
+    listBtn.style.background = view === 'list' ? 'var(--surface)' : 'transparent';
+    listBtn.style.color = view === 'list' ? 'var(--text)' : 'var(--muted2)';
+    listBtn.style.fontWeight = view === 'list' ? '700' : '500';
+  }
+  if (calBtn) {
+    calBtn.style.background = view === 'calendar' ? 'var(--surface)' : 'transparent';
+    calBtn.style.color = view === 'calendar' ? 'var(--text)' : 'var(--muted2)';
+    calBtn.style.fontWeight = view === 'calendar' ? '700' : '500';
+  }
+}
+
+function setListSubView(view) {
+  listSubView = view;
+  store('ledger-list-subview', view);
+  syncListSubViewButtons();
+  if (ledgerTab === 'list') setLedgerTab('list');
+  if (view === 'calendar' && typeof renderCalendar === 'function') renderCalendar();
 }
 
 
