@@ -2604,20 +2604,13 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
     </div>
 
-    <!-- 4. 커플 지출 비교 -->
-    <div class="card" data-couple-only="1" style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div class="card-title" style="margin-bottom:0">커플 지출 비교</div>
-        <div id="ledger-couple-winner-badge" style="font-size:11px;font-weight:700"></div>
-      </div>
-      <div id="ledger-couple-battle-area"></div>
-      <div id="ledger-couple-comment" style="margin-top:10px;padding:10px 14px;background:rgba(255,255,255,.03);border-top:1px solid var(--border);font-size:11px;color:var(--muted);text-align:center;line-height:1.6;border-radius:0 0 12px 12px"></div>
-    </div>
-
-    <!-- 숨겨진 자동 인사이트 + 히트맵은 고급 모드로 이동 예정 -->
+    <!-- 숨겨진 자동 인사이트 + 히트맵은 향후 재검토 -->
     <div id="ledger-insight-card" style="display:none"></div>
     <div id="heatmap-month-label" style="display:none"></div>
     <div id="expense-heatmap" style="display:none"></div>
+    <div id="ledger-couple-battle-area" style="display:none"></div>
+    <div id="ledger-couple-winner-badge" style="display:none"></div>
+    <div id="ledger-couple-comment" style="display:none"></div>
 
   </div>
 
@@ -2697,17 +2690,25 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div id="budget-bars"></div>
     </div>
 
-    <!-- 정기 지출 -->
+    <!-- 정기 지출 (기본 접힘) -->
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <div class="card-title" style="margin-bottom:0">정기 지출</div>
-        <button onclick="openRecurringAdd()" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer">+ 추가</button>
+      <div onclick="toggleRecurringCard()" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="card-title" style="margin-bottom:0">정기 지출</div>
+          <span id="recurring-count-badge" style="font-size:10px;color:var(--muted);font-weight:600"></span>
+        </div>
+        <span id="recurring-card-chevron" style="font-size:11px;color:var(--muted);transition:transform .2s">▾</span>
       </div>
-      <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;line-height:1.6">매달 자동으로 반복되는 지출을 등록해두면 이번달 가계부에 한번에 추가할 수 있어요.</div>
-      <div id="recurring-list"></div>
-      <button onclick="applyRecurring()" id="recurring-apply-btn" style="display:none;width:100%;margin-top:12px;padding:12px;background:linear-gradient(135deg,var(--blue),#1e3a52);border:none;border-radius:12px;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
-        이번달 가계부에 추가
-      </button>
+      <div id="recurring-card-body" style="display:none;margin-top:14px">
+        <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;line-height:1.6">매달 반복되는 지출을 등록해두면 한 번에 이번달 가계부에 추가할 수 있어요.</div>
+        <div id="recurring-list"></div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button onclick="openRecurringAdd()" style="flex:1;padding:10px;background:var(--surface2);border:0.5px solid var(--border2);border-radius:10px;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer">+ 추가</button>
+          <button onclick="applyRecurring()" id="recurring-apply-btn" style="display:none;flex:2;padding:10px;background:linear-gradient(135deg,var(--blue),#1e3a52);border:none;border-radius:10px;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer">
+            이번달에 추가
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -9448,9 +9449,20 @@ async function deleteRecordDirect() {
 // ── 정기 지출 관리
 let recurringItems = load('recurring-items', []);
 
+function toggleRecurringCard() {
+  const body = document.getElementById('recurring-card-body');
+  const chev = document.getElementById('recurring-card-chevron');
+  if (!body) return;
+  const show = body.style.display === 'none';
+  body.style.display = show ? 'block' : 'none';
+  if (chev) chev.style.transform = show ? 'rotate(180deg)' : '';
+}
+
 function renderRecurringList() {
   const wrap = document.getElementById('recurring-list');
   const applyBtn = document.getElementById('recurring-apply-btn');
+  const countBadge = document.getElementById('recurring-count-badge');
+  if (countBadge) countBadge.textContent = recurringItems.length ? recurringItems.length + '개' : '';
   if (!wrap) return;
   if (!recurringItems.length) {
     wrap.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:16px 0">등록된 정기 지출이 없어요</div>';
@@ -16510,7 +16522,20 @@ function showDayDetail(dateStr) {
   showToast(parseInt(m) + '/' + parseInt(d) + '(' + dayName + ') 지출 ' + Math.round(expense).toLocaleString() + '만원');
 }
 
-// ── 카테고리 차트
+// ── 카테고리 차트 (상위 5개 + 더보기 토글)
+let _categoryExpanded = false;
+
+function toggleCategoryExpand() {
+  _categoryExpanded = !_categoryExpanded;
+  const btn = document.getElementById('category-expand-btn');
+  document.querySelectorAll('#category-chart .cat-row.hidden').forEach(function(el) {
+    el.style.display = _categoryExpanded ? 'block' : 'none';
+  });
+  if (btn) btn.textContent = _categoryExpanded
+    ? '접기 ▴'
+    : btn.dataset.moreLabel;
+}
+
 function renderCategoryChart(txs) {
   const wrap = document.getElementById('category-chart');
   if (!wrap) return;
@@ -16520,10 +16545,16 @@ function renderCategoryChart(txs) {
   expenses.forEach(t => { bycat[t.category] = (bycat[t.category]||0) + t.amount; });
   const total = Object.values(bycat).reduce((s,v)=>s+v,0);
   const sorted = Object.entries(bycat).sort((a,b)=>b[1]-a[1]);
-  wrap.innerHTML = sorted.map(([catId, amt]) => {
+  const TOP_N = 5;
+
+  const rows = sorted.map(function(entry, idx) {
+    const catId = entry[0], amt = entry[1];
     const cat = CATEGORIES.expense.find(c=>c.id===catId) || {label:'💡 기타', color:'var(--muted)'};
     const pct = Math.round(amt/total*100);
-    return `<div style="margin-bottom:10px">
+    const hidden = idx >= TOP_N;
+    const hiddenClass = hidden ? 'hidden' : '';
+    const hiddenStyle = hidden && !_categoryExpanded ? 'display:none;' : '';
+    return `<div class="cat-row ${hiddenClass}" style="margin-bottom:10px;${hiddenStyle}">
       <div style="display:flex;justify-content:space-between;margin-bottom:5px">
         <span style="font-size:12px">${cat.label}</span>
         <span style="font-size:12px;font-weight:700">${(amt*10000).toLocaleString()}원 <span style="color:var(--muted);font-weight:400">(${pct}%)</span></span>
@@ -16533,6 +16564,17 @@ function renderCategoryChart(txs) {
       </div>
     </div>`;
   }).join('');
+
+  const hiddenCount = Math.max(0, sorted.length - TOP_N);
+  const moreLabel = hiddenCount + '개 더 보기 ▾';
+  const moreBtn = hiddenCount > 0
+    ? `<button id="category-expand-btn" data-more-label="${moreLabel}" onclick="toggleCategoryExpand()"
+        style="width:100%;margin-top:6px;padding:9px;border-radius:10px;background:transparent;border:1px dashed var(--border2);color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:600;cursor:pointer">
+        ${_categoryExpanded ? '접기 ▴' : moreLabel}
+      </button>`
+    : '';
+
+  wrap.innerHTML = rows + moreBtn;
 }
 // ── 월별 지출 추이 차트
 let trendMonths = 3;
