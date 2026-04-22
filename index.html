@@ -5067,6 +5067,55 @@ function resetGoalForm() {
 // ── History ──
 let assetHistory = load('asset-history', []);
 
+// ══ WEALTH 엔티티 + 관측 모델 (신규) ══════════════════════
+// wealth-assets: 자산 엔티티 (주식계좌·아파트·현금 등)
+// wealth-obs:    월별 관측값 (assetId + month → value)
+let wealthAssets = load('wealth-assets', []);
+let wealthObs = load('wealth-obs', []);
+
+// 1회성 마이그레이션: asset-history의 수동 항목을 새 모델로 가져오기
+(function wMigrateFromHistory() {
+  if (load('wealth-migrated', false)) return;
+  const seen = {}; // "name|owner" → assetId
+  assetHistory.forEach(function(rec) {
+    if (!rec.items) return;
+    rec.items.forEach(function(item) {
+      // 주식/아파트 연동 항목은 자동 싱크로 생성되므로 스킵
+      if (item.stockLink || item.aptLink) return;
+      const key = (item.name || '') + '|' + (item.owner || 'common');
+      if (!key || key === '|common') return;
+      let assetId = seen[key];
+      if (!assetId) {
+        assetId = 'hist_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+        seen[key] = assetId;
+        wealthAssets.push({
+          id: assetId,
+          type: item.category || (item.type === 'debt' ? 'debt' : 'other'),
+          name: item.name,
+          owner: item.owner || 'common',
+          emoji: item.emoji || (item.type === 'debt' ? '🔴' : '💰'),
+          isDebt: item.type === 'debt',
+          autoSrc: null,
+          sortOrder: 200,
+        });
+      }
+      const dup = wealthObs.find(function(o) { return o.assetId === assetId && o.month === rec.month; });
+      if (!dup) {
+        wealthObs.push({
+          assetId: assetId,
+          month: rec.month,
+          value: Math.round((item.amount || 0) / 10000),
+          isManual: true,
+          updatedAt: Date.now(),
+        });
+      }
+    });
+  });
+  store('wealth-assets', wealthAssets);
+  store('wealth-obs', wealthObs);
+  store('wealth-migrated', true);
+})();
+
 function updateHome(rec) {
   const C = 264;
   const total = rec.total, debt = rec.debt;
