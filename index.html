@@ -5116,6 +5116,70 @@ let wealthObs = load('wealth-obs', []);
   store('wealth-migrated', true);
 })();
 
+// ── 싱크: 주식 계좌 자동 엔티티 생성 (소유자+계좌타입+증권사 조합)
+function wSyncStocks() {
+  const allStocks = (typeof stocks !== 'undefined' ? stocks : load('stocks', []));
+  const accMap = {};
+  allStocks.filter(function(s) { return s.qty > 0 || s.currentPrice > 0; }).forEach(function(s) {
+    const key = (s.owner || 'partner1') + '|' + (s.accountType || '위탁') + '|' + (s.broker || '');
+    if (!accMap[key]) accMap[key] = {
+      owner: s.owner || 'partner1',
+      accountType: s.accountType || '위탁',
+      broker: s.broker || '',
+    };
+  });
+  let changed = false;
+  Object.values(accMap).forEach(function(acc) {
+    const exists = wealthAssets.find(function(a) {
+      return a.type === 'stock-acct'
+        && a.owner === acc.owner
+        && a.accountType === acc.accountType
+        && (a.broker || '') === (acc.broker || '');
+    });
+    if (!exists) {
+      const name = acc.broker ? acc.broker + ' ' + acc.accountType : acc.accountType;
+      wealthAssets.push({
+        id: 'stk_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+        type: 'stock-acct',
+        name: name,
+        owner: acc.owner,
+        accountType: acc.accountType,
+        broker: acc.broker,
+        emoji: '📈',
+        isDebt: false,
+        autoSrc: 'stock',
+        sortOrder: 100,
+      });
+      changed = true;
+    }
+  });
+  if (changed) store('wealth-assets', wealthAssets);
+}
+
+// ── 싱크: 아파트 자동 엔티티 생성
+function wSyncApts() {
+  const allApts = (typeof aptList !== 'undefined' ? aptList : load('apt-list', []));
+  let changed = false;
+  allApts.forEach(function(apt) {
+    const exists = wealthAssets.find(function(a) { return a.type === 'apt' && a.aptId === apt.id; });
+    if (!exists) {
+      wealthAssets.push({
+        id: 'apt_' + apt.id,
+        type: 'apt',
+        name: apt.name || '아파트',
+        owner: 'common',
+        aptId: apt.id,
+        emoji: '🏠',
+        isDebt: false,
+        autoSrc: 'apt',
+        sortOrder: 50,
+      });
+      changed = true;
+    }
+  });
+  if (changed) store('wealth-assets', wealthAssets);
+}
+
 function updateHome(rec) {
   const C = 264;
   const total = rec.total, debt = rec.debt;
