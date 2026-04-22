@@ -1967,6 +1967,17 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div id="item-view-cards" style="display:none"></div>
 </div>
 
+<!-- ══ Wealth 편집·추가 시트 (bottom sheet) ══ -->
+<div class="wealth-sheet-backdrop" id="wealth-sheet-backdrop" onclick="wCloseAllSheets()"></div>
+<div class="wealth-sheet" id="wealth-edit-sheet">
+  <div style="width:36px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto 18px"></div>
+  <div id="wealth-edit-sheet-body"></div>
+</div>
+<div class="wealth-sheet" id="wealth-add-sheet">
+  <div style="width:36px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto 18px"></div>
+  <div id="wealth-add-sheet-body"></div>
+</div>
+
 <!-- ══ 자산 상세보기 모달 ══ -->
 <div id="asset-detail-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:250;overflow-y:auto">
   <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
