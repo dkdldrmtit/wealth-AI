@@ -5291,6 +5291,151 @@ function wWriteBackHistory(month) {
   store('asset-history', assetHistory);
 }
 
+// ══ WEALTH 렌더링 ══════════════════════════════════════════
+let wSelectedMonth = wCurrentMonth();
+
+function wIsCurrentMonth() { return wSelectedMonth === wCurrentMonth(); }
+
+function wPrevMonth() {
+  const [y, m] = wSelectedMonth.split('-').map(Number);
+  const d = new Date(y, m - 2, 1);
+  wSelectedMonth = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  renderWealthPage();
+}
+function wNextMonth() {
+  if (wIsCurrentMonth()) return;
+  const [y, m] = wSelectedMonth.split('-').map(Number);
+  const d = new Date(y, m, 1);
+  wSelectedMonth = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  renderWealthPage();
+}
+
+function renderWealthPage() {
+  wSyncStocks();
+  wSyncApts();
+  renderWealthMonthPicker();
+  renderWealthHero();
+  renderWealthList();
+}
+
+function renderWealthMonthPicker() {
+  const label = document.getElementById('wealth-month-label');
+  if (label) {
+    const [y, m] = wSelectedMonth.split('-');
+    label.textContent = y + '년 ' + parseInt(m) + '월';
+  }
+  const badge = document.getElementById('wealth-curr-badge');
+  if (badge) badge.style.display = wIsCurrentMonth() ? 'inline-block' : 'none';
+  const nextBtn = document.getElementById('wealth-next-btn');
+  if (nextBtn) nextBtn.style.opacity = wIsCurrentMonth() ? '0.3' : '1';
+  const heroLabel = document.getElementById('hero-net-label');
+  if (heroLabel) {
+    const [y, m] = wSelectedMonth.split('-');
+    heroLabel.textContent = wIsCurrentMonth() ? '순자산' : parseInt(m) + '월 순자산';
+  }
+}
+
+function renderWealthHero() {
+  const totals = wMonthTotals(wSelectedMonth);
+  const netEl = document.getElementById('hero-net-amount');
+  if (netEl) {
+    const sign = totals.net < 0 ? '-' : '';
+    const absNet = Math.abs(totals.net);
+    netEl.innerHTML = sign + (absNet / 10000).toFixed(2)
+      + '<span style="font-size:15px;font-weight:400;color:var(--muted);margin-left:3px">억</span>';
+  }
+  const summaryEl = document.getElementById('wealth-hero-summary');
+  if (summaryEl) {
+    if (totals.total > 0 || totals.debt > 0) {
+      summaryEl.innerHTML =
+        '<span style="font-size:11px;color:var(--muted)">총 <b style="color:var(--text);font-weight:700">' + (totals.total / 10000).toFixed(2) + '억</b></span>'
+        + '<span style="font-size:11px;color:var(--muted);margin-left:10px">부채 <b style="color:var(--red);font-weight:700">' + (totals.debt / 10000).toFixed(2) + '억</b></span>';
+    } else {
+      summaryEl.innerHTML = '';
+    }
+  }
+  setTimeout(function() { if (typeof renderAssetTabChart === 'function') renderAssetTabChart(); }, 50);
+  if (typeof renderCoupleAssetSummary === 'function') renderCoupleAssetSummary();
+}
+
+function renderWealthList() {
+  const wrap = document.getElementById('wealth-list');
+  if (!wrap) return;
+  const isPast = wSelectedMonth < wCurrentMonth();
+
+  if (!wealthAssets.length) {
+    wrap.innerHTML = '<div class="empty-state"><div class="es-icon">📊</div>'
+      + '<div class="es-title">아직 자산 항목이 없어요</div>'
+      + '<div class="es-sub">아래 + 버튼을 눌러 자산을 추가하거나<br>주식·부동산 탭에서 먼저 항목을 추가해보세요</div></div>';
+    return;
+  }
+
+  const stockAssets = wealthAssets.filter(function(a) { return a.type === 'stock-acct'; });
+  const aptAssets = wealthAssets.filter(function(a) { return a.type === 'apt'; });
+  const manualAssets = wealthAssets.filter(function(a) { return !a.autoSrc && !a.isDebt; });
+  const debtAssets = wealthAssets.filter(function(a) { return a.isDebt; });
+
+  let html = '';
+  if (stockAssets.length) html += wRenderSection('주식 계좌', stockAssets);
+  if (aptAssets.length) html += wRenderSection('부동산', aptAssets);
+  if (manualAssets.length) html += wRenderSection('기타 자산', manualAssets);
+  if (debtAssets.length) html += wRenderSection('부채', debtAssets);
+
+  if (isPast) {
+    const unrecorded = wealthAssets.filter(function(a) { return wGetValue(a, wSelectedMonth).value === null; });
+    if (unrecorded.length) {
+      html += '<div style="margin:8px 0 16px;padding:11px 14px;background:rgba(255,170,0,0.07);border-radius:12px;border:1px solid rgba(255,170,0,0.15)">'
+        + '<div style="font-size:12px;color:#c9a84c;font-weight:600;margin-bottom:3px">⚠️ 미기록 항목 ' + unrecorded.length + '개</div>'
+        + '<div style="font-size:11px;color:var(--muted)">' + unrecorded.map(function(a) { return a.name; }).join(', ') + '</div>'
+        + '</div>';
+    }
+  }
+
+  wrap.innerHTML = html;
+}
+
+function wRenderSection(title, assets) {
+  let html = '<div style="margin-bottom:18px">'
+    + '<div class="wealth-section-title">' + title + '</div>';
+  assets.forEach(function(asset) { html += wRenderAssetRow(asset); });
+  html += '</div>';
+  return html;
+}
+
+function wRenderAssetRow(asset) {
+  const v = wGetValue(asset, wSelectedMonth);
+  const ownerColors = { partner1: 'var(--blue)', partner2: 'var(--green)', common: 'var(--muted2)' };
+  const ownerColor = ownerColors[asset.owner] || 'var(--muted2)';
+  const ownerName = asset.owner === 'partner1' ? getP1Name()
+    : asset.owner === 'partner2' ? getP2Name()
+    : getCommonName();
+
+  let valueHtml;
+  if (v.value === null) {
+    valueHtml = '<span style="font-size:12px;color:var(--muted)">미기록</span>';
+  } else {
+    const abs = Math.abs(v.value);
+    const formatted = abs >= 10000 ? (abs / 10000).toFixed(2) + '억' : abs.toLocaleString() + '만';
+    const sign = asset.isDebt ? '-' : '';
+    const color = asset.isDebt ? 'var(--red)' : 'var(--text)';
+    valueHtml = '<span style="font-size:15px;font-weight:700;color:' + color + '">' + sign + formatted + '</span>';
+    if (v.isLive) valueHtml += '<span style="font-size:9px;color:var(--blue);margin-left:4px;font-weight:700;vertical-align:middle">LIVE</span>';
+  }
+
+  let subText = ownerName;
+  if (asset.type === 'stock-acct') subText += ' · ' + (asset.broker || asset.accountType);
+  else if (asset.type === 'apt') subText += ' · 부동산';
+
+  return '<div class="wealth-asset-row" onclick="wOpenEditSheet(\'' + asset.id + '\')">'
+    + '<div class="wealth-owner-dot" style="background:' + ownerColor + '"></div>'
+    + '<div style="flex:1;min-width:0">'
+    + '<div style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + asset.name + '</div>'
+    + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + subText + '</div>'
+    + '</div>'
+    + '<div style="text-align:right;flex-shrink:0">' + valueHtml + '</div>'
+    + '</div>';
+}
+
 function updateHome(rec) {
   const C = 264;
   const total = rec.total, debt = rec.debt;
