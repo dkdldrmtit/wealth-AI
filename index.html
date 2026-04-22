@@ -4717,6 +4717,7 @@ function goPage(name, el) {
     }
   });
   unlockScroll();
+  window.scrollTo(0, 0);
 
   const current = pageHistory[pageHistory.length - 1];
   if (current !== name) pageHistory.push(name);
@@ -10299,10 +10300,11 @@ document.addEventListener('DOMContentLoaded', function() {
   // ── Pull to Refresh ──
   (function() {
     let ptrStartY = 0;
+    let ptrStartX = 0;
     let ptrDist = 0;
     let ptrActive = false;
     let ptrTriggered = false;
-    const THRESHOLD = 72;
+    const THRESHOLD = 88;
 
     // ─── safe-area-inset-top 정확히 읽기 ───
     // CSS env()는 JS에서 바로 못 읽으므로, 숨겨진 div로 실제 픽셀값을 추출
@@ -10364,24 +10366,49 @@ document.addEventListener('DOMContentLoaded', function() {
       return -(getVisibleY() + 80); // 충분히 위로 숨김
     }
 
+    // 열린 모달이 있는지 확인
+    function isAnyModalOpen() {
+      const modalIds = [
+        'modal-overlay','asset-detail-modal','add-item-modal','voice-modal',
+        'pending-modal','proposals-modal','budget-modal','trade-modal',
+        'cat-modal','apt-modal','sms-modal','excel-modal','couple-setup-screen',
+        'auth-screen','stock-modal','schedule-modal','recurring-modal'
+      ];
+      if (modalIds.some(function(id) {
+        const el = document.getElementById(id);
+        return el && el.style.display !== '' && el.style.display !== 'none';
+      })) return true;
+      // 바텀시트 형태 모달 (display:flex로 열림)
+      return Array.from(document.querySelectorAll('[style*="position:fixed"]')).some(function(el) {
+        return el.style.display !== '' && el.style.display !== 'none' && el.id && el.id !== 'ptr-indicator';
+      });
+    }
+
     document.addEventListener('touchstart', function(e) {
+      if (isAnyModalOpen()) return;
       const activePage = document.querySelector('.page.active');
       if (!activePage) return;
       const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
-      if (scrollTop > 5) return;
+      if (scrollTop > 4) return;
       const touchY = e.touches[0].clientY;
-      if (touchY > window.innerHeight * 0.5) return;
+      // 화면 최상단 20% 이내에서 시작한 터치만 PTR 인식
+      // (중간·하단에서 아래로 스크롤하는 제스처와 구분)
+      if (touchY > window.innerHeight * 0.20) return;
       ptrStartY = touchY;
+      ptrStartX = e.touches[0].clientX;
       ptrActive = true;
       ptrTriggered = false;
-      // 측정 재시도 (최초 진입 시 safe-area가 0인 경우 방어)
       const measured = getSafeAreaTop();
       if (measured > 0) safeTop = measured;
     }, { passive: true });
 
     document.addEventListener('touchmove', function(e) {
       if (!ptrActive) return;
-      ptrDist = Math.min(e.touches[0].clientY - ptrStartY, 120);
+      const dx = Math.abs(e.touches[0].clientX - ptrStartX);
+      const dy = e.touches[0].clientY - ptrStartY;
+      // 수평 이동이 더 크면 스크롤/스와이프 — PTR 취소
+      if (dx > dy || dx > 12) { ptrActive = false; return; }
+      ptrDist = Math.min(dy, 120);
       if (ptrDist < 0) { ptrActive = false; return; }
 
       const progress = Math.min(ptrDist / THRESHOLD, 1);
