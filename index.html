@@ -6075,179 +6075,85 @@ function renderAddItemPresets() {
 
   // 주식·ETF 카테고리면 주식 탭 불러오기 버튼 표시
   if (_addItemCategory === 'stocks') {
-    const owner = _addItemOwner || 'common';
     const usdKrw = load('usd-krw-rate', 0);
-    
-    function calcMarket(market) {
-      return stocks
-        .filter(function(s) {
-          const ownerMatch = owner === 'common' ? true : s.owner === owner;
-          return ownerMatch && s.market === market && s.currentPrice > 0;
-        })
-        .reduce(function(sum, s) {
-          const evalAmt = s.currentPrice * s.qty;
-          return sum + (s.market === 'US' ? (usdKrw ? evalAmt * usdKrw : 0) : evalAmt);
-        }, 0);
-    }
-
-    const krAmt = Math.round(calcMarket('KR') / 10000);
-    const usAmt = Math.round(calcMarket('US') / 10000);
     const now = new Date();
     const timeStr = (now.getMonth()+1) + '/' + now.getDate() + ' ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
 
-    // 민석/시윤 각각 국내/해외 계산
-    function calcOwnerMarket(owner, market) {
-      return stocks
-        .filter(function(s) { return s.owner === owner && s.market === market && s.currentPrice > 0; })
-        .reduce(function(sum, s) {
+    // 소유자별 계좌 목록 (accountType + broker 조합)
+    function getOwnerAccounts(ownerId) {
+      const accMap = {};
+      stocks.filter(function(s) { return s.owner === ownerId && s.currentPrice > 0; })
+        .forEach(function(s) {
+          const key = (s.accountType || '위탁') + '||' + (s.broker || '');
+          if (!accMap[key]) accMap[key] = { accountType: s.accountType || '위탁', broker: s.broker || '', total: 0 };
           const evalAmt = s.currentPrice * s.qty;
-          return sum + (s.market === 'US' ? (usdKrw ? evalAmt * usdKrw : 0) : evalAmt);
-        }, 0);
+          accMap[key].total += s.market === 'US' ? (usdKrw ? evalAmt * usdKrw : 0) : evalAmt;
+        });
+      return Object.values(accMap).filter(function(a) { return a.total > 0; });
     }
 
-    const msKr = Math.round(calcOwnerMarket('partner1', 'KR') / 10000);
-    const msUs = Math.round(calcOwnerMarket('partner1', 'US') / 10000);
-    const syKr = Math.round(calcOwnerMarket('partner2', 'KR') / 10000);
-    const syUs = Math.round(calcOwnerMarket('partner2', 'US') / 10000);
+    // 이미 연동된 항목 체크 (ownerId|linkKey)
+    const alreadyLinked = (modalAssetItems || []).filter(function(i) { return i.stockLink; })
+      .map(function(i) { return (i.owner || '') + '|' + i.stockLink; });
 
-    const p1Name = getP1Name();
-    const p2Name = getP2Name();
-
-    // 이미 연동된 owner+market 조합 체크
-    const alreadyLinked = (modalAssetItems || []).filter(function(i) {
-      return i.stockLink;
-    }).map(function(i) {
-      return (i.owner || 'common') + '_' + i.stockLink;
-    });
-
-    function stockCard(owner, market, amt, ownerLabel, flag) {
-      if (amt <= 0) return '';
-      const key = owner + '_' + market;
-      const isDuplicate = alreadyLinked.includes(key);
-
-      if (isDuplicate) {
-        return '<div style="flex:1;padding:10px 12px;border-radius:12px;'
-          + 'border:1px solid var(--border);background:var(--surface2);text-align:left;opacity:0.5">'
-          + '<div style="font-size:10px;color:var(--muted);margin-bottom:4px">' + flag + ' ' + ownerLabel + '</div>'
-          + '<div style="font-size:14px;font-weight:700;color:var(--muted)">' + amt.toLocaleString() + '만원</div>'
-          + '<div style="font-size:10px;color:var(--muted);margin-top:3px">이미 연동됨</div>'
+    function accountCard(ownerId, acc) {
+      const evalMan = Math.round(acc.total / 10000);
+      const linkKey = 'acct:' + acc.accountType + (acc.broker ? '||' + acc.broker : '');
+      const isDup = alreadyLinked.includes(ownerId + '|' + linkKey);
+      const label = [acc.broker, acc.accountType].filter(Boolean).join(' · ');
+      if (isDup) {
+        return '<div style="padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);opacity:0.45;margin-bottom:8px">'
+          + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">' + label + '</div>'
+          + '<div style="font-size:15px;font-weight:800;color:var(--muted)">' + evalMan.toLocaleString() + '만원</div>'
+          + '<div style="font-size:10px;color:var(--muted);margin-top:2px">이미 연동됨</div>'
           + '</div>';
       }
-
-      return '<button onclick="linkStockToItem(\'' + market + '\',\'' + owner + '\')" style="'
-        + 'flex:1;padding:10px 12px;border-radius:12px;'
-        + 'border:1px solid rgba(30,58,82,0.25);'
-        + 'background:rgba(30,58,82,0.05);'
-        + 'font-family:\'Noto Sans KR\',sans-serif;cursor:pointer;text-align:left;'
-        + 'transition:all .15s">'
-        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
-        + '<span style="font-size:10px;color:var(--muted)">' + flag + ' ' + ownerLabel + '</span>'
-        + '<span style="font-size:9px;font-weight:700;color:var(--blue);background:rgba(30,58,82,0.1);padding:1px 6px;border-radius:8px">불러오기</span>'
-        + '</div>'
-        + '<div style="font-size:16px;font-weight:900;color:var(--text)">' + amt.toLocaleString() + '만원</div>'
-        + '</button>';
-    }
-
-
-    // 계좌종류별 평가금액 계산
-    function calcAccType(accType) {
-      return stocks
-        .filter(function(s) {
-          const ownerMatch = owner === 'common' ? true : s.owner === owner;
-          return ownerMatch && s.accountType === accType && s.currentPrice > 0;
-        })
-        .reduce(function(sum, s) {
-          const evalAmt = s.currentPrice * s.qty;
-          return sum + (s.market === 'US' ? (usdKrw ? evalAmt * usdKrw : 0) : evalAmt);
-        }, 0);
-    }
-
-    function accTypeCard(accType) {
-      const evalKrw = calcAccType(accType);
-      if (evalKrw <= 0) return '';
-      const evalMan = Math.round(evalKrw / 10000);
-      const acctOwner = owner === 'common' ? '' : owner;
-      const key = (acctOwner || 'common') + '_acct:' + accType;
-      const isDuplicate = alreadyLinked.includes(key);
-      const accentColor = accType === 'ISA' ? 'var(--blue)'
-        : accType === 'IRP' ? 'var(--gold)'
-        : accType === '연금저축' ? 'var(--green)' : 'var(--muted2)';
-      const accentBg = accType === 'ISA' ? 'rgba(30,58,82,0.05)'
-        : accType === 'IRP' ? 'rgba(201,168,76,0.05)'
-        : accType === '연금저축' ? 'rgba(34,197,94,0.05)' : 'var(--surface2)';
-      const accentBorder = accType === 'ISA' ? 'rgba(30,58,82,0.25)'
-        : accType === 'IRP' ? 'rgba(201,168,76,0.25)'
-        : accType === '연금저축' ? 'rgba(34,197,94,0.25)' : 'var(--border2)';
-      const badgeBg = accType === 'ISA' ? 'rgba(30,58,82,0.12)'
-        : accType === 'IRP' ? 'rgba(201,168,76,0.12)'
-        : accType === '연금저축' ? 'rgba(34,197,94,0.12)' : 'var(--surface)';
-      if (isDuplicate) {
-        return '<div style="flex:0 0 auto;padding:10px 12px;border-radius:12px;'
-          + 'border:1px solid var(--border);background:var(--surface2);text-align:left;opacity:0.5">'
-          + '<div style="font-size:10px;color:var(--muted);margin-bottom:4px">📂 ' + accType + '</div>'
-          + '<div style="font-size:14px;font-weight:700;color:var(--muted)">' + evalMan.toLocaleString() + '만원</div>'
-          + '<div style="font-size:10px;color:var(--muted);margin-top:3px">이미 연동됨</div>'
-          + '</div>';
-      }
-      return '<button onclick="linkStockToItemByAccType(\'' + accType + '\',\'' + acctOwner + '\')" style="'
-        + 'flex:0 0 auto;padding:10px 12px;border-radius:12px;'
-        + 'border:1px solid ' + accentBorder + ';'
-        + 'background:' + accentBg + ';'
-        + 'font-family:\'Noto Sans KR\',sans-serif;cursor:pointer;text-align:left;transition:all .15s">'
-        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
-        + '<span style="font-size:10px;color:var(--muted)">📂 ' + accType + '</span>'
-        + '<span style="font-size:9px;font-weight:700;color:' + accentColor + ';background:' + badgeBg + ';padding:1px 6px;border-radius:8px">불러오기</span>'
-        + '</div>'
+      // encode for safe inline onclick
+      const safeType = acc.accountType.replace(/'/g, '\\x27');
+      const safeBroker = (acc.broker || '').replace(/'/g, '\\x27');
+      return '<button onclick="linkStockByAccount(\'' + ownerId + '\',\'' + safeType + '\',\'' + safeBroker + '\')" style="'
+        + 'display:block;width:100%;padding:10px 14px;border-radius:12px;'
+        + 'border:1px solid rgba(30,58,82,0.2);background:rgba(30,58,82,0.04);'
+        + 'font-family:\'Noto Sans KR\',sans-serif;cursor:pointer;text-align:left;margin-bottom:8px;transition:all .15s">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center">'
+        + '<div>'
+        + '<div style="font-size:11px;color:var(--muted);margin-bottom:3px">' + label + '</div>'
         + '<div style="font-size:16px;font-weight:900;color:var(--text)">' + evalMan.toLocaleString() + '만원</div>'
+        + '</div>'
+        + '<span style="font-size:10px;font-weight:700;color:var(--blue);background:rgba(30,58,82,0.1);padding:3px 10px;border-radius:10px;flex-shrink:0">연동</span>'
+        + '</div>'
         + '</button>';
     }
 
-    const acctTypeCards = stockAccountTypes.map(accTypeCard).filter(Boolean).join('');
-    const hasAny = msKr > 0 || msUs > 0 || syKr > 0 || syUs > 0 || acctTypeCards.length > 0;
+    const p1Accounts = getOwnerAccounts('partner1');
+    const p2Accounts = getOwnerAccounts('partner2');
+    const hasAny = p1Accounts.length > 0 || p2Accounts.length > 0;
 
-    presetsWrap.innerHTML =
-      '<div style="width:100%;margin-bottom:8px">'
-      + '<div style="font-size:11px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px">'
-      + '<span>🔗 주식 탭에서 불러오기</span>'
+    let html = '<div style="font-size:11px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px">'
+      + '<span>🔗 주식 계좌 연동</span>'
       + (hasAny ? '<span style="font-size:10px;color:var(--muted2)">· ' + timeStr + ' 기준</span>' : '')
-      + '</div>'
-      + (!hasAny
-        ? '<div style="font-size:11px;color:var(--muted);padding:12px;background:var(--surface2);border-radius:10px;text-align:center">⚠️ 주식 탭에서 시세 갱신 후 다시 시도해주세요</div>'
-        : ''
-      )
-      // 국내주식 행
-      + (msKr > 0 || syKr > 0
-        ? '<div style="margin-bottom:8px">'
-          + '<div style="font-size:10px;color:var(--muted2);font-weight:600;margin-bottom:5px">🇰🇷 국내주식·ETF</div>'
-          + '<div style="display:flex;gap:8px">'
-          + stockCard('partner1', 'KR', msKr, p1Name, '👤')
-          + stockCard('partner2',  'KR', syKr, p2Name, '👤')
-          + '</div></div>'
-        : '')
-      // 해외주식 행
-      + (msUs > 0 || syUs > 0
-        ? '<div style="margin-bottom:8px">'
-          + '<div style="font-size:10px;color:var(--muted2);font-weight:600;margin-bottom:5px">🇺🇸 해외주식·ETF</div>'
-          + '<div style="display:flex;gap:8px">'
-          + stockCard('partner1', 'US', msUs, p1Name, '👤')
-          + stockCard('partner2',  'US', syUs, p2Name, '👤')
-          + '</div></div>'
-        : '')
-      // 계좌종류별 행
-      + (acctTypeCards
-        ? '<div style="margin-bottom:8px">'
-          + '<div style="font-size:10px;color:var(--muted2);font-weight:600;margin-bottom:5px">📂 계좌종류별</div>'
-          + '<div style="display:flex;flex-wrap:wrap;gap:8px">' + acctTypeCards + '</div>'
-          + '</div>'
-        : '')
-      + '</div>'
-      + '<div style="width:100%;height:1px;background:var(--border);margin:10px 0"></div>'
+      + '</div>';
+
+    if (!hasAny) {
+      html += '<div style="font-size:11px;color:var(--muted);padding:12px;background:var(--surface2);border-radius:10px;text-align:center;margin-bottom:10px">⚠️ 주식 탭에서 시세 갱신 후 다시 시도해주세요</div>';
+    }
+    if (p1Accounts.length > 0) {
+      html += '<div style="font-size:10px;font-weight:700;color:var(--muted2);letter-spacing:0.3px;margin-bottom:6px">' + getP1Name() + '</div>';
+      html += p1Accounts.map(function(acc) { return accountCard('partner1', acc); }).join('');
+    }
+    if (p2Accounts.length > 0) {
+      html += '<div style="font-size:10px;font-weight:700;color:var(--muted2);letter-spacing:0.3px;margin-bottom:6px;margin-top:' + (p1Accounts.length > 0 ? '8px' : '0') + '">' + getP2Name() + '</div>';
+      html += p2Accounts.map(function(acc) { return accountCard('partner2', acc); }).join('');
+    }
+
+    html += '<div style="width:100%;height:1px;background:var(--border);margin:10px 0"></div>'
       + '<div style="font-size:11px;color:var(--muted);margin-bottom:6px">직접 입력</div>'
       + cat.items.map(function(item) {
           return '<button onclick="selectAddItemPreset(\'' + item + '\')" style="padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:500;cursor:pointer">' + item + '</button>';
         }).join('');
-    return;
 
+    presetsWrap.innerHTML = html;
+    return;
   }
     if (_addItemCategory === 'realestate') {
     renderAptPresets(presetsWrap);
@@ -6351,7 +6257,63 @@ function linkStockToItem(market, owner) {
   }
 
   showToast('✅ ' + (market === 'KR' ? '국내' : '해외') + ' ' + evalMan.toLocaleString() + '만원 불러왔어요!');
+}
 
+function linkStockByAccount(ownerId, accountType, broker) {
+  const usdKrw = load('usd-krw-rate', 0);
+  const now = new Date();
+  const timeStr = (now.getMonth()+1) + '/' + now.getDate() + ' ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+
+  const evalKrw = stocks
+    .filter(function(s) {
+      return s.owner === ownerId && s.accountType === accountType
+        && (broker ? s.broker === broker : true) && s.currentPrice > 0;
+    })
+    .reduce(function(sum, s) {
+      const evalAmt = s.currentPrice * s.qty;
+      return sum + (s.market === 'US' ? (usdKrw ? evalAmt * usdKrw : 0) : evalAmt);
+    }, 0);
+
+  const evalMan = Math.round(evalKrw / 10000);
+  if (!evalMan) { showToast('❗ 시세 갱신 후 다시 시도해주세요'); return; }
+
+  const label = [broker, accountType].filter(Boolean).join(' ');
+  const linkKey = 'acct:' + accountType + (broker ? '||' + broker : '');
+
+  const nameEl = document.getElementById('add-item-name');
+  const amountEl = document.getElementById('add-item-amount');
+  if (nameEl) nameEl.value = label;
+  if (amountEl) amountEl.value = evalMan;
+
+  const modal = document.getElementById('add-item-modal');
+  modal.dataset.stockLink = linkKey;
+  modal.dataset.stockLinkTime = timeStr;
+  modal.dataset.stockLinkOwner = ownerId;
+  window._pendingStockLink = { market: linkKey, timeStr };
+
+  if (nameEl) { nameEl.readOnly = true; nameEl.style.opacity = '0.5'; nameEl.style.cursor = 'default'; }
+  if (amountEl) { amountEl.readOnly = true; amountEl.style.opacity = '0.5'; amountEl.style.cursor = 'default'; }
+
+  setAddItemOwner(ownerId);
+  ['common','partner1','partner2'].forEach(function(o) {
+    const btn = document.getElementById('add-owner-' + o);
+    if (!btn) return;
+    btn.disabled = true;
+    btn.style.opacity = o === ownerId ? '1' : '0.3';
+    btn.style.cursor = 'not-allowed';
+  });
+  const existing = document.getElementById('owner-lock-note');
+  if (existing) existing.remove();
+  const ownerWrap = document.querySelector('#add-item-modal [id^="add-owner-common"]')?.closest('div[style*="border-radius"]');
+  if (ownerWrap) {
+    const lockNote = document.createElement('div');
+    lockNote.id = 'owner-lock-note';
+    lockNote.style.cssText = 'font-size:10px;color:var(--blue);margin-top:4px;text-align:center';
+    lockNote.textContent = '🔗 주식 계좌 연동됨';
+    ownerWrap.parentElement.appendChild(lockNote);
+  }
+
+  showToast('✅ ' + label + ' ' + evalMan.toLocaleString() + '만원 연동했어요!');
 }
 
 
@@ -13653,14 +13615,19 @@ function applyStocksToAsset() {
     return;
   }
 
-  // owner + linkVal 기준으로 주식 평가금액 계산 (KR/US/all 또는 acct:ISA 등)
+  // owner + linkVal 기준으로 주식 평가금액 계산
   function calcEval(owner, linkVal) {
     return stocks
       .filter(function(s) {
         const ownerMatch = owner === 'all' ? true : s.owner === owner;
         let typeMatch;
         if (linkVal.startsWith('acct:')) {
-          typeMatch = s.accountType === linkVal.slice(5);
+          // 형식: acct:TYPE 또는 acct:TYPE||BROKER
+          const rest = linkVal.slice(5);
+          const parts = rest.split('||');
+          const accType = parts[0];
+          const broker = parts[1] || null;
+          typeMatch = s.accountType === accType && (broker ? s.broker === broker : true);
         } else {
           typeMatch = linkVal === 'all' ? true : s.market === linkVal;
         }
@@ -13685,7 +13652,7 @@ function applyStocksToAsset() {
     if (evalMan > 0) {
       item.amount = evalMan;
       updated++;
-      const linkLabel = linkVal.startsWith('acct:') ? linkVal.slice(5)
+      const linkLabel = linkVal.startsWith('acct:') ? linkVal.slice(5).replace('||', ' · ')
         : linkVal === 'KR' ? '국내' : linkVal === 'US' ? '해외' : '전체';
       const ownerLabel = owner === 'partner1' ? getP1Name() : owner === 'partner2' ? getP2Name() : getCommonName();
       msgs.push(ownerLabel + ' ' + linkLabel + ' ' + (evalMan >= 10000 ? (evalMan/10000).toFixed(2) + '억' : evalMan.toLocaleString() + '만'));
