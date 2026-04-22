@@ -5436,6 +5436,341 @@ function wRenderAssetRow(asset) {
     + '</div>';
 }
 
+// ══ WEALTH 시트 UI ══════════════════════════════════════════
+let _wEditingAssetId = null;
+let _wAddType = 'cash';
+let _wAddOwner = 'common';
+
+function wOpenSheet(sheetId) {
+  const backdrop = document.getElementById('wealth-sheet-backdrop');
+  const sheet = document.getElementById(sheetId);
+  if (!backdrop || !sheet) return;
+  ['wealth-edit-sheet', 'wealth-add-sheet'].forEach(function(id) {
+    if (id !== sheetId) {
+      const s = document.getElementById(id);
+      if (s) { s.style.display = 'none'; s.classList.remove('open'); }
+    }
+  });
+  backdrop.style.display = 'block';
+  sheet.style.display = 'block';
+  if (typeof lockScroll === 'function') lockScroll();
+  requestAnimationFrame(function() { sheet.classList.add('open'); });
+}
+
+function wCloseEditSheet() { wCloseSheet('wealth-edit-sheet'); }
+
+function wCloseAllSheets() {
+  ['wealth-edit-sheet', 'wealth-add-sheet'].forEach(function(id) { wCloseSheet(id); });
+  const backdrop = document.getElementById('wealth-sheet-backdrop');
+  if (backdrop) setTimeout(function() { backdrop.style.display = 'none'; }, 320);
+  if (typeof unlockScroll === 'function') unlockScroll();
+}
+
+function wCloseSheet(sheetId) {
+  const sheet = document.getElementById(sheetId);
+  if (!sheet) return;
+  sheet.classList.remove('open');
+  setTimeout(function() { sheet.style.display = 'none'; }, 320);
+}
+
+// ── 편집 시트 열기
+function wOpenEditSheet(assetId) {
+  _wEditingAssetId = assetId;
+  const asset = wealthAssets.find(function(a) { return a.id === assetId; });
+  if (!asset) return;
+
+  const isPast = wSelectedMonth < wCurrentMonth();
+  const v = wGetValue(asset, wSelectedMonth);
+  const [y, m] = wSelectedMonth.split('-');
+  const monthLabel = y + '년 ' + parseInt(m) + '월';
+  const ownerName = asset.owner === 'partner1' ? getP1Name()
+    : asset.owner === 'partner2' ? getP2Name()
+    : getCommonName();
+
+  let body = '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">'
+    + '<div>'
+    + '<div style="font-size:17px;font-weight:700;color:var(--text)">' + (asset.emoji || '') + ' ' + asset.name + '</div>'
+    + '<div style="font-size:11px;color:var(--muted);margin-top:3px">' + ownerName + (asset.autoSrc ? ' · 자동 연동' : '') + '</div>'
+    + '</div>'
+    + '<button onclick="wCloseEditSheet()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;width:32px;height:32px;cursor:pointer;color:var(--muted);font-size:16px;line-height:1;flex-shrink:0">✕</button>'
+    + '</div>';
+
+  if (v.isLive) {
+    const abs = Math.abs(v.value);
+    const formatted = abs >= 10000 ? (abs / 10000).toFixed(2) + '억' : abs.toLocaleString() + '만';
+    body += '<div style="background:rgba(74,144,226,0.08);border-radius:12px;padding:12px 14px;margin-bottom:14px">'
+      + '<div style="font-size:10px;color:var(--blue);font-weight:700;letter-spacing:0.3px;margin-bottom:4px">● 실시간 연동</div>'
+      + '<div style="font-size:22px;font-weight:800;color:var(--text)">' + formatted + '</div>'
+      + '<div style="font-size:11px;color:var(--muted);margin-top:3px">포트폴리오에서 자동 계산 중</div>'
+      + '</div>';
+  }
+
+  const curVal = (v.value !== null && !v.isLive) ? Math.round(v.value) : '';
+  const placeholder = v.isLive ? '수동 덮어쓰기 (선택, 만원)' : monthLabel + ' 금액 (만원)';
+  body += '<div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">'
+    + (v.isLive ? '수동 입력 (선택)' : monthLabel + ' 금액')
+    + '</div>'
+    + '<input id="wealth-edit-input" type="number" inputmode="numeric" value="' + curVal + '" placeholder="' + placeholder + '"'
+    + ' style="width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:16px;font-family:inherit;box-sizing:border-box;margin-bottom:12px">';
+
+  if (asset.type === 'apt' && isPast) {
+    const allApts = (typeof aptList !== 'undefined' ? aptList : load('apt-list', []));
+    const apt = allApts.find(function(a) { return a.id === asset.aptId; });
+    if (apt && apt.lawdCd && (load('cloudflare-proxy', '') || load('molit-api-key', ''))) {
+      body += '<button onclick="wFetchAptHistorical(\'' + asset.id + '\',\'' + wSelectedMonth + '\')"'
+        + ' style="width:100%;padding:11px;border-radius:12px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:12px;text-align:left">'
+        + '🏠 ' + parseInt(m) + '월 실거래가 조회 (말일 기준)'
+        + '</button>';
+    }
+  }
+
+  const recentMonths = [];
+  for (let i = 1; i <= 3; i++) {
+    const [ry, rm] = wSelectedMonth.split('-').map(Number);
+    const d = new Date(ry, rm - 1 - i, 1);
+    recentMonths.push(d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'));
+  }
+  const hasHist = recentMonths.some(function(mo) { return wGetValue(asset, mo).value !== null; });
+  if (hasHist) {
+    body += '<div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:0.3px;margin-bottom:7px;text-transform:uppercase">최근 기록</div>'
+      + '<div style="display:flex;gap:6px;margin-bottom:14px">';
+    recentMonths.forEach(function(mo) {
+      const rv = wGetValue(asset, mo);
+      const [ry, rm] = mo.split('-');
+      if (rv.value !== null) {
+        const abs = Math.abs(rv.value);
+        const f = abs >= 10000 ? (abs / 10000).toFixed(1) + '억' : abs.toLocaleString() + '만';
+        body += '<div style="flex:1;background:var(--surface2);border-radius:10px;padding:8px 6px;text-align:center">'
+          + '<div style="font-size:9px;color:var(--muted)">' + parseInt(rm) + '월</div>'
+          + '<div style="font-size:12px;font-weight:700;color:var(--text);margin-top:2px">' + f + '</div>'
+          + '</div>';
+      } else {
+        body += '<div style="flex:1;background:var(--surface2);border-radius:10px;padding:8px 6px;text-align:center;opacity:0.4">'
+          + '<div style="font-size:9px;color:var(--muted)">' + parseInt(rm) + '월</div>'
+          + '<div style="font-size:11px;color:var(--muted);margin-top:2px">—</div>'
+          + '</div>';
+      }
+    });
+    body += '</div>';
+  }
+
+  const deleteBtn = !asset.autoSrc
+    ? '<button onclick="wDeleteAsset(\'' + asset.id + '\')" style="flex:1;padding:12px;border-radius:12px;border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.06);color:var(--red);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer">삭제</button>'
+    : '';
+  const clearBtn = (v.value !== null && !v.isLive)
+    ? '<button onclick="wClearObs()" style="flex:1;padding:12px;border-radius:12px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted2);font-family:inherit;font-size:13px;cursor:pointer">초기화</button>'
+    : '';
+
+  body += '<div style="display:flex;gap:8px">'
+    + deleteBtn + clearBtn
+    + '<button onclick="wSaveEdit()" style="flex:2;padding:12px;border-radius:12px;border:none;background:var(--blue);color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">저장</button>'
+    + '</div>';
+
+  const bodyEl = document.getElementById('wealth-edit-sheet-body');
+  if (bodyEl) bodyEl.innerHTML = body;
+  wOpenSheet('wealth-edit-sheet');
+  setTimeout(function() {
+    const inp = document.getElementById('wealth-edit-input');
+    if (inp && !v.isLive && v.value === null) inp.focus();
+  }, 350);
+}
+
+function wSaveEdit() {
+  const asset = wealthAssets.find(function(a) { return a.id === _wEditingAssetId; });
+  if (!asset) return;
+  const inp = document.getElementById('wealth-edit-input');
+  const val = inp ? parseFloat(inp.value) : NaN;
+  if (!isNaN(val) && val >= 0) {
+    wSaveObs(asset.id, wSelectedMonth, Math.round(val));
+  }
+  wCloseAllSheets();
+  renderWealthList();
+  renderWealthHero();
+  if (typeof showToast === 'function') showToast('💾 저장됐어요');
+}
+
+function wClearObs() {
+  wDeleteObs(_wEditingAssetId, wSelectedMonth);
+  wCloseAllSheets();
+  renderWealthList();
+  renderWealthHero();
+  if (typeof showToast === 'function') showToast('🗑️ 해당 월 값을 초기화했어요');
+}
+
+function wDeleteAsset(assetId) {
+  if (!confirm('이 자산 항목을 삭제할까요? 모든 월의 기록도 함께 삭제됩니다.')) return;
+  wealthAssets = wealthAssets.filter(function(a) { return a.id !== assetId; });
+  wealthObs = wealthObs.filter(function(o) { return o.assetId !== assetId; });
+  store('wealth-assets', wealthAssets);
+  store('wealth-obs', wealthObs);
+  wCloseAllSheets();
+  renderWealthList();
+  renderWealthHero();
+  if (typeof showToast === 'function') showToast('🗑️ 삭제됐어요');
+}
+
+// ── 부동산 과거 월 실거래가 조회 (말일 기준 마지막 가격)
+async function wFetchAptHistorical(assetId, month) {
+  const asset = wealthAssets.find(function(a) { return a.id === assetId; });
+  if (!asset) return;
+  const allApts = (typeof aptList !== 'undefined' ? aptList : load('apt-list', []));
+  const apt = allApts.find(function(a) { return a.id === asset.aptId; });
+  if (!apt) { if (typeof showToast === 'function') showToast('❗ 부동산 정보 없음'); return; }
+  const [y, m] = month.split('-');
+  const ym = y + m;
+  const proxyUrl = load('cloudflare-proxy', '');
+  const apiKey = load('molit-api-key', '');
+  if (!proxyUrl && !apiKey) { if (typeof showToast === 'function') showToast('❗ API 키가 필요해요'); return; }
+  if (typeof showToast === 'function') showToast('⏳ ' + parseInt(m) + '월 실거래가 조회 중...');
+
+  let xmlStr = null;
+  if (proxyUrl) {
+    try {
+      const res = await fetch(proxyUrl + '/realestate?lawdCd=' + apt.lawdCd + '&dealYmd=' + ym, {
+        signal: (function() { const c = new AbortController(); setTimeout(function() { c.abort(); }, 10000); return c.signal; })()
+      });
+      const text = await res.text();
+      if (text && text.includes('<item>')) xmlStr = text;
+    } catch (e) {}
+  }
+  if (!xmlStr && apiKey) {
+    try {
+      const url = 'https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev?serviceKey='
+        + encodeURIComponent(apiKey) + '&LAWD_CD=' + apt.lawdCd + '&DEAL_YMD=' + ym + '&pageNo=1&numOfRows=1000';
+      const res = await fetch(url, {
+        signal: (function() { const c = new AbortController(); setTimeout(function() { c.abort(); }, 10000); return c.signal; })()
+      });
+      const text = await res.text();
+      if (text && text.includes('<item>')) xmlStr = text;
+    } catch (e) {}
+  }
+  if (!xmlStr) { if (typeof showToast === 'function') showToast('❗ 해당 월 실거래 없음'); return; }
+
+  const results = [];
+  try {
+    const xml = new DOMParser().parseFromString(xmlStr, 'text/xml');
+    xml.querySelectorAll('item').forEach(function(item) {
+      const name = (item.querySelector('aptNm')?.textContent || '').trim();
+      const area = parseFloat(item.querySelector('excluUseAr')?.textContent || '0');
+      const nameMatch = !apt.name || name.includes(apt.name)
+        || apt.name.split(/\s+/).every(function(w) { return name.includes(w); });
+      const areaMatch = area >= (apt.areaMin || 0) && area <= (apt.areaMax || 999);
+      if (nameMatch && areaMatch) {
+        results.push({
+          day: parseInt((item.querySelector('dealDay')?.textContent || '0').trim()) || 0,
+          price: parseInt((item.querySelector('dealAmount')?.textContent?.replace(/,/g, '') || '0').trim()),
+        });
+      }
+    });
+  } catch (e) {}
+  if (!results.length) { if (typeof showToast === 'function') showToast('❗ 조건 맞는 거래 없음'); return; }
+  results.sort(function(a, b) { return b.day - a.day; });
+  const price = results[0].price;
+  const inp = document.getElementById('wealth-edit-input');
+  if (inp) inp.value = price;
+  if (typeof showToast === 'function') showToast('✅ ' + parseInt(m) + '월 ' + results[0].day + '일 거래 ' + (price / 10000).toFixed(2) + '억');
+}
+
+// ── 추가 시트 열기
+function openWealthAddSheet() {
+  _wAddType = 'cash';
+  _wAddOwner = 'common';
+  renderWealthAddBody();
+  wOpenSheet('wealth-add-sheet');
+  setTimeout(function() { const inp = document.getElementById('wealth-add-name'); if (inp) inp.focus(); }, 350);
+}
+
+function renderWealthAddBody() {
+  const typeOptions = [
+    ['cash', '현금', '💵'], ['savings', '저축·청약', '💰'], ['investment', '투자·펀드', '📊'],
+    ['insurance', '보험', '🛡️'], ['other', '기타', '📁'], ['debt', '부채', '🔴'],
+  ];
+  let body = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
+    + '<div style="font-size:17px;font-weight:700;color:var(--text)">새 항목 추가</div>'
+    + '<button onclick="wCloseAllSheets()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;width:32px;height:32px;cursor:pointer;color:var(--muted);font-size:16px;line-height:1">✕</button>'
+    + '</div>';
+  body += '<div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:7px">유형</div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:14px">';
+  typeOptions.forEach(function(t) {
+    const active = _wAddType === t[0];
+    body += '<button onclick="wSelectAddType(\'' + t[0] + '\')" id="watype-' + t[0] + '"'
+      + ' style="padding:8px 4px;border-radius:10px;border:1px solid ' + (active ? 'var(--blue)' : 'var(--border2)') + ';'
+      + 'background:' + (active ? 'var(--blue)' : 'var(--surface2)') + ';'
+      + 'color:' + (active ? '#fff' : 'var(--text)') + ';'
+      + 'font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">'
+      + t[2] + ' ' + t[1] + '</button>';
+  });
+  body += '</div>';
+  body += '<div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">이름</div>'
+    + '<input id="wealth-add-name" type="text" placeholder="예: 청약통장, IRP, 비상금" autocomplete="off"'
+    + ' style="width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:12px">';
+  body += '<div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">금액 (만원, 선택)</div>'
+    + '<input id="wealth-add-amount" type="number" inputmode="numeric" placeholder="0"'
+    + ' style="width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:16px;font-family:inherit;box-sizing:border-box;margin-bottom:12px">';
+  body += '<div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:7px">소유자</div>'
+    + '<div style="display:flex;gap:6px;margin-bottom:16px">';
+  [['partner1', getP1Name()], ['partner2', getP2Name()], ['common', getCommonName()]].forEach(function(o) {
+    const active = _wAddOwner === o[0];
+    body += '<button onclick="wSelectAddOwner(\'' + o[0] + '\')" id="waowner-' + o[0] + '"'
+      + ' style="flex:1;padding:9px 4px;border-radius:10px;border:1px solid ' + (active ? 'var(--blue)' : 'var(--border2)') + ';'
+      + 'background:' + (active ? 'var(--blue)' : 'var(--surface2)') + ';'
+      + 'color:' + (active ? '#fff' : 'var(--muted2)') + ';'
+      + 'font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">'
+      + o[1] + '</button>';
+  });
+  body += '</div>';
+  body += '<button onclick="wConfirmAdd()" style="width:100%;padding:13px;border-radius:12px;border:none;background:var(--blue);color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">추가</button>';
+  const el = document.getElementById('wealth-add-sheet-body');
+  if (el) el.innerHTML = body;
+}
+
+function wSelectAddType(type) {
+  _wAddType = type;
+  document.querySelectorAll('[id^="watype-"]').forEach(function(btn) {
+    const active = btn.id === 'watype-' + type;
+    btn.style.background = active ? 'var(--blue)' : 'var(--surface2)';
+    btn.style.color = active ? '#fff' : 'var(--text)';
+    btn.style.borderColor = active ? 'var(--blue)' : 'var(--border2)';
+  });
+}
+
+function wSelectAddOwner(owner) {
+  _wAddOwner = owner;
+  document.querySelectorAll('[id^="waowner-"]').forEach(function(btn) {
+    const active = btn.id === 'waowner-' + owner;
+    btn.style.background = active ? 'var(--blue)' : 'var(--surface2)';
+    btn.style.color = active ? '#fff' : 'var(--muted2)';
+    btn.style.borderColor = active ? 'var(--blue)' : 'var(--border2)';
+  });
+}
+
+function wConfirmAdd() {
+  const name = (document.getElementById('wealth-add-name')?.value || '').trim();
+  if (!name) { if (typeof showToast === 'function') showToast('❗ 이름을 입력해주세요'); return; }
+  const amtRaw = document.getElementById('wealth-add-amount')?.value;
+  const amount = amtRaw ? Math.round(parseFloat(amtRaw)) : null;
+  const emojis = { cash: '💵', savings: '💰', investment: '📊', insurance: '🛡️', other: '📁', debt: '🔴' };
+  const asset = {
+    id: 'man_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+    type: _wAddType,
+    name: name,
+    owner: _wAddOwner,
+    emoji: emojis[_wAddType] || '💰',
+    isDebt: _wAddType === 'debt',
+    autoSrc: null,
+    sortOrder: 200,
+  };
+  wealthAssets.push(asset);
+  store('wealth-assets', wealthAssets);
+  if (amount !== null && !isNaN(amount) && amount > 0) {
+    wSaveObs(asset.id, wSelectedMonth, amount);
+  }
+  wCloseAllSheets();
+  renderWealthList();
+  renderWealthHero();
+  if (typeof showToast === 'function') showToast('✅ ' + name + ' 추가됐어요');
+}
+
 function updateHome(rec) {
   const C = 264;
   const total = rec.total, debt = rec.debt;
