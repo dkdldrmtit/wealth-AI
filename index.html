@@ -5180,6 +5180,117 @@ function wSyncApts() {
   if (changed) store('wealth-assets', wealthAssets);
 }
 
+// ── 현재 월 문자열 'YYYY-MM'
+function wCurrentMonth() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
+
+// ── 라이브 값: 주식은 포트폴리오, 아파트는 KB시세 캐시 (만원 단위)
+function wLiveValue(asset) {
+  if (asset.type === 'stock-acct') {
+    const allStocks = (typeof stocks !== 'undefined' ? stocks : load('stocks', []));
+    const usdKrw = load('usd-krw-rate', 0);
+    let sum = 0;
+    allStocks.filter(function(s) {
+      return s.owner === asset.owner
+        && (s.accountType || '위탁') === asset.accountType
+        && (s.broker || '') === (asset.broker || '')
+        && s.currentPrice > 0;
+    }).forEach(function(s) {
+      const evalAmt = s.currentPrice * s.qty;
+      sum += s.market === 'US' ? (usdKrw ? evalAmt * usdKrw : 0) : evalAmt;
+    });
+    return Math.round(sum / 10000);
+  }
+  if (asset.type === 'apt') {
+    const allApts = (typeof aptList !== 'undefined' ? aptList : load('apt-list', []));
+    const apt = allApts.find(function(a) { return a.id === asset.aptId; });
+    if (apt && apt.cache && apt.cache.price > 0) return apt.cache.price;
+  }
+  return null;
+}
+
+// ── 특정 월의 값 조회 (현재월+autoSrc면 라이브 우선)
+function wGetValue(asset, month) {
+  const nowMonth = wCurrentMonth();
+  if (month === nowMonth && asset.autoSrc) {
+    const live = wLiveValue(asset);
+    if (live !== null) return { value: live, isLive: true };
+  }
+  const obs = wealthObs.find(function(o) { return o.assetId === asset.id && o.month === month; });
+  if (obs) return { value: obs.value, isLive: false };
+  return { value: null, isLive: false };
+}
+
+// ── 특정 월 합계 (총자산·부채·순자산, 만원 단위)
+function wMonthTotals(month) {
+  let total = 0, debt = 0;
+  wealthAssets.forEach(function(asset) {
+    const v = wGetValue(asset, month);
+    if (v.value === null) return;
+    if (asset.isDebt) debt += v.value;
+    else total += v.value;
+  });
+  return { total: total, debt: debt, net: total - debt };
+}
+
+// ── 관측값 저장
+function wSaveObs(assetId, month, value) {
+  const idx = wealthObs.findIndex(function(o) { return o.assetId === assetId && o.month === month; });
+  const obs = { assetId: assetId, month: month, value: value, isManual: true, updatedAt: Date.now() };
+  if (idx >= 0) wealthObs[idx] = obs; else wealthObs.push(obs);
+  store('wealth-obs', wealthObs);
+  wWriteBackHistory(month);
+}
+
+// ── 관측값 삭제 (해당 월만)
+function wDeleteObs(assetId, month) {
+  wealthObs = wealthObs.filter(function(o) { return !(o.assetId === assetId && o.month === month); });
+  store('wealth-obs', wealthObs);
+  wWriteBackHistory(month);
+}
+
+// ── asset-history 역기록 (홈/분석 등 기존 화면 호환)
+function wWriteBackHistory(month) {
+  const totals = wMonthTotals(month);
+  const items = [];
+  wealthAssets.forEach(function(asset) {
+    const v = wGetValue(asset, month);
+    if (v.value === null) return;
+    let cat = 'other';
+    if (asset.type === 'stock-acct') cat = 'stocks';
+    else if (asset.type === 'apt') cat = 'realestate';
+    else if (asset.type === 'cash') cat = 'cash';
+    else if (asset.type === 'savings') cat = 'savings';
+    else if (asset.isDebt) cat = 'housing-debt';
+    items.push({
+      category: cat,
+      emoji: asset.emoji || '💰',
+      type: asset.isDebt ? 'debt' : 'asset',
+      name: asset.name,
+      amount: v.value * 10000,
+      memo: '',
+      owner: asset.owner || 'common',
+      stockLink: asset.type === 'stock-acct'
+        ? ('acct:' + asset.accountType + (asset.broker ? '||' + asset.broker : ''))
+        : null,
+      aptLink: asset.type === 'apt' ? asset.aptId : null,
+    });
+  });
+  const rec = {
+    month: month,
+    total: totals.total * 10000,
+    debt: totals.debt * 10000,
+    net: totals.net * 10000,
+    items: items,
+  };
+  const idx = assetHistory.findIndex(function(r) { return r.month === month; });
+  if (idx >= 0) assetHistory[idx] = rec; else assetHistory.push(rec);
+  assetHistory.sort(function(a, b) { return a.month.localeCompare(b.month); });
+  store('asset-history', assetHistory);
+}
+
 function updateHome(rec) {
   const C = 264;
   const total = rec.total, debt = rec.debt;
