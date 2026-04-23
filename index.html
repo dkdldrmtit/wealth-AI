@@ -3789,7 +3789,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 <!-- ══ 아파트 추가/편집 모달 ══ -->
 <div id="apt-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:400;overflow-y:auto">
   <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
-    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px;overflow:hidden">
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
         <div id="apt-modal-title" style="font-size:16px;font-weight:700;color:var(--text)">아파트 추가</div>
@@ -3815,7 +3815,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">지역명 <span style="font-weight:400;color:var(--muted)">(시/구/동 단위)</span></div>
         <div style="display:flex;gap:8px">
           <input type="text" id="apt-region-input" placeholder="예: 화성시 동탄, 강남구, 수지구"
-            style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none"
+            style="flex:1;min-width:0;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none"
             onkeydown="if(event.key==='Enter') searchAptRegion()">
           <button onclick="searchAptRegion()" id="apt-region-btn"
             style="padding:11px 16px;border-radius:10px;background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">
@@ -3836,7 +3836,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">단지명 검색</div>
         <div style="display:flex;gap:8px">
           <input type="text" id="apt-name-search" placeholder="예: 하우스디, 래미안, 힐스테이트"
-            style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none"
+            style="flex:1;min-width:0;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:11px 13px;outline:none"
             onkeydown="if(event.key==='Enter') searchAptComplex()"
             disabled>
           <button onclick="searchAptComplex()" id="apt-search-btn"
