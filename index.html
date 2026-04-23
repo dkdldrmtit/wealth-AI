@@ -13586,8 +13586,10 @@ function setAssetChartPeriod(months) {
   [3, 6, 12].forEach(function(m) {
     const btn = document.getElementById('asset-chart-period-' + m);
     if (!btn) return;
-    btn.style.color = m === months ? 'var(--text)' : 'var(--muted2)';
-    btn.style.fontWeight = m === months ? '600' : '400';
+    const active = m === months;
+    btn.style.color = active ? 'var(--text)' : 'var(--muted2)';
+    btn.style.fontWeight = active ? '600' : '400';
+    btn.style.background = active ? 'var(--surface2)' : 'transparent';
   });
   renderAssetTabChart();
 }
