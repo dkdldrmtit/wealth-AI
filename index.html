@@ -5992,66 +5992,125 @@ function openWealthAddSheet() {
   setTimeout(function() { const inp = document.getElementById('wealth-add-name'); if (inp) inp.focus(); }, 350);
 }
 
+const W_ADD_TYPE_META = {
+  cash:       { label: '현금',      desc: '지갑·비상금',      placeholder: '예: 비상금, 생활비 통장' },
+  savings:    { label: '저축·청약', desc: '예·적금·청약',     placeholder: '예: 청약통장, 정기예금' },
+  investment: { label: '투자·펀드', desc: 'ETF·펀드 등',      placeholder: '예: S&P500 ETF, 해외펀드' },
+  insurance:  { label: '보험',      desc: '저축·종신',        placeholder: '예: 저축성보험' },
+  pension:    { label: '연금·IRP',  desc: '노후 자산',        placeholder: '예: IRP, 개인연금' },
+  debt:       { label: '부채',      desc: '대출·마이너스',    placeholder: '예: 주담대, 전세대출', isDebt: true },
+};
+
 function renderWealthAddBody() {
-  const typeOptions = [
-    ['savings', '저축·청약'], ['investment', '투자·펀드'], ['cash', '현금'],
-    ['insurance', '보험'], ['pension', '연금·IRP'], ['debt', '부채'],
-  ];
-  let body = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">'
-    + '<div style="font-size:17px;font-weight:700;color:var(--text)">새 항목 추가</div>'
-    + '<button onclick="wCloseAllSheets()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;width:32px;height:32px;cursor:pointer;color:var(--muted);font-size:16px;line-height:1">✕</button>'
+  const typeOrder = ['cash', 'savings', 'investment', 'insurance', 'pension', 'debt'];
+  const cur = W_ADD_TYPE_META[_wAddType] || W_ADD_TYPE_META.cash;
+  const isDebt = !!cur.isDebt;
+  const accent = isDebt ? 'var(--red)' : 'var(--blue)';
+
+  // ── 헤더
+  let body = '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px">'
+    + '<div style="flex:1;min-width:0">'
+    + '<div style="font-size:20px;font-weight:800;color:var(--text);line-height:1.2">새 자산 등록</div>'
+    + '<div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.4">수기로 관리할 자산·부채를 추가해요<br>부동산·주식은 각 탭에서 등록하면 자동 연동돼요</div>'
+    + '</div>'
+    + '<button onclick="wCloseAllSheets()" style="background:none;border:none;width:36px;height:36px;cursor:pointer;color:var(--muted);line-height:1;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:-4px">'
+    + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+    + '</button>'
     + '</div>';
-  body += '<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px">유형</div>'
-    + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:18px">';
-  typeOptions.forEach(function(t) {
-    const active = _wAddType === t[0];
-    const isDebt = t[0] === 'debt';
-    const accent = isDebt ? 'var(--red)' : 'var(--blue)';
-    body += '<button onclick="wSelectAddType(\'' + t[0] + '\')" id="watype-' + t[0] + '"'
-      + ' data-accent="' + accent + '"'
-      + ' style="padding:11px 4px;border-radius:12px;border:1.5px solid ' + (active ? accent : 'var(--border2)') + ';'
-      + 'background:' + (active ? (isDebt ? 'rgba(239,68,68,0.08)' : 'rgba(74,144,226,0.08)') : 'var(--surface2)') + ';'
-      + 'color:' + (active ? accent : 'var(--text)') + ';'
-      + 'font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s">'
-      + t[1] + '</button>';
+
+  // ── 종류 (2줄 레이블 + 설명)
+  body += '<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:10px">종류</div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:20px">';
+  typeOrder.forEach(function(id) {
+    const t = W_ADD_TYPE_META[id];
+    const active = _wAddType === id;
+    const tAccent = t.isDebt ? 'var(--red)' : 'var(--blue)';
+    const activeBg = t.isDebt ? 'rgba(239,68,68,0.08)' : 'rgba(74,144,226,0.08)';
+    body += '<button onclick="wSelectAddType(\'' + id + '\')" id="watype-' + id + '"'
+      + ' data-accent="' + tAccent + '" data-bg="' + activeBg + '"'
+      + ' style="padding:12px 4px;border-radius:12px;border:1.5px solid ' + (active ? tAccent : 'var(--border2)') + ';'
+      + 'background:' + (active ? activeBg : 'var(--surface2)') + ';'
+      + 'font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;'
+      + 'transition:border-color .15s,background-color .15s">'
+      + '<span class="wa-type-label" style="font-size:13px;font-weight:700;color:' + (active ? tAccent : 'var(--text)') + '">' + t.label + '</span>'
+      + '<span class="wa-type-desc" style="font-size:10px;font-weight:500;color:' + (active ? tAccent : 'var(--muted2)') + ';opacity:' + (active ? '0.85' : '0.75') + '">' + t.desc + '</span>'
+      + '</button>';
   });
   body += '</div>';
-  body += '<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px">이름</div>'
-    + '<input id="wealth-add-name" type="text" placeholder="예: 청약통장, IRP, 비상금" autocomplete="off"'
-    + ' style="width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:16px">';
-  body += '<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px">금액 <span style="text-transform:none;letter-spacing:0;color:var(--muted2);font-weight:500">(만원, 선택)</span></div>'
-    + '<input id="wealth-add-amount" type="number" inputmode="numeric" placeholder="0"'
-    + ' style="width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:16px;font-family:inherit;box-sizing:border-box;margin-bottom:16px">';
-  body += '<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px">소유자</div>'
-    + '<div style="display:flex;gap:6px;margin-bottom:22px">';
+
+  // ── 이름 (큰 입력)
+  body += '<div style="margin-bottom:18px">'
+    + '<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px">이름</div>'
+    + '<input id="wealth-add-name" type="text" placeholder="' + cur.placeholder + '" autocomplete="off"'
+    + ' style="width:100%;padding:15px 16px;border-radius:14px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:17px;font-weight:700;font-family:inherit;outline:none;box-sizing:border-box">'
+    + '</div>';
+
+  // ── 소유
+  body += '<div style="margin-bottom:18px">'
+    + '<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px">소유</div>'
+    + '<div style="display:flex;gap:6px">';
   const ownerColors = { partner1: 'var(--blue)', partner2: 'var(--green)', common: 'var(--muted2)' };
   [['partner1', getP1Name()], ['partner2', getP2Name()], ['common', getCommonName()]].forEach(function(o) {
     const active = _wAddOwner === o[0];
     const dot = ownerColors[o[0]];
     body += '<button onclick="wSelectAddOwner(\'' + o[0] + '\')" id="waowner-' + o[0] + '"'
-      + ' style="flex:1;padding:11px 4px;border-radius:12px;border:1.5px solid ' + (active ? dot : 'var(--border2)') + ';'
-      + 'background:' + (active ? 'var(--surface2)' : 'var(--surface2)') + ';'
-      + 'color:' + (active ? 'var(--text)' : 'var(--muted2)') + ';'
-      + 'font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s">'
-      + '<span style="width:7px;height:7px;border-radius:50%;background:' + dot + ';display:inline-block;' + (active ? '' : 'opacity:0.5') + '"></span>'
+      + ' style="flex:1;padding:12px 4px;border-radius:12px;border:1.5px solid ' + (active ? dot : 'var(--border2)') + ';'
+      + 'background:var(--surface2);color:' + (active ? 'var(--text)' : 'var(--muted2)') + ';'
+      + 'font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;'
+      + 'transition:border-color .15s,color .15s">'
+      + '<span style="width:7px;height:7px;border-radius:50%;background:' + dot + ';display:inline-block;opacity:' + (active ? '1' : '0.4') + '"></span>'
       + o[1] + '</button>';
   });
-  body += '</div>';
-  body += '<button onclick="wConfirmAdd()" style="width:100%;padding:14px;border-radius:12px;border:none;background:var(--blue);color:#fff;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:0.3px">추가</button>';
+  body += '</div></div>';
+
+  // ── 현재 금액 (선택, 만원)
+  body += '<div style="margin-bottom:24px">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
+    + '<span style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:0.8px;text-transform:uppercase">현재 금액</span>'
+    + '<span style="font-size:10px;color:var(--muted2);font-weight:500">선택 · 나중에 입력 가능</span>'
+    + '</div>'
+    + '<div style="display:flex;align-items:center;background:var(--surface2);border:1px solid var(--border2);border-radius:14px;overflow:hidden">'
+    + '<input id="wealth-add-amount" type="number" inputmode="numeric" placeholder="0"'
+    + ' style="flex:1;padding:15px 16px;border:none;background:none;color:var(--text);font-size:20px;font-weight:700;font-family:inherit;outline:none;min-width:0">'
+    + '<span style="font-size:13px;font-weight:600;color:var(--muted);padding-right:16px;flex-shrink:0">만원</span>'
+    + '</div>'
+    + '</div>';
+
+  // ── 제출 버튼 (부채는 빨강)
+  body += '<button onclick="wConfirmAdd()" id="wealth-add-submit"'
+    + ' style="width:100%;padding:15px;border-radius:14px;border:none;background:' + accent + ';color:#fff;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:0.2px">'
+    + (isDebt ? '부채 추가' : '자산 추가')
+    + '</button>';
+
   const el = document.getElementById('wealth-add-sheet-body');
   if (el) el.innerHTML = body;
 }
 
 function wSelectAddType(type) {
   _wAddType = type;
+  const meta = W_ADD_TYPE_META[type] || {};
+  const isDebt = !!meta.isDebt;
   document.querySelectorAll('[id^="watype-"]').forEach(function(btn) {
     const active = btn.id === 'watype-' + type;
-    const isDebt = btn.id === 'watype-debt';
-    const accent = btn.dataset.accent || 'var(--blue)';
-    btn.style.background = active ? (isDebt ? 'rgba(239,68,68,0.08)' : 'rgba(74,144,226,0.08)') : 'var(--surface2)';
-    btn.style.color = active ? accent : 'var(--text)';
-    btn.style.borderColor = active ? accent : 'var(--border2)';
+    const tAccent = btn.dataset.accent || 'var(--blue)';
+    const activeBg = btn.dataset.bg || 'rgba(74,144,226,0.08)';
+    btn.style.background = active ? activeBg : 'var(--surface2)';
+    btn.style.borderColor = active ? tAccent : 'var(--border2)';
+    const labelEl = btn.querySelector('.wa-type-label');
+    const descEl = btn.querySelector('.wa-type-desc');
+    if (labelEl) labelEl.style.color = active ? tAccent : 'var(--text)';
+    if (descEl) {
+      descEl.style.color = active ? tAccent : 'var(--muted2)';
+      descEl.style.opacity = active ? '0.85' : '0.75';
+    }
   });
+  const nameEl = document.getElementById('wealth-add-name');
+  if (nameEl && meta.placeholder) nameEl.placeholder = meta.placeholder;
+  const submit = document.getElementById('wealth-add-submit');
+  if (submit) {
+    submit.style.background = isDebt ? 'var(--red)' : 'var(--blue)';
+    submit.textContent = isDebt ? '부채 추가' : '자산 추가';
+  }
 }
 
 function wSelectAddOwner(owner) {
@@ -6064,7 +6123,7 @@ function wSelectAddOwner(owner) {
     btn.style.color = active ? 'var(--text)' : 'var(--muted2)';
     btn.style.borderColor = active ? dot : 'var(--border2)';
     const dotEl = btn.querySelector('span');
-    if (dotEl) dotEl.style.opacity = active ? '1' : '0.5';
+    if (dotEl) dotEl.style.opacity = active ? '1' : '0.4';
   });
 }
 
