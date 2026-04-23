@@ -5477,9 +5477,12 @@ function wGetValue(asset, month) {
 }
 
 // ── 특정 월 합계 (총자산·부채·순자산, 만원 단위)
-function wMonthTotals(month) {
+function wMonthTotals(month, ownerFilter) {
   let total = 0, debt = 0;
-  wealthAssets.forEach(function(asset) {
+  const assets = ownerFilter
+    ? wealthAssets.filter(function(a) { return a.owner === ownerFilter; })
+    : wealthAssets;
+  assets.forEach(function(asset) {
     const v = wGetValue(asset, month);
     if (v.value === null) return;
     if (asset.isDebt) debt += v.value;
@@ -5590,13 +5593,25 @@ function renderWealthMonthPicker() {
 }
 
 function renderWealthHero() {
-  const totals = wMonthTotals(wSelectedMonth);
+  const ownerFilter = wAssetChartOwner !== 'all' ? wAssetChartOwner : null;
+  const totals = wMonthTotals(wSelectedMonth, ownerFilter);
   const netEl = document.getElementById('hero-net-amount');
   if (netEl) {
     const sign = totals.net < 0 ? '-' : '';
     const absNet = Math.abs(totals.net);
     netEl.innerHTML = sign + (absNet / 10000).toFixed(2)
       + '<span style="font-size:15px;font-weight:400;color:var(--muted);margin-left:3px">억</span>';
+  }
+  const heroLabel = document.getElementById('hero-net-label');
+  if (heroLabel) {
+    const [y, m] = wSelectedMonth.split('-');
+    const monthPfx = wIsCurrentMonth() ? '' : parseInt(m) + '월 ';
+    if (ownerFilter) {
+      const name = ownerFilter === 'partner1' ? getP1Name() : getP2Name();
+      heroLabel.textContent = monthPfx + name + ' 순자산';
+    } else {
+      heroLabel.textContent = monthPfx + '순자산';
+    }
   }
   const summaryEl = document.getElementById('wealth-hero-summary');
   if (summaryEl) {
@@ -6209,17 +6224,28 @@ function renderCoupleAssetSummary() {
 
   const p1Name = getP1Name(), p2Name = getP2Name();
   const pct = function(v) { return Math.round((v / total) * 100); };
+  const sel = wAssetChartOwner;
+
+  function ownerChip(owner, color, name, pctVal) {
+    const active = sel === owner;
+    return '<span onclick="setWealthChartOwner(\'' + owner + '\')" style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:20px;'
+      + 'border:1px solid ' + (active ? color : 'transparent') + ';'
+      + 'background:' + (active ? 'rgba(0,0,0,0.04)' : 'transparent') + ';'
+      + 'font-size:10px;font-weight:' + (active ? '700' : '500') + ';color:' + (active ? 'var(--text)' : 'var(--muted2)') + ';transition:all .15s">'
+      + '<span style="width:7px;height:7px;border-radius:2px;background:' + color + ';display:inline-block;flex-shrink:0"></span>'
+      + name + ' ' + pctVal + '%'
+      + '</span>';
+  }
 
   wrap.innerHTML = '<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">'
-    + '<div style="display:flex;height:5px;border-radius:3px;overflow:hidden;background:var(--surface3);margin-bottom:8px">'
-    + '<div style="background:var(--blue);width:' + pct(p1) + '%"></div>'
-    + '<div style="background:var(--green);width:' + pct(p2) + '%"></div>'
-    + '<div style="background:var(--muted2);width:' + pct(cm) + '%"></div>'
+    + '<div style="display:flex;height:5px;border-radius:3px;overflow:hidden;background:var(--surface3);margin-bottom:10px">'
+    + '<div style="background:var(--blue);width:' + pct(p1) + '%;' + (sel==='partner1'?'opacity:1':'opacity:' + (sel==='all'?'1':'0.3')) + ';transition:opacity .2s"></div>'
+    + '<div style="background:var(--green);width:' + pct(p2) + '%;' + (sel==='partner2'?'opacity:1':'opacity:' + (sel==='all'?'1':'0.3')) + ';transition:opacity .2s"></div>'
+    + '<div style="background:var(--muted2);width:' + pct(cm) + '%;opacity:' + (sel==='all'?'1':'0.3') + ';transition:opacity .2s"></div>'
     + '</div>'
-    + '<div style="display:flex;gap:12px;font-size:10px;color:var(--muted2);font-weight:600">'
-    + '<span><span style="display:inline-block;width:7px;height:7px;border-radius:2px;background:var(--blue);margin-right:5px;vertical-align:middle"></span>' + p1Name + ' ' + pct(p1) + '%</span>'
-    + '<span><span style="display:inline-block;width:7px;height:7px;border-radius:2px;background:var(--green);margin-right:5px;vertical-align:middle"></span>' + p2Name + ' ' + pct(p2) + '%</span>'
-    + '<span><span style="display:inline-block;width:7px;height:7px;border-radius:2px;background:var(--muted2);margin-right:5px;vertical-align:middle"></span>' + getCommonName() + ' ' + pct(cm) + '%</span>'
+    + '<div style="display:flex;gap:4px;flex-wrap:wrap">'
+    + ownerChip('partner1', 'var(--blue)', p1Name, pct(p1))
+    + ownerChip('partner2', 'var(--green)', p2Name, pct(p2))
     + '</div>'
     + '</div>';
 }
@@ -13580,6 +13606,13 @@ function setChartPeriod(months) {
 
 // ── 순자산 미니 차트 ──
 let assetChartPeriod = 3;
+let wAssetChartOwner = 'all'; // 'all' | 'partner1' | 'partner2'
+
+function setWealthChartOwner(owner) {
+  wAssetChartOwner = (wAssetChartOwner === owner) ? 'all' : owner; // 같은 거 다시 누르면 해제
+  renderCoupleAssetSummary();
+  renderWealthHero();
+}
 
 function setAssetChartPeriod(months) {
   assetChartPeriod = months;
@@ -13606,7 +13639,14 @@ function renderAssetTabChart() {
   }
   if (empty) empty.style.display = 'none';
 
-  const data = assetHistory.slice(-assetChartPeriod);
+  const histSlice = assetHistory.slice(-assetChartPeriod);
+  const data = histSlice.map(function(r) {
+    if (wAssetChartOwner === 'all') return { month: r.month, net: r.net };
+    const ownItems = (r.items || []).filter(function(it) { return it.owner === wAssetChartOwner; });
+    const assetSum = ownItems.filter(function(it) { return it.type !== 'debt'; }).reduce(function(s, it) { return s + (it.amount || 0); }, 0);
+    const debtSum = ownItems.filter(function(it) { return it.type === 'debt'; }).reduce(function(s, it) { return s + (it.amount || 0); }, 0);
+    return { month: r.month, net: assetSum - debtSum };
+  });
   const nets = data.map(function(r) { return r.net; });
   const min = Math.min(...nets);
   const max = Math.max(...nets);
