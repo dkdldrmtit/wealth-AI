@@ -5419,6 +5419,11 @@ function renderWealthHero() {
   }
   setTimeout(function() { if (typeof renderAssetTabChart === 'function') renderAssetTabChart(); }, 50);
   if (typeof renderCoupleAssetSummary === 'function') renderCoupleAssetSummary();
+  // 현재 월이면 홈 화면 수치도 동기화
+  if (wIsCurrentMonth() && assetHistory.length > 0) {
+    const latest = assetHistory[assetHistory.length - 1];
+    if (latest && typeof updateHomeFromItems === 'function') updateHomeFromItems(latest);
+  }
 }
 
 function renderWealthList() {
