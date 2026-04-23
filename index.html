@@ -3469,9 +3469,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 </div>
 
 <!-- ══ 종목 추가/편집 모달 (바텀시트) ══ -->
-<div id="stock-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);z-index:300" onclick="if(event.target===this)closeStockModal()">
+<div id="stock-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);z-index:300;overflow:hidden" onclick="if(event.target===this)closeStockModal()">
   <div style="position:absolute;bottom:0;left:0;right:0;max-width:680px;margin:0 auto">
-    <div style="background:var(--surface);border-radius:24px 24px 0 0;border:1px solid var(--border2);border-bottom:none;padding:12px 20px max(28px,env(safe-area-inset-bottom,28px));max-height:92dvh;overflow-y:auto">
+    <div style="background:var(--surface);border-radius:24px 24px 0 0;border:1px solid var(--border2);border-bottom:none;padding:12px 20px max(28px,env(safe-area-inset-bottom,28px));max-height:92svh;overflow-y:auto;overflow-x:hidden">
 
       <!-- 핸들 바 -->
       <div style="width:36px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto 16px"></div>
@@ -3486,8 +3486,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)">
         <span style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0">소유자</span>
         <div style="display:flex;gap:8px">
-          <button id="stock-owner-ms" onclick="setStockOwner('partner1')" style="padding:7px 18px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted2);transition:all .2s">나</button>
-          <button id="stock-owner-sy" onclick="setStockOwner('partner2')" style="padding:7px 18px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted2);transition:all .2s">배우자</button>
+          <button id="stock-owner-ms" onclick="setStockOwner('partner1')" style="padding:7px 18px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted2);transition:background-color .15s,border-color .15s,color .15s">나</button>
+          <button id="stock-owner-sy" onclick="setStockOwner('partner2')" style="padding:7px 18px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted2);transition:background-color .15s,border-color .15s,color .15s">배우자</button>
         </div>
       </div>
 
@@ -3495,8 +3495,8 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)">
         <span style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0">시장</span>
         <div style="display:flex;gap:8px">
-          <button id="market-kr" onclick="setMarket('KR')" style="padding:7px 18px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted2);transition:all .2s">국내</button>
-          <button id="market-us" onclick="setMarket('US')" style="padding:7px 18px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted2);transition:all .2s">해외</button>
+          <button id="market-kr" onclick="setMarket('KR')" style="padding:7px 18px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted2);transition:background-color .15s,border-color .15s,color .15s">국내</button>
+          <button id="market-us" onclick="setMarket('US')" style="padding:7px 18px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted2);transition:background-color .15s,border-color .15s,color .15s">해외</button>
         </div>
       </div>
 
@@ -3504,7 +3504,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)">
         <span style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0">종목명</span>
         <input type="text" id="stock-name-input" placeholder="예: 삼성전자 / AAPL"
-          style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;outline:none">
+          style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:16px;outline:none">
       </div>
 
       <!-- 티커 행 -->
@@ -3512,7 +3512,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <span style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0;padding-top:1px">티커</span>
         <div style="flex:1">
           <input type="text" id="stock-ticker-input" placeholder="005930 / AAPL"
-            style="width:100%;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;outline:none">
+            style="width:100%;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:16px;outline:none">
           <div style="font-size:10px;color:var(--muted);margin-top:3px">국내: 종목코드 6자리 · 해외: 티커 (AAPL, TSLA 등)</div>
         </div>
       </div>
@@ -3521,7 +3521,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)">
         <span style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0">수량</span>
         <input type="number" id="stock-qty-input" placeholder="0" inputmode="decimal"
-          style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;outline:none"
+          style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:16px;outline:none"
           oninput="calcAvgFromInputs()">
         <span style="font-size:12px;color:var(--muted2);flex-shrink:0">주</span>
       </div>
@@ -3530,7 +3530,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)">
         <span style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0">평단가</span>
         <input type="number" id="stock-avg-input" placeholder="0" inputmode="decimal"
-          style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;outline:none"
+          style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:16px;outline:none"
           oninput="calcAvgFromInputs()">
         <span id="stock-currency-label" style="font-size:12px;color:var(--muted2);flex-shrink:0">원</span>
       </div>
@@ -3565,7 +3565,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div style="display:flex;align-items:center;margin-bottom:10px">
           <span style="font-size:13px;color:var(--muted2);width:68px;flex-shrink:0">증권사</span>
           <input type="text" id="stock-broker-input" placeholder="선택사항 (예: 신한, KB)"
-            style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;outline:none"
+            style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:16px;outline:none"
             oninput="onStockBrokerInput()">
         </div>
         <div id="stock-broker-chips" style="display:flex;flex-wrap:wrap;gap:6px;padding-left:68px"></div>
