@@ -5167,7 +5167,7 @@ let wealthObs = load('wealth-obs', []);
         wealthObs.push({
           assetId: assetId,
           month: rec.month,
-          value: Math.round((item.amount || 0) / 10000),
+          value: item.amount || 0, // 만원 단위 그대로
           isManual: true,
           updatedAt: Date.now(),
         });
@@ -5332,7 +5332,7 @@ function wWriteBackHistory(month) {
       emoji: asset.emoji || '💰',
       type: asset.isDebt ? 'debt' : 'asset',
       name: asset.name,
-      amount: v.value * 10000,
+      amount: v.value, // 만원 단위 그대로
       memo: '',
       owner: asset.owner || 'common',
       stockLink: asset.type === 'stock-acct'
@@ -5343,9 +5343,9 @@ function wWriteBackHistory(month) {
   });
   const rec = {
     month: month,
-    total: totals.total * 10000,
-    debt: totals.debt * 10000,
-    net: totals.net * 10000,
+    total: totals.total, // 만원 단위 그대로
+    debt: totals.debt,
+    net: totals.net,
     items: items,
   };
   const idx = assetHistory.findIndex(function(r) { return r.month === month; });
