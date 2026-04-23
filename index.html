@@ -5321,12 +5321,13 @@ function wWriteBackHistory(month) {
   wealthAssets.forEach(function(asset) {
     const v = wGetValue(asset, month);
     if (v.value === null) return;
-    let cat = 'other';
+    let cat;
     if (asset.type === 'stock-acct') cat = 'stocks';
     else if (asset.type === 'apt') cat = 'realestate';
-    else if (asset.type === 'cash') cat = 'cash';
-    else if (asset.type === 'savings') cat = 'savings';
     else if (asset.isDebt) cat = 'housing-debt';
+    else if (asset.owner === 'partner1') cat = 'p1금융자산';
+    else if (asset.owner === 'partner2') cat = 'p2금융자산';
+    else cat = '금융자산'; // 공동 금융자산 → 목표·분석 탭 '금융' 집계에 포함
     items.push({
       category: cat,
       emoji: asset.emoji || '💰',
@@ -5446,7 +5447,7 @@ function renderWealthList() {
   let html = '';
   if (stockAssets.length) html += wRenderSection('주식 계좌', stockAssets);
   if (aptAssets.length) html += wRenderSection('부동산', aptAssets);
-  if (manualAssets.length) html += wRenderSection('기타 자산', manualAssets);
+  if (manualAssets.length) html += wRenderSection('금융자산', manualAssets);
   if (debtAssets.length) html += wRenderSection('부채', debtAssets);
 
   if (isPast) {
@@ -5483,11 +5484,17 @@ function wRenderAssetRow(asset) {
     valueHtml = '<span style="font-size:12px;color:var(--muted)">미기록</span>';
   } else {
     const abs = Math.abs(v.value);
-    const formatted = abs >= 10000 ? (abs / 10000).toFixed(2) + '억' : abs.toLocaleString() + '만';
+    const formatted = abs >= 10000 ? (abs / 10000).toFixed(2) + '억원' : abs.toLocaleString() + '만원';
     const sign = asset.isDebt ? '-' : '';
     const color = asset.isDebt ? 'var(--red)' : 'var(--text)';
-    valueHtml = '<span style="font-size:15px;font-weight:700;color:' + color + '">' + sign + formatted + '</span>';
-    if (v.isLive) valueHtml += '<span style="font-size:9px;color:var(--blue);margin-left:4px;font-weight:700;vertical-align:middle">LIVE</span>';
+    if (v.isLive) {
+      valueHtml = '<span style="display:inline-block;position:relative;padding-top:11px">'
+        + '<span style="position:absolute;top:0;left:0;font-size:8px;color:var(--muted2);font-weight:500;letter-spacing:0.4px">live</span>'
+        + '<span style="font-size:15px;font-weight:700;color:' + color + '">' + sign + formatted + '</span>'
+        + '</span>';
+    } else {
+      valueHtml = '<span style="font-size:15px;font-weight:700;color:' + color + '">' + sign + formatted + '</span>';
+    }
   }
 
   let subText = ownerName;
@@ -5750,8 +5757,8 @@ function openWealthAddSheet() {
 
 function renderWealthAddBody() {
   const typeOptions = [
-    ['cash', '현금', '💵'], ['savings', '저축·청약', '💰'], ['investment', '투자·펀드', '📊'],
-    ['insurance', '보험', '🛡️'], ['other', '기타', '📁'], ['debt', '부채', '🔴'],
+    ['savings', '저축·청약', '💰'], ['investment', '투자·펀드', '📊'], ['cash', '현금', '💵'],
+    ['insurance', '보험', '🛡️'], ['pension', '연금·IRP', '🧓'], ['debt', '부채', '🔴'],
   ];
   let body = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
     + '<div style="font-size:17px;font-weight:700;color:var(--text)">새 항목 추가</div>'
@@ -5817,7 +5824,7 @@ function wConfirmAdd() {
   if (!name) { if (typeof showToast === 'function') showToast('❗ 이름을 입력해주세요'); return; }
   const amtRaw = document.getElementById('wealth-add-amount')?.value;
   const amount = amtRaw ? Math.round(parseFloat(amtRaw)) : null;
-  const emojis = { cash: '💵', savings: '💰', investment: '📊', insurance: '🛡️', other: '📁', debt: '🔴' };
+  const emojis = { cash: '💵', savings: '💰', investment: '📊', insurance: '🛡️', pension: '🧓', debt: '🔴' };
   const asset = {
     id: 'man_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
     type: _wAddType,
