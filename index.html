@@ -924,6 +924,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   display:none;
 }
 .wealth-sheet.open { transform:translateY(0); }
+#wealth-add-name::placeholder { font-weight:400; color:var(--muted2); opacity:0.7; }
 .wealth-month-picker {
   display:flex;align-items:center;justify-content:center;gap:12px;
   padding:6px 0 14px;
@@ -5464,15 +5465,14 @@ function wLiveValue(asset) {
   return null;
 }
 
-// ── 특정 월의 값 조회 (현재월+autoSrc면 라이브 우선)
+// ── 특정 월의 값 조회 (수동 obs가 있으면 항상 우선; 없을 때만 라이브)
 function wGetValue(asset, month) {
-  const nowMonth = wCurrentMonth();
-  if (month === nowMonth && asset.autoSrc) {
+  const obs = wealthObs.find(function(o) { return o.assetId === asset.id && o.month === month; });
+  if (obs) return { value: obs.value, isLive: false };
+  if (month === wCurrentMonth() && asset.autoSrc) {
     const live = wLiveValue(asset);
     if (live !== null) return { value: live, isLive: true };
   }
-  const obs = wealthObs.find(function(o) { return o.assetId === asset.id && o.month === month; });
-  if (obs) return { value: obs.value, isLive: false };
   return { value: null, isLive: false };
 }
 
@@ -5729,6 +5729,8 @@ function wOpenSheet(sheetId) {
   });
   backdrop.style.display = 'block';
   sheet.style.display = 'block';
+  const nav = document.querySelector('nav.nav');
+  if (nav) { nav.style.pointerEvents = 'none'; nav.style.opacity = '0'; nav.style.transition = 'opacity .25s'; }
   if (typeof lockScroll === 'function') lockScroll();
   requestAnimationFrame(function() { sheet.classList.add('open'); });
 }
@@ -5739,6 +5741,8 @@ function wCloseAllSheets() {
   ['wealth-edit-sheet', 'wealth-add-sheet'].forEach(function(id) { wCloseSheet(id); });
   const backdrop = document.getElementById('wealth-sheet-backdrop');
   if (backdrop) setTimeout(function() { backdrop.style.display = 'none'; }, 320);
+  const nav = document.querySelector('nav.nav');
+  if (nav) { nav.style.opacity = '1'; nav.style.pointerEvents = ''; }
   if (typeof unlockScroll === 'function') unlockScroll();
 }
 
@@ -5792,7 +5796,7 @@ function wOpenEditSheet(assetId) {
       + '<span style="font-size:10px;color:var(--blue);font-weight:700;letter-spacing:0.5px;text-transform:uppercase">실시간 연동</span>'
       + '</div>'
       + '<div style="font-size:26px;font-weight:900;color:var(--text);letter-spacing:-0.5px">' + formatted + '</div>'
-      + '<div style="font-size:11px;color:var(--muted);margin-top:4px">자동 계산 중 · 수동 입력으로 덮어쓸 수 있어요</div>'
+      + '<div style="font-size:11px;color:var(--muted);margin-top:4px">자동 계산 중 · 금액 입력 시 수동 값으로 덮어써요<br>이달 초기화 버튼으로 다시 자동 연동돼요</div>'
       + '</div>';
   }
 
@@ -5843,15 +5847,17 @@ function wOpenEditSheet(assetId) {
     const maxVal = Math.max.apply(null, histItems.map(function(h) { return Math.abs(h.value); }));
     body += '<div style="margin-bottom:18px">'
       + '<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:10px">과거 기록</div>'
-      + '<div style="display:flex;gap:6px;align-items:flex-end">';
+      + '<div style="display:flex;flex-direction:column;gap:0">';
     histItems.slice().reverse().forEach(function(h) {
       const abs = Math.abs(h.value);
-      const f = abs >= 10000 ? (abs / 10000).toFixed(1) + '억' : (abs / 10000 >= 0.1 ? (abs / 10000).toFixed(1) + '억' : abs.toLocaleString() + '만');
-      const barH = maxVal > 0 ? Math.max(16, Math.round((abs / maxVal) * 36)) : 16;
-      body += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">'
-        + '<div style="font-size:10px;font-weight:700;color:var(--muted2)">' + f + '</div>'
-        + '<div style="width:100%;height:' + barH + 'px;background:var(--surface2);border-radius:4px;border:1px solid var(--border)"></div>'
-        + '<div style="font-size:9px;color:var(--muted)">' + h.label + '</div>'
+      const f = abs >= 10000 ? (abs / 10000).toFixed(2) + '억' : abs.toLocaleString() + '만';
+      const pct = maxVal > 0 ? Math.max(8, Math.round((abs / maxVal) * 100)) : 8;
+      body += '<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)">'
+        + '<div style="font-size:11px;color:var(--muted);font-weight:600;width:24px;flex-shrink:0;text-align:right">' + h.label + '</div>'
+        + '<div style="flex:1;height:3px;background:var(--border);border-radius:2px;overflow:hidden">'
+        + '<div style="height:100%;border-radius:2px;background:var(--muted2);width:' + pct + '%"></div>'
+        + '</div>'
+        + '<div style="font-size:12px;color:var(--muted2);font-weight:700;text-align:right;min-width:64px;flex-shrink:0">' + f + '</div>'
         + '</div>';
     });
     body += '</div></div>';
@@ -6076,11 +6082,12 @@ function renderWealthAddBody() {
     + '</div>'
     + '</div>';
 
-  // ── 제출 버튼 (부채는 빨강)
-  body += '<button onclick="wConfirmAdd()" id="wealth-add-submit"'
+  // ── 제출 버튼 (부채는 빨강, sticky)
+  body += '<div style="position:sticky;bottom:0;background:var(--surface);padding:10px 0 2px;margin-top:4px">'
+    + '<button onclick="wConfirmAdd()" id="wealth-add-submit"'
     + ' style="width:100%;padding:15px;border-radius:14px;border:none;background:' + accent + ';color:#fff;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:0.2px">'
     + (isDebt ? '부채 추가' : '자산 추가')
-    + '</button>';
+    + '</button></div>';
 
   const el = document.getElementById('wealth-add-sheet-body');
   if (el) el.innerHTML = body;
