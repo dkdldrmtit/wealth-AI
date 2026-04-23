@@ -5658,14 +5658,10 @@ function wRenderAssetRow(asset) {
     const formatted = abs >= 10000 ? (abs / 10000).toFixed(2) + '억원' : abs.toLocaleString() + '만원';
     const sign = asset.isDebt ? '-' : '';
     const color = asset.isDebt ? 'var(--red)' : 'var(--text)';
-    if (v.isLive) {
-      valueHtml = '<span style="display:inline-block;position:relative;padding-top:11px">'
-        + '<span style="position:absolute;top:0;left:0;font-size:8px;color:var(--muted2);font-weight:500;letter-spacing:0.4px">live</span>'
-        + '<span style="font-size:15px;font-weight:700;color:' + color + '">' + sign + formatted + '</span>'
-        + '</span>';
-    } else {
-      valueHtml = '<span style="font-size:15px;font-weight:700;color:' + color + '">' + sign + formatted + '</span>';
-    }
+    const livePrefix = v.isLive
+      ? '<sup style="font-size:8px;color:var(--muted2);font-weight:500;letter-spacing:0.3px;margin-right:1px">live</sup>'
+      : '';
+    valueHtml = '<span style="font-size:15px;font-weight:700;color:' + color + '">' + livePrefix + sign + formatted + '</span>';
   }
 
   let subText = ownerName;
@@ -5735,7 +5731,7 @@ function wOpenEditSheet(assetId) {
 
   let body = '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">'
     + '<div>'
-    + '<div style="font-size:17px;font-weight:700;color:var(--text)">' + (asset.emoji || '') + ' ' + asset.name + '</div>'
+    + '<div style="font-size:17px;font-weight:700;color:var(--text)">' + asset.name + '</div>'
     + '<div style="font-size:11px;color:var(--muted);margin-top:3px">' + ownerName + (asset.autoSrc ? ' · 자동 연동' : '') + '</div>'
     + '</div>'
     + '<button onclick="wCloseEditSheet()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;width:32px;height:32px;cursor:pointer;color:var(--muted);font-size:16px;line-height:1;flex-shrink:0">✕</button>'
@@ -5743,7 +5739,7 @@ function wOpenEditSheet(assetId) {
 
   if (v.isLive) {
     const abs = Math.abs(v.value);
-    const formatted = abs >= 10000 ? (abs / 10000).toFixed(2) + '억' : abs.toLocaleString() + '만';
+    const formatted = abs >= 10000 ? (abs / 10000).toFixed(2) + '억원' : abs.toLocaleString() + '만원';
     body += '<div style="background:rgba(74,144,226,0.08);border-radius:12px;padding:12px 14px;margin-bottom:14px">'
       + '<div style="font-size:10px;color:var(--blue);font-weight:700;letter-spacing:0.3px;margin-bottom:4px">● 실시간 연동</div>'
       + '<div style="font-size:22px;font-weight:800;color:var(--text)">' + formatted + '</div>'
@@ -5764,10 +5760,15 @@ function wOpenEditSheet(assetId) {
     const apt = allApts.find(function(a) { return a.id === asset.aptId; });
     if (apt && apt.lawdCd && (load('cloudflare-proxy', '') || load('molit-api-key', ''))) {
       body += '<button onclick="wFetchAptHistorical(\'' + asset.id + '\',\'' + wSelectedMonth + '\')"'
-        + ' style="width:100%;padding:11px;border-radius:12px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:12px;text-align:left">'
-        + '🏠 ' + parseInt(m) + '월 실거래가 조회 (말일 기준)'
+        + ' style="width:100%;padding:11px;border-radius:12px;border:1px solid var(--blue);background:rgba(74,144,226,0.08);color:var(--blue);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:12px;text-align:center">'
+        + parseInt(m) + '월 실거래가 자동 조회 (말일 기준)'
         + '</button>';
     }
+  }
+  if (asset.type === 'stock-acct' && isPast && v.value === null) {
+    body += '<div style="font-size:11px;color:var(--muted);background:var(--surface2);border-radius:10px;padding:9px 12px;margin-bottom:12px;line-height:1.5">'
+      + '💡 주식은 과거 시세 자동 조회가 지원되지 않아요. 그 달 말일 잔액을 직접 입력해주세요.'
+      + '</div>';
   }
 
   const recentMonths = [];
@@ -5785,7 +5786,7 @@ function wOpenEditSheet(assetId) {
       const [ry, rm] = mo.split('-');
       if (rv.value !== null) {
         const abs = Math.abs(rv.value);
-        const f = abs >= 10000 ? (abs / 10000).toFixed(1) + '억' : abs.toLocaleString() + '만';
+        const f = abs >= 10000 ? (abs / 10000).toFixed(1) + '억원' : abs.toLocaleString() + '만원';
         body += '<div style="flex:1;background:var(--surface2);border-radius:10px;padding:8px 6px;text-align:center">'
           + '<div style="font-size:9px;color:var(--muted)">' + parseInt(rm) + '월</div>'
           + '<div style="font-size:12px;font-weight:700;color:var(--text);margin-top:2px">' + f + '</div>'
@@ -5912,9 +5913,11 @@ async function wFetchAptHistorical(assetId, month) {
   if (!results.length) { if (typeof showToast === 'function') showToast('❗ 조건 맞는 거래 없음'); return; }
   results.sort(function(a, b) { return b.day - a.day; });
   const price = results[0].price;
-  const inp = document.getElementById('wealth-edit-input');
-  if (inp) inp.value = price;
-  if (typeof showToast === 'function') showToast('✅ ' + parseInt(m) + '월 ' + results[0].day + '일 거래 ' + (price / 10000).toFixed(2) + '억');
+  wSaveObs(assetId, month, price);
+  wCloseAllSheets();
+  renderWealthList();
+  renderWealthHero();
+  if (typeof showToast === 'function') showToast('✅ ' + parseInt(m) + '월 ' + results[0].day + '일 거래 ' + (price / 10000).toFixed(2) + '억 저장됨');
 }
 
 // ── 추가 시트 열기
@@ -5928,44 +5931,50 @@ function openWealthAddSheet() {
 
 function renderWealthAddBody() {
   const typeOptions = [
-    ['savings', '저축·청약', '💰'], ['investment', '투자·펀드', '📊'], ['cash', '현금', '💵'],
-    ['insurance', '보험', '🛡️'], ['pension', '연금·IRP', '🧓'], ['debt', '부채', '🔴'],
+    ['savings', '저축·청약'], ['investment', '투자·펀드'], ['cash', '현금'],
+    ['insurance', '보험'], ['pension', '연금·IRP'], ['debt', '부채'],
   ];
-  let body = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
+  let body = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">'
     + '<div style="font-size:17px;font-weight:700;color:var(--text)">새 항목 추가</div>'
     + '<button onclick="wCloseAllSheets()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;width:32px;height:32px;cursor:pointer;color:var(--muted);font-size:16px;line-height:1">✕</button>'
     + '</div>';
-  body += '<div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:7px">유형</div>'
-    + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:14px">';
+  body += '<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px">유형</div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:18px">';
   typeOptions.forEach(function(t) {
     const active = _wAddType === t[0];
+    const isDebt = t[0] === 'debt';
+    const accent = isDebt ? 'var(--red)' : 'var(--blue)';
     body += '<button onclick="wSelectAddType(\'' + t[0] + '\')" id="watype-' + t[0] + '"'
-      + ' style="padding:8px 4px;border-radius:10px;border:1px solid ' + (active ? 'var(--blue)' : 'var(--border2)') + ';'
-      + 'background:' + (active ? 'var(--blue)' : 'var(--surface2)') + ';'
-      + 'color:' + (active ? '#fff' : 'var(--text)') + ';'
-      + 'font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">'
-      + t[2] + ' ' + t[1] + '</button>';
+      + ' data-accent="' + accent + '"'
+      + ' style="padding:11px 4px;border-radius:12px;border:1.5px solid ' + (active ? accent : 'var(--border2)') + ';'
+      + 'background:' + (active ? (isDebt ? 'rgba(239,68,68,0.08)' : 'rgba(74,144,226,0.08)') : 'var(--surface2)') + ';'
+      + 'color:' + (active ? accent : 'var(--text)') + ';'
+      + 'font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s">'
+      + t[1] + '</button>';
   });
   body += '</div>';
-  body += '<div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">이름</div>'
+  body += '<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px">이름</div>'
     + '<input id="wealth-add-name" type="text" placeholder="예: 청약통장, IRP, 비상금" autocomplete="off"'
-    + ' style="width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:12px">';
-  body += '<div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px">금액 (만원, 선택)</div>'
+    + ' style="width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:16px">';
+  body += '<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px">금액 <span style="text-transform:none;letter-spacing:0;color:var(--muted2);font-weight:500">(만원, 선택)</span></div>'
     + '<input id="wealth-add-amount" type="number" inputmode="numeric" placeholder="0"'
-    + ' style="width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:16px;font-family:inherit;box-sizing:border-box;margin-bottom:12px">';
-  body += '<div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:7px">소유자</div>'
-    + '<div style="display:flex;gap:6px;margin-bottom:16px">';
+    + ' style="width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:16px;font-family:inherit;box-sizing:border-box;margin-bottom:16px">';
+  body += '<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px">소유자</div>'
+    + '<div style="display:flex;gap:6px;margin-bottom:22px">';
+  const ownerColors = { partner1: 'var(--blue)', partner2: 'var(--green)', common: 'var(--muted2)' };
   [['partner1', getP1Name()], ['partner2', getP2Name()], ['common', getCommonName()]].forEach(function(o) {
     const active = _wAddOwner === o[0];
+    const dot = ownerColors[o[0]];
     body += '<button onclick="wSelectAddOwner(\'' + o[0] + '\')" id="waowner-' + o[0] + '"'
-      + ' style="flex:1;padding:9px 4px;border-radius:10px;border:1px solid ' + (active ? 'var(--blue)' : 'var(--border2)') + ';'
-      + 'background:' + (active ? 'var(--blue)' : 'var(--surface2)') + ';'
-      + 'color:' + (active ? '#fff' : 'var(--muted2)') + ';'
-      + 'font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">'
+      + ' style="flex:1;padding:11px 4px;border-radius:12px;border:1.5px solid ' + (active ? dot : 'var(--border2)') + ';'
+      + 'background:' + (active ? 'var(--surface2)' : 'var(--surface2)') + ';'
+      + 'color:' + (active ? 'var(--text)' : 'var(--muted2)') + ';'
+      + 'font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s">'
+      + '<span style="width:7px;height:7px;border-radius:50%;background:' + dot + ';display:inline-block;' + (active ? '' : 'opacity:0.5') + '"></span>'
       + o[1] + '</button>';
   });
   body += '</div>';
-  body += '<button onclick="wConfirmAdd()" style="width:100%;padding:13px;border-radius:12px;border:none;background:var(--blue);color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">추가</button>';
+  body += '<button onclick="wConfirmAdd()" style="width:100%;padding:14px;border-radius:12px;border:none;background:var(--blue);color:#fff;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:0.3px">추가</button>';
   const el = document.getElementById('wealth-add-sheet-body');
   if (el) el.innerHTML = body;
 }
@@ -5974,19 +5983,25 @@ function wSelectAddType(type) {
   _wAddType = type;
   document.querySelectorAll('[id^="watype-"]').forEach(function(btn) {
     const active = btn.id === 'watype-' + type;
-    btn.style.background = active ? 'var(--blue)' : 'var(--surface2)';
-    btn.style.color = active ? '#fff' : 'var(--text)';
-    btn.style.borderColor = active ? 'var(--blue)' : 'var(--border2)';
+    const isDebt = btn.id === 'watype-debt';
+    const accent = btn.dataset.accent || 'var(--blue)';
+    btn.style.background = active ? (isDebt ? 'rgba(239,68,68,0.08)' : 'rgba(74,144,226,0.08)') : 'var(--surface2)';
+    btn.style.color = active ? accent : 'var(--text)';
+    btn.style.borderColor = active ? accent : 'var(--border2)';
   });
 }
 
 function wSelectAddOwner(owner) {
   _wAddOwner = owner;
+  const ownerColors = { partner1: 'var(--blue)', partner2: 'var(--green)', common: 'var(--muted2)' };
   document.querySelectorAll('[id^="waowner-"]').forEach(function(btn) {
-    const active = btn.id === 'waowner-' + owner;
-    btn.style.background = active ? 'var(--blue)' : 'var(--surface2)';
-    btn.style.color = active ? '#fff' : 'var(--muted2)';
-    btn.style.borderColor = active ? 'var(--blue)' : 'var(--border2)';
+    const id = btn.id.replace('waowner-', '');
+    const active = id === owner;
+    const dot = ownerColors[id];
+    btn.style.color = active ? 'var(--text)' : 'var(--muted2)';
+    btn.style.borderColor = active ? dot : 'var(--border2)';
+    const dotEl = btn.querySelector('span');
+    if (dotEl) dotEl.style.opacity = active ? '1' : '0.5';
   });
 }
 
