@@ -5262,7 +5262,10 @@ function resetGoalForm() {
   var txs = load('ledger-txs', []);
   if (migrate(txs)) store('ledger-txs', txs);
   var stk = load('stocks', []);
-  if (migrate(stk)) store('stocks', stk);
+  var stkChanged = migrate(stk);
+  // fill missing owner (older stocks had no owner field)
+  stk.forEach(function(s) { if (!s.owner) { s.owner = 'partner1'; stkChanged = true; } });
+  if (stkChanged) store('stocks', stk);
   var rec = load('recurring-items', []);
   if (migrate(rec)) store('recurring-items', rec);
   var apt = load('apt-list', []);
@@ -14044,7 +14047,7 @@ function cycleStkOwner() {
 function getFilteredStocks() {
   if (currentStkOwner === 'all') return stocks;
   return stocks.filter(function(s) {
-    return s.owner === currentStkOwner;
+    return (s.owner || 'partner1') === currentStkOwner;
   });
 }
 
