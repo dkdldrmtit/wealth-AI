@@ -5365,7 +5365,15 @@ function wSyncStocks() {
       broker: s.broker || '',
     };
   });
-  let changed = false;
+  // 더 이상 해당 조합의 종목이 없는 stock-acct 엔티티 제거
+  const before = wealthAssets.length;
+  wealthAssets = wealthAssets.filter(function(a) {
+    if (a.type !== 'stock-acct') return true;
+    const key = (a.owner || 'partner1') + '|' + (a.accountType || '위탁') + '|' + (a.broker || '');
+    return !!accMap[key];
+  });
+  let changed = wealthAssets.length !== before;
+  // 새 조합 엔티티 추가
   Object.values(accMap).forEach(function(acc) {
     const exists = wealthAssets.find(function(a) {
       return a.type === 'stock-acct'
@@ -5396,7 +5404,15 @@ function wSyncStocks() {
 // ── 싱크: 아파트 자동 엔티티 생성
 function wSyncApts() {
   const allApts = (typeof aptList !== 'undefined' ? aptList : load('apt-list', []));
-  let changed = false;
+  const aptIdSet = new Set(allApts.map(function(a) { return a.id; }));
+  // 삭제된 아파트 엔티티 제거
+  const before = wealthAssets.length;
+  wealthAssets = wealthAssets.filter(function(a) {
+    if (a.type !== 'apt') return true;
+    return aptIdSet.has(a.aptId);
+  });
+  let changed = wealthAssets.length !== before;
+  // 새 아파트 엔티티 추가
   allApts.forEach(function(apt) {
     const exists = wealthAssets.find(function(a) { return a.type === 'apt' && a.aptId === apt.id; });
     if (!exists) {
