@@ -8098,14 +8098,21 @@ function exportBackup() {
     version: '1.0',
     exportedAt: new Date().toLocaleString('ko-KR'),
     data: {
+      'partner-names': load('partner-names', {}),
+      'wealth-assets': load('wealth-assets', []),
+      'wealth-obs': load('wealth-obs', []),
+      'wealth-migrated': load('wealth-migrated', false),
+      'apt-list': load('apt-list', []),
       'asset-history': load('asset-history', []),
       'goals': load('goals', []),
       'schedules': load('schedules', []),
       'ledger-txs': load('ledger-txs', []),
       'ledger-budgets': load('ledger-budgets', {}),
       'stocks': load('stocks', []),
+      'stock-account-types': load('stock-account-types', null),
       'molit-api-key': load('molit-api-key', ''),
       'cloudflare-proxy': load('cloudflare-proxy', ''),
+      'usd-krw-rate': load('usd-krw-rate', 0),
       'ai-comment-cache': load('ai-comment-cache', null),
     }
   };
@@ -8514,6 +8521,11 @@ function importBackup(event) {
       recurringItems = load('recurring-items', []);
       stocks         = load('stocks', []);
       budgets        = load('ledger-budgets', {});
+      // 자산 모듈 갱신
+      wealthAssets   = load('wealth-assets', []);
+      wealthObs      = load('wealth-obs', []);
+      aptList        = load('apt-list', []);
+      PARTNER_NAMES  = load('partner-names', { partner1: '나', partner2: '배우자', common: '공동' });
 
       // Supabase에 업로드
       const status = document.getElementById('backup-status');
@@ -8560,6 +8572,10 @@ function importBackup(event) {
       if (currentAssetView === 'item') renderItemView();
       initHome();
       initRealEstate();
+      if (typeof wSyncStocks === 'function') wSyncStocks();
+      if (typeof wSyncApts === 'function') wSyncApts();
+      if (typeof renderWealthList === 'function') renderWealthList();
+      if (typeof renderWealthHero === 'function') renderWealthHero();
       event.target.value = '';
     } catch(err) {
       showToast('❗ 백업 파일을 읽을 수 없어요');
