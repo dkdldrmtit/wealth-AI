@@ -5730,6 +5730,17 @@ function renderWealthHero() {
   }
 }
 
+function wSortByValue(assets) {
+  return assets.slice().sort(function(a, b) {
+    var va = wGetValue(a, wSelectedMonth).value;
+    var vb = wGetValue(b, wSelectedMonth).value;
+    if (va === null && vb === null) return 0;
+    if (va === null) return 1;
+    if (vb === null) return -1;
+    return vb - va;
+  });
+}
+
 function renderWealthList() {
   const wrap = document.getElementById('wealth-list');
   if (!wrap) return;
@@ -5748,10 +5759,10 @@ function renderWealthList() {
   const debtAssets = wealthAssets.filter(function(a) { return a.isDebt; });
 
   let html = '';
-  if (stockAssets.length) html += wRenderSection('주식 계좌', stockAssets);
-  if (aptAssets.length) html += wRenderSection('부동산', aptAssets);
-  if (manualAssets.length) html += wRenderSection('금융자산', manualAssets);
-  if (debtAssets.length) html += wRenderSection('부채', debtAssets);
+  if (aptAssets.length) html += wRenderSection('부동산', wSortByValue(aptAssets));
+  if (stockAssets.length) html += wRenderSection('주식 계좌', wSortByValue(stockAssets));
+  if (manualAssets.length) html += wRenderSection('금융자산', wSortByValue(manualAssets));
+  if (debtAssets.length) html += wRenderSection('부채', wSortByValue(debtAssets));
 
   if (isPast) {
     const unrecorded = wealthAssets.filter(function(a) { return wGetValue(a, wSelectedMonth).value === null; });
