@@ -5478,15 +5478,28 @@ function wLiveValue(asset) {
   return null;
 }
 
-// ── 특정 월의 값 조회 (수동 obs가 있으면 항상 우선; 없을 때만 라이브)
+// ── 특정 월의 값 조회
+//    1) 해당 월의 수동 obs가 있으면 항상 우선
+//    2) 현재월 + autoSrc → 라이브
+//    3) 수기 자산(autoSrc 없음)은 이전 월의 가장 최근 obs를 이월 (isCarryForward=true)
 function wGetValue(asset, month) {
   const obs = wealthObs.find(function(o) { return o.assetId === asset.id && o.month === month; });
-  if (obs) return { value: obs.value, isLive: false };
+  if (obs) return { value: obs.value, isLive: false, isCarryForward: false };
   if (month === wCurrentMonth() && asset.autoSrc) {
     const live = wLiveValue(asset);
-    if (live !== null) return { value: live, isLive: true };
+    if (live !== null) return { value: live, isLive: true, isCarryForward: false };
   }
-  return { value: null, isLive: false };
+  if (!asset.autoSrc) {
+    let recent = null;
+    for (let i = 0; i < wealthObs.length; i++) {
+      const o = wealthObs[i];
+      if (o.assetId !== asset.id) continue;
+      if (o.month >= month) continue;
+      if (!recent || o.month > recent.month) recent = o;
+    }
+    if (recent) return { value: recent.value, isLive: false, isCarryForward: true, carryFromMonth: recent.month };
+  }
+  return { value: null, isLive: false, isCarryForward: false };
 }
 
 // ── 특정 월 합계 (총자산·부채·순자산, 만원 단위)
@@ -5705,10 +5718,13 @@ function wRenderAssetRow(asset) {
     const formatted = abs >= 10000 ? (abs / 10000).toFixed(2) + '억원' : abs.toLocaleString() + '만원';
     const sign = asset.isDebt ? '-' : '';
     const color = asset.isDebt ? 'var(--red)' : 'var(--text)';
-    const livePrefix = v.isLive
+    const prefix = v.isLive
       ? '<sup style="font-size:8px;color:var(--muted2);font-weight:500;letter-spacing:0.3px;margin-right:1px">live</sup>'
-      : '';
-    valueHtml = '<span style="font-size:15px;font-weight:700;color:' + color + '">' + livePrefix + sign + formatted + '</span>';
+      : v.isCarryForward
+        ? '<sup style="font-size:8px;color:var(--muted);font-weight:500;letter-spacing:0.3px;margin-right:1px">이월</sup>'
+        : '';
+    const valColor = v.isCarryForward ? 'var(--muted2)' : color;
+    valueHtml = '<span style="font-size:15px;font-weight:700;color:' + valColor + '">' + prefix + sign + formatted + '</span>';
   }
 
   let subText = ownerName;
@@ -5813,6 +5829,15 @@ function wOpenEditSheet(assetId) {
       + '</div>';
   }
 
+  // ── 이월 배너 (과거 obs에서 자동 이월된 값)
+  if (v.isCarryForward && v.carryFromMonth) {
+    const [, cfm] = v.carryFromMonth.split('-');
+    body += '<div style="border-radius:12px;padding:10px 14px;margin-bottom:16px;background:var(--surface2);border:1px dashed var(--border2)">'
+      + '<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:3px">이월</div>'
+      + '<div style="font-size:11px;color:var(--muted);line-height:1.5">' + parseInt(cfm) + '월 값이 이어져 왔어요 · 달라졌으면 수정 후 저장</div>'
+      + '</div>';
+  }
+
   // ── 금액 입력
   const curVal = (v.value !== null && !v.isLive) ? Math.round(v.value) : '';
   const labelText = v.isLive ? '수동 덮어쓰기 (선택)' : y + '년 ' + monthLabel + ' 금액';
@@ -5877,7 +5902,8 @@ function wOpenEditSheet(assetId) {
   }
 
   // ── 액션 버튼
-  const hasObs = v.value !== null && !v.isLive;
+  //   hasObs: 이번 달에 실제 저장된 obs가 있을 때만 초기화/재연동 노출 (이월값은 obs 아님)
+  const hasObs = v.value !== null && !v.isLive && !v.isCarryForward;
   const isManual = !asset.autoSrc;
 
   body += '<div style="display:flex;flex-direction:column;gap:8px">'
