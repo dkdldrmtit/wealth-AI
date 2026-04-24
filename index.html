@@ -4500,7 +4500,11 @@ async function loadAllDataFromSupabase() {
       schedulesRes,
       appDataRes,
       molitKeyRes,
-      proposalsRes
+      proposalsRes,
+      wealthAssetsRes,
+      wealthObsRes,
+      aptListRes,
+      partnerNamesRes
     ] = await Promise.all([
       _supabase.from('asset_history').select('data').eq(keyField, keyValue).single(),
       _supabase.from('ledger_txs').select('data').eq(keyField, keyValue).single(),
@@ -4509,7 +4513,11 @@ async function loadAllDataFromSupabase() {
       _supabase.from('schedules').select('data').eq(keyField, keyValue).single(),
       _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'budgets').single(),
       _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'molit-api-key').single(),
-      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'proposals').single()
+      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'proposals').single(),
+      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'wealth_assets').single(),
+      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'wealth_obs').single(),
+      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'apt_list').single(),
+      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'partner_names').single()
     ]);
 
     const hasSupabaseData =
@@ -4545,6 +4553,24 @@ async function loadAllDataFromSupabase() {
         store('molit-api-key', molitKeyRes.data.data);
       }
 
+      // 자산 모듈 (wealth-assets · wealth-obs · apt-list · partner-names) 복원
+      if (wealthAssetsRes.data && wealthAssetsRes.data.data) {
+        wealthAssets = wealthAssetsRes.data.data;
+        store('wealth-assets', wealthAssets);
+      }
+      if (wealthObsRes.data && wealthObsRes.data.data) {
+        wealthObs = wealthObsRes.data.data;
+        store('wealth-obs', wealthObs);
+      }
+      if (aptListRes.data && aptListRes.data.data) {
+        aptList = aptListRes.data.data;
+        store('apt-list', aptList);
+      }
+      if (partnerNamesRes.data && partnerNamesRes.data.data) {
+        PARTNER_NAMES = partnerNamesRes.data.data;
+        store('partner-names', PARTNER_NAMES);
+      }
+
       console.log('✅ Supabase 데이터 로드 완료');
 
     } else {
@@ -4576,6 +4602,10 @@ async function loadAllDataFromSupabase() {
     schedules      = load('schedules', []);
     budgets        = load('ledger-budgets', {});
     recurringItems = load('recurring-items', []);
+    wealthAssets   = load('wealth-assets', []);
+    wealthObs      = load('wealth-obs', []);
+    aptList        = load('apt-list', []);
+    PARTNER_NAMES  = load('partner-names', PARTNER_NAMES);
   }
 
   migrateAssetCategories();
@@ -4584,6 +4614,10 @@ async function loadAllDataFromSupabase() {
   initHome();
   initRealEstate();
   applyHomeCardOrder();
+  if (typeof wSyncStocks === 'function') wSyncStocks();
+  if (typeof wSyncApts === 'function') wSyncApts();
+  if (typeof renderWealthList === 'function') renderWealthList();
+  if (typeof renderWealthHero === 'function') renderWealthHero();
 }
 
 // ── 기존 자산 카테고리 → 새 구조로 마이그레이션 (1회)
@@ -19274,7 +19308,9 @@ async function syncLoad(silent=false) {
   const _origStore = store;
   const SYNC_KEYS = [
     'asset-history', 'goals', 'schedules',
-    'ledger-txs', 'ledger-budgets', 'stocks', 'recurring-items'
+    'ledger-txs', 'ledger-budgets', 'stocks', 'recurring-items',
+    // 자산 모듈 (부동산·수기 자산)
+    'wealth-assets', 'wealth-obs', 'apt-list', 'partner-names',
   ];
 
   // Supabase 테이블 매핑
@@ -19286,11 +19322,19 @@ async function syncLoad(silent=false) {
     'schedules': 'schedules',
     'recurring-items': null, // app_data에 저장
     'ledger-budgets': null,  // app_data에 저장
+    'wealth-assets': null,
+    'wealth-obs': null,
+    'apt-list': null,
+    'partner-names': null,
   };
 
   const APP_DATA_KEYS = {
     'recurring-items': 'recurring_items',
     'ledger-budgets': 'budgets',
+    'wealth-assets': 'wealth_assets',
+    'wealth-obs': 'wealth_obs',
+    'apt-list': 'apt_list',
+    'partner-names': 'partner_names',
   };
 
   store = function(k, v) {
