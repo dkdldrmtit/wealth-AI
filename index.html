@@ -3357,28 +3357,29 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     </div>
   </div>
 
+  <!-- 공통: 오너 필터 + 시세 새로고침 (모든 탭에서 표시) -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <div id="stk-owner-seg" style="display:flex;align-items:center;gap:0">
+      <button id="stk-own-all" onclick="setStkOwner('all')"
+        style="padding:6px 10px;border:none;border-bottom:1.5px solid var(--text);background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;color:var(--text);line-height:1">전체</button>
+      <button id="stk-own-ms" onclick="setStkOwner('partner1')"
+        style="padding:6px 10px;border:none;border-bottom:1.5px solid transparent;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted2);line-height:1">나</button>
+      <button id="stk-own-sy" onclick="setStkOwner('partner2')"
+        style="padding:6px 10px;border:none;border-bottom:1.5px solid transparent;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted2);line-height:1">배우자</button>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <div id="stock-update-time" style="font-size:10px;color:var(--muted)"></div>
+      <button onclick="fetchAllPrices()" id="stock-refresh-btn" aria-label="시세 새로고침"
+        style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted);display:flex;align-items:center;gap:4px;padding:6px 10px;cursor:pointer">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+        <span style="font-size:11px;font-weight:600">새로고침</span>
+      </button>
+    </div>
+  </div>
+
   <!-- 종목 탭 -->
   <div id="stk-content-list">
-    <!-- 1행: 오너 필터 + 시세 새로고침 -->
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <div id="stk-owner-seg" style="display:flex;align-items:center;gap:0">
-        <button id="stk-own-all" onclick="setStkOwner('all')"
-          style="padding:6px 10px;border:none;border-bottom:1.5px solid var(--text);background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;color:var(--text);line-height:1">전체</button>
-        <button id="stk-own-ms" onclick="setStkOwner('partner1')"
-          style="padding:6px 10px;border:none;border-bottom:1.5px solid transparent;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted2);line-height:1">나</button>
-        <button id="stk-own-sy" onclick="setStkOwner('partner2')"
-          style="padding:6px 10px;border:none;border-bottom:1.5px solid transparent;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted2);line-height:1">배우자</button>
-      </div>
-      <div style="display:flex;gap:6px;align-items:center">
-        <div id="stock-update-time" style="font-size:10px;color:var(--muted)"></div>
-        <button onclick="fetchAllPrices()" id="stock-refresh-btn" aria-label="시세 새로고침"
-          style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted);display:flex;align-items:center;gap:4px;padding:6px 10px;cursor:pointer">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-          <span style="font-size:11px;font-weight:600">새로고침</span>
-        </button>
-      </div>
-    </div>
-    <!-- 2행: 뷰 토글 + 전체 펼치기 -->
+    <!-- 뷰 토글 + 전체 펼치기 -->
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
       <div id="stk-view-seg" style="display:flex;background:var(--surface2);border-radius:8px;padding:2px;gap:1px">
         <button id="stk-view-acc" onclick="setStkViewMode('account')"
