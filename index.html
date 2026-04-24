@@ -927,7 +927,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 #wealth-add-name::placeholder { font-weight:400; color:var(--muted2); opacity:0.7; }
 #stock-name-input::placeholder,#stock-ticker-input::placeholder,#stock-qty-input::placeholder,#stock-avg-input::placeholder,#stock-broker-input::placeholder { font-weight:400; color:var(--muted2); opacity:0.7; }
 .wealth-month-picker {
-  display:flex;align-items:center;justify-content:center;gap:12px;
+  display:grid;grid-template-columns:32px 1fr 32px;align-items:center;gap:8px;
   padding:6px 0 14px;
 }
 .wealth-month-btn {
@@ -1967,9 +1967,9 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <!-- 월 선택기 -->
   <div class="wealth-month-picker">
     <button class="wealth-month-btn" onclick="wPrevMonth()">‹</button>
-    <div style="display:flex;align-items:center;gap:8px">
-      <span id="wealth-month-label" style="font-size:16px;font-weight:700;color:var(--text)">—</span>
-      <span id="wealth-curr-badge" style="display:none;font-size:10px;font-weight:700;color:var(--blue);background:rgba(74,144,226,0.12);padding:2px 8px;border-radius:8px">이번 달</span>
+    <div style="text-align:center;line-height:1">
+      <div id="wealth-month-label" style="font-size:16px;font-weight:700;color:var(--text)">—</div>
+      <div id="wealth-curr-badge" style="display:none;font-size:10px;font-weight:700;color:var(--blue);margin-top:4px">이번 달</div>
     </div>
     <button id="wealth-next-btn" class="wealth-month-btn" onclick="wNextMonth()">›</button>
   </div>
@@ -5484,7 +5484,7 @@ function wSyncApts() {
     const jeonseId = 'apt_jeonse_' + apt.id;
     const jeonseAsset = wealthAssets.find(function(a) { return a.id === jeonseId; });
     if ((apt.jeonseDeposit || 0) > 0) {
-      const jeonseName = aptName + ' · 전세보증금';
+      const jeonseName = aptName + ' · 전세보증금반환채무';
       if (!jeonseAsset) {
         wealthAssets.push({
           id: jeonseId,
@@ -5680,7 +5680,7 @@ function renderWealthMonthPicker() {
     label.textContent = y + '년 ' + parseInt(m) + '월';
   }
   const badge = document.getElementById('wealth-curr-badge');
-  if (badge) badge.style.display = wIsCurrentMonth() ? 'inline-block' : 'none';
+  if (badge) badge.style.display = wIsCurrentMonth() ? 'block' : 'none';
   const nextBtn = document.getElementById('wealth-next-btn');
   if (nextBtn) nextBtn.style.opacity = wIsCurrentMonth() ? '0.3' : '1';
   const heroLabel = document.getElementById('hero-net-label');
@@ -5791,17 +5791,18 @@ function wRenderAssetRow(asset) {
     const sign = asset.isDebt ? '-' : '';
     const color = asset.isDebt ? 'var(--red)' : 'var(--text)';
     const prefix = v.isLive
-      ? '<sup style="font-size:8px;color:var(--muted2);font-weight:500;letter-spacing:0.3px;margin-right:1px">live</sup>'
+      ? '<sup style="font-size:8px;color:var(--muted2);font-weight:500;letter-spacing:0.3px;margin-right:4px">live</sup>'
       : v.isCarryForward
-        ? '<sup style="font-size:8px;color:var(--muted);font-weight:500;letter-spacing:0.3px;margin-right:1px">이월</sup>'
+        ? '<sup style="font-size:8px;color:var(--muted);font-weight:500;letter-spacing:0.3px;margin-right:4px">이월</sup>'
         : '';
     const valColor = v.isCarryForward ? 'var(--muted2)' : color;
     valueHtml = '<span style="font-size:15px;font-weight:700;color:' + valColor + '">' + prefix + sign + formatted + '</span>';
   }
 
   let subText = ownerName;
-  if (asset.type === 'stock-acct') subText += ' · ' + (asset.broker || asset.accountType);
+  if (asset.type === 'stock-acct') subText += ' · ' + asset.accountType;
   else if (asset.type === 'apt') subText += ' · 부동산';
+  else if (asset.type === 'apt-debt') subText += ' · 부동산 부채';
 
   return '<div class="wealth-asset-row" onclick="wOpenEditSheet(\'' + asset.id + '\')">'
     + '<div class="wealth-owner-dot" style="background:' + ownerColor + '"></div>'
