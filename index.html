@@ -5420,21 +5420,25 @@ function wSyncStocks() {
 function wSyncApts() {
   const allApts = (typeof aptList !== 'undefined' ? aptList : load('apt-list', []));
   const aptIdSet = new Set(allApts.map(function(a) { return a.id; }));
-  // 삭제된 아파트 엔티티 제거
+
+  // 삭제된 아파트 관련 엔티티 (시세 + 부채) 제거
   const before = wealthAssets.length;
   wealthAssets = wealthAssets.filter(function(a) {
-    if (a.type !== 'apt') return true;
+    if (a.type !== 'apt' && a.type !== 'apt-debt') return true;
     return aptIdSet.has(a.aptId);
   });
   let changed = wealthAssets.length !== before;
-  // 새 아파트 엔티티 추가
+
   allApts.forEach(function(apt) {
-    const exists = wealthAssets.find(function(a) { return a.type === 'apt' && a.aptId === apt.id; });
-    if (!exists) {
+    const aptName = apt.name || '아파트';
+
+    // ① 시세 자산
+    const aptAsset = wealthAssets.find(function(a) { return a.type === 'apt' && a.aptId === apt.id; });
+    if (!aptAsset) {
       wealthAssets.push({
         id: 'apt_' + apt.id,
         type: 'apt',
-        name: apt.name || '아파트',
+        name: aptName,
         owner: 'common',
         aptId: apt.id,
         emoji: '🏠',
@@ -5443,8 +5447,68 @@ function wSyncApts() {
         sortOrder: 50,
       });
       changed = true;
+    } else if (aptAsset.name !== aptName) {
+      aptAsset.name = aptName;
+      changed = true;
+    }
+
+    // ② 대출 잔액 부채
+    const loanId = 'apt_loan_' + apt.id;
+    const loanAsset = wealthAssets.find(function(a) { return a.id === loanId; });
+    if ((apt.loanAmount || 0) > 0) {
+      const loanName = aptName + ' · 대출';
+      if (!loanAsset) {
+        wealthAssets.push({
+          id: loanId,
+          type: 'apt-debt',
+          aptDebtType: 'loan',
+          name: loanName,
+          owner: 'common',
+          aptId: apt.id,
+          emoji: '🏠',
+          isDebt: true,
+          autoSrc: 'apt',
+          sortOrder: 51,
+        });
+        changed = true;
+      } else if (loanAsset.name !== loanName) {
+        loanAsset.name = loanName;
+        changed = true;
+      }
+    } else if (loanAsset) {
+      wealthAssets = wealthAssets.filter(function(a) { return a.id !== loanId; });
+      changed = true;
+    }
+
+    // ③ 전세보증금 부채
+    const jeonseId = 'apt_jeonse_' + apt.id;
+    const jeonseAsset = wealthAssets.find(function(a) { return a.id === jeonseId; });
+    if ((apt.jeonseDeposit || 0) > 0) {
+      const jeonseName = aptName + ' · 전세보증금';
+      if (!jeonseAsset) {
+        wealthAssets.push({
+          id: jeonseId,
+          type: 'apt-debt',
+          aptDebtType: 'jeonse',
+          name: jeonseName,
+          owner: 'common',
+          aptId: apt.id,
+          emoji: '🏠',
+          isDebt: true,
+          autoSrc: 'apt',
+          sortOrder: 52,
+        });
+        changed = true;
+      } else if (jeonseAsset.name !== jeonseName) {
+        jeonseAsset.name = jeonseName;
+        changed = true;
+      }
+    } else if (jeonseAsset) {
+      wealthAssets = wealthAssets.filter(function(a) { return a.id !== jeonseId; });
+      changed = true;
     }
   });
+
   if (changed) store('wealth-assets', wealthAssets);
 }
 
@@ -5475,6 +5539,13 @@ function wLiveValue(asset) {
     const allApts = (typeof aptList !== 'undefined' ? aptList : load('apt-list', []));
     const apt = allApts.find(function(a) { return a.id === asset.aptId; });
     if (apt && apt.cache && apt.cache.price > 0) return apt.cache.price;
+  }
+  if (asset.type === 'apt-debt') {
+    const allApts = (typeof aptList !== 'undefined' ? aptList : load('apt-list', []));
+    const apt = allApts.find(function(a) { return a.id === asset.aptId; });
+    if (!apt) return null;
+    if (asset.aptDebtType === 'loan') return (apt.loanAmount || 0) || null;
+    if (asset.aptDebtType === 'jeonse') return (apt.jeonseDeposit || 0) || null;
   }
   return null;
 }
@@ -5798,7 +5869,7 @@ function wOpenEditSheet(assetId) {
   const ownerName = asset.owner === 'partner1' ? getP1Name()
     : asset.owner === 'partner2' ? getP2Name()
     : getCommonName();
-  const typeLabels = { 'stock-acct': '주식계좌', apt: '부동산', cash: '현금', savings: '저축·청약', investment: '투자·펀드', insurance: '보험', pension: '연금·IRP', debt: '부채' };
+  const typeLabels = { 'stock-acct': '주식계좌', apt: '부동산', 'apt-debt': '부동산 부채', cash: '현금', savings: '저축·청약', investment: '투자·펀드', insurance: '보험', pension: '연금·IRP', debt: '부채' };
   const typeLabel = typeLabels[asset.type] || '금융자산';
 
   // ── 헤더
@@ -13127,6 +13198,7 @@ function saveAptFromModal() {
   }
 
   store('apt-list', aptList);
+  if (typeof wSyncApts === 'function') { wSyncApts(); renderWealthList(); renderWealthHero(); }
   renderAptList();
   renderHomeApt();
   renderInputAptSection();
@@ -13142,6 +13214,7 @@ async function deleteAptFromModal() {
   if (!ok) return;
   aptList = aptList.filter(function(a) { return a.id !== _aptEditingId; });
   store('apt-list', aptList);
+  if (typeof wSyncApts === 'function') { wSyncApts(); renderWealthList(); renderWealthHero(); }
   renderAptList();
   renderHomeApt();
   closeAptModal();
