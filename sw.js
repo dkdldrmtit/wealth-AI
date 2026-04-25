@@ -38,6 +38,13 @@ self.addEventListener('activate', function(e) {
   );
 });
 
+// 클라이언트가 SKIP_WAITING 메시지 보내면 새 SW 즉시 활성화
+self.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 // ── fetch 전략
 self.addEventListener('fetch', function(e) {
   const url = new URL(e.request.url);

@@ -20985,19 +20985,58 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').then(function(reg) {
       console.log('✅ SW 등록 완료:', reg.scope);
 
-      // 새 버전 감지 시 토스트로 안내
+      // 1시간마다 새 버전 체크
+      setInterval(function() {
+        try { reg.update(); } catch (e) {}
+      }, 60 * 60 * 1000);
+
+      // 탭 활성화 시에도 체크
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+          try { reg.update(); } catch (e) {}
+        }
+      });
+
+      // 새 버전 감지 시 즉시 적용 가능한 배너 표시
       reg.addEventListener('updatefound', function() {
         const newWorker = reg.installing;
         if (!newWorker) return;
         newWorker.addEventListener('statechange', function() {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            showToast('🔄 새 버전이 준비됐어요. 앱을 다시 열면 업데이트돼요!', 'info');
+            showSwUpdateBanner(newWorker);
           }
         });
       });
     }).catch(function(err) {
       console.log('SW 등록 실패:', err);
     });
+
+    // 새 SW 활성화 시 1회 reload (controllerchange)
+    let _swReloadingFlag = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function() {
+      if (_swReloadingFlag) return;
+      _swReloadingFlag = true;
+      window.location.reload();
+    });
+  });
+}
+
+function showSwUpdateBanner(newWorker) {
+  // 이미 표시된 배너가 있으면 무시
+  if (document.getElementById('sw-update-banner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'sw-update-banner';
+  banner.style.cssText = 'position:fixed;bottom:max(80px,env(safe-area-inset-bottom,80px));left:50%;transform:translateX(-50%);z-index:9500;background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 24px rgba(0,0,0,0.4);max-width:calc(100% - 32px);font-family:\'Noto Sans KR\',sans-serif;animation:fadeIn .3s ease';
+  banner.innerHTML = '<span style="font-size:13px;color:var(--text);font-weight:600">🎉 새 버전이 준비됐어요</span>'
+    + '<button id="sw-update-apply" style="padding:7px 14px;border-radius:9px;border:none;background:var(--blue);color:#fff;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">적용</button>'
+    + '<button id="sw-update-skip" style="background:none;border:none;color:var(--muted2);font-family:inherit;font-size:11px;cursor:pointer">나중에</button>';
+  document.body.appendChild(banner);
+
+  document.getElementById('sw-update-apply').addEventListener('click', function() {
+    if (newWorker && newWorker.postMessage) newWorker.postMessage({ type: 'SKIP_WAITING' });
+  });
+  document.getElementById('sw-update-skip').addEventListener('click', function() {
+    banner.remove();
   });
 }
 
