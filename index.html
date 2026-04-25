@@ -2424,9 +2424,21 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
     <!-- 로그아웃 -->
     <button onclick="handleLogout()"
-      style="width:100%;padding:13px;border-radius:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer">
+      style="width:100%;padding:13px;border-radius:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:24px">
       로그아웃
     </button>
+
+    <!-- 회원 탈퇴 -->
+    <div style="text-align:center;padding-top:24px;border-top:1px solid var(--border)">
+      <button onclick="handleDeleteAccount()"
+        style="background:none;border:none;color:var(--muted2);font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px">
+        회원 탈퇴
+      </button>
+      <div style="font-size:10px;color:var(--muted2);margin-top:6px;line-height:1.6">
+        탈퇴 시 내 계정과 모든 개인 데이터가 영구 삭제됩니다.<br>
+        커플 공유 데이터는 배우자가 사용 중이면 보존됩니다.
+      </div>
+    </div>
   </div>
 
 
@@ -4503,6 +4515,30 @@ async function handleForgotPassword() {
   const { error } = await _supabase.auth.resetPasswordForEmail(email);
   if (!error) {
     showToast('📧 비밀번호 재설정 메일을 보냈어요!');
+  }
+}
+
+// 회원 탈퇴 (계정 + 개인 데이터 영구 삭제)
+async function handleDeleteAccount() {
+  const ok1 = typeof showConfirm === 'function'
+    ? await showConfirm('정말 회원 탈퇴를 하시겠어요?\n\n· 내 계정과 모든 개인 데이터가 영구 삭제됩니다.\n· 복구할 수 없어요.', '계속')
+    : confirm('회원 탈퇴를 진행할까요?');
+  if (!ok1) return;
+  const ok2 = typeof showConfirm === 'function'
+    ? await showConfirm('마지막 확인이에요.\n탈퇴를 진행하면 즉시 데이터가 삭제됩니다.', '탈퇴하기')
+    : confirm('정말로 탈퇴하시겠어요?');
+  if (!ok2) return;
+
+  try {
+    const { error } = await _supabase.functions.invoke('delete-account');
+    if (error) throw error;
+    if (typeof showToast === 'function') showToast('👋 탈퇴 처리가 완료됐어요');
+    // 로컬 캐시 모두 정리
+    try { localStorage.clear(); } catch (e) {}
+    await _supabase.auth.signOut();
+    setTimeout(function() { location.reload(); }, 800);
+  } catch (e) {
+    if (typeof showToast === 'function') showToast('❗ 탈퇴 실패: ' + (e.message || e));
   }
 }
 
