@@ -13931,12 +13931,10 @@ function renderAssetTabChart() {
   }
   if (empty) empty.style.display = 'none';
 
+  const ownerFilter = (typeof wAssetChartOwner !== 'undefined' && wAssetChartOwner !== 'all') ? wAssetChartOwner : null;
   const data = histPast.slice(-assetChartPeriod).map(function(r) {
-    if (wAssetChartOwner === 'all') return { month: r.month, net: r.net };
-    const ownItems = (r.items || []).filter(function(it) { return it.owner === wAssetChartOwner || it.owner === 'common'; });
-    const assetSum = ownItems.filter(function(it) { return it.type !== 'debt'; }).reduce(function(s, it) { return s + (it.amount || 0); }, 0);
-    const debtSum = ownItems.filter(function(it) { return it.type === 'debt'; }).reduce(function(s, it) { return s + (it.amount || 0); }, 0);
-    return { month: r.month, net: assetSum - debtSum };
+    const totals = wMonthTotals(r.month, ownerFilter);
+    return { month: r.month, net: totals.net };
   });
   const nets = data.map(function(r) { return r.net; });
   const min = Math.min.apply(null, nets);
