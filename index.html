@@ -4994,6 +4994,18 @@ async function loadAllDataFromSupabase() {
   if (typeof wSyncApts === 'function') wSyncApts();
   if (typeof renderWealthList === 'function') renderWealthList();
   if (typeof renderWealthHero === 'function') renderWealthHero();
+
+  // 온보딩 체크: 계정(user_id) 기준으로 판단
+  if (currentUser) {
+    const _obKey = 'onboarding-done-' + currentUser.id;
+    const _hasAnyData = assetHistory.length > 0 || ledgerTxs.length > 0 || wealthAssets.length > 0;
+    if (!load(_obKey, false) && !_hasAnyData) {
+      var _ob = document.getElementById('onboarding-overlay');
+      if (_ob) _ob.style.display = 'block';
+    } else {
+      store(_obKey, true);
+    }
+  }
 }
 
 // ── 기존 자산 카테고리 → 새 구조로 마이그레이션 (1회)
@@ -8230,7 +8242,7 @@ function obFinish() {
     PARTNER_NAMES.partner2 = n2.trim() || '배우자';
     savePartnerNames();
   }
-  store('onboarding-done', true);
+  if (currentUser) store('onboarding-done-' + currentUser.id, true);
   var ob = document.getElementById('onboarding-overlay');
   if (ob) {
     ob.style.transition = 'opacity .3s ease';
@@ -11660,16 +11672,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const splashShown = sessionStorage.getItem('splash-shown');
 
   if (splashShown) {
-    // 이미 본 경우 바로 숨김
+    // 이미 본 경우 바로 숨김 (온보딩 체크는 loadAllDataFromSupabase에서 처리)
     splash.style.display = 'none';
-    // 온보딩 체크
-    var hasData2 = load('asset-history', []).length > 0 || load('ledger-txs', []).length > 0;
-    if (!load('onboarding-done', false) && !hasData2) {
-      var ob2 = document.getElementById('onboarding-overlay');
-      if (ob2) ob2.style.display = 'block';
-    } else {
-      store('onboarding-done', true);
-    }
   } else {
     // 처음 진입 시만 표시
     sessionStorage.setItem('splash-shown', '1');
@@ -11688,14 +11692,7 @@ document.addEventListener('DOMContentLoaded', function() {
       splash.style.transform = 'scale(1.05)';
       setTimeout(function() {
         splash.style.display = 'none';
-        // 온보딩 미완료 + 기존 데이터 없는 신규 사용자만 표시
-        var hasData = load('asset-history', []).length > 0 || load('ledger-txs', []).length > 0;
-        if (!load('onboarding-done', false) && !hasData) {
-          var ob = document.getElementById('onboarding-overlay');
-          if (ob) ob.style.display = 'block';
-        } else {
-          store('onboarding-done', true);
-        }
+        // 온보딩은 loadAllDataFromSupabase 완료 후 유저별로 처리
       }, 500);
     }, 1000);
   }
