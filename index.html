@@ -4047,6 +4047,41 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 </div>
 
 
+<!-- 구독 관리 모달 -->
+<div id="manage-sub-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:500;overflow-y:auto" onclick="if(event.target===this)closeSubscriptionManage()">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;overflow:hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 20px 16px;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase">Manage Subscription</div>
+          <div style="font-size:20px;font-weight:800;color:var(--text);margin-top:2px">구독 관리</div>
+        </div>
+        <button onclick="closeSubscriptionManage()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer">✕</button>
+      </div>
+      <div style="padding:20px">
+        <div id="manage-sub-status" style="padding:14px;background:var(--surface2);border-radius:14px;margin-bottom:16px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px">현재 플랜</div>
+          <div id="manage-sub-plan" style="font-size:18px;font-weight:800;color:var(--blue)">-</div>
+          <div id="manage-sub-period" style="font-size:12px;color:var(--muted2);margin-top:4px">-</div>
+        </div>
+
+        <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;padding-left:4px">결제 이력</div>
+        <div id="manage-sub-history" style="background:var(--surface2);border-radius:14px;padding:8px;margin-bottom:20px;max-height:240px;overflow-y:auto">
+          <div style="text-align:center;color:var(--muted);font-size:12px;padding:20px">불러오는 중...</div>
+        </div>
+
+        <button id="manage-sub-cancel-btn" onclick="confirmCancelSubscription()" style="width:100%;padding:13px;border-radius:12px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.06);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
+          구독 해지
+        </button>
+        <div style="text-align:center;font-size:10px;color:var(--muted2);margin-top:8px;line-height:1.6">
+          해지해도 현재 결제 기간 종료일까지 프리미엄 기능은 유지됩니다.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <!-- 요금제 비교 모달 -->
 <div id="pricing-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:500;overflow-y:auto" onclick="if(event.target===this)closePricingModal()">
   <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
@@ -12224,9 +12259,110 @@ async function handleBillingCallback() {
   } catch (e) {}
 }
 
-// 구독 관리 (Phase 3-5에서 구현)
-function openSubscriptionManage() {
-  if (typeof showToast === 'function') showToast('⚙️ 구독 관리 화면 준비 중입니다');
+// 구독 관리 모달
+async function openSubscriptionManage() {
+  const m = document.getElementById('manage-sub-modal');
+  if (!m) return;
+  // 요금제 모달이 열려있으면 먼저 닫기
+  closePricingModal();
+  m.style.display = 'block';
+  if (typeof lockScroll === 'function') lockScroll();
+
+  await renderManageSubscription();
+}
+
+function closeSubscriptionManage() {
+  const m = document.getElementById('manage-sub-modal');
+  if (m) m.style.display = 'none';
+  if (typeof unlockScroll === 'function') unlockScroll();
+}
+
+async function renderManageSubscription() {
+  const sub = await getSubscription(true);
+  const planEl = document.getElementById('manage-sub-plan');
+  const periodEl = document.getElementById('manage-sub-period');
+  const cancelBtn = document.getElementById('manage-sub-cancel-btn');
+
+  if (planEl) {
+    if (isPremiumPlan(sub)) {
+      planEl.textContent = '프리미엄';
+      planEl.style.color = 'var(--blue)';
+    } else if (sub && sub.status === 'canceled') {
+      planEl.textContent = '프리미엄 (해지 예정)';
+      planEl.style.color = 'var(--muted2)';
+    } else {
+      planEl.textContent = '무료';
+      planEl.style.color = 'var(--text)';
+    }
+  }
+  if (periodEl) {
+    if (sub && sub.current_period_end) {
+      const end = new Date(sub.current_period_end);
+      const isCanceled = sub.status === 'canceled';
+      periodEl.textContent = isCanceled
+        ? '종료 예정일: ' + end.toLocaleDateString('ko-KR')
+        : '다음 결제일: ' + end.toLocaleDateString('ko-KR');
+    } else {
+      periodEl.textContent = '활성 구독 없음';
+    }
+  }
+  if (cancelBtn) {
+    const showCancel = isPremiumPlan(sub);
+    cancelBtn.style.display = showCancel ? 'block' : 'none';
+  }
+
+  // 결제 이력
+  const histEl = document.getElementById('manage-sub-history');
+  if (histEl && currentUser) {
+    try {
+      const { data: rows } = await _supabase
+        .from('billing_history')
+        .select('order_id, amount, status, approved_at, created_at')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false })
+        .limit(12);
+      if (!rows || rows.length === 0) {
+        histEl.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:20px">아직 결제 내역이 없어요</div>';
+      } else {
+        histEl.innerHTML = rows.map(function(r) {
+          const dateStr = (r.approved_at || r.created_at || '').slice(0, 10);
+          const amount = (r.amount || 0).toLocaleString() + '원';
+          const statusLabel = r.status === 'paid' ? '결제 완료'
+            : r.status === 'refunded' ? '환불됨'
+            : r.status === 'failed' ? '실패'
+            : r.status === 'canceled' ? '취소됨' : r.status;
+          const statusColor = r.status === 'paid' ? 'var(--green)' : 'var(--muted2)';
+          return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid var(--border)">'
+            + '<div>'
+            + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + amount + '</div>'
+            + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + dateStr + '</div>'
+            + '</div>'
+            + '<div style="font-size:11px;font-weight:700;color:' + statusColor + '">' + statusLabel + '</div>'
+            + '</div>';
+        }).join('');
+      }
+    } catch (e) {
+      histEl.innerHTML = '<div style="text-align:center;color:var(--muted2);font-size:12px;padding:20px">결제 이력을 불러오지 못했어요</div>';
+    }
+  }
+}
+
+async function confirmCancelSubscription() {
+  const ok = typeof showConfirm === 'function'
+    ? await showConfirm('정말 구독을 해지할까요?\n현재 결제 기간 종료일까지 프리미엄은 그대로 유지돼요.', '해지')
+    : confirm('구독을 해지할까요?');
+  if (!ok) return;
+
+  try {
+    const { error } = await _supabase.functions.invoke('billing-cancel');
+    if (error) throw error;
+    if (typeof showToast === 'function') showToast('🗓️ 해지 처리됐어요. 종료일까지는 프리미엄 유지됩니다.');
+    _subscriptionCache = null;
+    await renderManageSubscription();
+    if (typeof renderSettingsPlanCard === 'function') renderSettingsPlanCard();
+  } catch (e) {
+    if (typeof showToast === 'function') showToast('❗ 해지 실패: ' + (e.message || e));
+  }
 }
 
 // ── AI 호출 통합 헬퍼 (Supabase Edge Function ai-chat 프록시)
