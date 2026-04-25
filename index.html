@@ -2351,6 +2351,21 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
     </div>
 
+    <!-- 구독 플랜 -->
+    <div class="card" style="margin-bottom:14px;cursor:pointer" onclick="openPricingModal()">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:4px">구독 플랜</div>
+          <div id="settings-plan-name" style="font-size:14px;font-weight:700;color:var(--text)">무료</div>
+          <div id="settings-plan-desc" style="font-size:11px;color:var(--muted2);margin-top:2px">AI·실거래가 한도 사용 중</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;color:var(--blue);font-size:12px;font-weight:700">
+          <span>요금제 보기</span>
+          <span style="font-size:14px">›</span>
+        </div>
+      </div>
+    </div>
+
     <!-- 배우자 연결 -->
     <div class="card" style="margin-bottom:14px">
       <div class="card-title" style="color:var(--muted)">배우자 연결</div>
@@ -4026,6 +4041,73 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer">✕</button>
       </div>
       <div id="bulk-cat-list" style="max-height:60vh;overflow-y:auto"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 요금제 비교 모달 -->
+<div id="pricing-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:500;overflow-y:auto" onclick="if(event.target===this)closePricingModal()">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;overflow:hidden">
+
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 20px 16px;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase">OURs Pricing</div>
+          <div style="font-size:20px;font-weight:800;color:var(--text);margin-top:2px">요금제</div>
+        </div>
+        <button onclick="closePricingModal()"
+          style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer">✕</button>
+      </div>
+
+      <div style="padding:20px">
+        <div id="pricing-current-banner" style="display:none;padding:11px 14px;background:rgba(74,144,226,0.08);border:1px solid rgba(74,144,226,0.2);border-radius:12px;color:var(--blue);font-size:12px;font-weight:600;margin-bottom:16px;text-align:center"></div>
+
+        <!-- 무료 카드 -->
+        <div style="border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;background:var(--surface2)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div style="font-size:14px;font-weight:700;color:var(--text)">무료</div>
+            <div id="pricing-free-badge" style="display:none;padding:3px 9px;border-radius:10px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25);color:var(--green);font-size:10px;font-weight:700">현재 플랜</div>
+          </div>
+          <div style="font-size:28px;font-weight:900;color:var(--text);margin-bottom:4px">0<span style="font-size:14px;font-weight:600;color:var(--muted);margin-left:2px">원/월</span></div>
+          <div style="font-size:11px;color:var(--muted2);margin-bottom:14px">기본 기능 무제한</div>
+          <ul style="list-style:none;padding:0;margin:0;font-size:12px;color:var(--text);line-height:2">
+            <li>· 자산·가계부·주식·일정 무제한 기록</li>
+            <li>· 부부 데이터 실시간 동기화</li>
+            <li>· AI 챗·리포트 <strong>월 50회</strong></li>
+            <li>· 부동산 실거래가 자동조회 <strong>월 30회</strong></li>
+            <li>· 영수증 OCR·음성 입력</li>
+          </ul>
+        </div>
+
+        <!-- 프리미엄 카드 -->
+        <div style="border:2px solid var(--blue);border-radius:16px;padding:20px;background:linear-gradient(135deg,rgba(74,144,226,0.04),rgba(74,144,226,0.10));position:relative">
+          <div style="position:absolute;top:-10px;left:20px;padding:3px 10px;border-radius:10px;background:var(--blue);color:#fff;font-size:10px;font-weight:700;letter-spacing:0.5px">RECOMMENDED</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;margin-top:4px">
+            <div style="font-size:14px;font-weight:800;color:var(--blue)">프리미엄</div>
+            <div id="pricing-premium-badge" style="display:none;padding:3px 9px;border-radius:10px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25);color:var(--green);font-size:10px;font-weight:700">현재 플랜</div>
+          </div>
+          <div style="font-size:28px;font-weight:900;color:var(--text);margin-bottom:4px">4,900<span style="font-size:14px;font-weight:600;color:var(--muted);margin-left:2px">원/월</span></div>
+          <div style="font-size:11px;color:var(--muted2);margin-bottom:14px">연 결제 시 39,000원 (33% 할인)</div>
+          <ul style="list-style:none;padding:0;margin:0 0 18px;font-size:12px;color:var(--text);line-height:2">
+            <li>· <strong>AI 챗·리포트 무제한</strong></li>
+            <li>· <strong>부동산 실거래가 무제한</strong></li>
+            <li>· 데이터 자동 백업 (일 1회)</li>
+            <li>· 우선 기능 업데이트</li>
+            <li>· 광고 없음 (추후 도입 시)</li>
+          </ul>
+          <button id="pricing-cta-btn" onclick="startPremiumCheckout()"
+            style="width:100%;padding:14px;border-radius:12px;border:none;background:var(--blue);color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:0.3px">
+            프리미엄 시작하기
+          </button>
+          <div style="text-align:center;font-size:10px;color:var(--muted2);margin-top:8px">언제든 해지 가능 · 첫 결제일에만 청구</div>
+        </div>
+
+        <div style="text-align:center;margin-top:20px;font-size:11px;color:var(--muted2);line-height:1.6">
+          결제는 토스페이먼츠로 진행됩니다.<br>
+          이용약관·환불정책에 동의하는 것으로 간주됩니다.
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -11009,9 +11091,29 @@ function setSettingsTab(tab) {
     if (con) con.style.display = isActive ? 'block' : 'none';
   });
   if (tab === 'cat') renderCatSettings();
-  if (tab === 'account') renderCoupleSettings();
+  if (tab === 'account') { renderCoupleSettings(); renderSettingsPlanCard(); }
   if (tab === 'home') loadPartnerNamesUI();
   if (tab === 'notif') renderNotifSettings();
+}
+
+// ── 설정 화면 구독 카드 표시 갱신
+async function renderSettingsPlanCard() {
+  const nameEl = document.getElementById('settings-plan-name');
+  const descEl = document.getElementById('settings-plan-desc');
+  if (!nameEl || !descEl) return;
+  const sub = await getSubscription();
+  if (isPremiumPlan(sub)) {
+    nameEl.textContent = '프리미엄';
+    nameEl.style.color = 'var(--blue)';
+    const endStr = sub.current_period_end
+      ? '다음 결제일: ' + new Date(sub.current_period_end).toLocaleDateString('ko-KR')
+      : '활성 구독';
+    descEl.textContent = endStr;
+  } else {
+    nameEl.textContent = '무료';
+    nameEl.style.color = 'var(--text)';
+    descEl.textContent = 'AI·실거래가 한도 사용 중';
+  }
 }
 
 
@@ -11979,6 +12081,87 @@ ${manualTips || '없음'}
 
 [오늘 우선 주제 — 사용자가 먼저 물어볼 때만 활용. 먼저 꺼내지 말 것]
 ${situationGuides}`;
+}
+
+// ── 구독 등급 조회 (캐시) ──
+let _subscriptionCache = null;
+let _subscriptionFetchedAt = 0;
+
+async function getSubscription(force) {
+  const now = Date.now();
+  if (!force && _subscriptionCache && (now - _subscriptionFetchedAt < 5 * 60 * 1000)) {
+    return _subscriptionCache;
+  }
+  if (!currentUser) return { plan: 'free', status: 'active' };
+  try {
+    const { data } = await _supabase
+      .from('user_subscriptions')
+      .select('plan, status, current_period_end')
+      .eq('user_id', currentUser.id)
+      .maybeSingle();
+    _subscriptionCache = data || { plan: 'free', status: 'active' };
+    _subscriptionFetchedAt = now;
+    return _subscriptionCache;
+  } catch (e) {
+    return { plan: 'free', status: 'active' };
+  }
+}
+
+function isPremiumPlan(sub) {
+  if (!sub) return false;
+  if (sub.plan !== 'premium' || sub.status !== 'active') return false;
+  if (sub.current_period_end && new Date(sub.current_period_end) < new Date()) return false;
+  return true;
+}
+
+// ── 요금제 모달 ──
+async function openPricingModal() {
+  const m = document.getElementById('pricing-modal');
+  if (!m) return;
+  m.style.display = 'block';
+  if (typeof lockScroll === 'function') lockScroll();
+
+  // 현재 플랜 표시
+  const sub = await getSubscription(true);
+  const isPremium = isPremiumPlan(sub);
+  const banner = document.getElementById('pricing-current-banner');
+  const freeBadge = document.getElementById('pricing-free-badge');
+  const premiumBadge = document.getElementById('pricing-premium-badge');
+  const ctaBtn = document.getElementById('pricing-cta-btn');
+
+  if (banner) {
+    if (isPremium) {
+      const endStr = sub.current_period_end
+        ? '다음 결제일: ' + new Date(sub.current_period_end).toLocaleDateString('ko-KR')
+        : '활성 구독';
+      banner.style.display = 'block';
+      banner.textContent = '✨ 프리미엄 사용 중 · ' + endStr;
+    } else {
+      banner.style.display = 'none';
+    }
+  }
+  if (freeBadge) freeBadge.style.display = isPremium ? 'none' : 'inline-block';
+  if (premiumBadge) premiumBadge.style.display = isPremium ? 'inline-block' : 'none';
+  if (ctaBtn) {
+    ctaBtn.textContent = isPremium ? '구독 관리' : '프리미엄 시작하기';
+    ctaBtn.onclick = isPremium ? openSubscriptionManage : startPremiumCheckout;
+  }
+}
+
+function closePricingModal() {
+  const m = document.getElementById('pricing-modal');
+  if (m) m.style.display = 'none';
+  if (typeof unlockScroll === 'function') unlockScroll();
+}
+
+// 결제 시작 (Phase 3-3에서 토스 SDK 연동)
+function startPremiumCheckout() {
+  if (typeof showToast === 'function') showToast('💳 결제 기능은 곧 활성화됩니다');
+}
+
+// 구독 관리 (Phase 3-5에서 구현)
+function openSubscriptionManage() {
+  if (typeof showToast === 'function') showToast('⚙️ 구독 관리 화면 준비 중입니다');
 }
 
 // ── AI 호출 통합 헬퍼 (Supabase Edge Function ai-chat 프록시)
