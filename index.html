@@ -8799,7 +8799,7 @@ function renderPartnerActivity() {
     const ownerColor = tx.owner === 'partner1' ? 'var(--blue)' : tx.owner === 'partner2' ? 'var(--green)' : 'var(--muted2)';
     const isLast = i === recent.length - 1;
 
-    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0' + (isLast ? '' : ';border-bottom:1px solid var(--border)') + '">'
+    return '<div onclick="goToLedgerTx(\'' + tx.id + '\')" style="display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer' + (isLast ? '' : ';border-bottom:1px solid var(--border)') + '">'
       + '<div style="width:6px;height:6px;border-radius:50%;background:' + catColor + ';flex-shrink:0"></div>'
       + '<div style="flex:1;min-width:0">'
       + '<div style="font-size:13px;color:var(--text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (tx.memo || catLabel) + '</div>'
@@ -8809,8 +8809,21 @@ function renderPartnerActivity() {
       + '</div>'
       + '</div>'
       + '<div style="font-size:14px;font-weight:700;color:' + amtColor + ';flex-shrink:0;font-variant-numeric:tabular-nums">' + amtSign + amountRaw.toLocaleString() + '원</div>'
+      + '<div style="flex-shrink:0;color:var(--muted);font-size:14px;margin-left:2px">›</div>'
       + '</div>';
   }).join('');
+}
+
+function goToLedgerTx(id) {
+  const tx = ledgerTxs.find(function(t) { return t.id === id; });
+  if (!tx) return;
+  ledgerMonth = tx.date.substring(0, 7);
+  goPage('ledger', document.querySelectorAll('.nav-item')[1]);
+  setTimeout(function() {
+    setLedgerTab('list');
+    renderLedger();
+    setTimeout(function() { openTxEdit(id); }, 100);
+  }, 300);
 }
 
 
