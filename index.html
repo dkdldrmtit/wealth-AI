@@ -4489,15 +4489,16 @@ async function loadProfile() {
     .from('profiles')
     .select('*')
     .eq('id', currentUser.id)
-    .single();
+    .maybeSingle();
 
-  if (error || !data) {
+  // 네트워크 오류(PGRST116 외)만 로그인 화면으로 — 프로필 없으면 기본값으로 진행
+  if (error && error.code !== 'PGRST116') {
     showAuthScreen();
     return;
   }
 
-  currentProfile = data;
-  currentCoupleId = data.couple_id;
+  currentProfile = data || { id: currentUser.id, name: currentUser.email.split('@')[0], couple_id: null };
+  currentCoupleId = currentProfile.couple_id || null;
   // 현재 사용자 관점으로 이름 라벨 재적용 (partner1/partner2 역전 문제 수정)
   if (typeof applyPartnerNamesToUI === 'function') applyPartnerNamesToUI();
 
