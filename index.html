@@ -4917,9 +4917,7 @@ function goBack() {
 // ★ 기본값 설정 — 여기만 수정하세요 ★
 // ══════════════════════════════════════
 const APP_DEFAULTS = {
-  'cloudflare-proxy': 'https://ms-wealth-proxy.dkdldrmtit-d5e.workers.dev',
-  'molit-api-key':    '',
-  'apt-settings':     null,
+  'apt-settings': null,
 };
 
 // ══════════════════════════════════════
@@ -5971,7 +5969,7 @@ function wOpenEditSheet(assetId) {
   if (asset.type === 'apt' && isPast) {
     const allApts = (typeof aptList !== 'undefined' ? aptList : load('apt-list', []));
     const apt = allApts.find(function(a) { return a.id === asset.aptId; });
-    if (apt && apt.lawdCd && (load('cloudflare-proxy', '') || load('molit-api-key', ''))) {
+    if (apt && apt.lawdCd) {
       body += '<button onclick="wFetchAptHistorical(\'' + asset.id + '\',\'' + wSelectedMonth + '\')"'
         + ' style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--blue);background:rgba(74,144,226,0.07);color:var(--blue);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:16px;letter-spacing:0.2px">'
         + monthLabel + ' 실거래가 자동 조회 후 저장'
@@ -6093,32 +6091,29 @@ async function wFetchAptHistorical(assetId, month) {
   if (!apt) { if (typeof showToast === 'function') showToast('❗ 부동산 정보 없음'); return; }
   const [y, m] = month.split('-');
   const ym = y + m;
-  const proxyUrl = load('cloudflare-proxy', '');
-  const apiKey = load('molit-api-key', '');
-  if (!proxyUrl && !apiKey) { if (typeof showToast === 'function') showToast('❗ API 키가 필요해요'); return; }
   if (typeof showToast === 'function') showToast('⏳ ' + parseInt(m) + '월 실거래가 조회 중...');
 
   let xmlStr = null;
-  if (proxyUrl) {
-    try {
-      const res = await fetch(proxyUrl + '/realestate?lawdCd=' + apt.lawdCd + '&dealYmd=' + ym, {
-        signal: (function() { const c = new AbortController(); setTimeout(function() { c.abort(); }, 10000); return c.signal; })()
-      });
-      const text = await res.text();
-      if (text && text.includes('<item>')) xmlStr = text;
-    } catch (e) {}
-  }
-  if (!xmlStr && apiKey) {
-    try {
-      const url = 'https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev?serviceKey='
-        + encodeURIComponent(apiKey) + '&LAWD_CD=' + apt.lawdCd + '&DEAL_YMD=' + ym + '&pageNo=1&numOfRows=1000';
-      const res = await fetch(url, {
-        signal: (function() { const c = new AbortController(); setTimeout(function() { c.abort(); }, 10000); return c.signal; })()
-      });
-      const text = await res.text();
-      if (text && text.includes('<item>')) xmlStr = text;
-    } catch (e) {}
-  }
+  try {
+    const { data, error } = await _supabase.functions.invoke('apt-trades', {
+      body: { lawdCd: apt.lawdCd, dealYmd: ym }
+    });
+    if (error) {
+      let serverError = null;
+      try {
+        if (error.context && typeof error.context.json === 'function') {
+          serverError = await error.context.json();
+        }
+      } catch (e) {}
+      const code = serverError && serverError.error && serverError.error.code;
+      if (code === 'monthly_limit_exceeded') {
+        if (typeof showToast === 'function') showToast('❗ 이번 달 실거래가 조회 한도 초과');
+        return;
+      }
+    } else if (data && data.xml && data.xml.includes('<item>')) {
+      xmlStr = data.xml;
+    }
+  } catch (e) {}
   if (!xmlStr) { if (typeof showToast === 'function') showToast('❗ 해당 월 실거래 없음'); return; }
 
   const results = [];
@@ -12188,56 +12183,7 @@ function renderQuickButtons() {
   ).join('');
 }
 
-// ── 실거래가 API ──
-function saveProxyUrl() {
-  const url = document.getElementById('proxy-url-input').value.trim();
-  if (!url) { showToast('❗ Cloudflare 주소를 입력해주세요'); return; }
-  const clean = url.startsWith('http') ? url : 'https://' + url;
-  store('cloudflare-proxy', clean);
-  const status = document.getElementById('proxy-status');
-  if (status) { status.style.display='block'; status.style.color='var(--teal)'; status.textContent='✅ 저장됐어요!'; }
-  showToast('☁️ Cloudflare 주소 저장 완료!');
-}
-async function testProxyConnection() {
-  const inputUrl = document.getElementById('proxy-url-input').value.trim();
-  const savedUrl = load('cloudflare-proxy', '');
-  const url = inputUrl || savedUrl;
-  if (!url) { showToast('❗ 먼저 Cloudflare 주소를 입력해주세요'); return; }
-  const status = document.getElementById('proxy-status');
-  status.style.display = 'block';
-  status.style.color = 'var(--muted)';
-  const isUnsaved = inputUrl && inputUrl !== savedUrl;
-  status.textContent = '🔌 연결 테스트 중...' + (isUnsaved ? ' (저장 전 URL)' : '');
-  try {
-    const start = Date.now();
-    const res = await fetch(url + '/sync-get', {
-      signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 8000); return c.signal; })()
-    });
-    const ms = Date.now() - start;
-    if (res.ok) {
-      status.style.color = 'var(--green)';
-      status.textContent = '✅ 연결 성공! 응답속도 ' + ms + 'ms';
-    } else {
-      status.style.color = 'var(--red)';
-      status.textContent = '❌ 서버 응답 오류 (HTTP ' + res.status + ')';
-    }
-  } catch(e) {
-    status.style.color = 'var(--red)';
-    status.textContent = '❌ 연결 실패: ' + (e.name === 'AbortError' ? '타임아웃 (8초 초과)' : e.message);
-  }
-}
-
-function saveApiKey() {
-  const key = document.getElementById('api-key-input').value.trim();
-  if (!key) { showToast('❗ API 키를 입력해주세요'); return; }
-  store('molit-api-key', key);
-  saveAppDataToSupabase('molit-api-key', key);
-  const status = document.getElementById('api-key-status');
-  status.style.display = 'block';
-  status.style.color = 'var(--teal)';
-  status.textContent = '✅ API 키가 저장됐어요! 배우자 기기에도 자동 적용돼요.';
-  showToast('🔑 API 키 저장 완료!');
-}
+// ── 실거래가 API (Edge Function apt-trades 경유, 사용자 키/프록시 입력 없음)
 
 
 // ══ 자산구성 카드 (토스 스타일) ══
@@ -12493,6 +12439,7 @@ function renderDonutCard() {
 
 
 // 공통 국토부 데이터 패치 함수
+// (proxyUrl, apiKey 인자는 하위 호환을 위해 받지만 무시함 — 실제 호출은 Edge Function 경유)
 async function fetchMolitData(proxyUrl, apiKey, lawdCd, aptName, areaMin, areaMax, months) {
   if (!lawdCd) return [];
   areaMin = areaMin || 0;
@@ -12505,23 +12452,29 @@ async function fetchMolitData(proxyUrl, apiKey, lawdCd, aptName, areaMin, areaMa
     const ym = d.getFullYear() + '' + String(d.getMonth()+1).padStart(2,'0');
     let xmlStr = null;
 
-    if (proxyUrl) {
-      try {
-        const res = await fetch(proxyUrl + '/realestate?lawdCd=' + lawdCd + '&dealYmd=' + ym, {
-          signal: (function(){ const c=new AbortController(); setTimeout(()=>c.abort(),10000); return c.signal; })()
-        });
-        const text = await res.text();
-        if (text && text.includes('<item>')) xmlStr = text;
-      } catch(e) {}
-    }
-
-    if (!xmlStr && apiKey) {
-      try {
-        const apiUrl = 'https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev?serviceKey=' + encodeURIComponent(apiKey) + '&LAWD_CD=' + lawdCd + '&DEAL_YMD=' + ym + '&pageNo=1&numOfRows=1000';
-        const res = await fetch(apiUrl, { signal: (function(){ const c=new AbortController(); setTimeout(()=>c.abort(),10000); return c.signal; })() });
-        const text = await res.text();
-        if (text && text.includes('<item>')) xmlStr = text;
-      } catch(e) {}
+    try {
+      const { data, error } = await _supabase.functions.invoke('apt-trades', {
+        body: { lawdCd: lawdCd, dealYmd: ym }
+      });
+      if (error) {
+        // 사용량 초과는 throw해서 상위에서 토스트 처리하도록
+        let serverError = null;
+        try {
+          if (error.context && typeof error.context.json === 'function') {
+            serverError = await error.context.json();
+          }
+        } catch(e) {}
+        const code = serverError && serverError.error && serverError.error.code;
+        if (code === 'monthly_limit_exceeded') {
+          throw new Error('이번 달 실거래가 조회 한도를 모두 사용했어요. 프리미엄으로 업그레이드하면 무제한 사용 가능해요.');
+        }
+        // 그 외 오류는 조용히 skip (다음 달로 진행)
+      } else if (data && data.xml && data.xml.includes('<item>')) {
+        xmlStr = data.xml;
+      }
+    } catch(e) {
+      if (e && e.message && e.message.indexOf('한도') >= 0) throw e;
+      // 네트워크 오류는 skip
     }
 
     if (!xmlStr) continue;
@@ -12960,9 +12913,6 @@ async function searchAptComplex() {
   if (!_selectedLawdCd) { showToast('❗ 먼저 지역을 선택해주세요'); return; }
   if (!aptName) { showToast('❗ 단지명을 입력해주세요'); return; }
 
-  const proxyUrl = load('cloudflare-proxy', '');
-  if (!proxyUrl) { showToast('❗ 설정에서 Cloudflare 주소를 입력해주세요'); return; }
-
   const btn = document.getElementById('apt-search-btn');
   btn.textContent = '⏳';
   btn.disabled = true;
@@ -12981,11 +12931,12 @@ async function searchAptComplex() {
 
   await Promise.all(searchMonths.map(async function(ym) {
     try {
-      const res = await fetch(proxyUrl + '/realestate?lawdCd=' + _selectedLawdCd + '&dealYmd=' + ym, {
-        signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 12000); return c.signal; })()
+      const { data, error } = await _supabase.functions.invoke('apt-trades', {
+        body: { lawdCd: _selectedLawdCd, dealYmd: ym }
       });
-      const text = await res.text();
-      if (!text || !text.includes('<item>')) return;
+      if (error || !data || !data.xml) return;
+      const text = data.xml;
+      if (!text.includes('<item>')) return;
 
       const xml = new DOMParser().parseFromString(text, 'text/xml');
 
@@ -13084,7 +13035,6 @@ async function selectAptComplex(name, lawdCd, sigungu) {
   areaWrap.style.display = 'block';
   areaChips.innerHTML = '<div style="font-size:11px;color:var(--muted)">⏳ 평형 및 실거래가 조회 중...</div>';
 
-  const proxyUrl = load('cloudflare-proxy', '');
   const now = new Date();
 
   // 평형별 거래 내역 수집 { area: [{date, price, floor}] }
@@ -13099,11 +13049,12 @@ async function selectAptComplex(name, lawdCd, sigungu) {
 
   await Promise.all(months.map(async function(ym) {
     try {
-      const res = await fetch(proxyUrl + '/realestate?lawdCd=' + _selectedLawdCd + '&dealYmd=' + ym, {
-        signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 12000); return c.signal; })()
+      const { data, error } = await _supabase.functions.invoke('apt-trades', {
+        body: { lawdCd: _selectedLawdCd, dealYmd: ym }
       });
-      const text = await res.text();
-      if (!text || !text.includes('<item>')) return;
+      if (error || !data || !data.xml) return;
+      const text = data.xml;
+      if (!text.includes('<item>')) return;
 
       const xml = new DOMParser().parseFromString(text, 'text/xml');
       xml.querySelectorAll('item').forEach(function(item) {
