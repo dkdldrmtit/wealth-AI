@@ -1996,6 +1996,16 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div id="couple-asset-summary" data-couple-only="1"></div>
   </div>
 
+  <!-- 소유자 필터 -->
+  <div style="display:flex;align-items:center;gap:0;margin-bottom:10px">
+    <button id="wlf-all" onclick="setWealthChartOwner('all')"
+      style="padding:6px 10px;border:none;border-bottom:1.5px solid var(--text);background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;color:var(--text);line-height:1">전체</button>
+    <button id="wlf-p1" onclick="setWealthChartOwner('partner1')"
+      style="padding:6px 10px;border:none;border-bottom:1.5px solid transparent;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted2);line-height:1">나</button>
+    <button id="wlf-p2" onclick="setWealthChartOwner('partner2')"
+      style="padding:6px 10px;border:none;border-bottom:1.5px solid transparent;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted2);line-height:1">배우자</button>
+  </div>
+
   <!-- 자산 항목 목록 -->
   <div id="wealth-list"></div>
 
@@ -5593,8 +5603,9 @@ function wGetValue(asset, month) {
 // ── 특정 월 합계 (총자산·부채·순자산, 만원 단위)
 function wMonthTotals(month, ownerFilter) {
   let total = 0, debt = 0;
+  // partner1/partner2 필터는 공동 자산을 포함 (사용자 관점에서 공동 = 내 자산)
   const assets = ownerFilter
-    ? wealthAssets.filter(function(a) { return a.owner === ownerFilter; })
+    ? wealthAssets.filter(function(a) { return a.owner === ownerFilter || a.owner === 'common'; })
     : wealthAssets;
   assets.forEach(function(asset) {
     const v = wGetValue(asset, month);
@@ -5769,10 +5780,14 @@ function renderWealthList() {
     return;
   }
 
-  const stockAssets = wealthAssets.filter(function(a) { return a.type === 'stock-acct'; });
-  const aptAssets = wealthAssets.filter(function(a) { return a.type === 'apt'; });
-  const manualAssets = wealthAssets.filter(function(a) { return !a.autoSrc && !a.isDebt; });
-  const debtAssets = wealthAssets.filter(function(a) { return a.isDebt; });
+  const ownerF = wAssetChartOwner !== 'all' ? wAssetChartOwner : null;
+  const visible = ownerF
+    ? wealthAssets.filter(function(a) { return a.owner === ownerF || a.owner === 'common'; })
+    : wealthAssets;
+  const stockAssets = visible.filter(function(a) { return a.type === 'stock-acct'; });
+  const aptAssets = visible.filter(function(a) { return a.type === 'apt'; });
+  const manualAssets = visible.filter(function(a) { return !a.autoSrc && !a.isDebt; });
+  const debtAssets = visible.filter(function(a) { return a.isDebt; });
 
   let html = '';
   if (aptAssets.length) html += wRenderSection('부동산', wSortByValue(aptAssets));
@@ -6445,38 +6460,9 @@ function renderHeroNetWorth() {
 }
 
 function renderCoupleAssetSummary() {
+  // breakdown 텍스트 제거 — 소유자 필터가 역할을 대신함
   const wrap = document.getElementById('couple-asset-summary');
-  if (!wrap) return;
-
-  const p1 = wMonthTotals(wSelectedMonth, 'partner1');
-  const p2 = wMonthTotals(wSelectedMonth, 'partner2');
-  const cm = wMonthTotals(wSelectedMonth, 'common');
-
-  if (p1.total === 0 && p2.total === 0 && cm.total === 0
-    && p1.debt === 0 && p2.debt === 0 && cm.debt === 0) {
-    wrap.innerHTML = ''; return;
-  }
-
-  function fmtNet(v) {
-    const abs = Math.abs(v);
-    const s = abs >= 10000 ? (abs / 10000).toFixed(2) + '억' : Math.round(abs).toLocaleString() + '만';
-    return (v < 0 ? '-' : '') + s;
-  }
-
-  function chip(label, net, color) {
-    const c = net < 0 ? 'var(--red)' : color;
-    return '<span style="font-size:10px;color:var(--muted)">' + label + '</span>'
-      + '<span style="font-size:11px;font-weight:700;color:' + c + ';margin-left:3px">' + fmtNet(net) + '</span>';
-  }
-
-  wrap.innerHTML = '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);'
-    + 'display:flex;align-items:center;gap:10px">'
-    + chip(getP1Name(), p1.net, 'var(--blue)')
-    + '<span style="color:var(--border2);font-size:10px">·</span>'
-    + chip('공동', cm.net, 'var(--muted2)')
-    + '<span style="color:var(--border2);font-size:10px">·</span>'
-    + chip(getP2Name(), p2.net, 'var(--green)')
-    + '</div>';
+  if (wrap) wrap.innerHTML = '';
 }
 
 function quickCopyLastMonth() {
@@ -13895,8 +13881,17 @@ let wAssetChartOwner = 'all'; // 'all' | 'partner1' | 'partner2'
 
 function setWealthChartOwner(owner) {
   wAssetChartOwner = (wAssetChartOwner === owner) ? 'all' : owner;
-  renderCoupleAssetSummary();
+  ['all','p1','p2'].forEach(function(k) {
+    const btn = document.getElementById('wlf-' + k);
+    if (!btn) return;
+    const ownerMap = { all: 'all', p1: 'partner1', p2: 'partner2' };
+    const active = ownerMap[k] === wAssetChartOwner;
+    btn.style.color = active ? 'var(--text)' : 'var(--muted2)';
+    btn.style.fontWeight = active ? '700' : '500';
+    btn.style.borderBottom = active ? '1.5px solid var(--text)' : '1.5px solid transparent';
+  });
   renderWealthHero();
+  renderWealthList();
 }
 
 function setAssetChartPeriod(months) {
