@@ -12566,10 +12566,20 @@ const LEGAL_TEXTS = {
 <h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">6. 이용자 권리</h4>
 <p>이용자는 언제든 개인정보 열람·정정·삭제·처리정지를 요구할 수 있으며, 앱 내 "회원 탈퇴" 메뉴를 통해 즉시 모든 데이터를 영구 삭제할 수 있습니다.</p>
 
-<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">7. 개인정보 보호책임자</h4>
-<p>· 이메일: privacy@ours.app<br>(서비스 운영자에게 직접 문의해 주세요)</p>
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">7. 안전성 확보 조치</h4>
+<p>회사는 「개인정보 보호법」 제29조 및 같은 법 시행령 제30조에 따라 다음의 기술적·관리적 보호조치를 취하고 있습니다.</p>
+<ul style="padding-left:18px;margin:0 0 12px"><li>전송 구간 암호화(HTTPS/TLS) 적용</li><li>저장 데이터 암호화(클라우드 인프라 기본 암호화)</li><li>비밀번호 해시 저장</li><li>접근 권한 관리(Row-Level Security)</li><li>개인정보 처리 시스템에 대한 접근통제 및 접속기록 관리</li></ul>
 
-<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">8. 변경 고지</h4>
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">8. 개인정보 유출 시 대응</h4>
+<p>개인정보가 분실·도난·유출된 사실을 인지한 때에는 「개인정보 보호법」 제34조에 따라 다음 사항을 지체 없이(72시간 이내) 정보주체에게 통지하고, 개인정보보호위원회 또는 한국인터넷진흥원에 신고합니다.</p>
+<ul style="padding-left:18px;margin:0 0 12px"><li>유출된 개인정보의 항목</li><li>유출이 발생한 시점 및 경위</li><li>피해 최소화를 위해 정보주체가 할 수 있는 조치</li><li>회사의 대응조치 및 피해 구제절차</li><li>피해 신고·상담 접수처</li></ul>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">9. 개인정보 보호책임자</h4>
+<p>· 이메일: privacy@ours.app<br>(서비스 운영자에게 직접 문의해 주세요)</p>
+<p style="margin-top:8px">개인정보 침해에 관한 신고·상담은 아래 기관에서도 도움을 받을 수 있습니다.</p>
+<ul style="padding-left:18px;margin:0 0 12px"><li>개인정보분쟁조정위원회 (1833-6972, www.kopico.go.kr)</li><li>개인정보침해신고센터 (118, privacy.kisa.or.kr)</li><li>대검찰청 사이버수사과 (1301, www.spo.go.kr)</li><li>경찰청 사이버수사국 (182, ecrm.cyber.go.kr)</li></ul>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">10. 변경 고지</h4>
 <p>본 방침이 변경되는 경우 시행일 7일 이전(중대한 변경은 30일 이전) 앱 내 공지를 통해 알려드립니다.</p>`
   },
   terms: {
@@ -12577,34 +12587,57 @@ const LEGAL_TEXTS = {
     body: `<p style="color:var(--muted);font-size:11px;margin-bottom:16px">시행일: 2026-04-25</p>
 
 <h4 style="font-size:14px;font-weight:800;margin:0 0 8px;color:var(--text)">제1조 (목적)</h4>
-<p>본 약관은 OURs(이하 "서비스")가 제공하는 부부 자산관리 및 가계부 서비스 이용에 관한 권리·의무를 규정합니다.</p>
+<p>본 약관은 OURs(이하 "서비스")가 제공하는 <b>가계 정보 기록 및 시각화 도구</b> 이용에 관하여, 운영자(이하 "회사")와 이용자 간의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.</p>
 
-<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제2조 (정의)</h4>
-<ul style="padding-left:18px;margin:0 0 12px"><li>"이용자": 본 약관에 동의하고 서비스를 이용하는 자</li><li>"커플 공간": 두 이용자가 데이터를 공유하는 가상의 공간</li><li>"프리미엄": 월간 구독으로 제공되는 부가 기능</li></ul>
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제2조 (용어의 정의)</h4>
+<ul style="padding-left:18px;margin:0 0 12px"><li>"이용자": 본 약관에 동의하고 서비스를 이용하는 자</li><li>"커플 공간": 두 이용자가 상호 동의 하에 입력 데이터를 공유하는 가상의 작업 공간</li><li>"입력 정보": 이용자가 본 서비스에 직접 수기로 입력한 가계·자산·지출 등에 관한 기록</li><li>"프리미엄": 월간 정기결제로 제공되는 부가 기능</li></ul>
 
-<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제3조 (회원가입 및 계정)</h4>
-<p>이용자는 만 14세 이상이어야 하며, 본인의 정확한 정보로 가입해야 합니다. 타인의 정보를 도용하거나 허위로 기재한 경우 서비스 이용이 제한될 수 있습니다.</p>
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제3조 (서비스의 성격 및 비해당 사항)</h4>
+<ol style="padding-left:18px;margin:0 0 12px"><li>본 서비스는 이용자가 직접 입력한 가계 정보를 기록·정리·시각화하는 <b>정보 기록 보조 도구</b>입니다.</li><li>회사는 다음에 해당하지 <b>않으며</b>, 이에 관한 어떠한 업무도 수행하지 않습니다.<br>· 「전자금융거래법」상 전자금융업자 또는 전자지급결제대행업자<br>· 「자본시장과 금융투자업에 관한 법률」상 금융투자업자(투자매매·중개·자문·일임·신탁업)<br>· 「은행법」·「여신전문금융업법」상 금융기관<br>· 「유사수신행위의 규제에 관한 법률」상 자금수탁자</li><li>회사는 이용자의 자산을 보관·운용·이전하지 않으며, 어떠한 금융 거래도 대리·중개하지 않습니다.</li></ol>
 
-<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제4조 (서비스 내용)</h4>
-<ul style="padding-left:18px;margin:0 0 12px"><li>자산·가계부·주식·일정 기록 및 부부 동기화</li><li>AI 기반 챗봇·자동 리포트 (무료 한도 적용)</li><li>아파트 실거래가 자동 조회 (무료 한도 적용)</li><li>유료 구독 시 한도 해제 및 부가 기능</li></ul>
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제4조 (입력 정보의 성격)</h4>
+<ol style="padding-left:18px;margin:0 0 12px"><li>본 서비스에 입력되는 모든 자산·지출·수입·잔액 등의 정보는 이용자가 <b>직접 수기로 입력한 개인 메모·기록</b>이며, 금융기관의 실제 계좌 잔액·공인 재무제표·제3자 검증 자료와 <b>아무런 관련이 없습니다</b>.</li><li>회사는 입력 정보의 진위·정확성·완전성·최신성을 검증하지 않으며, 이에 대해 어떠한 보증도 하지 않습니다.</li><li>이용자가 입력 정보를 근거로 수행하는 모든 의사결정(투자, 부동산 거래, 세무 신고 등)의 결과는 전적으로 이용자 본인에게 귀속됩니다.</li></ol>
 
-<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제5조 (이용자의 의무)</h4>
-<p>이용자는 본인의 계정 정보를 안전하게 관리해야 하며, 서비스를 통해 타인의 권리를 침해하거나 법령을 위반하는 행위를 해서는 안 됩니다.</p>
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제5조 (회원가입 및 계정)</h4>
+<ol style="padding-left:18px;margin:0 0 12px"><li>이용자는 만 14세 이상이어야 하며, 본인의 이메일과 정확한 정보로 가입해야 합니다.</li><li>만 14세 미만의 가입은 「개인정보 보호법」 제22조의2에 따라 허용되지 않으며, 이를 위반하여 가입한 경우 회사는 발견 즉시 계정을 삭제합니다.</li><li>타인의 정보를 도용하거나 허위로 기재하여 가입한 경우 서비스 이용이 제한되며, 발생한 손해에 대한 책임은 이용자에게 있습니다.</li></ol>
 
-<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제6조 (유료 구독 및 결제)</h4>
-<ul style="padding-left:18px;margin:0 0 12px"><li>월 4,900원의 정기결제로 자동 갱신됩니다.</li><li>결제는 토스페이먼츠를 통해 안전하게 처리됩니다.</li><li>해지 시 다음 결제일부터 자동 결제가 중단되며, 현재 결제 기간 종료일까지 프리미엄 기능을 사용할 수 있습니다.</li></ul>
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제6조 (서비스 내용)</h4>
+<ul style="padding-left:18px;margin:0 0 12px"><li>이용자가 입력한 가계·자산·주식·일정 등의 정보 기록 및 부부 간 동기화</li><li>AI(인공지능)를 활용한 일반적 정보 제공 및 자동 리포트 (무료 한도 적용)</li><li>「공공데이터의 제공 및 이용 활성화에 관한 법률」에 따른 국토교통부 아파트 실거래가 자동 조회 (무료 한도 적용)</li><li>유료 구독 시 한도 해제 및 부가 기능</li></ul>
 
-<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제7조 (환불 정책)</h4>
-<ul style="padding-left:18px;margin:0 0 12px"><li>결제 후 7일 이내, 프리미엄 기능을 1회도 사용하지 않은 경우 전액 환불 가능합니다.</li><li>그 외에는 「콘텐츠산업진흥법」 등 관련 법령에 따릅니다.</li></ul>
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제7조 (커플 공간 및 데이터 공유)</h4>
+<ol style="padding-left:18px;margin:0 0 12px"><li>이용자는 자발적으로 초대 코드를 공유함으로써 다른 이용자와 데이터를 공유할 수 있으며, 이는 양 당사자의 명시적 동의에 기반합니다.</li><li>커플 공간 내 입력 정보는 양 당사자가 동등하게 열람·수정할 수 있습니다. 이로 인한 당사자 간 분쟁(이혼, 별거, 재산 분할 등)에 회사는 관여하지 않습니다.</li><li>이용자는 언제든 커플 공간을 해지할 수 있으며, 해지 시 데이터 처리 방법은 「개인정보처리방침」에 따릅니다.</li></ol>
 
-<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제8조 (서비스의 변경·중단)</h4>
-<p>운영상·기술상 사유로 서비스가 일시 중단되거나 내용이 변경될 수 있으며, 중대한 변경 시 사전 공지합니다.</p>
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제8조 (이용자의 의무)</h4>
+<p>이용자는 본인의 계정 정보(이메일·비밀번호)를 안전하게 관리해야 하며, 서비스를 통해 타인의 권리를 침해하거나 법령을 위반하는 행위를 해서는 안 됩니다. 이를 위반하여 발생한 손해에 대한 책임은 이용자에게 있습니다.</p>
 
-<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제9조 (책임 제한)</h4>
-<p>서비스가 제공하는 AI 분석·실거래가 정보는 참고용이며, 이를 토대로 한 투자·재무 결정의 책임은 이용자 본인에게 있습니다. 운영자는 데이터 정확성을 보장하지 않습니다.</p>
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제9조 (유료 구독 및 결제)</h4>
+<ul style="padding-left:18px;margin:0 0 12px"><li>월 4,900원의 정기결제로 자동 갱신됩니다.</li><li>결제는 토스페이먼츠(주)를 통해 처리되며, 회사는 카드정보를 직접 보관하지 않습니다.</li><li>해지 시 다음 결제일부터 자동 결제가 중단되며, 현재 결제 기간 종료일까지 프리미엄 기능을 사용할 수 있습니다.</li></ul>
 
-<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제10조 (분쟁 해결)</h4>
-<p>본 약관에 관한 분쟁은 대한민국 법령을 준거법으로 하며, 서비스 운영자 소재지의 관할법원에서 해결합니다.</p>`
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제10조 (청약철회 및 환불)</h4>
+<ol style="padding-left:18px;margin:0 0 12px"><li>「전자상거래 등에서의 소비자보호에 관한 법률」 제17조에 따라, 결제 후 7일 이내에는 청약철회를 할 수 있습니다.</li><li>다만 같은 법 제17조 제2항 제5호에 따라 <b>프리미엄 기능을 1회 이상 사용한 경우</b> 청약철회가 제한될 수 있습니다.</li><li>그 외 환불 사유는 「콘텐츠산업진흥법」 및 「콘텐츠이용자보호지침」에 따릅니다.</li></ol>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제11조 (서비스의 변경 및 중단)</h4>
+<p>회사는 운영상·기술상 사유로 서비스를 변경하거나 중단할 수 있으며, 이용자에게 중대한 영향을 미치는 변경의 경우 시행일 30일 이전에 앱 내 공지합니다. 천재지변·정전·통신장애 등 회사가 합리적으로 통제할 수 없는 사유로 인한 일시 중단의 경우는 사후 공지로 갈음할 수 있습니다.</p>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제12조 (AI 기능에 관한 면책)</h4>
+<ol style="padding-left:18px;margin:0 0 12px"><li>본 서비스 내 AI 챗봇·자동 리포트가 제공하는 응답은 일반적·교육적 정보 제공을 목적으로 한 것이며, 「자본시장과 금융투자업에 관한 법률」상 <b>투자자문</b>이나 「세무사법」·「변호사법」상 <b>전문 자문</b>에 해당하지 않습니다.</li><li>회사는 AI 응답의 정확성·완전성·최신성을 보증하지 않으며, AI 응답을 신뢰하여 이용자가 행한 의사결정의 결과에 대해 어떠한 책임도 지지 않습니다.</li><li>이용자는 투자·세무·법률·의료 등 전문적 사항에 대해서는 반드시 자격을 갖춘 전문가의 자문을 별도로 구해야 합니다.</li></ol>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제13조 (책임의 제한)</h4>
+<ol style="padding-left:18px;margin:0 0 12px"><li>회사는 「약관의 규제에 관한 법률」 제7조의 범위 내에서 다음에 해당하는 경우 책임을 부담하지 않습니다.<br>· 천재지변, 전쟁, 통신장애, 외부 클라우드 서비스(Supabase, Anthropic 등) 장애 등 불가항력적 사유<br>· 이용자의 귀책사유(부정확한 입력, 계정 정보 관리 부주의 등)로 발생한 손해<br>· 이용자가 입력한 정보의 부정확성으로 인한 결과<br>· 무료로 제공되는 정보·기능의 정확성·신뢰성</li><li>본 조의 어떠한 규정도 회사의 <b>고의 또는 중대한 과실</b>로 인한 손해에 대한 책임을 면제하지 아니합니다.</li><li>회사의 손해배상 책임이 인정되는 경우, 그 배상액은 「콘텐츠이용자보호지침」 등 관련 법령상 한도를 따릅니다.</li></ol>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제14조 (개인정보의 보호 및 보안 사고)</h4>
+<ol style="padding-left:18px;margin:0 0 12px"><li>회사는 「개인정보 보호법」 제29조에 따라 안전성 확보에 필요한 기술적·관리적 조치를 다하며, 그 구체적 내용은 「개인정보처리방침」에 따릅니다.</li><li>회사가 위 안전조치 의무를 다한 경우에는 「개인정보 보호법」 제39조 제1항 단서에 따라 손해배상 책임이 제한될 수 있습니다.</li><li>개인정보 유출 사고 발생 시 회사는 같은 법 제34조에 따라 정보주체에게 지체 없이 통지하고 관계 기관에 신고합니다.</li></ol>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제15조 (데이터 보관 및 백업)</h4>
+<ol style="padding-left:18px;margin:0 0 12px"><li>회사는 클라우드 인프라(Supabase 등)를 통해 이용자 데이터를 보관하나, 외부 서비스 장애 등으로 데이터가 일시적·영구적으로 유실될 가능성을 완전히 배제할 수는 없습니다.</li><li>이용자는 중요 데이터에 대해 앱 내 "데이터 내보내기" 기능을 통해 정기적으로 백업할 것을 권장합니다.</li></ol>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제16조 (약관의 변경)</h4>
+<p>본 약관을 변경하는 경우 회사는 시행일 7일 이전(이용자에게 불리하거나 중대한 변경의 경우 30일 이전)에 앱 내 공지를 통해 알립니다. 이용자가 변경된 약관에 동의하지 않는 경우 서비스 이용을 중단하고 회원 탈퇴할 수 있습니다.</p>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제17조 (준거법 및 분쟁의 해결)</h4>
+<ol style="padding-left:18px;margin:0 0 12px"><li>본 약관 및 서비스 이용에 관한 분쟁은 <b>대한민국 법령</b>을 준거법으로 합니다.</li><li>회사와 이용자 간 발생한 분쟁은 우선 상호 협의로 해결하되, 협의가 이루어지지 않을 경우 「콘텐츠산업진흥법」상 <b>콘텐츠분쟁조정위원회</b> 또는 「소비자기본법」상 <b>소비자분쟁조정위원회</b>의 조정을 신청할 수 있습니다.</li><li>소송으로 진행되는 경우 관할법원은 「민사소송법」의 관할 규정에 따르며, 이용자는 자신의 주소지 또는 거소지를 관할하는 법원에 소를 제기할 수 있습니다.</li></ol>
+
+<p style="color:var(--muted2);font-size:11px;margin-top:20px;padding-top:12px;border-top:1px solid var(--border)">부칙 — 본 약관은 2026년 4월 25일부터 시행합니다.</p>`
   }
 };
 
