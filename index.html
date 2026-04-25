@@ -5911,13 +5911,17 @@ async function wFetchAptHistorical(assetId, month) {
     });
   } catch (e) {}
   if (!results.length) { if (typeof showToast === 'function') showToast('❗ 조건 맞는 거래 없음'); return; }
-  results.sort(function(a, b) { return b.day - a.day; });
-  const price = results[0].price;
-  wSaveObs(assetId, month, price);
+  const filtered = filterLowFloor(results, apt);
+  const sortedPrices = filtered.map(function(r) { return r.price; }).sort(function(a, b) { return a - b; });
+  const mid = Math.floor(sortedPrices.length / 2);
+  const medianPrice = sortedPrices.length % 2 === 0
+    ? Math.round((sortedPrices[mid - 1] + sortedPrices[mid]) / 2)
+    : sortedPrices[mid];
+  wSaveObs(assetId, month, medianPrice);
   wCloseAllSheets();
   renderWealthList();
   renderWealthHero();
-  if (typeof showToast === 'function') showToast('✅ ' + parseInt(m) + '월 ' + results[0].day + '일 거래 ' + (price / 10000).toFixed(2) + '억 저장됨');
+  if (typeof showToast === 'function') showToast('✅ ' + parseInt(m) + '월 중간값 ' + (medianPrice / 10000).toFixed(2) + '억 저장됨 (' + filtered.length + '건)');
 }
 
 // ── 추가 시트 열기
@@ -12957,17 +12961,23 @@ async function fetchSingleApt(aptId) {
   const apiKey = load('molit-api-key', '');
   showToast('🔍 ' + apt.name + ' 조회 중...');
 
-  const results = await fetchMolitData(proxyUrl, apiKey, apt.lawdCd, apt.name, apt.areaMin || 0, apt.areaMax || 999, 6);
-  if (!results.length) { showToast('❌ 거래 데이터를 찾지 못했어요'); return; }
+  const rawResults = await fetchMolitData(proxyUrl, apiKey, apt.lawdCd, apt.name, apt.areaMin || 0, apt.areaMax || 999, 6);
+  if (!rawResults.length) { showToast('❌ 거래 데이터를 찾지 못했어요'); return; }
+  const results = filterLowFloor(rawResults, apt);
+
+  const sortedPrices = results.map(function(r) { return r.price; }).sort(function(a, b) { return a - b; });
+  const mid = Math.floor(sortedPrices.length / 2);
+  const medianPrice = sortedPrices.length % 2 === 0
+    ? Math.round((sortedPrices[mid - 1] + sortedPrices[mid]) / 2)
+    : sortedPrices[mid];
 
   results.sort(function(a,b) { return new Date(b.year,b.month-1,b.day) - new Date(a.year,a.month-1,a.day); });
-  const latest = results[0];
 
   const idx = aptList.findIndex(function(a) { return a.id === aptId; });
   if (idx >= 0) {
     aptList[idx].cache = {
-      price: latest.price,
-      fetchedAt: latest.year + '.' + latest.month + '.' + latest.day + ' 거래',
+      price: medianPrice,
+      fetchedAt: '중간값 (' + results.length + '건)',
       results: results.slice(0, 10).map(function(r) {
         return { date: r.year + '.' + r.month + '.' + r.day, price: r.price, floor: r.floor };
       })
@@ -12977,7 +12987,7 @@ async function fetchSingleApt(aptId) {
   renderAptList();
   renderHomeApt();
   renderInputAptSection();
-  showToast('✅ ' + apt.name + ' ' + (latest.price/10000).toFixed(2) + '억 업데이트!');
+  showToast('✅ ' + apt.name + ' 중간값 ' + (medianPrice/10000).toFixed(2) + '억 업데이트!');
 }
 
 // ── 부동산 전용 페이지 렌더 ──
