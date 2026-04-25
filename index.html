@@ -1996,16 +1996,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div id="couple-asset-summary" data-couple-only="1"></div>
   </div>
 
-  <!-- 소유자 필터 -->
-  <div id="wealth-list-filter" style="display:flex;align-items:center;gap:0;margin-bottom:10px">
-    <button id="wlf-all" onclick="setWealthChartOwner('all')"
-      style="padding:6px 10px;border:none;border-bottom:1.5px solid var(--text);background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;color:var(--text);line-height:1">전체</button>
-    <button id="wlf-p1" onclick="setWealthChartOwner('partner1')"
-      style="padding:6px 10px;border:none;border-bottom:1.5px solid transparent;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted2);line-height:1">나</button>
-    <button id="wlf-p2" onclick="setWealthChartOwner('partner2')"
-      style="padding:6px 10px;border:none;border-bottom:1.5px solid transparent;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted2);line-height:1">배우자</button>
-  </div>
-
   <!-- 자산 항목 목록 -->
   <div id="wealth-list"></div>
 
@@ -5779,12 +5769,10 @@ function renderWealthList() {
     return;
   }
 
-  const ownerF = wAssetChartOwner !== 'all' ? wAssetChartOwner : null;
-  const visible = ownerF ? wealthAssets.filter(function(a) { return a.owner === ownerF; }) : wealthAssets;
-  const stockAssets = visible.filter(function(a) { return a.type === 'stock-acct'; });
-  const aptAssets = visible.filter(function(a) { return a.type === 'apt'; });
-  const manualAssets = visible.filter(function(a) { return !a.autoSrc && !a.isDebt; });
-  const debtAssets = visible.filter(function(a) { return a.isDebt; });
+  const stockAssets = wealthAssets.filter(function(a) { return a.type === 'stock-acct'; });
+  const aptAssets = wealthAssets.filter(function(a) { return a.type === 'apt'; });
+  const manualAssets = wealthAssets.filter(function(a) { return !a.autoSrc && !a.isDebt; });
+  const debtAssets = wealthAssets.filter(function(a) { return a.isDebt; });
 
   let html = '';
   if (aptAssets.length) html += wRenderSection('부동산', wSortByValue(aptAssets));
@@ -6459,45 +6447,37 @@ function renderHeroNetWorth() {
 function renderCoupleAssetSummary() {
   const wrap = document.getElementById('couple-asset-summary');
   if (!wrap) return;
-  const latest = assetHistory[assetHistory.length - 1];
-  if (!latest || !latest.items || !latest.items.length) { wrap.innerHTML = ''; return; }
 
-  let p1 = 0, p2 = 0, cm = 0;
-  latest.items.forEach(function(it) {
-    if (it.type === 'debt') return;
-    const amt = it.amount || 0;
-    if (it.owner === 'partner1') p1 += amt;
-    else if (it.owner === 'partner2') p2 += amt;
-    else cm += amt;
-  });
-  const total = p1 + p2 + cm;
-  if (total === 0) { wrap.innerHTML = ''; return; }
+  const p1 = wMonthTotals(wSelectedMonth, 'partner1');
+  const p2 = wMonthTotals(wSelectedMonth, 'partner2');
+  const cm = wMonthTotals(wSelectedMonth, 'common');
 
-  const p1Name = getP1Name(), p2Name = getP2Name();
-  const pct = function(v) { return Math.round((v / total) * 100); };
-  const sel = wAssetChartOwner;
-
-  function ownerChip(owner, color, name, pctVal) {
-    const active = sel === owner;
-    return '<span onclick="setWealthChartOwner(\'' + owner + '\')" style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:20px;'
-      + 'border:1px solid ' + (active ? color : 'transparent') + ';'
-      + 'background:' + (active ? 'rgba(0,0,0,0.04)' : 'transparent') + ';'
-      + 'font-size:10px;font-weight:' + (active ? '700' : '500') + ';color:' + (active ? 'var(--text)' : 'var(--muted2)') + ';transition:all .15s">'
-      + '<span style="width:7px;height:7px;border-radius:2px;background:' + color + ';display:inline-block;flex-shrink:0"></span>'
-      + name + ' ' + pctVal + '%'
-      + '</span>';
+  if (p1.total === 0 && p2.total === 0 && cm.total === 0
+    && p1.debt === 0 && p2.debt === 0 && cm.debt === 0) {
+    wrap.innerHTML = ''; return;
   }
 
-  wrap.innerHTML = '<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">'
-    + '<div style="display:flex;height:5px;border-radius:3px;overflow:hidden;background:var(--surface3);margin-bottom:10px">'
-    + '<div style="background:var(--blue);width:' + pct(p1) + '%;' + (sel==='partner1'?'opacity:1':'opacity:' + (sel==='all'?'1':'0.3')) + ';transition:opacity .2s"></div>'
-    + '<div style="background:var(--green);width:' + pct(p2) + '%;' + (sel==='partner2'?'opacity:1':'opacity:' + (sel==='all'?'1':'0.3')) + ';transition:opacity .2s"></div>'
-    + '<div style="background:var(--muted2);width:' + pct(cm) + '%;opacity:' + (sel==='all'?'1':'0.3') + ';transition:opacity .2s"></div>'
-    + '</div>'
-    + '<div style="display:flex;gap:4px;flex-wrap:wrap">'
-    + ownerChip('partner1', 'var(--blue)', p1Name, pct(p1))
-    + ownerChip('partner2', 'var(--green)', p2Name, pct(p2))
-    + '</div>'
+  function fmtNet(v) {
+    const abs = Math.abs(v);
+    const s = abs >= 10000 ? (abs / 10000).toFixed(2) + '억' : Math.round(abs).toLocaleString() + '만';
+    return (v < 0 ? '-' : '') + s;
+  }
+
+  function col(label, net, color) {
+    const c = net < 0 ? 'var(--red)' : color;
+    return '<div style="text-align:center;padding:10px 4px">'
+      + '<div style="font-size:9px;font-weight:600;color:var(--muted);letter-spacing:0.3px;margin-bottom:5px">' + label + '</div>'
+      + '<div style="font-size:15px;font-weight:800;color:' + c + '">' + fmtNet(net) + '</div>'
+      + '</div>';
+  }
+
+  wrap.innerHTML = '<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);'
+    + 'display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;align-items:center">'
+    + col(getP1Name(), p1.net, 'var(--blue)')
+    + '<div style="background:var(--border);height:28px"></div>'
+    + col('공동', cm.net, 'var(--muted2)')
+    + '<div style="background:var(--border);height:28px"></div>'
+    + col(getP2Name(), p2.net, 'var(--green)')
     + '</div>';
 }
 
@@ -13917,18 +13897,8 @@ let wAssetChartOwner = 'all'; // 'all' | 'partner1' | 'partner2'
 
 function setWealthChartOwner(owner) {
   wAssetChartOwner = (wAssetChartOwner === owner) ? 'all' : owner;
-  const map = { all: 'all', partner1: 'p1', partner2: 'p2' };
-  ['all', 'p1', 'p2'].forEach(function(k) {
-    const btn = document.getElementById('wlf-' + k);
-    if (!btn) return;
-    const active = map[wAssetChartOwner] === k;
-    btn.style.color = active ? 'var(--text)' : 'var(--muted2)';
-    btn.style.fontWeight = active ? '700' : '500';
-    btn.style.borderBottom = active ? '1.5px solid var(--text)' : '1.5px solid transparent';
-  });
   renderCoupleAssetSummary();
   renderWealthHero();
-  renderWealthList();
 }
 
 function setAssetChartPeriod(months) {
