@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /supabase/
+Disallow: /sw.js
+Disallow: /manifest.json
+
+Sitemap: /sitemap.xml

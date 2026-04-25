@@ -2564,6 +2564,15 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     </div>
 
     <div class="card">
+      <div class="card-title" style="color:var(--muted)">도움말</div>
+      <button onclick="openHelpModal()"
+        style="width:100%;text-align:left;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+        <span>자주 묻는 질문 (FAQ)</span>
+        <span style="color:var(--muted);font-size:14px">›</span>
+      </button>
+    </div>
+
+    <div class="card">
       <div class="card-title" style="color:var(--muted)">약관 및 정책</div>
       <div style="display:flex;flex-direction:column;gap:8px">
         <button onclick="openLegalModal('terms')"
@@ -4165,6 +4174,26 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer" aria-label="닫기">✕</button>
       </div>
       <div id="bulk-cat-list" style="max-height:60vh;overflow-y:auto"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- FAQ / 도움말 모달 -->
+<div id="help-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:9000;overflow-y:auto" onclick="if(event.target===this)closeHelpModal()">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;overflow:hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 20px 16px;border-bottom:1px solid var(--border)">
+        <div style="font-size:18px;font-weight:800;color:var(--text)">도움말 · FAQ</div>
+        <button onclick="closeHelpModal()" aria-label="닫기" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer">✕</button>
+      </div>
+      <div style="padding:20px;max-height:70vh;overflow-y:auto">
+        <div id="help-modal-body"></div>
+        <div style="margin-top:24px;padding:14px;background:var(--surface2);border-radius:12px;text-align:center">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:6px">추가 문의가 있으신가요?</div>
+          <a href="mailto:contact@ours.app" style="color:var(--blue);font-size:13px;font-weight:700;text-decoration:none">contact@ours.app</a>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -12445,6 +12474,43 @@ async function handleBillingCallback() {
   try {
     history.replaceState({}, '', window.location.pathname);
   } catch (e) {}
+}
+
+// ── 도움말 / FAQ 모달 ──
+const HELP_FAQS = [
+  { q: '커플 연결은 어떻게 하나요?', a: '한 명이 설정 → 계정 → "커플 공간 만들기"로 초대 코드를 받고, 배우자가 "초대 코드로 참여"에 입력하면 데이터가 자동 동기화됩니다.' },
+  { q: '혼자서도 사용할 수 있나요?', a: '네. 가입 후 "혼자 사용하기"를 선택하면 배우자 없이도 모든 기능을 사용할 수 있어요. 나중에 언제든 커플 연결 가능합니다.' },
+  { q: 'AI가 갑자기 답을 안 해요', a: '무료 플랜은 월 50회 한도예요. 한도 초과 시 요금제 모달이 자동으로 떠요. 다음 달 1일에 자동 리셋됩니다.' },
+  { q: '실거래가 조회가 안 돼요', a: '무료 플랜은 월 30회 한도(같은 지역+달은 24시간 캐시되어 카운트되지 않음)예요. 또한 거래가 없는 달은 결과가 비어있을 수 있어요.' },
+  { q: '주식 시세는 자동으로 업데이트되나요?', a: '주식 탭의 새로고침 버튼을 누르면 최신 시세를 가져옵니다. 외화 종목은 자동으로 환율 적용됩니다.' },
+  { q: '비밀번호를 잊어버렸어요', a: '로그인 화면 → "비밀번호를 잊으셨나요?" 클릭 → 가입 이메일 입력 시 재설정 링크가 발송됩니다.' },
+  { q: '데이터를 백업할 수 있나요?', a: '설정 → 백업 탭에서 JSON, 가계부 Excel, 자산 Excel 형식으로 언제든 내려받을 수 있어요.' },
+  { q: '구독을 해지하고 싶어요', a: '설정 → 계정 → 구독 플랜 → "구독 관리" → "구독 해지"를 누르세요. 현재 결제 기간 종료일까지는 프리미엄 기능이 유지됩니다.' },
+  { q: '환불 받고 싶어요', a: '결제 후 7일 이내 + 프리미엄 기능 미사용 시 전액 환불 가능합니다. contact@ours.app으로 문의해 주세요.' },
+  { q: '회원 탈퇴하면 데이터는?', a: '내 계정과 모든 개인 데이터가 영구 삭제됩니다. 단, 배우자가 함께 쓰던 공유 데이터는 배우자가 사용 중이면 보존됩니다.' },
+];
+
+function openHelpModal() {
+  const body = document.getElementById('help-modal-body');
+  if (!body) return;
+  body.innerHTML = HELP_FAQS.map(function(f, i) {
+    return '<details style="border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;background:var(--surface2)">'
+      + '<summary style="font-size:13px;font-weight:700;color:var(--text);cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center">'
+      + '<span style="flex:1">' + f.q + '</span>'
+      + '<span style="color:var(--muted);font-size:14px;margin-left:8px">+</span>'
+      + '</summary>'
+      + '<div style="padding-top:10px;font-size:12px;color:var(--muted);line-height:1.8">' + f.a + '</div>'
+      + '</details>';
+  }).join('');
+  const modal = document.getElementById('help-modal');
+  if (modal) modal.style.display = 'block';
+  if (typeof lockScroll === 'function') lockScroll();
+}
+
+function closeHelpModal() {
+  const m = document.getElementById('help-modal');
+  if (m) m.style.display = 'none';
+  if (typeof unlockScroll === 'function') unlockScroll();
 }
 
 // ── 약관 모달 ──
