@@ -1418,7 +1418,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <div style="font-size:18px;color:var(--gold)">›</div>
-        <button onclick="event.stopPropagation();dismissAssetReminder()" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:2px 4px;line-height:1">✕</button>
+        <button onclick="event.stopPropagation();dismissAssetReminder()" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:2px 4px;line-height:1" aria-label="닫기">✕</button>
       </div>
     </div>
   </div>
@@ -1849,7 +1849,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:24px;width:calc(100% - 32px);max-width:480px;margin:0 auto;max-height:90vh;overflow-y:auto">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
         <div id="sch-modal-title" style="font-size:16px;font-weight:800;color:var(--text)">일정 추가</div>
-        <button onclick="closeScheduleEdit()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer">✕</button>
+        <button onclick="closeScheduleEdit()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer" aria-label="닫기">✕</button>
       </div>
 
       <!-- 일정 이름 -->
@@ -2136,7 +2136,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
             <div id="detail-month-label" style="font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0.5px;margin-bottom:4px">2026년 3월</div>
             <div id="detail-net" style="font-size:28px;font-weight:900;color:var(--teal)">—<span style="font-size:13px;color:var(--muted);font-weight:400">억 순자산</span></div>
           </div>
-          <button onclick="closeAssetDetail()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer;flex-shrink:0">✕</button>
+          <button onclick="closeAssetDetail()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer;flex-shrink:0" aria-label="닫기">✕</button>
         </div>
         <!-- 총자산/부채/순자산 -->
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
@@ -2185,7 +2185,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           <div style="font-size:10px;color:var(--muted);font-weight:500;letter-spacing:1px;margin-bottom:3px">MONTHLY RECORD</div>
           <div id="modal-title" style="font-size:20px;color:var(--text);font-weight:700">새 기록 추가</div>
         </div>
-        <button onclick="closeModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer;flex-shrink:0;">✕</button>
+        <button onclick="closeModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer;flex-shrink:0;" aria-label="닫기">✕</button>
       </div>
 
       <!-- 월 선택 -->
@@ -2682,7 +2682,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           oninput="onLedgerSearchInput(this.value)"
           onfocus="onLedgerSearchInput(this.value)"
           style="flex:1;background:none;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:12px 0;outline:none">
-        <button id="ledger-search-clear" onclick="clearLedgerSearch()" style="display:none;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0">✕</button>
+        <button id="ledger-search-clear" onclick="clearLedgerSearch()" style="display:none;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0" aria-label="닫기">✕</button>
         <div style="width:1px;height:16px;background:var(--border)"></div>
         <button onclick="toggleLedgerFilter()" id="filter-toggle-btn"
           style="background:none;border:none;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px;white-space:nowrap">
@@ -2923,7 +2923,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <!-- 헤더 -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
         <div id="ledger-modal-title" style="font-family:'Playfair Display',serif;font-size:20px;color:var(--text);font-weight:700">거래 추가</div>
-        <button onclick="closeLedgerAdd()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer">✕</button>
+        <button onclick="closeLedgerAdd()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer" aria-label="닫기">✕</button>
       </div>
 
       <!-- 금액 표시 (탭 → 계산기 서브시트) -->
@@ -3027,7 +3027,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--text);font-weight:700">음성 입력</div>
-        <button onclick="closeVoiceParser()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer">✕</button>
+        <button onclick="closeVoiceParser()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer" aria-label="닫기">✕</button>
       </div>
       <p style="font-size:12px;color:var(--muted2);margin-bottom:16px;line-height:1.7">"스타벅스 아메리카노 6500원 썼어" 처럼 자연스럽게 말하면 AI가 알아서 등록해줘요.</p>
 
@@ -3088,7 +3088,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--text);font-weight:700">미등록 거래</div>
-        <button onclick="closePendingModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer">✕</button>
+        <button onclick="closePendingModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer" aria-label="닫기">✕</button>
       </div>
       <p style="font-size:12px;color:var(--muted2);margin-bottom:16px;line-height:1.7">문자로 자동 파싱된 거래예요. 확인 후 등록하세요.</p>
       <div id="pending-list"></div>
@@ -3112,7 +3112,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
         <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--text);font-weight:300;letter-spacing:0.5px">카드 내역 가져오기</div>
-        <button onclick="closeExcelImport()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer">✕</button>
+        <button onclick="closeExcelImport()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer" aria-label="닫기">✕</button>
       </div>
 
       <!-- 카드사 선택 -->
@@ -3176,7 +3176,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--text);font-weight:300;letter-spacing:0.5px">알림 캡처 파싱</div>
-        <button onclick="closeSmsParser()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer">✕</button>
+        <button onclick="closeSmsParser()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer" aria-label="닫기">✕</button>
       </div>
       <p style="font-size:12px;color:var(--muted2);margin-bottom:14px;line-height:1.7">카카오페이·토스 결제 알림 캡처를 올리면 AI가 자동으로 읽어서 가계부에 추가해줘요. 여러 장도 OK!</p>
 
@@ -3414,7 +3414,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
         <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--text);font-weight:300">예산 설정</div>
-        <button onclick="closeBudgetEdit()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer">✕</button>
+        <button onclick="closeBudgetEdit()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer" aria-label="닫기">✕</button>
       </div>
       <p style="font-size:12px;color:var(--muted2);margin-bottom:16px">카테고리별 월 예산을 설정하세요. 초과시 빨간색으로 표시돼요.</p>
       <div id="budget-inputs"></div>
@@ -3690,7 +3690,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
             style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:12px;padding:7px 10px;outline:none"
             onkeydown="if(event.key==='Enter')confirmAddAccType()">
           <button onclick="confirmAddAccType()" style="padding:7px 12px;border-radius:8px;border:none;background:var(--blue);color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">추가</button>
-          <button onclick="cancelAddAccType()" style="padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-size:12px;cursor:pointer">✕</button>
+          <button onclick="cancelAddAccType()" style="padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-size:12px;cursor:pointer" aria-label="닫기">✕</button>
         </div>
       </div>
 
@@ -3706,7 +3706,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
             onkeydown="if(event.key==='Enter')confirmAddBroker()"
             style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:12px;padding:7px 10px;outline:none">
           <button onclick="confirmAddBroker()" style="padding:7px 12px;border-radius:8px;border:none;background:var(--blue);color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer">추가</button>
-          <button onclick="cancelAddBroker()" style="padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-size:12px;cursor:pointer">✕</button>
+          <button onclick="cancelAddBroker()" style="padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-size:12px;cursor:pointer" aria-label="닫기">✕</button>
         </div>
       </div>
 
@@ -3729,7 +3729,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           <div id="trade-modal-title" style="font-family:'Playfair Display',serif;font-size:20px;color:var(--text);font-weight:300">거래 입력</div>
           <div id="trade-modal-acct" style="display:none;margin-top:5px;gap:5px;align-items:center;flex-wrap:wrap"></div>
         </div>
-        <button onclick="closeTradeModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer;flex-shrink:0">✕</button>
+        <button onclick="closeTradeModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer;flex-shrink:0" aria-label="닫기">✕</button>
       </div>
 
       <!-- 매수/매도 -->
@@ -3790,7 +3790,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:22px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
         <div id="cat-modal-title" style="font-size:18px;font-weight:700;color:var(--text)">카테고리 추가</div>
-        <button onclick="closeCatModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer">✕</button>
+        <button onclick="closeCatModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:38px;height:38px;cursor:pointer" aria-label="닫기">✕</button>
       </div>
 
       <!-- 이름 -->
@@ -3923,7 +3923,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
         <div id="apt-modal-title" style="font-size:16px;font-weight:700;color:var(--text)">아파트 추가</div>
-        <button onclick="closeAptModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer">✕</button>
+        <button onclick="closeAptModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer" aria-label="닫기">✕</button>
       </div>
 
       <!-- 소유자 -->
@@ -4119,7 +4119,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 20px 16px;border-bottom:1px solid var(--border)">
         <div style="font-size:16px;font-weight:700;color:var(--text)">소유자 변경</div>
         <button onclick="document.getElementById('bulk-owner-modal').style.display='none'"
-          style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer">✕</button>
+          style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer" aria-label="닫기">✕</button>
       </div>
       <div style="padding:16px 20px">
         <div style="font-size:12px;color:var(--muted);margin-bottom:14px">선택한 거래의 소유자를 변경해요</div>
@@ -4136,7 +4136,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 20px 16px;border-bottom:1px solid var(--border)">
         <div style="font-size:16px;font-weight:700;color:var(--text)">날짜 변경</div>
         <button onclick="document.getElementById('bulk-date-modal').style.display='none'"
-          style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer">✕</button>
+          style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer" aria-label="닫기">✕</button>
       </div>
       <div style="padding:20px">
         <div style="font-size:12px;color:var(--muted);margin-bottom:16px">선택한 <span id="bulk-date-count" style="color:var(--text);font-weight:700">0</span>개 거래를 아래 날짜로 일괄 변경해요</div>
@@ -4162,7 +4162,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 20px 16px;border-bottom:1px solid var(--border)">
         <div style="font-size:16px;font-weight:700;color:var(--text)">카테고리 변경</div>
         <button onclick="document.getElementById('bulk-cat-modal').style.display='none'"
-          style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer">✕</button>
+          style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer" aria-label="닫기">✕</button>
       </div>
       <div id="bulk-cat-list" style="max-height:60vh;overflow-y:auto"></div>
     </div>
@@ -4176,7 +4176,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;overflow:hidden">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 20px 16px;border-bottom:1px solid var(--border)">
         <div id="legal-modal-title" style="font-size:18px;font-weight:800;color:var(--text)">약관</div>
-        <button onclick="closeLegalModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer">✕</button>
+        <button onclick="closeLegalModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer" aria-label="닫기">✕</button>
       </div>
       <div id="legal-modal-body" style="padding:20px;font-size:13px;color:var(--text);line-height:1.8;max-height:70vh;overflow-y:auto"></div>
     </div>
@@ -4193,7 +4193,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           <div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase">Manage Subscription</div>
           <div style="font-size:20px;font-weight:800;color:var(--text);margin-top:2px">구독 관리</div>
         </div>
-        <button onclick="closeSubscriptionManage()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer">✕</button>
+        <button onclick="closeSubscriptionManage()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer" aria-label="닫기">✕</button>
       </div>
       <div style="padding:20px">
         <div id="manage-sub-status" style="padding:14px;background:var(--surface2);border-radius:14px;margin-bottom:16px">
@@ -4230,7 +4230,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           <div style="font-size:20px;font-weight:800;color:var(--text);margin-top:2px">요금제</div>
         </div>
         <button onclick="closePricingModal()"
-          style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer">✕</button>
+          style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer" aria-label="닫기">✕</button>
       </div>
 
       <div style="padding:20px">
@@ -4289,7 +4289,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 </div><!-- /app -->
 
 
-<nav class="nav">
+<nav class="nav" role="navigation" aria-label="메인 네비게이션">
   <div style="display:flex;width:100%;max-width:680px">
     <div class="nav-item active" onclick="goPage('home',this)">
       <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -5396,7 +5396,7 @@ function showSyncError(msg) {
     + '<div style="font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (msg || '네트워크 오류') + '</div>'
     + '</div>'
     + '<button onclick="document.getElementById(\'sync-error-banner\').remove();syncLoad()" style="flex-shrink:0;padding:6px 12px;border-radius:8px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:var(--red);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:700;cursor:pointer">재시도</button>'
-    + '<button onclick="document.getElementById(\'sync-error-banner\').remove()" style="flex-shrink:0;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0 2px">✕</button>';
+    + '<button onclick="document.getElementById(\'sync-error-banner\').remove()" style="flex-shrink:0;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0 2px" aria-label="닫기">✕</button>';
 
   document.body.appendChild(banner);
 
@@ -10196,7 +10196,7 @@ function openAssetDetail(month) {
         <div style="padding:24px 20px 20px">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
             <div style="font-size:13px;font-weight:500;color:var(--muted)">${y}년 ${parseInt(m)}월</div>
-            <button onclick="closeAssetDetail()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0;line-height:1">✕</button>
+            <button onclick="closeAssetDetail()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0;line-height:1" aria-label="닫기">✕</button>
           </div>
 
           <!-- 순자산 크게 -->
@@ -19576,7 +19576,7 @@ function renderSmsPreview() {
     const div = document.createElement('div');
     div.style.cssText = 'position:relative;width:80px;height:80px;border-radius:10px;overflow:hidden;border:1px solid var(--border2);flex-shrink:0;background:var(--surface2)';
     div.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted)">로딩중</div>'
-      + '<button onclick="removeSmsImage(' + i + ')" style="position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.7);border:none;color:#fff;font-size:11px;cursor:pointer;line-height:1;z-index:1">✕</button>';
+      + '<button onclick="removeSmsImage(' + i + ')" style="position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.7);border:none;color:#fff;font-size:11px;cursor:pointer;line-height:1;z-index:1" aria-label="닫기">✕</button>';
     wrap.appendChild(div);
     // FileReader로 미리보기 (모바일 Safari 호환)
     const reader = new FileReader();
