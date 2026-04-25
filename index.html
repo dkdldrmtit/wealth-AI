@@ -1989,7 +1989,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div id="asset-chart-change-badge" style="font-size:12px;font-weight:700"></div>
     </div>
     <div id="wealth-hero-summary" style="margin-bottom:10px"></div>
-    <div id="asset-tab-chart-wrap" style="position:relative;height:70px;width:100%;overflow-x:auto;overflow-y:hidden">
+    <div id="asset-tab-chart-wrap" style="position:relative;height:70px;width:100%;overflow:hidden">
       <svg id="asset-tab-chart" height="70" style="display:block"></svg>
       <div id="asset-tab-chart-empty" style="display:none;text-align:center;padding:16px 0;font-size:12px;color:var(--muted)">기록이 2개 이상 있어야 추이가 그려져요</div>
     </div>
@@ -13913,45 +13913,50 @@ function renderAssetTabChart() {
   const badge = document.getElementById('asset-chart-change-badge');
   if (!wrap) return;
 
-  if (assetHistory.length < 2) {
+  // 현재월 이후 미래 데이터 제외
+  const curMonth = wCurrentMonth();
+  const histPast = assetHistory.filter(function(r) { return r.month <= curMonth; });
+
+  if (histPast.length < 2) {
     if (empty) empty.style.display = 'block';
     return;
   }
   if (empty) empty.style.display = 'none';
 
-  const histSlice = assetHistory.slice(-assetChartPeriod);
+  const histSlice = histPast.slice(-assetChartPeriod);
   const data = histSlice.map(function(r) {
     if (wAssetChartOwner === 'all') return { month: r.month, net: r.net };
-    const ownItems = (r.items || []).filter(function(it) { return it.owner === wAssetChartOwner; });
+    const ownItems = (r.items || []).filter(function(it) { return it.owner === wAssetChartOwner || it.owner === 'common'; });
     const assetSum = ownItems.filter(function(it) { return it.type !== 'debt'; }).reduce(function(s, it) { return s + (it.amount || 0); }, 0);
     const debtSum = ownItems.filter(function(it) { return it.type === 'debt'; }).reduce(function(s, it) { return s + (it.amount || 0); }, 0);
     return { month: r.month, net: assetSum - debtSum };
   });
   const nets = data.map(function(r) { return r.net; });
-  const min = Math.min(...nets);
-  const max = Math.max(...nets);
+  const min = Math.min.apply(null, nets);
+  const max = Math.max.apply(null, nets);
   const range = max - min || 1;
 
-  const wrapW = wrap.getBoundingClientRect().width || wrap.offsetWidth || 300;
-  const chartW = wrapW;
-  const H = 80;
-  const pad = { t:18, b:18, l:10, r:10 };
-  const innerW = chartW - pad.l - pad.r;
+  // viewBox 기준 좌표계 — SVG는 width:100% 로 화면에 맞게 늘어남
+  const VW = 300, H = 70;
+  const pad = { t: 18, b: 18, l: 10, r: 10 };
+  const innerW = VW - pad.l - pad.r;
   const innerH = H - pad.t - pad.b;
 
   const pts = data.map(function(r, i) {
-    const x = pad.l + (i / (data.length - 1)) * innerW;
+    const x = pad.l + (data.length === 1 ? innerW / 2 : (i / (data.length - 1)) * innerW);
     const y = pad.t + innerH - ((r.net - min) / range) * innerH;
-    return { x, y, r };
+    return { x: x, y: y, r: r };
   });
 
   let svg = document.getElementById('asset-tab-chart');
   if (!svg) return;
-  svg.setAttribute('width', chartW);
+  svg.setAttribute('viewBox', '0 0 ' + VW + ' ' + H);
+  svg.setAttribute('width', '100%');
   svg.setAttribute('height', H);
+  svg.style.display = 'block';
 
-  const pathD = pts.map(function(p, i) { return (i===0?'M':'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1); }).join(' ');
-  const areaD = pathD + ' L' + pts[pts.length-1].x + ',' + (H-pad.b) + ' L' + pts[0].x + ',' + (H-pad.b) + ' Z';
+  const pathD = pts.map(function(p, i) { return (i === 0 ? 'M' : 'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1); }).join(' ');
+  const areaD = pathD + ' L' + pts[pts.length - 1].x + ',' + (H - pad.b) + ' L' + pts[0].x + ',' + (H - pad.b) + ' Z';
 
   let svgHtml = '<defs><linearGradient id="acg" x1="0" y1="0" x2="0" y2="1">'
     + '<stop offset="0%" stop-color="#cccccc" stop-opacity="0.25"/>'
@@ -13964,26 +13969,25 @@ function renderAssetTabChart() {
   pts.forEach(function(p, i) {
     const isLast = i === pts.length - 1;
     const isFirst = i === 0;
-    const [yr, mo] = p.r.month.split('-');
-    const showLabel = isLast || isFirst || data.length <= 6;
-    if (showLabel) {
+    const mo = p.r.month.split('-')[1];
+    const showVal = isLast || isFirst || data.length <= 6;
+    if (showVal) {
       const above = p.y > pad.t + 15;
       const labelY = above ? p.y - 7 : p.y + 14;
-      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + labelY + '" text-anchor="middle" fill="' + (isLast?'var(--text)':'var(--muted2)') + '" font-size="9" font-weight="700" font-family="Noto Sans KR">' + (p.r.net/10000).toFixed(1) + '억</text>';
+      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + labelY + '" text-anchor="middle" fill="' + (isLast ? 'var(--text)' : 'var(--muted2)') + '" font-size="9" font-weight="700" font-family="Noto Sans KR">' + (p.r.net / 10000).toFixed(1) + '억</text>';
     }
-    if (showLabel || data.length <= 12) {
-      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + (H-4) + '" text-anchor="middle" fill="var(--muted)" font-size="8" font-family="Noto Sans KR">' + parseInt(mo) + '월</text>';
+    if (showVal || data.length <= 12) {
+      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + (H - 4) + '" text-anchor="middle" fill="var(--muted)" font-size="8" font-family="Noto Sans KR">' + parseInt(mo) + '월</text>';
     }
   });
 
   svg.innerHTML = svgHtml;
 
-  // 전월 대비 배지
   if (badge) {
-    const diff = nets[nets.length-1] - nets[nets.length-2];
+    const diff = nets[nets.length - 1] - nets[nets.length - 2];
     badge.innerHTML = diff >= 0
-      ? '<span style="background:rgba(74,222,128,.12);color:var(--green);padding:3px 8px;border-radius:20px">▲ +' + (diff/10000).toFixed(2) + '억</span>'
-      : '<span style="background:rgba(239,68,68,.12);color:var(--red);padding:3px 8px;border-radius:20px">▼ ' + (diff/10000).toFixed(2) + '억</span>';
+      ? '<span style="background:rgba(74,222,128,.12);color:var(--green);padding:3px 8px;border-radius:20px">▲ +' + (diff / 10000).toFixed(2) + '억</span>'
+      : '<span style="background:rgba(239,68,68,.12);color:var(--red);padding:3px 8px;border-radius:20px">▼ ' + (diff / 10000).toFixed(2) + '억</span>';
   }
 }
 
