@@ -6196,7 +6196,8 @@ function renderWealthList() {
     wrap.innerHTML = '<div class="empty-state"><div class="es-icon">📊</div>'
       + '<div class="es-title">아직 자산 항목이 없어요</div>'
       + '<div class="es-sub">아래 + 버튼을 눌러 자산을 추가하거나<br>주식·부동산 탭에서 먼저 항목을 추가해보세요</div></div>'
-      + '<div style="opacity:.42;pointer-events:none;margin-top:4px">'
+      + '<div style="font-size:11px;color:var(--muted2);margin:8px 0 4px;letter-spacing:.3px;padding:0 4px">예시 — 이렇게 보여요</div>'
+      + '<div style="opacity:.55;pointer-events:none;margin-top:4px">'
       + '<div style="margin-bottom:14px"><div class="wealth-section-title">금융자산</div>'
       + '<div class="wealth-asset-row"><div class="wealth-owner-dot" style="background:var(--blue)"></div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:var(--text)">주거래 통장</div><div style="font-size:11px;color:var(--muted);margin-top:2px">나 · 예금</div></div><div style="text-align:right"><span style="font-size:15px;font-weight:700;color:var(--text)">3,000만원</span></div></div>'
       + '<div class="wealth-asset-row"><div class="wealth-owner-dot" style="background:var(--green)"></div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:var(--text)">청약통장</div><div style="font-size:11px;color:var(--muted);margin-top:2px">배우자 · 예금</div></div><div style="text-align:right"><span style="font-size:15px;font-weight:700;color:var(--text)">1,500만원</span></div></div>'
@@ -8674,8 +8675,15 @@ function applyStagger() {
 function applyGhostSummaryValues() {
   const card = document.getElementById('home-card-summary');
   if (!card) return;
-  card.style.opacity = '.42';
+  card.style.opacity = '.55';
   card.style.pointerEvents = 'none';
+  if (!document.getElementById('ghost-summary-label')) {
+    const label = document.createElement('div');
+    label.id = 'ghost-summary-label';
+    label.style.cssText = 'font-size:11px;color:var(--muted2);margin-bottom:6px;letter-spacing:.3px;padding:0 4px';
+    label.textContent = '예시 — 데이터를 채우면 이렇게 보여요';
+    card.insertBefore(label, card.firstChild);
+  }
   const set = function(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; };
   set('h-net-large', '5.42');
   set('h-total', '6.92');
@@ -8715,6 +8723,8 @@ function initHome() {
       // homeCardSettings에 의해 명시적으로 숨겨지지 않았다면 표시
       summaryCard.style.opacity = '';
       summaryCard.style.pointerEvents = '';
+      const ghostLabel = document.getElementById('ghost-summary-label');
+      if (ghostLabel) ghostLabel.remove();
       const setting = homeCardSettings.find(function(s) { return s.id === 'summary'; });
       summaryCard.style.display = (setting && setting.visible) ? '' : 'none';
     }
@@ -9279,7 +9289,8 @@ function renderPartnerActivity() {
   if (statusEl) statusEl.textContent = '';
 
   if (recent.length === 0) {
-    wrap.innerHTML = '<div style="opacity:.42;pointer-events:none">'
+    wrap.innerHTML = '<div style="font-size:11px;color:var(--muted2);margin-bottom:4px;letter-spacing:.3px">예시 — 이렇게 보여요</div>'
+      + '<div style="opacity:.55;pointer-events:none">'
       + '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">'
       + '<div style="width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0"></div>'
       + '<div style="flex:1;min-width:0"><div style="font-size:13px;color:var(--text);font-weight:600">마트 장보기</div><div style="font-size:11px;color:var(--muted);margin-top:2px"><span style="color:var(--blue);font-weight:700">나</span> · 식비 · 오늘</div></div>'
@@ -9367,7 +9378,8 @@ function renderHomeLedgerSummary() {
   if (titleEl) titleEl.textContent = monthNum + '월 가계부';
 
   if (!txs.length) {
-    wrap.innerHTML = '<div style="opacity:.42;pointer-events:none">'
+    wrap.innerHTML = '<div style="font-size:11px;color:var(--muted2);margin-bottom:6px;letter-spacing:.3px">예시 — 이렇게 보여요</div>'
+      + '<div style="opacity:.55;pointer-events:none">'
       + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">'
       + '<div style="text-align:center;background:rgba(90,159,196,.06);border:1px solid rgba(90,159,196,.15);border-radius:10px;padding:8px"><div style="font-size:9px;color:var(--blue);margin-bottom:3px;font-weight:600">+ 수입</div><div style="font-size:14px;font-weight:800;color:var(--blue)">+320만</div></div>'
       + '<div style="text-align:center;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);border-radius:10px;padding:8px"><div style="font-size:9px;color:var(--red);margin-bottom:3px;font-weight:600">- 지출</div><div style="font-size:14px;font-weight:800;color:var(--red)">-187만</div></div>'
@@ -9768,7 +9780,8 @@ function renderHomeStocksSummary() {
     if (pctEl) { pctEl.textContent = '주식 탭에서 종목을 추가해보세요'; pctEl.style.color = ''; }
     if (listEl) {
       listEl.style.display = 'flex';
-      listEl.innerHTML = '<div style="opacity:.42;pointer-events:none;display:flex;flex-direction:column;gap:6px;width:100%">'
+      listEl.innerHTML = '<div style="font-size:11px;color:var(--muted2);margin-bottom:4px;letter-spacing:.3px">예시 — 이렇게 보여요</div>'
+        + '<div style="opacity:.55;pointer-events:none;display:flex;flex-direction:column;gap:6px;width:100%">'
         + '<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface2);border-radius:12px;border-left:3px solid var(--red)">'
         + '<div style="width:20px;height:20px;border-radius:50%;background:var(--surface3);color:var(--muted2);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>'
         + '<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700">삼성전자</div><div style="font-size:10px;color:var(--muted);margin-top:2px">50주</div></div>'
@@ -11145,7 +11158,8 @@ const HOME_CARD_DEFAULTS = [
 
 // ── 홈 카드 설정 버전 마이그레이션 ──
 // v4: 중복 카드 제거 (chart/apt/stocks-summary/couple) — 각 탭에 큰 버전이 있음
-const HOME_CARD_SETTINGS_VERSION = 4;
+// v5: stocks-summary, ledger 기본 표시 — 신규 사용자에게 ghost 데이터 보이도록
+const HOME_CARD_SETTINGS_VERSION = 5;
 
 const _saved = load('home-card-settings', null);
 const _savedVersion = load('home-card-settings-version', 0);
