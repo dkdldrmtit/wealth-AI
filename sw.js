@@ -1,5 +1,5 @@
-// ── M&S Wealth AI Service Worker ──
-const CACHE_NAME = 'ms-wealth-v4';
+// ── OURs Service Worker ──
+const CACHE_NAME = 'ours-v5';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

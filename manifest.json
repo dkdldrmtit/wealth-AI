@@ -1,7 +1,7 @@
 {
-  "name": "M&S Wealth AI",
-  "short_name": "WealthAI",
-  "description": "민석·시윤 자산관리 앱",
+  "name": "OURs",
+  "short_name": "OURs",
+  "description": "부부를 위한 자산관리·가계부 앱",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1a1f2e",
