@@ -5,12 +5,14 @@
  *
  * 배포 방법:
  *   1. supabase CLI 설치: npm install -g supabase
- *   2. 프로젝트 링크: supabase link --project-ref pjxdfhozjuteckbtavmw
- *   3. 환경변수 설정:
- *        supabase secrets set VAPID_PUBLIC_KEY=BBI1p4ve4Wu3ak0S2cRcSqxBxnkr9nc3Z8N9vP9TcaJGiWGbbr7JWDY2visCcLgT6M-xH3qbGGjgisfQrLT1xeg
- *        supabase secrets set VAPID_PRIVATE_KEY=TbTZdlZUJYtPFhLw3l_kBPjLyXOc9qEllFiDOwmIzxI
- *        supabase secrets set VAPID_SUBJECT=mailto:contact@mswealth.app
+ *   2. 프로젝트 링크: supabase link --project-ref <PROJECT_REF>
+ *   3. 환경변수 설정 (키는 web-push 라이브러리로 신규 발급):
+ *        supabase secrets set VAPID_PUBLIC_KEY=<신규 발급>
+ *        supabase secrets set VAPID_PRIVATE_KEY=<신규 발급>
+ *        supabase secrets set VAPID_SUBJECT=mailto:contact@<도메인>
  *   4. 배포: supabase functions deploy send-push
+ *
+ *   VAPID 키 발급: npx web-push generate-vapid-keys
  */
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";

@@ -4366,8 +4366,8 @@ const SUPABASE_URL = 'https://pjxdfhozjuteckbtavmw.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_aPUdJabOmrwe3nwD161Cjw_3_kr1Eno';
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ── Web Push VAPID 공개키 (supabase/functions/send-push에서 동일한 키 쌍 사용)
-const VAPID_PUBLIC_KEY = 'BBI1p4ve4Wu3ak0S2cRcSqxBxnkr9nc3Z8N9vP9TcaJGiWGbbr7JWDY2visCcLgT6M-xH3qbGGjgisfQrLT1xeg';
+// ── Web Push VAPID 공개키 (배포 시 DEPLOY.md 참고하여 신규 발급 후 교체)
+const VAPID_PUBLIC_KEY = 'PLACEHOLDER_VAPID_PUBLIC_KEY';
 
 // 현재 로그인된 유저 정보
 let currentUser = null;
