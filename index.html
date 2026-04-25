@@ -5698,6 +5698,7 @@ function renderWealthPage() {
   renderWealthMonthPicker();
   renderWealthHero();
   renderWealthList();
+  setTimeout(renderAssetTabChart, 50);
 }
 
 function renderWealthMonthPicker() {
@@ -6139,13 +6140,16 @@ async function wFetchAptHistorical(assetId, month) {
   } catch (e) {}
   if (!results.length) { if (typeof showToast === 'function') showToast('❗ 조건 맞는 거래 없음'); return; }
   const filtered = filterLowFloor(results, apt);
-  filtered.sort(function(a, b) { return b.day - a.day; });
-  const picked = filtered[0];
-  wSaveObs(assetId, month, picked.price);
+  const sortedPrices = filtered.map(function(r) { return r.price; }).sort(function(a, b) { return a - b; });
+  const mid = Math.floor(sortedPrices.length / 2);
+  const medianPrice = sortedPrices.length % 2 === 0
+    ? Math.round((sortedPrices[mid - 1] + sortedPrices[mid]) / 2)
+    : sortedPrices[mid];
+  wSaveObs(assetId, month, medianPrice);
   wCloseAllSheets();
   renderWealthList();
   renderWealthHero();
-  if (typeof showToast === 'function') showToast('✅ ' + parseInt(m) + '월 ' + picked.day + '일 거래 ' + (picked.price / 10000).toFixed(2) + '억 저장됨');
+  if (typeof showToast === 'function') showToast('✅ ' + parseInt(m) + '월 중간값 ' + (medianPrice / 10000).toFixed(2) + '억 저장됨 (' + filtered.length + '건)');
 }
 
 // ── 추가 시트 열기
@@ -10348,23 +10352,22 @@ async function refreshAllAptsInDetail() {
       3
     );
     if (!rawResults.length) continue;
-    const results = filterLowFloor(rawResults, apt);
+    const filteredResults = filterLowFloor(rawResults, apt);
+    const sp = filteredResults.map(function(r) { return r.price; }).sort(function(a, b) { return a - b; });
+    const mi = Math.floor(sp.length / 2);
+    const medianP = sp.length % 2 === 0 ? Math.round((sp[mi - 1] + sp[mi]) / 2) : sp[mi];
 
-    results.sort(function(a, b) {
-      return new Date(b.year, b.month-1, b.day) - new Date(a.year, a.month-1, a.day);
-    });
-    const latestPrice = results[0].price;
-
-    item.amount = latestPrice;
+    item.amount = medianP;
     item.aptLinkTime = timeStr;
 
     // ── aptList 캐시 업데이트
+    filteredResults.sort(function(a, b) { return new Date(b.year, b.month-1, b.day) - new Date(a.year, a.month-1, a.day); });
     const aptIdx = aptList.findIndex(function(a) { return a.id === apt.id; });
     if (aptIdx >= 0) {
       aptList[aptIdx].cache = {
-        price: latestPrice,
-        fetchedAt: results[0].year + '.' + results[0].month + '.' + results[0].day + ' 거래',
-        results: results.slice(0, 5)
+        price: medianP,
+        fetchedAt: '중간값 (' + filteredResults.length + '건)',
+        results: filteredResults.slice(0, 5)
       };
     }
     updated++;
@@ -13276,14 +13279,19 @@ async function fetchSingleApt(aptId) {
   if (!rawResults.length) { showToast('❌ 거래 데이터를 찾지 못했어요'); return; }
   const results = filterLowFloor(rawResults, apt);
 
+  const sortedPrices = results.map(function(r) { return r.price; }).sort(function(a, b) { return a - b; });
+  const mid = Math.floor(sortedPrices.length / 2);
+  const medianPrice = sortedPrices.length % 2 === 0
+    ? Math.round((sortedPrices[mid - 1] + sortedPrices[mid]) / 2)
+    : sortedPrices[mid];
+
   results.sort(function(a,b) { return new Date(b.year,b.month-1,b.day) - new Date(a.year,a.month-1,a.day); });
-  const latest = results[0];
 
   const idx = aptList.findIndex(function(a) { return a.id === aptId; });
   if (idx >= 0) {
     aptList[idx].cache = {
-      price: latest.price,
-      fetchedAt: latest.year + '.' + latest.month + '.' + latest.day + ' 거래',
+      price: medianPrice,
+      fetchedAt: '중간값 (' + results.length + '건)',
       results: results.slice(0, 10).map(function(r) {
         return { date: r.year + '.' + r.month + '.' + r.day, price: r.price, floor: r.floor };
       })
@@ -13293,7 +13301,7 @@ async function fetchSingleApt(aptId) {
   renderAptList();
   renderHomeApt();
   renderInputAptSection();
-  showToast('✅ ' + apt.name + ' ' + (latest.price/10000).toFixed(2) + '억 업데이트!');
+  showToast('✅ ' + apt.name + ' 중간값 ' + (medianPrice/10000).toFixed(2) + '억 업데이트!');
 }
 
 // ── 부동산 전용 페이지 렌더 ──
@@ -13399,7 +13407,7 @@ function renderRealEstatePage() {
       + (hasPrice
         ? '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'
           + '<div style="background:var(--surface2);border-radius:12px;padding:12px">'
-          + '<div style="font-size:9px;color:var(--muted);margin-bottom:4px">최근 실거래가</div>'
+          + '<div style="font-size:9px;color:var(--muted);margin-bottom:4px">실거래가 <span style="color:var(--muted2);font-weight:400">(중간값)</span></div>'
           + '<div style="font-size:18px;font-weight:900;color:var(--text)">' + (priceWon / 100000000).toFixed(2) + '<span style="font-size:11px;font-weight:400;color:var(--muted)">억</span></div>'
           + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + (apt.cache.fetchedAt || '') + '</div>'
           + '</div>'
@@ -13913,9 +13921,9 @@ function renderAssetTabChart() {
   const badge = document.getElementById('asset-chart-change-badge');
   if (!wrap) return;
 
-  // 현재월 이후 미래 데이터 제외
-  const curMonth = wCurrentMonth();
-  const histPast = assetHistory.filter(function(r) { return r.month <= curMonth; });
+  // 선택한 달 이후 미래 데이터 제외
+  const selMonth = (typeof wSelectedMonth !== 'undefined' ? wSelectedMonth : wCurrentMonth());
+  const histPast = assetHistory.filter(function(r) { return r.month <= selMonth; });
 
   if (histPast.length < 2) {
     if (empty) empty.style.display = 'block';
@@ -13923,8 +13931,7 @@ function renderAssetTabChart() {
   }
   if (empty) empty.style.display = 'none';
 
-  const histSlice = histPast.slice(-assetChartPeriod);
-  const data = histSlice.map(function(r) {
+  const data = histPast.slice(-assetChartPeriod).map(function(r) {
     if (wAssetChartOwner === 'all') return { month: r.month, net: r.net };
     const ownItems = (r.items || []).filter(function(it) { return it.owner === wAssetChartOwner || it.owner === 'common'; });
     const assetSum = ownItems.filter(function(it) { return it.type !== 'debt'; }).reduce(function(s, it) { return s + (it.amount || 0); }, 0);
@@ -13968,27 +13975,41 @@ function renderAssetTabChart() {
   svgHtml += '<path d="' + pathD + '" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
 
   pts.forEach(function(p, i) {
+    const isSelected = p.r.month === selMonth;
     const isLast = i === pts.length - 1;
     const isFirst = i === 0;
     const mo = p.r.month.split('-')[1];
-    const showVal = isLast || isFirst || data.length <= 6;
-    if (showVal) {
+    const showLabel = isSelected || isLast || isFirst || data.length <= 6;
+    if (showLabel) {
       const above = p.y > pad.t + 15;
       const labelY = above ? p.y - 7 : p.y + 14;
-      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + labelY + '" text-anchor="middle" fill="' + (isLast ? 'var(--text)' : 'var(--muted2)') + '" font-size="9" font-weight="700" font-family="Noto Sans KR">' + (p.r.net / 10000).toFixed(1) + '억</text>';
+      const labelColor = isSelected ? 'var(--text)' : 'var(--muted2)';
+      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + labelY + '" text-anchor="middle" fill="' + labelColor + '" font-size="9" font-weight="' + (isSelected?'900':'700') + '" font-family="Noto Sans KR">' + (p.r.net/10000).toFixed(1) + '억</text>';
     }
-    if (showVal || data.length <= 12) {
-      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + (H - 4) + '" text-anchor="middle" fill="var(--muted)" font-size="8" font-family="Noto Sans KR">' + parseInt(mo) + '월</text>';
+    if (showLabel || data.length <= 12) {
+      const moColor = isSelected ? 'var(--blue)' : 'var(--muted)';
+      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + (H-4) + '" text-anchor="middle" fill="' + moColor + '" font-size="8" font-weight="' + (isSelected?'700':'400') + '" font-family="Noto Sans KR">' + parseInt(mo) + '월</text>';
+    }
+    if (isSelected) {
+      svgHtml += '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="3.5" fill="var(--blue)"/>';
     }
   });
 
   svg.innerHTML = svgHtml;
 
+  // 선택한 달 기준 전월 대비 배지
   if (badge) {
-    const diff = nets[nets.length - 1] - nets[nets.length - 2];
-    badge.innerHTML = diff >= 0
-      ? '<span style="background:rgba(74,222,128,.12);color:var(--green);padding:3px 8px;border-radius:20px">▲ +' + (diff / 10000).toFixed(2) + '억</span>'
-      : '<span style="background:rgba(239,68,68,.12);color:var(--red);padding:3px 8px;border-radius:20px">▼ ' + (diff / 10000).toFixed(2) + '억</span>';
+    const selIdx = data.findIndex(function(r) { return r.month === selMonth; });
+    const curNet = selIdx >= 0 ? nets[selIdx] : nets[nets.length - 1];
+    const prevNet = selIdx > 0 ? nets[selIdx - 1] : (nets.length >= 2 ? nets[nets.length - 2] : null);
+    if (prevNet !== null) {
+      const diff = curNet - prevNet;
+      badge.innerHTML = diff >= 0
+        ? '<span style="background:rgba(74,222,128,.12);color:var(--green);padding:3px 8px;border-radius:20px">▲ +' + (diff/10000).toFixed(2) + '억</span>'
+        : '<span style="background:rgba(239,68,68,.12);color:var(--red);padding:3px 8px;border-radius:20px">▼ ' + (diff/10000).toFixed(2) + '억</span>';
+    } else {
+      badge.innerHTML = '';
+    }
   }
 }
 
