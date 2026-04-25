@@ -10069,29 +10069,30 @@ async function refreshAllAptsInDetail() {
 
     const proxyUrl = load('cloudflare-proxy', '');
     const apiKey = load('molit-api-key', '');
-    const results = await fetchMolitData(
+    const rawResults = await fetchMolitData(
       proxyUrl, apiKey,
       apt.lawdCd, apt.name,
       apt.areaMin || 0, apt.areaMax || 999,
       3
     );
-    if (!results.length) continue;
+    if (!rawResults.length) continue;
 
-    results.sort(function(a, b) {
-      return new Date(b.year, b.month-1, b.day) - new Date(a.year, a.month-1, a.day);
-    });
-    const latestPrice = results[0].price;
+    const filteredResults = filterLowFloor(rawResults, apt);
+    const sp = filteredResults.map(function(r) { return r.price; }).sort(function(a, b) { return a - b; });
+    const mi = Math.floor(sp.length / 2);
+    const medianP = sp.length % 2 === 0 ? Math.round((sp[mi - 1] + sp[mi]) / 2) : sp[mi];
 
-    item.amount = latestPrice;
+    item.amount = medianP;
     item.aptLinkTime = timeStr;
 
     // ── aptList 캐시 업데이트
+    filteredResults.sort(function(a, b) { return new Date(b.year, b.month-1, b.day) - new Date(a.year, a.month-1, a.day); });
     const aptIdx = aptList.findIndex(function(a) { return a.id === apt.id; });
     if (aptIdx >= 0) {
       aptList[aptIdx].cache = {
-        price: latestPrice,
-        fetchedAt: results[0].year + '.' + results[0].month + '.' + results[0].day + ' 거래',
-        results: results.slice(0, 5)
+        price: medianP,
+        fetchedAt: '중간값 (' + filteredResults.length + '건)',
+        results: filteredResults.slice(0, 5)
       };
     }
     updated++;
@@ -13093,7 +13094,7 @@ function renderRealEstatePage() {
       + (hasPrice
         ? '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'
           + '<div style="background:var(--surface2);border-radius:12px;padding:12px">'
-          + '<div style="font-size:9px;color:var(--muted);margin-bottom:4px">최근 실거래가</div>'
+          + '<div style="font-size:9px;color:var(--muted);margin-bottom:4px">실거래가 <span style="color:var(--muted2);font-weight:400">(중간값)</span></div>'
           + '<div style="font-size:18px;font-weight:900;color:var(--text)">' + (priceWon / 100000000).toFixed(2) + '<span style="font-size:11px;font-weight:400;color:var(--muted)">억</span></div>'
           + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + (apt.cache.fetchedAt || '') + '</div>'
           + '</div>'
