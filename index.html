@@ -3878,6 +3878,22 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           onfocus="this.style.borderColor='rgba(249,115,22,0.5)'" onblur="this.style.borderColor='var(--border)'">
       </div>
 
+      <!-- 저층 필터 토글 -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--surface2);border-radius:12px;margin-bottom:20px">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">저층 실거래 제외</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">하위 25% 층수 거래를 시세에서 제외해요</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0">
+          <input type="checkbox" id="apt-filter-low-floor" checked
+            style="opacity:0;width:0;height:0;position:absolute">
+          <span onclick="this.previousElementSibling.checked=!this.previousElementSibling.checked"
+            style="position:absolute;cursor:pointer;inset:0;background:var(--border2);border-radius:24px;transition:.2s;display:block">
+            <span id="apt-filter-knob" style="position:absolute;left:2px;top:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span>
+          </span>
+        </label>
+      </div>
+
       <!-- 저장 버튼 -->
       <div style="display:flex;gap:10px">
         <button id="apt-modal-delete-btn" onclick="deleteAptFromModal()" style="display:none;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:12px;color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;padding:14px 16px;cursor:pointer">삭제</button>
@@ -6101,13 +6117,15 @@ async function wFetchAptHistorical(assetId, month) {
         results.push({
           day: parseInt((item.querySelector('dealDay')?.textContent || '0').trim()) || 0,
           price: parseInt((item.querySelector('dealAmount')?.textContent?.replace(/,/g, '') || '0').trim()),
+          floor: (item.querySelector('floor')?.textContent || '').trim(),
         });
       }
     });
   } catch (e) {}
   if (!results.length) { if (typeof showToast === 'function') showToast('❗ 조건 맞는 거래 없음'); return; }
-  results.sort(function(a, b) { return b.day - a.day; });
-  const price = results[0].price;
+  const filtered = filterLowFloor(results, apt);
+  filtered.sort(function(a, b) { return b.day - a.day; });
+  const price = filtered[0].price;
   wSaveObs(assetId, month, price);
   wCloseAllSheets();
   renderWealthList();
@@ -10347,13 +10365,14 @@ async function refreshAllAptsInDetail() {
 
     const proxyUrl = load('cloudflare-proxy', '');
     const apiKey = load('molit-api-key', '');
-    const results = await fetchMolitData(
+    const rawResults = await fetchMolitData(
       proxyUrl, apiKey,
       apt.lawdCd, apt.name,
       apt.areaMin || 0, apt.areaMax || 999,
       3
     );
-    if (!results.length) continue;
+    if (!rawResults.length) continue;
+    const results = filterLowFloor(rawResults, apt);
 
     results.sort(function(a, b) {
       return new Date(b.year, b.month-1, b.day) - new Date(a.year, a.month-1, a.day);
@@ -12499,6 +12518,20 @@ async function fetchMolitData(proxyUrl, apiKey, lawdCd, aptName, areaMin, areaMa
   return results;
 }
 
+// 저층 실거래 필터 — 해당 결과 중 최고층의 하위 25% 제거
+function filterLowFloor(results, apt) {
+  if (apt && apt.filterLowFloor === false) return results;
+  const floors = results.map(function(r) { return parseInt(r.floor) || 0; }).filter(function(f) { return f > 0; });
+  if (!floors.length) return results;
+  const maxFloor = Math.max.apply(null, floors);
+  const threshold = Math.ceil(maxFloor * 0.25);
+  const filtered = results.filter(function(r) {
+    const f = parseInt(r.floor) || 0;
+    return f === 0 || f > threshold;
+  });
+  return filtered.length > 0 ? filtered : results;
+}
+
 // 실거래가를 자산 탭에 자동 반영
 function applyAptToAsset(priceMan) {
   // priceMan은 만원 단위 (예: 75200 = 7.52억)
@@ -12709,6 +12742,23 @@ function openAptModal(id) {
     if (ppEl) ppEl.value = '';
     if (laEl) laEl.value = '';
     if (jdEl) jdEl.value = '';
+  }
+
+  // 저층 필터 토글 상태 복원 + 시각 피드백 연결
+  const floorToggle = document.getElementById('apt-filter-low-floor');
+  const floorKnob = document.getElementById('apt-filter-knob');
+  const floorTrack = floorKnob && floorKnob.parentElement;
+  function updateFloorToggleStyle() {
+    if (!floorKnob || !floorTrack) return;
+    const on = floorToggle.checked;
+    floorTrack.style.background = on ? 'var(--blue)' : 'var(--border2)';
+    floorKnob.style.left = on ? '22px' : '2px';
+  }
+  if (floorToggle) {
+    const savedVal = id ? (aptList.find(function(a) { return a.id === id; }) || {}).filterLowFloor : true;
+    floorToggle.checked = savedVal !== false;
+    floorToggle.onchange = updateFloorToggleStyle;
+    updateFloorToggleStyle();
   }
 
   document.getElementById('apt-modal').style.display = 'block';
@@ -13079,9 +13129,10 @@ async function selectAptComplex(name, lawdCd, sigungu) {
       return;
     }
 
-    const trades = (areaTradeMap[selectedArea] || [])
-      .sort(function(a,b){ return b.date.localeCompare(a.date); })
-      .slice(0, 5);
+    const floorEl = document.getElementById('apt-filter-low-floor');
+    const mockApt = { filterLowFloor: floorEl ? floorEl.checked : true };
+    const allAreaTrades = (areaTradeMap[selectedArea] || []).sort(function(a,b){ return b.date.localeCompare(a.date); });
+    const trades = filterLowFloor(allAreaTrades, mockApt).slice(0, 5);
 
     if (!trades.length) {
       tradeWrap.style.display = 'block';
@@ -13186,6 +13237,9 @@ function saveAptFromModal() {
   const loanAmount = laVal && laVal.value ? parseInt(laVal.value) : 0;
   const jeonseDeposit = jdVal && jdVal.value ? parseInt(jdVal.value) : 0;
 
+  const floorToggleEl = document.getElementById('apt-filter-low-floor');
+  const filterLowFloorVal = floorToggleEl ? floorToggleEl.checked : true;
+
   const aptData = {
     id: _aptEditingId || 'apt_' + Date.now(),
     name: _aptSelectedComplex.name,
@@ -13197,6 +13251,7 @@ function saveAptFromModal() {
     purchasePrice: purchasePrice,
     loanAmount: loanAmount,
     jeonseDeposit: jeonseDeposit,
+    filterLowFloor: filterLowFloorVal,
     cache: null,
   };
 
@@ -13241,8 +13296,9 @@ async function fetchSingleApt(aptId) {
   const apiKey = load('molit-api-key', '');
   showToast('🔍 ' + apt.name + ' 조회 중...');
 
-  const results = await fetchMolitData(proxyUrl, apiKey, apt.lawdCd, apt.name, apt.areaMin || 0, apt.areaMax || 999, 6);
-  if (!results.length) { showToast('❌ 거래 데이터를 찾지 못했어요'); return; }
+  const rawResults = await fetchMolitData(proxyUrl, apiKey, apt.lawdCd, apt.name, apt.areaMin || 0, apt.areaMax || 999, 6);
+  if (!rawResults.length) { showToast('❌ 거래 데이터를 찾지 못했어요'); return; }
+  const results = filterLowFloor(rawResults, apt);
 
   results.sort(function(a,b) { return new Date(b.year,b.month-1,b.day) - new Date(a.year,a.month-1,a.day); });
   const latest = results[0];
