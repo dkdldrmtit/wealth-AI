@@ -1989,7 +1989,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       <div id="asset-chart-change-badge" style="font-size:12px;font-weight:700"></div>
     </div>
     <div id="wealth-hero-summary" style="margin-bottom:10px"></div>
-    <div id="asset-tab-chart-wrap" style="position:relative;height:90px;width:100%;overflow:hidden">
+    <div id="asset-tab-chart-wrap" style="position:relative;height:90px;width:100%;overflow:hidden;box-sizing:border-box">
       <svg id="asset-tab-chart" height="70" style="display:block"></svg>
       <div id="asset-tab-chart-empty" style="display:none;text-align:center;padding:16px 0;font-size:12px;color:var(--muted)">기록이 2개 이상 있어야 추이가 그려져요</div>
     </div>
@@ -6138,9 +6138,9 @@ async function wFetchAptHistorical(assetId, month) {
     });
   } catch (e) {}
   if (!results.length) { if (typeof showToast === 'function') showToast('❗ 조건 맞는 거래 없음'); return; }
-  const filtered = filterLowFloor(results, apt);
-  filtered.sort(function(a, b) { return b.day - a.day; });
-  const price = filtered[0].price;
+  // 단일 월 데이터는 거래 수가 적어 층수 필터가 부정확 — 최신 거래가 그대로 사용
+  results.sort(function(a, b) { return b.day - a.day; });
+  const price = results[0].price;
   wSaveObs(assetId, month, price);
   wCloseAllSheets();
   renderWealthList();
@@ -13936,10 +13936,10 @@ function renderAssetTabChart() {
   const max = Math.max.apply(null, nets);
   const range = max - min || 1;
 
-  // viewBox 기준 좌표계 — SVG는 width:100%/height:100% 로 wrap에 꽉 맞게 늘어남
-  const VW = 300, H = 90;
+  const H = 90;
   const pad = { t: 18, b: 18, l: 10, r: 10 };
-  const innerW = VW - pad.l - pad.r;
+  const W = wrap.clientWidth || wrap.offsetWidth || 320;
+  const innerW = W - pad.l - pad.r;
   const innerH = H - pad.t - pad.b;
 
   const pts = data.map(function(r, i) {
@@ -13950,10 +13950,10 @@ function renderAssetTabChart() {
 
   let svg = document.getElementById('asset-tab-chart');
   if (!svg) return;
-  svg.setAttribute('viewBox', '0 0 ' + VW + ' ' + H);
-  svg.setAttribute('width', '100%');
-  svg.setAttribute('height', '100%');
-  svg.setAttribute('preserveAspectRatio', 'none');
+  svg.removeAttribute('viewBox');
+  svg.removeAttribute('preserveAspectRatio');
+  svg.setAttribute('width', W);
+  svg.setAttribute('height', H);
   svg.style.display = 'block';
 
   const pathD = pts.map(function(p, i) { return (i === 0 ? 'M' : 'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1); }).join(' ');
