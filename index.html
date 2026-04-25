@@ -1410,7 +1410,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div id="home-cards-anchor" style="padding-top:max(44px,calc(env(safe-area-inset-top,0px)+12px))">
 
   <!-- 월간 자산 기록 리마인더 -->
-  <div id="asset-reminder-banner" style="display:none;background:rgba(240,192,64,0.10);border:1px solid rgba(240,192,64,0.30);border-radius:16px;padding:14px 16px;margin-bottom:14px;cursor:pointer" onclick="openModal(null)">
+  <div id="asset-reminder-banner" style="display:none;background:rgba(240,192,64,0.10);border:1px solid rgba(240,192,64,0.30);border-radius:16px;padding:14px 16px;margin-bottom:14px;cursor:pointer" onclick="handleAssetReminderClick()">
     <div style="display:flex;align-items:center;justify-content:space-between">
       <div style="display:flex;align-items:center;gap:10px">
         <div style="width:32px;height:32px;border-radius:8px;background:rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
@@ -4563,6 +4563,7 @@ async function handleLogin() {
   }
 
   try { localStorage.clear(); } catch (e) {}
+  resetInMemoryUserState();
   currentUser = data.user;
   btn.textContent = '로그인';
   btn.disabled = false;
@@ -4729,10 +4730,29 @@ async function handleDeleteAccount() {
   }
 }
 
+// 메모리 내 모든 사용자 데이터를 리셋 (로그아웃·계정 전환 시)
+function resetInMemoryUserState() {
+  try {
+    if (typeof assetHistory !== 'undefined')   assetHistory = [];
+    if (typeof ledgerTxs !== 'undefined')      ledgerTxs = [];
+    if (typeof stocks !== 'undefined')         stocks = [];
+    if (typeof goals !== 'undefined')          goals = [];
+    if (typeof schedules !== 'undefined')      schedules = [];
+    if (typeof budgets !== 'undefined')        budgets = { food:50, cafe:15, trans:20, shop:30, health:10, leisure:20, child:0, edu:10, house:0, etc:20 };
+    if (typeof recurringItems !== 'undefined') recurringItems = [];
+    if (typeof wealthAssets !== 'undefined')   wealthAssets = [];
+    if (typeof wealthObs !== 'undefined')      wealthObs = [];
+    if (typeof aptList !== 'undefined')        aptList = [];
+    if (typeof proposals !== 'undefined')      proposals = [];
+    if (typeof PARTNER_NAMES !== 'undefined')  PARTNER_NAMES = { partner1: '나', partner2: '배우자', common: '공동' };
+  } catch (e) {}
+}
+
 // 로그아웃
 async function handleLogout() {
   await _supabase.auth.signOut();
   try { localStorage.clear(); } catch (e) {}
+  resetInMemoryUserState();
   currentUser = null;
   currentProfile = null;
   currentCoupleId = null;
@@ -4863,6 +4883,39 @@ async function handleJoinCouple() {
 async function loadAllDataFromSupabase() {
   if (!currentUser) return;
 
+  // 다른 계정 잔존 상태 차단: 모든 데이터 변수를 기본값으로 리셋
+  // (메모리에 이전 사용자 데이터가 남아 새 계정 화면에 노출되는 문제 방지)
+  const _budgetsDefault = { food:50, cafe:15, trans:20, shop:30, health:10, leisure:20, child:0, edu:10, house:0, etc:20 };
+  assetHistory   = [];
+  ledgerTxs      = [];
+  stocks         = [];
+  goals          = [];
+  schedules      = [];
+  budgets        = Object.assign({}, _budgetsDefault);
+  recurringItems = [];
+  wealthAssets   = [];
+  wealthObs      = [];
+  aptList        = [];
+  proposals      = [];
+  PARTNER_NAMES  = { partner1: '나', partner2: '배우자', common: '공동' };
+
+  // 로컬스토리지도 동시에 리셋 (다음 페이지 새로고침 시 잔존 데이터 노출 방지)
+  try {
+    localStorage.removeItem('asset-history');
+    localStorage.removeItem('ledger-txs');
+    localStorage.removeItem('stocks');
+    localStorage.removeItem('goals');
+    localStorage.removeItem('schedules');
+    localStorage.removeItem('ledger-budgets');
+    localStorage.removeItem('recurring-items');
+    localStorage.removeItem('wealth-assets');
+    localStorage.removeItem('wealth-obs');
+    localStorage.removeItem('apt-list');
+    localStorage.removeItem('proposals');
+    localStorage.removeItem('partner-names');
+    localStorage.removeItem('molit-api-key');
+  } catch (e) {}
+
   // 커플 있으면 couple_id 기준, 없으면 user_id 기준으로 조회
   const keyField = currentCoupleId ? 'couple_id' : 'user_id';
   const keyValue = currentCoupleId ? currentCoupleId : currentUser.id;
@@ -4882,106 +4935,56 @@ async function loadAllDataFromSupabase() {
       aptListRes,
       partnerNamesRes
     ] = await Promise.all([
-      _supabase.from('asset_history').select('data').eq(keyField, keyValue).single(),
-      _supabase.from('ledger_txs').select('data').eq(keyField, keyValue).single(),
-      _supabase.from('stocks').select('data').eq(keyField, keyValue).single(),
-      _supabase.from('goals').select('data').eq(keyField, keyValue).single(),
-      _supabase.from('schedules').select('data').eq(keyField, keyValue).single(),
-      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'budgets').single(),
-      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'molit-api-key').single(),
-      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'proposals').single(),
-      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'wealth_assets').single(),
-      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'wealth_obs').single(),
-      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'apt_list').single(),
-      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'partner_names').single()
+      _supabase.from('asset_history').select('data').eq(keyField, keyValue).maybeSingle(),
+      _supabase.from('ledger_txs').select('data').eq(keyField, keyValue).maybeSingle(),
+      _supabase.from('stocks').select('data').eq(keyField, keyValue).maybeSingle(),
+      _supabase.from('goals').select('data').eq(keyField, keyValue).maybeSingle(),
+      _supabase.from('schedules').select('data').eq(keyField, keyValue).maybeSingle(),
+      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'budgets').maybeSingle(),
+      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'molit-api-key').maybeSingle(),
+      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'proposals').maybeSingle(),
+      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'wealth_assets').maybeSingle(),
+      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'wealth_obs').maybeSingle(),
+      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'apt_list').maybeSingle(),
+      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'partner_names').maybeSingle()
     ]);
 
-    const hasSupabaseData =
-      (assetRes.data && assetRes.data.data && assetRes.data.data.length > 0) ||
-      (ledgerRes.data && ledgerRes.data.data && ledgerRes.data.data.length > 0) ||
-      (stocksRes.data && stocksRes.data.data && stocksRes.data.data.length > 0);
+    // 각 변수는 Supabase에 데이터가 있을 때만 덮어쓰기 (없으면 위에서 리셋된 기본값 유지)
+    if (assetRes.data && assetRes.data.data)     assetHistory  = assetRes.data.data;
+    if (ledgerRes.data && ledgerRes.data.data)   ledgerTxs     = ledgerRes.data.data;
+    if (stocksRes.data && stocksRes.data.data)   stocks        = stocksRes.data.data;
+    if (goalsRes.data && goalsRes.data.data)     goals         = goalsRes.data.data;
+    if (schedulesRes.data && schedulesRes.data.data) schedules = schedulesRes.data.data;
+    if (appDataRes.data && appDataRes.data.data) budgets       = appDataRes.data.data;
+    if (proposalsRes.data && proposalsRes.data.data) proposals = proposalsRes.data.data;
+    if (wealthAssetsRes.data && wealthAssetsRes.data.data) wealthAssets = wealthAssetsRes.data.data;
+    if (wealthObsRes.data && wealthObsRes.data.data)       wealthObs    = wealthObsRes.data.data;
+    if (aptListRes.data && aptListRes.data.data)           aptList      = aptListRes.data.data;
+    if (partnerNamesRes.data && partnerNamesRes.data.data) PARTNER_NAMES = partnerNamesRes.data.data;
 
-    if (hasSupabaseData) {
-      assetHistory   = (assetRes.data && assetRes.data.data)         ? assetRes.data.data    : [];
-      ledgerTxs      = (ledgerRes.data && ledgerRes.data.data)       ? ledgerRes.data.data   : [];
-      stocks         = (stocksRes.data && stocksRes.data.data)       ? stocksRes.data.data   : [];
-      goals          = (goalsRes.data && goalsRes.data.data)         ? goalsRes.data.data    : [];
-      schedules      = (schedulesRes.data && schedulesRes.data.data) ? schedulesRes.data.data : [];
-      budgets        = (appDataRes.data && appDataRes.data.data)     ? appDataRes.data.data  : {
-        food:50, cafe:15, trans:20, shop:30, health:10,
-        leisure:20, child:0, edu:10, house:0, etc:20
-      };
-
-      if (proposalsRes.data && proposalsRes.data.data) {
-        proposals = proposalsRes.data.data;
-        store('proposals', proposals);
-      }
-
-      store('asset-history', assetHistory);
-      store('ledger-txs', ledgerTxs);
-      store('stocks', stocks);
-      store('goals', goals);
-      store('schedules', schedules);
-      store('ledger-budgets', budgets);
-
-      // 공용 molit API 키 — Supabase에 있으면 로컬에 덮어쓰기
-      if (molitKeyRes.data && molitKeyRes.data.data) {
-        store('molit-api-key', molitKeyRes.data.data);
-      }
-
-      // 자산 모듈 (wealth-assets · wealth-obs · apt-list · partner-names) 복원
-      if (wealthAssetsRes.data && wealthAssetsRes.data.data) {
-        wealthAssets = wealthAssetsRes.data.data;
-        store('wealth-assets', wealthAssets);
-      }
-      if (wealthObsRes.data && wealthObsRes.data.data) {
-        wealthObs = wealthObsRes.data.data;
-        store('wealth-obs', wealthObs);
-      }
-      if (aptListRes.data && aptListRes.data.data) {
-        aptList = aptListRes.data.data;
-        store('apt-list', aptList);
-      }
-      if (partnerNamesRes.data && partnerNamesRes.data.data) {
-        PARTNER_NAMES = partnerNamesRes.data.data;
-        store('partner-names', PARTNER_NAMES);
-      }
-
-      console.log('✅ Supabase 데이터 로드 완료');
-
-    } else {
-      // Supabase에 데이터 없으면 → 새 계정이므로 빈 데이터로 시작
-      console.log('⚠️ Supabase 데이터 없음 → 새 계정으로 빈 데이터 시작');
-      assetHistory   = [];
-      ledgerTxs      = [];
-      stocks         = [];
-      goals          = [];
-      schedules      = [];
-      budgets        = { food:50, cafe:15, trans:20, shop:30, health:10, leisure:20, child:0, edu:10, house:0, etc:20 };
-      recurringItems = [];
-
-      store('asset-history', []);
-      store('ledger-txs', []);
-      store('stocks', []);
-      store('goals', []);
-      store('schedules', []);
-      store('ledger-budgets', budgets);
-      store('recurring-items', []);
+    // 캐시 동기화 (이번 사용자 데이터로 모두 덮어쓰기)
+    store('asset-history', assetHistory);
+    store('ledger-txs', ledgerTxs);
+    store('stocks', stocks);
+    store('goals', goals);
+    store('schedules', schedules);
+    store('ledger-budgets', budgets);
+    store('recurring-items', recurringItems);
+    store('wealth-assets', wealthAssets);
+    store('wealth-obs', wealthObs);
+    store('apt-list', aptList);
+    store('proposals', proposals);
+    store('partner-names', PARTNER_NAMES);
+    if (molitKeyRes.data && molitKeyRes.data.data) {
+      store('molit-api-key', molitKeyRes.data.data);
     }
+
+    console.log('✅ Supabase 데이터 로드 완료');
 
   } catch(e) {
     console.log('데이터 로드 오류:', e);
-    assetHistory   = load('asset-history', []);
-    ledgerTxs      = load('ledger-txs', []);
-    stocks         = load('stocks', []);
-    goals          = load('goals', []);
-    schedules      = load('schedules', []);
-    budgets        = load('ledger-budgets', {});
-    recurringItems = load('recurring-items', []);
-    wealthAssets   = load('wealth-assets', []);
-    wealthObs      = load('wealth-obs', []);
-    aptList        = load('apt-list', []);
-    PARTNER_NAMES  = load('partner-names', PARTNER_NAMES);
+    // 네트워크 오류 등으로 실패해도 위에서 리셋된 기본값을 그대로 유지
+    // (이전 사용자 캐시로 fallback하지 않음 — 보안상 더 안전)
   }
 
   migrateAssetCategories();
@@ -19058,6 +19061,30 @@ function checkAssetReminder() {
   }
 
   banner.style.display = 'block';
+}
+
+// 배너 클릭 핸들러
+//  - 첫 사용자 (자산 항목도 없음) → 자산탭 이동 + 항목 추가 모달
+//  - 기존 사용자 (자산 항목 있음, 이번달 스냅샷만 없음) → 월간 스냅샷 모달
+function handleAssetReminderClick() {
+  const hasAnyAsset =
+    (typeof wealthAssets !== 'undefined' && wealthAssets.length > 0) ||
+    (typeof aptList !== 'undefined' && aptList.length > 0) ||
+    (typeof stocks !== 'undefined' && stocks.length > 0);
+
+  if (!hasAnyAsset) {
+    // 자산탭(input)으로 이동 후 항목 추가 모달 열기
+    const navItems = document.querySelectorAll('.nav-item');
+    if (typeof goPage === 'function') {
+      goPage('input', navItems[2] || null);
+      setTimeout(function() {
+        if (typeof openAddItemModal === 'function') openAddItemModal();
+      }, 300);
+    }
+  } else {
+    // 월간 스냅샷 기록 모달
+    if (typeof openModal === 'function') openModal(null);
+  }
 }
 
 function dismissAssetReminder() {
