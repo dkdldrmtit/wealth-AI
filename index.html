@@ -954,6 +954,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://js.tosspayments.com/v1/payment"></script>
 
 </head>
 <body>
@@ -11449,7 +11450,9 @@ document.addEventListener('DOMContentLoaded', function() {
   if (fab) fab.style.display = 'flex';
 
   // Supabase 인증 확인 후 앱 시작
-  initAuth();
+  initAuth().then(function() {
+    if (typeof handleBillingCallback === 'function') handleBillingCallback();
+  });
 
   // 창 크기 변경 시 차트 다시 그리기
   window.addEventListener('resize', function() {
@@ -12155,9 +12158,70 @@ function closePricingModal() {
   if (typeof unlockScroll === 'function') unlockScroll();
 }
 
-// 결제 시작 (Phase 3-3에서 토스 SDK 연동)
-function startPremiumCheckout() {
-  if (typeof showToast === 'function') showToast('💳 결제 기능은 곧 활성화됩니다');
+// ── 결제 (토스페이먼츠 정기결제) ──
+// 운영 시 실제 클라이언트 키로 교체 필요. 'PLACEHOLDER' 문자열이 포함되면 결제 모달 비활성.
+const TOSS_CLIENT_KEY = 'PLACEHOLDER_TOSS_CLIENT_KEY';
+
+function isTossReady() {
+  return typeof TossPayments === 'function'
+    && TOSS_CLIENT_KEY
+    && TOSS_CLIENT_KEY.indexOf('PLACEHOLDER') < 0;
+}
+
+async function startPremiumCheckout() {
+  if (!currentUser) {
+    if (typeof showToast === 'function') showToast('❗ 로그인 후 이용 가능해요');
+    return;
+  }
+  if (!isTossReady()) {
+    if (typeof showToast === 'function') showToast('💳 결제 시스템 준비 중입니다. 곧 활성화됩니다.');
+    return;
+  }
+  try {
+    const tossPayments = TossPayments(TOSS_CLIENT_KEY);
+    const userEmail = (currentUser && currentUser.email) || '';
+    await tossPayments.requestBillingAuth('카드', {
+      customerKey: currentUser.id,
+      customerEmail: userEmail,
+      successUrl: window.location.origin + window.location.pathname + '?billing=success',
+      failUrl:    window.location.origin + window.location.pathname + '?billing=fail',
+    });
+  } catch (e) {
+    if (typeof showToast === 'function') showToast('❗ 결제 시작 실패: ' + (e.message || e));
+  }
+}
+
+// 결제 결과 콜백 처리 (앱 부팅 시 1회 실행)
+async function handleBillingCallback() {
+  const params = new URLSearchParams(window.location.search);
+  const billing = params.get('billing');
+  if (!billing) return;
+
+  if (billing === 'success') {
+    const authKey = params.get('authKey');
+    const customerKey = params.get('customerKey');
+    if (authKey && customerKey) {
+      try {
+        const { data, error } = await _supabase.functions.invoke('billing-issue', {
+          body: { authKey: authKey, customerKey: customerKey }
+        });
+        if (error) throw error;
+        if (typeof showToast === 'function') showToast('✅ 프리미엄 구독이 활성화됐어요!');
+        _subscriptionCache = null;
+        setTimeout(function() { if (typeof openPricingModal === 'function') openPricingModal(); }, 600);
+      } catch (e) {
+        if (typeof showToast === 'function') showToast('❗ 결제 처리 실패: ' + (e.message || e));
+      }
+    }
+  } else if (billing === 'fail') {
+    const msg = params.get('message') || '결제가 취소됐어요';
+    if (typeof showToast === 'function') showToast('❌ ' + msg);
+  }
+
+  // URL에서 결제 파라미터 제거 (히스토리 깔끔하게)
+  try {
+    history.replaceState({}, '', window.location.pathname);
+  } catch (e) {}
 }
 
 // 구독 관리 (Phase 3-5에서 구현)
