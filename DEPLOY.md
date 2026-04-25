@@ -50,6 +50,7 @@ supabase db push
 - `20260425080000_rls_audit.sql` — 모든 데이터 테이블 RLS 정책
 - `20260425090000_apt_trades_cache.sql` — 실거래가 캐시
 - `20260425100000_billing_history.sql` — 결제 이력
+- `20260425110000_couple_invite_security.sql` — 커플 초대 코드 보안 (RLS 강화 + RPC)
 
 ### 2-3. Edge Functions 배포
 ```bash
@@ -123,6 +124,10 @@ vercel --prod
 - [ ] Supabase 프로젝트 프로 플랜으로 업그레이드 (백업 일 1회)
 - [ ] 토스페이먼츠 라이브 키 발급 (가맹 심사 통과 후)
 - [ ] 도메인 연결 후 Open Graph 테스트 (카카오 디버거)
+- [ ] **Supabase Auth → Email confirmation `Enabled`** (이메일 인증 필수, 미인증 가입 차단)
+- [ ] **Supabase Auth → Rate limits**: 회원가입/로그인/비밀번호 재설정 분당 5회로 제한
+- [ ] **CSP 도메인 검증**: 정식 도메인 연결 시 CSP `connect-src` 에 신규 호스트 반영 (Sentry org URL 등)
+- [ ] **Edge Function 환경변수**: `ALLOWED_ORIGINS=https://ours.app` 추가 후 함수 재배포 (CORS 강화 시)
 
 ### 출시 후 모니터링
 - [ ] Sentry 에러 알림 채널 (Slack/Discord)

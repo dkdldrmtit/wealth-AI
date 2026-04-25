@@ -175,19 +175,16 @@ Deno.serve(async (req) => {
       if (error) console.error("cache upsert failed", error);
     });
 
-  // ── 7. 사용량 increment (best-effort, 캐시 miss 시에만)
+  // ── 7. 사용량 increment (캐시 miss 시에만, 응답 전 동기 처리)
   if (!isPremium) {
-    supabase
-      .rpc("increment_ai_usage", {
-        p_user_id: userId,
-        p_period: period,
-        p_use_case: "apt-trades",
-        p_tokens_in: 0,
-        p_tokens_out: 0,
-      })
-      .then(({ error }: any) => {
-        if (error) console.error("usage increment failed", error);
-      });
+    const { error: incErr } = await supabase.rpc("increment_ai_usage", {
+      p_user_id: userId,
+      p_period: period,
+      p_use_case: "apt-trades",
+      p_tokens_in: 0,
+      p_tokens_out: 0,
+    });
+    if (incErr) console.error("usage increment failed", incErr);
   }
 
   return jsonResponse(200, { xml, cached: false });

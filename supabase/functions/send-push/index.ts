@@ -97,9 +97,18 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { coupleId, senderUserId, notification } = await req.json();
+    // ── 1. JWT 인증
+    const authHeader = req.headers.get("Authorization") ?? "";
+    if (!authHeader.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ ok: false, message: "missing_bearer" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    const token = authHeader.slice("Bearer ".length).trim();
 
-    if (!coupleId || !senderUserId || !notification) {
+    const { notification } = await req.json();
+    if (!notification) {
       return new Response(
         JSON.stringify({ ok: false, message: "필수 파라미터 누락" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -115,7 +124,34 @@ Deno.serve(async (req: Request) => {
       "SUPABASE_SERVICE_ROLE_KEY"
     )!;
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { persistSession: false },
+    });
+
+    // JWT 검증 → 발신자 user_id 도출 (클라이언트 입력 신뢰 X)
+    const { data: userData, error: userErr } = await supabase.auth.getUser(token);
+    if (userErr || !userData?.user) {
+      return new Response(
+        JSON.stringify({ ok: false, message: "invalid_token" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    const senderUserId = userData.user.id;
+
+    // 발신자의 couple_id는 서버에서 직접 조회 (위조 방지)
+    const { data: senderProfile } = await supabase
+      .from("profiles")
+      .select("couple_id")
+      .eq("id", senderUserId)
+      .maybeSingle();
+
+    const coupleId = senderProfile?.couple_id;
+    if (!coupleId) {
+      return new Response(
+        JSON.stringify({ ok: false, message: "no_couple" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // 파트너 유저 ID 조회
     const { data: partnerProfile } = await supabase

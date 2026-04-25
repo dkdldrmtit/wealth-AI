@@ -198,21 +198,22 @@ Deno.serve(async (req) => {
     return jsonResponse(anthRes.status, anthData);
   }
 
-  // ── 5. 사용량 increment (best-effort, 실패해도 응답은 보냄)
+  // ── 5. 사용량 increment (응답 전 동기 처리 — 한도 우회 방지)
   const tokensIn = anthData?.usage?.input_tokens ?? 0;
   const tokensOut = anthData?.usage?.output_tokens ?? 0;
 
-  supabase
-    .rpc("increment_ai_usage", {
-      p_user_id: userId,
-      p_period: period,
-      p_use_case: useCase,
-      p_tokens_in: tokensIn,
-      p_tokens_out: tokensOut,
-    })
-    .then(({ error }: any) => {
-      if (error) console.error("usage increment failed", error);
-    });
+  const { error: incErr } = await supabase.rpc("increment_ai_usage", {
+    p_user_id: userId,
+    p_period: period,
+    p_use_case: useCase,
+    p_tokens_in: tokensIn,
+    p_tokens_out: tokensOut,
+  });
+  if (incErr) {
+    // 카운터 실패 자체는 사용자에게 영향 없도록 응답은 정상 진행
+    // 단, 모니터링 로그에 남김
+    console.error("usage increment failed", incErr);
+  }
 
   return jsonResponse(200, anthData);
 });

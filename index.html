@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<!-- Content Security Policy: 외부 스크립트 화이트리스트로 XSS 방어 (defense-in-depth) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://js.tosspayments.com https://browser.sentry-cdn.com https://*.ingest.sentry.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.tosspayments.com https://*.sentry.io https://*.ingest.sentry.io https://apis.data.go.kr; frame-src https://js.tosspayments.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self';">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -4682,7 +4685,7 @@ const { data, error } = await _supabase.auth.signUp({
   btn.disabled = false;
 }
 
-// 비밀번호 찾기
+// 비밀번호 찾기 — 이메일 열거 방지를 위해 결과와 무관하게 동일 메시지 노출
 async function handleForgotPassword() {
   const email = document.getElementById('login-email').value.trim();
   if (!email) {
@@ -4691,14 +4694,15 @@ async function handleForgotPassword() {
     errorEl.textContent = '❗ 위에 이메일을 먼저 입력해주세요';
     return;
   }
-  const { error } = await _supabase.auth.resetPasswordForEmail(email);
-  if (!error) {
-    showToast('📧 비밀번호 재설정 메일을 보냈어요!');
-  }
+  // 에러 발생 여부와 무관하게 동일 토스트 (등록된 이메일 여부 노출 차단)
+  try { await _supabase.auth.resetPasswordForEmail(email); } catch (_) {}
+  showToast('📧 가입된 이메일이라면 재설정 메일을 보냈어요');
 }
 
 // 회원 탈퇴 (계정 + 개인 데이터 영구 삭제)
+let _deleteAccountInProgress = false;
 async function handleDeleteAccount() {
+  if (_deleteAccountInProgress) return;
   const ok1 = typeof showConfirm === 'function'
     ? await showConfirm('정말 회원 탈퇴를 하시겠어요?\n\n· 내 계정과 모든 개인 데이터가 영구 삭제됩니다.\n· 복구할 수 없어요.', '계속')
     : confirm('회원 탈퇴를 진행할까요?');
@@ -4708,6 +4712,7 @@ async function handleDeleteAccount() {
     : confirm('정말로 탈퇴하시겠어요?');
   if (!ok2) return;
 
+  _deleteAccountInProgress = true;
   try {
     const { error } = await _supabase.functions.invoke('delete-account');
     if (error) throw error;
@@ -4718,6 +4723,8 @@ async function handleDeleteAccount() {
     setTimeout(function() { location.reload(); }, 800);
   } catch (e) {
     if (typeof showToast === 'function') showToast('❗ 탈퇴 실패: ' + (e.message || e));
+  } finally {
+    _deleteAccountInProgress = false;
   }
 }
 
@@ -4774,7 +4781,7 @@ async function handleCreateCouple() {
   successEl.style.display = 'block';
   successEl.innerHTML = '✅ 커플 공간이 만들어졌어요!<br><br>'
     + '<div style="font-size:11px;color:#505050;margin-bottom:6px">배우자 초대 코드</div>'
-    + '<div style="font-size:20px;font-weight:900;color:var(--green);letter-spacing:3px">' + couple.invite_code + '</div>'
+    + '<div style="font-size:20px;font-weight:900;color:var(--green);letter-spacing:3px">' + escapeHtml(couple.invite_code) + '</div>'
     + '<div style="font-size:11px;color:#404040;margin-top:6px">배우자에게 이 코드를 알려주세요</div>';
 
   btn.textContent = '커플 공간 만들기';
@@ -4805,14 +4812,8 @@ async function handleJoinCouple() {
   errorEl.style.display = 'none';
   successEl.style.display = 'none';
 
-  // 초대 코드로 커플 찾기
-  const { data: couple, error: coupleError } = await _supabase
-    .from('couples')
-    .select('*')
-    .eq('invite_code', inviteCode)
-    .single();
-
-  if (coupleError || !couple) {
+  // 형식 사전 검증 (브루트포스 시도 차단 + 서버 부하 감소)
+  if (!/^[a-z0-9]{6,}$/.test(inviteCode)) {
     errorEl.style.display = 'block';
     errorEl.textContent = '❗ 유효하지 않은 초대 코드예요';
     btn.textContent = '참여하기';
@@ -4820,27 +4821,25 @@ async function handleJoinCouple() {
     return;
   }
 
-  // 이미 2명인지 확인
-  const { data: members } = await _supabase
-    .from('profiles')
-    .select('id')
-    .eq('couple_id', couple.id);
+  // 서버 RPC로 안전하게 참여 (RLS 우회 + 원자적 처리)
+  const { data: rpcRes, error: rpcErr } = await _supabase
+    .rpc('join_couple_by_code', { p_code: inviteCode });
 
-  if (members && members.length >= 2) {
+  if (rpcErr || !rpcRes || !rpcRes.ok) {
     errorEl.style.display = 'block';
-    errorEl.textContent = '❗ 이미 가득 찬 커플 공간이에요';
+    if (rpcRes && rpcRes.error === 'couple_full') {
+      errorEl.textContent = '❗ 이미 가득 찬 커플 공간이에요';
+    } else if (rpcRes && rpcRes.error === 'already_in_couple') {
+      errorEl.textContent = '❗ 이미 다른 커플에 속해 있어요';
+    } else {
+      errorEl.textContent = '❗ 유효하지 않은 초대 코드예요';
+    }
     btn.textContent = '참여하기';
     btn.disabled = false;
     return;
   }
 
-  // 프로필에 couple_id 연결
-  await _supabase
-    .from('profiles')
-    .update({ couple_id: couple.id, role: 'partner2' })
-    .eq('id', currentUser.id);
-
-  currentCoupleId = couple.id;
+  currentCoupleId = rpcRes.couple_id;
 
   successEl.style.display = 'block';
   successEl.textContent = '✅ 배우자와 연결됐어요! 잠시 후 앱으로 이동해요 🎉';
@@ -11275,38 +11274,30 @@ async function handleJoinCoupleFromSettings() {
   msgEl.style.color = 'var(--blue)';
   msgEl.textContent = '🔍 확인 중...';
 
-
-  const { data: couple, error } = await _supabase
-    .from('couples')
-    .select('*')
-    .eq('invite_code', inviteCode)
-    .single();
-
-  if (error || !couple) {
+  if (!/^[a-z0-9]{6,}$/.test(inviteCode)) {
     msgEl.style.background = 'rgba(239,68,68,0.08)';
     msgEl.style.color = 'var(--red)';
     msgEl.textContent = '❗ 유효하지 않은 초대 코드예요';
     return;
   }
 
-  // 이미 2명인지 확인
-  const { data: members } = await _supabase
-    .from('profiles')
-    .select('id')
-    .eq('couple_id', couple.id);
+  const { data: rpcRes, error: rpcErr } = await _supabase
+    .rpc('join_couple_by_code', { p_code: inviteCode });
 
-  if (members && members.length >= 2) {
+  if (rpcErr || !rpcRes || !rpcRes.ok) {
     msgEl.style.background = 'rgba(239,68,68,0.08)';
     msgEl.style.color = 'var(--red)';
-    msgEl.textContent = '❗ 이미 가득 찬 커플 공간이에요';
+    if (rpcRes && rpcRes.error === 'couple_full') {
+      msgEl.textContent = '❗ 이미 가득 찬 커플 공간이에요';
+    } else if (rpcRes && rpcRes.error === 'already_in_couple') {
+      msgEl.textContent = '❗ 이미 다른 커플에 속해 있어요';
+    } else {
+      msgEl.textContent = '❗ 유효하지 않은 초대 코드예요';
+    }
     return;
   }
 
-  await _supabase.from('profiles')
-    .update({ couple_id: couple.id, role: 'partner2' })
-    .eq('id', currentUser.id);
-
-  currentCoupleId = couple.id;
+  currentCoupleId = rpcRes.couple_id;
 
   msgEl.style.background = 'rgba(34,197,94,0.08)';
   msgEl.style.color = 'var(--green)';
@@ -12810,8 +12801,19 @@ function getChatWrap() {
   return document.getElementById('chat-wrap');
 }
 
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function renderMarkdown(text) {
-  return text
+  // 1. 모든 HTML 특수문자 이스케이프 (XSS 방어)
+  // 2. 안전한 마크다운 패턴만 화이트리스트로 변환
+  return escapeHtml(text)
     .replace(/### (.+)/g, '<div style="font-size:13px;font-weight:800;color:var(--text);margin:10px 0 4px">$1</div>')
     .replace(/## (.+)/g, '<div style="font-size:14px;font-weight:800;color:var(--text);margin:10px 0 4px">$1</div>')
     .replace(/# (.+)/g, '<div style="font-size:15px;font-weight:900;color:var(--text);margin:10px 0 4px">$1</div>')
@@ -20622,27 +20624,20 @@ async function sendPartnerNotification(payload) {
     realtimeChannel.send({ type: 'broadcast', event: 'tx-notification', payload: fullPayload });
   }
 
-  // 2) Edge Function 호출 (백그라운드 푸시)
+  // 2) Edge Function 호출 (백그라운드 푸시) — JWT 자동 첨부
   try {
     const notifBody = payload.txType === 'expense'
       ? senderName + '  ' + Number(payload.amount).toLocaleString() + '원 지출'
       : senderName + '  ' + Number(payload.amount).toLocaleString() + '원 수입';
-    await fetch(SUPABASE_URL + '/functions/v1/send-push', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
-      },
-      body: JSON.stringify({
-        coupleId: currentCoupleId,
-        senderUserId: currentUser.id,
+    await _supabase.functions.invoke('send-push', {
+      body: {
         notification: {
           title: 'Wealth AI',
           body: notifBody + (payload.category ? ' · ' + payload.category : ''),
           tag: 'tx-notif',
           url: '/'
         }
-      })
+      }
     });
   } catch(e) {
     // Edge Function 미배포 시 무시
@@ -20826,19 +20821,15 @@ async function saveProposal() {
       realtimeChannel.send({ type: 'broadcast', event: 'proposal-notification', payload });
     }
     try {
-      await fetch(SUPABASE_URL + '/functions/v1/send-push', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
-        body: JSON.stringify({
-          coupleId: currentCoupleId,
-          senderUserId: currentUser && currentUser.id,
+      await _supabase.functions.invoke('send-push', {
+        body: {
           notification: {
             title: 'Wealth AI',
             body: senderName + '가 구매 제안: ' + title + '  ' + amount.toLocaleString() + '원',
             tag: 'proposal-notif',
             url: '/'
           }
-        })
+        }
       });
     } catch(e) {}
   }
@@ -20889,19 +20880,15 @@ async function reactToProposal(id) {
       realtimeChannel.send({ type: 'broadcast', event: 'proposal-notification', payload });
     }
     try {
-      await fetch(SUPABASE_URL + '/functions/v1/send-push', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
-        body: JSON.stringify({
-          coupleId: currentCoupleId,
-          senderUserId: currentUser && currentUser.id,
+      await _supabase.functions.invoke('send-push', {
+        body: {
           notification: {
             title: 'Wealth AI',
             body: senderName + '가 "' + proposals[idx].title + '"에 ' + label + '했어요',
             tag: 'proposal-reaction',
             url: '/'
           }
-        })
+        }
       });
     } catch(e) {}
   }

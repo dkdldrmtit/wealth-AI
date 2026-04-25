@@ -85,6 +85,27 @@ Deno.serve(async (req) => {
   if (!authKey || !customerKey) return jsonError(400, "missing_params");
   if (customerKey !== userId) return jsonError(403, "customer_key_mismatch");
 
+  // 멱등성: 이미 활성 구독이면 중복 결제 방지 (콜백 재실행, 새로고침, 더블탭 대응)
+  const { data: existingSub } = await supabase
+    .from("user_subscriptions")
+    .select("plan, status, current_period_end")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (
+    existingSub?.plan === "premium" &&
+    existingSub?.status === "active" &&
+    existingSub?.current_period_end &&
+    new Date(existingSub.current_period_end) > new Date()
+  ) {
+    return jsonResponse(200, {
+      ok: true,
+      plan: "premium",
+      current_period_end: existingSub.current_period_end,
+      already_active: true,
+    });
+  }
+
   // ── 1. 빌링키 발급
   let billingKey = "";
   try {

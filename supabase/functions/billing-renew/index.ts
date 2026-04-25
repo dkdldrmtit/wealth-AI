@@ -80,6 +80,22 @@ Deno.serve(async (req) => {
   for (const sub of dueSubs ?? []) {
     if (!sub.billing_key) continue;
 
+    // ── 멱등성 가드: 25일 이내 paid 결제가 이미 있으면 스킵
+    // (cron 중복 호출 / 수동 트리거 / 시계 오차로 인한 이중 결제 방지)
+    const recentCutoff = new Date(Date.now() - 25 * 24 * 3600 * 1000).toISOString();
+    const { data: recentPaid } = await supabase
+      .from("billing_history")
+      .select("id")
+      .eq("user_id", sub.user_id)
+      .eq("status", "paid")
+      .gte("approved_at", recentCutoff)
+      .limit(1);
+
+    if (recentPaid && recentPaid.length > 0) {
+      results.push({ user_id: sub.user_id, ok: true, skipped: "recent_payment_exists" });
+      continue;
+    }
+
     const orderId = `ours-renew-${sub.user_id}-${Date.now()}`;
     let paymentData: any = null;
     let success = false;
