@@ -956,6 +956,41 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://js.tosspayments.com/v1/payment"></script>
 
+<!-- Sentry 에러 트래킹 (운영 시 SENTRY_DSN 설정 시 활성화) -->
+<script>
+  // 운영 시 실제 DSN으로 교체. 'PLACEHOLDER' 가 들어있으면 비활성.
+  window.__SENTRY_DSN__ = 'PLACEHOLDER_SENTRY_DSN';
+  if (window.__SENTRY_DSN__ && window.__SENTRY_DSN__.indexOf('PLACEHOLDER') < 0) {
+    var s = document.createElement('script');
+    s.src = 'https://browser.sentry-cdn.com/8.45.0/bundle.min.js';
+    s.crossOrigin = 'anonymous';
+    s.onload = function() {
+      if (window.Sentry && window.Sentry.init) {
+        window.Sentry.init({
+          dsn: window.__SENTRY_DSN__,
+          tracesSampleRate: 0.1,
+          replaysSessionSampleRate: 0,
+          replaysOnErrorSampleRate: 0.1,
+          environment: location.hostname === 'localhost' ? 'dev' : 'production'
+        });
+      }
+    };
+    document.head.appendChild(s);
+  }
+
+  // 글로벌 에러 캡처 (Sentry 비활성 환경에서도 콘솔에는 남김)
+  window.addEventListener('error', function(e) {
+    if (window.Sentry && window.Sentry.captureException && e.error) {
+      window.Sentry.captureException(e.error);
+    }
+  });
+  window.addEventListener('unhandledrejection', function(e) {
+    if (window.Sentry && window.Sentry.captureException && e.reason) {
+      window.Sentry.captureException(e.reason);
+    }
+  });
+</script>
+
 </head>
 <body>
 
