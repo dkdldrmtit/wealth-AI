@@ -2475,6 +2475,22 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         마지막 동기화: 확인 중...
       </div>
     </div>
+
+    <div class="card">
+      <div class="card-title" style="color:var(--muted)">약관 및 정책</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button onclick="openLegalModal('terms')"
+          style="text-align:left;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+          <span>이용약관</span>
+          <span style="color:var(--muted);font-size:14px">›</span>
+        </button>
+        <button onclick="openLegalModal('privacy')"
+          style="text-align:left;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+          <span>개인정보처리방침</span>
+          <span style="color:var(--muted);font-size:14px">›</span>
+        </button>
+      </div>
+    </div>
   </div>
 
 
@@ -4062,6 +4078,20 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer">✕</button>
       </div>
       <div id="bulk-cat-list" style="max-height:60vh;overflow-y:auto"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 약관 모달 (개인정보처리방침 / 이용약관) -->
+<div id="legal-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:9000;overflow-y:auto" onclick="if(event.target===this)closeLegalModal()">
+  <div style="max-width:680px;margin:0 auto;padding:max(16px,env(safe-area-inset-top,16px)) 16px 60px">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:24px;overflow:hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 20px 16px;border-bottom:1px solid var(--border)">
+        <div id="legal-modal-title" style="font-size:18px;font-weight:800;color:var(--text)">약관</div>
+        <button onclick="closeLegalModal()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted2);font-size:18px;width:36px;height:36px;cursor:pointer">✕</button>
+      </div>
+      <div id="legal-modal-body" style="padding:20px;font-size:13px;color:var(--text);line-height:1.8;max-height:70vh;overflow-y:auto"></div>
     </div>
   </div>
 </div>
@@ -12308,6 +12338,97 @@ async function handleBillingCallback() {
   try {
     history.replaceState({}, '', window.location.pathname);
   } catch (e) {}
+}
+
+// ── 약관 모달 ──
+const LEGAL_TEXTS = {
+  privacy: {
+    title: '개인정보처리방침',
+    body: `<p style="color:var(--muted);font-size:11px;margin-bottom:16px">시행일: 2026-04-25</p>
+
+<p>OURs(이하 "서비스")는 「개인정보 보호법」 등 관련 법령을 준수하며, 이용자의 개인정보를 보호하기 위해 다음과 같이 처리방침을 수립·공개합니다.</p>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">1. 수집하는 개인정보 항목</h4>
+<ul style="padding-left:18px;margin:0 0 12px"><li>필수: 이메일, 비밀번호(해시), 닉네임, 배우자 닉네임</li><li>서비스 이용 중 자동 생성: 자산·가계부·주식·일정 데이터, 접속 기록, 기기 정보</li><li>유료 결제 시: 결제 카드 빌링키(토스페이먼츠 보관), 결제 이력</li></ul>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">2. 수집·이용 목적</h4>
+<ul style="padding-left:18px;margin:0 0 12px"><li>회원 식별 및 서비스 제공</li><li>부부 간 데이터 공유·동기화</li><li>AI 챗봇·리포트 제공</li><li>유료 구독 결제 및 영수증 관리</li><li>고객 지원 및 부정이용 방지</li></ul>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">3. 보유 및 이용 기간</h4>
+<ul style="padding-left:18px;margin:0 0 12px"><li>회원 탈퇴 시 모든 개인정보를 지체 없이 파기합니다.</li><li>단, 「전자상거래법」 등 관련 법령에 따라 다음 정보는 명시 기간 동안 보존됩니다.<br>· 결제 이력: 5년<br>· 접속 로그: 3개월</li></ul>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">4. 개인정보 처리 위탁</h4>
+<table style="width:100%;font-size:12px;border-collapse:collapse"><thead><tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:6px 4px">수탁자</th><th style="text-align:left;padding:6px 4px">목적</th></tr></thead><tbody>
+<tr><td style="padding:6px 4px">Supabase Inc.</td><td>인증·DB·서버리스 함수 운영</td></tr>
+<tr><td style="padding:6px 4px">Anthropic, PBC</td><td>AI 챗봇·자동 리포트</td></tr>
+<tr><td style="padding:6px 4px">토스페이먼츠(주)</td><td>결제 처리 및 빌링키 관리</td></tr>
+<tr><td style="padding:6px 4px">국토교통부</td><td>아파트 실거래가 조회 (공공 API)</td></tr>
+</tbody></table>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">5. 국외 이전 안내</h4>
+<p>일부 위탁업체(Supabase, Anthropic)는 미국 등 해외 서버에서 개인정보를 처리합니다. 위탁계약 및 표준 보안 통제를 통해 안전하게 관리합니다.</p>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">6. 이용자 권리</h4>
+<p>이용자는 언제든 개인정보 열람·정정·삭제·처리정지를 요구할 수 있으며, 앱 내 "회원 탈퇴" 메뉴를 통해 즉시 모든 데이터를 영구 삭제할 수 있습니다.</p>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">7. 개인정보 보호책임자</h4>
+<p>· 이메일: privacy@ours.app<br>(서비스 운영자에게 직접 문의해 주세요)</p>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">8. 변경 고지</h4>
+<p>본 방침이 변경되는 경우 시행일 7일 이전(중대한 변경은 30일 이전) 앱 내 공지를 통해 알려드립니다.</p>`
+  },
+  terms: {
+    title: '이용약관',
+    body: `<p style="color:var(--muted);font-size:11px;margin-bottom:16px">시행일: 2026-04-25</p>
+
+<h4 style="font-size:14px;font-weight:800;margin:0 0 8px;color:var(--text)">제1조 (목적)</h4>
+<p>본 약관은 OURs(이하 "서비스")가 제공하는 부부 자산관리 및 가계부 서비스 이용에 관한 권리·의무를 규정합니다.</p>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제2조 (정의)</h4>
+<ul style="padding-left:18px;margin:0 0 12px"><li>"이용자": 본 약관에 동의하고 서비스를 이용하는 자</li><li>"커플 공간": 두 이용자가 데이터를 공유하는 가상의 공간</li><li>"프리미엄": 월간 구독으로 제공되는 부가 기능</li></ul>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제3조 (회원가입 및 계정)</h4>
+<p>이용자는 만 14세 이상이어야 하며, 본인의 정확한 정보로 가입해야 합니다. 타인의 정보를 도용하거나 허위로 기재한 경우 서비스 이용이 제한될 수 있습니다.</p>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제4조 (서비스 내용)</h4>
+<ul style="padding-left:18px;margin:0 0 12px"><li>자산·가계부·주식·일정 기록 및 부부 동기화</li><li>AI 기반 챗봇·자동 리포트 (무료 한도 적용)</li><li>아파트 실거래가 자동 조회 (무료 한도 적용)</li><li>유료 구독 시 한도 해제 및 부가 기능</li></ul>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제5조 (이용자의 의무)</h4>
+<p>이용자는 본인의 계정 정보를 안전하게 관리해야 하며, 서비스를 통해 타인의 권리를 침해하거나 법령을 위반하는 행위를 해서는 안 됩니다.</p>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제6조 (유료 구독 및 결제)</h4>
+<ul style="padding-left:18px;margin:0 0 12px"><li>월 4,900원의 정기결제로 자동 갱신됩니다.</li><li>결제는 토스페이먼츠를 통해 안전하게 처리됩니다.</li><li>해지 시 다음 결제일부터 자동 결제가 중단되며, 현재 결제 기간 종료일까지 프리미엄 기능을 사용할 수 있습니다.</li></ul>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제7조 (환불 정책)</h4>
+<ul style="padding-left:18px;margin:0 0 12px"><li>결제 후 7일 이내, 프리미엄 기능을 1회도 사용하지 않은 경우 전액 환불 가능합니다.</li><li>그 외에는 「콘텐츠산업진흥법」 등 관련 법령에 따릅니다.</li></ul>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제8조 (서비스의 변경·중단)</h4>
+<p>운영상·기술상 사유로 서비스가 일시 중단되거나 내용이 변경될 수 있으며, 중대한 변경 시 사전 공지합니다.</p>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제9조 (책임 제한)</h4>
+<p>서비스가 제공하는 AI 분석·실거래가 정보는 참고용이며, 이를 토대로 한 투자·재무 결정의 책임은 이용자 본인에게 있습니다. 운영자는 데이터 정확성을 보장하지 않습니다.</p>
+
+<h4 style="font-size:14px;font-weight:800;margin:18px 0 8px;color:var(--text)">제10조 (분쟁 해결)</h4>
+<p>본 약관에 관한 분쟁은 대한민국 법령을 준거법으로 하며, 서비스 운영자 소재지의 관할법원에서 해결합니다.</p>`
+  }
+};
+
+function openLegalModal(kind) {
+  const data = LEGAL_TEXTS[kind];
+  if (!data) return;
+  const modal = document.getElementById('legal-modal');
+  const title = document.getElementById('legal-modal-title');
+  const body = document.getElementById('legal-modal-body');
+  if (title) title.textContent = data.title;
+  if (body) body.innerHTML = data.body;
+  if (modal) modal.style.display = 'block';
+  if (typeof lockScroll === 'function') lockScroll();
+}
+
+function closeLegalModal() {
+  const m = document.getElementById('legal-modal');
+  if (m) m.style.display = 'none';
+  if (typeof unlockScroll === 'function') unlockScroll();
 }
 
 // 구독 관리 모달
