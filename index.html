@@ -4562,6 +4562,7 @@ async function handleLogin() {
     return;
   }
 
+  try { localStorage.clear(); } catch (e) {}
   currentUser = data.user;
   btn.textContent = '로그인';
   btn.disabled = false;
@@ -4731,6 +4732,7 @@ async function handleDeleteAccount() {
 // 로그아웃
 async function handleLogout() {
   await _supabase.auth.signOut();
+  try { localStorage.clear(); } catch (e) {}
   currentUser = null;
   currentProfile = null;
   currentCoupleId = null;
