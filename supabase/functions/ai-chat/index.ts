@@ -112,6 +112,27 @@ Deno.serve(async (req) => {
     return jsonError(400, "use_case_invalid");
   }
 
+  // 메시지 크기 제한 (남용 방지)
+  const MAX_MESSAGES = 40;
+  const MAX_TOTAL_CHARS = 30_000;
+  if (messages.length > MAX_MESSAGES) {
+    return jsonError(400, "too_many_messages", { max: MAX_MESSAGES });
+  }
+  const totalChars = messages.reduce((sum: number, m: any) => {
+    const content = typeof m.content === "string"
+      ? m.content
+      : Array.isArray(m.content)
+        ? m.content.map((c: any) => (typeof c.text === "string" ? c.text : "")).join("")
+        : "";
+    return sum + content.length;
+  }, 0);
+  if (totalChars > MAX_TOTAL_CHARS) {
+    return jsonError(400, "message_too_long", { max: MAX_TOTAL_CHARS, actual: totalChars });
+  }
+
+  // max_tokens 상한 (무료 4,000 / 프리미엄은 나중에 체크 후 허용)
+  const MAX_TOKENS_CAP = 4000;
+
   // ── 3. 구독 등급 + 사용량 체크
   const period = new Date().toISOString().slice(0, 7); // YYYY-MM
 
@@ -150,7 +171,7 @@ Deno.serve(async (req) => {
   // ── 4. Anthropic API 호출
   const anthBody: Record<string, unknown> = {
     model,
-    max_tokens: typeof max_tokens === "number" ? max_tokens : 1000,
+    max_tokens: typeof max_tokens === "number" ? Math.min(max_tokens, MAX_TOKENS_CAP) : 1000,
     messages,
   };
   if (system) anthBody.system = system;

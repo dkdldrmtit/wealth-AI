@@ -4436,6 +4436,19 @@ async function initAuth() {
   } else {
     showAuthScreen();
   }
+
+  // 세션 상태 변화 감지 (만료/로그아웃 → 로그인 화면으로)
+  _supabase.auth.onAuthStateChange(function(event, sess) {
+    if (event === 'SIGNED_OUT' || (!sess && event === 'TOKEN_REFRESHED')) {
+      currentUser = null;
+      currentProfile = null;
+      currentCoupleId = null;
+      showAuthScreen();
+      if (typeof showToast === 'function') showToast('세션이 만료됐어요. 다시 로그인해 주세요.');
+    } else if (event === 'TOKEN_REFRESHED' && sess) {
+      currentUser = sess.user;
+    }
+  });
 }
 
 // 프로필 + 커플 정보 불러오기
@@ -11706,6 +11719,16 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof handleBillingCallback === 'function') handleBillingCallback();
   });
 
+  // 오프라인/온라인 감지
+  function handleOffline() {
+    if (typeof showToast === 'function') showToast('📡 인터넷 연결이 끊겼어요. 일부 기능이 제한됩니다.');
+  }
+  function handleOnline() {
+    if (typeof showToast === 'function') showToast('✅ 인터넷에 다시 연결됐어요.');
+  }
+  window.addEventListener('offline', handleOffline);
+  window.addEventListener('online', handleOnline);
+
   // 창 크기 변경 시 차트 다시 그리기
   window.addEventListener('resize', function() {
     clearTimeout(window._resizeTimer);
@@ -12420,7 +12443,9 @@ function isTossReady() {
     && TOSS_CLIENT_KEY.indexOf('PLACEHOLDER') < 0;
 }
 
+let _checkoutInProgress = false;
 async function startPremiumCheckout() {
+  if (_checkoutInProgress) return;
   if (!currentUser) {
     if (typeof showToast === 'function') showToast('❗ 로그인 후 이용 가능해요');
     return;
@@ -12429,6 +12454,9 @@ async function startPremiumCheckout() {
     if (typeof showToast === 'function') showToast('💳 결제 시스템 준비 중입니다. 곧 활성화됩니다.');
     return;
   }
+  _checkoutInProgress = true;
+  const ctaBtn = document.getElementById('pricing-cta-btn');
+  if (ctaBtn) { ctaBtn.disabled = true; ctaBtn.textContent = '결제 준비 중...'; }
   try {
     const tossPayments = TossPayments(TOSS_CLIENT_KEY);
     const userEmail = (currentUser && currentUser.email) || '';
@@ -12440,6 +12468,9 @@ async function startPremiumCheckout() {
     });
   } catch (e) {
     if (typeof showToast === 'function') showToast('❗ 결제 시작 실패: ' + (e.message || e));
+  } finally {
+    _checkoutInProgress = false;
+    if (ctaBtn) { ctaBtn.disabled = false; ctaBtn.textContent = '프리미엄 시작하기'; }
   }
 }
 
@@ -12715,11 +12746,21 @@ async function confirmCancelSubscription() {
 //    - JWT 인증 + 사용량 한도 체크는 서버에서 처리
 async function callAi(opts) {
   const o = opts || {};
+  const msgs = o.messages || [];
+
+  // 클라이언트 측 사전 검증 (서버와 동일 기준)
+  if (msgs.length > 40) throw new Error('대화 내용이 너무 깁니다. 새 대화를 시작해 주세요.');
+  const totalChars = msgs.reduce(function(sum, m) {
+    const c = typeof m.content === 'string' ? m.content : '';
+    return sum + c.length;
+  }, 0);
+  if (totalChars > 30000) throw new Error('메시지 길이가 너무 깁니다. 내용을 줄여 주세요.');
+
   const body = {
     useCase: o.useCase || 'general',
     model: o.model || 'claude-haiku-4-5-20251001',
     max_tokens: typeof o.max_tokens === 'number' ? o.max_tokens : 1000,
-    messages: o.messages || []
+    messages: msgs
   };
   if (o.system) body.system = o.system;
   if (o.tools) body.tools = o.tools;
@@ -12744,6 +12785,13 @@ async function callAi(opts) {
       throw err;
     }
     if (code === 'missing_bearer' || code === 'invalid_token') {
+      // 세션 갱신 시도 후 실패 시 로그인 화면으로
+      const { error: refreshErr } = await _supabase.auth.refreshSession();
+      if (refreshErr) {
+        currentUser = null;
+        showAuthScreen();
+        if (typeof showToast === 'function') showToast('세션이 만료됐어요. 다시 로그인해 주세요.');
+      }
       throw new Error('AI 기능을 사용하려면 로그인이 필요해요');
     }
     throw new Error((serverError && serverError.error && (serverError.error.message || serverError.error.code)) || error.message || 'AI 응답에 실패했어요');
