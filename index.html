@@ -1996,6 +1996,16 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div id="couple-asset-summary" data-couple-only="1"></div>
   </div>
 
+  <!-- 소유자 필터 -->
+  <div id="wealth-list-filter" style="display:flex;align-items:center;gap:0;margin-bottom:10px">
+    <button id="wlf-all" onclick="setWealthChartOwner('all')"
+      style="padding:6px 10px;border:none;border-bottom:1.5px solid var(--text);background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;color:var(--text);line-height:1">전체</button>
+    <button id="wlf-p1" onclick="setWealthChartOwner('partner1')"
+      style="padding:6px 10px;border:none;border-bottom:1.5px solid transparent;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted2);line-height:1">나</button>
+    <button id="wlf-p2" onclick="setWealthChartOwner('partner2')"
+      style="padding:6px 10px;border:none;border-bottom:1.5px solid transparent;background:none;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted2);line-height:1">배우자</button>
+  </div>
+
   <!-- 자산 항목 목록 -->
   <div id="wealth-list"></div>
 
@@ -5769,10 +5779,12 @@ function renderWealthList() {
     return;
   }
 
-  const stockAssets = wealthAssets.filter(function(a) { return a.type === 'stock-acct'; });
-  const aptAssets = wealthAssets.filter(function(a) { return a.type === 'apt'; });
-  const manualAssets = wealthAssets.filter(function(a) { return !a.autoSrc && !a.isDebt; });
-  const debtAssets = wealthAssets.filter(function(a) { return a.isDebt; });
+  const ownerF = wAssetChartOwner !== 'all' ? wAssetChartOwner : null;
+  const visible = ownerF ? wealthAssets.filter(function(a) { return a.owner === ownerF; }) : wealthAssets;
+  const stockAssets = visible.filter(function(a) { return a.type === 'stock-acct'; });
+  const aptAssets = visible.filter(function(a) { return a.type === 'apt'; });
+  const manualAssets = visible.filter(function(a) { return !a.autoSrc && !a.isDebt; });
+  const debtAssets = visible.filter(function(a) { return a.isDebt; });
 
   let html = '';
   if (aptAssets.length) html += wRenderSection('부동산', wSortByValue(aptAssets));
@@ -13904,9 +13916,19 @@ let assetChartPeriod = 3;
 let wAssetChartOwner = 'all'; // 'all' | 'partner1' | 'partner2'
 
 function setWealthChartOwner(owner) {
-  wAssetChartOwner = (wAssetChartOwner === owner) ? 'all' : owner; // 같은 거 다시 누르면 해제
+  wAssetChartOwner = (wAssetChartOwner === owner) ? 'all' : owner;
+  const map = { all: 'all', partner1: 'p1', partner2: 'p2' };
+  ['all', 'p1', 'p2'].forEach(function(k) {
+    const btn = document.getElementById('wlf-' + k);
+    if (!btn) return;
+    const active = map[wAssetChartOwner] === k;
+    btn.style.color = active ? 'var(--text)' : 'var(--muted2)';
+    btn.style.fontWeight = active ? '700' : '500';
+    btn.style.borderBottom = active ? '1.5px solid var(--text)' : '1.5px solid transparent';
+  });
   renderCoupleAssetSummary();
   renderWealthHero();
+  renderWealthList();
 }
 
 function setAssetChartPeriod(months) {
