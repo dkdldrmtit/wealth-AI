@@ -6138,14 +6138,14 @@ async function wFetchAptHistorical(assetId, month) {
     });
   } catch (e) {}
   if (!results.length) { if (typeof showToast === 'function') showToast('❗ 조건 맞는 거래 없음'); return; }
-  // 단일 월 데이터는 거래 수가 적어 층수 필터가 부정확 — 최신 거래가 그대로 사용
-  results.sort(function(a, b) { return b.day - a.day; });
-  const price = results[0].price;
-  wSaveObs(assetId, month, price);
+  const filtered = filterLowFloor(results, apt);
+  filtered.sort(function(a, b) { return b.day - a.day; });
+  const picked = filtered[0];
+  wSaveObs(assetId, month, picked.price);
   wCloseAllSheets();
   renderWealthList();
   renderWealthHero();
-  if (typeof showToast === 'function') showToast('✅ ' + parseInt(m) + '월 ' + results[0].day + '일 거래 ' + (price / 10000).toFixed(2) + '억 저장됨');
+  if (typeof showToast === 'function') showToast('✅ ' + parseInt(m) + '월 ' + picked.day + '일 거래 ' + (picked.price / 10000).toFixed(2) + '억 저장됨');
 }
 
 // ── 추가 시트 열기
