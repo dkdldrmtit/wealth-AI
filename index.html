@@ -5696,6 +5696,8 @@ function renderWealthPage() {
   wSyncStocks();
   wSyncApts();
   renderWealthMonthPicker();
+  if (typeof _updateWealthChartOwnerButtons === 'function') _updateWealthChartOwnerButtons();
+  if (typeof _updateAssetChartPeriodButtons === 'function') _updateAssetChartPeriodButtons();
   renderWealthHero();
   renderWealthList();
   setTimeout(renderAssetTabChart, 50);
@@ -6149,6 +6151,7 @@ async function wFetchAptHistorical(assetId, month) {
   wCloseAllSheets();
   renderWealthList();
   renderWealthHero();
+  renderAssetTabChart();
   if (typeof showToast === 'function') showToast('✅ ' + parseInt(m) + '월 중간값 ' + (medianPrice / 10000).toFixed(2) + '억 저장됨 (' + filtered.length + '건)');
 }
 
@@ -7932,7 +7935,14 @@ async function deleteRecord() {
   if (!ok) return;
   assetHistory = assetHistory.filter(r => r.month !== targetMonth);
   store('asset-history', assetHistory);
+  // 해당 월의 wealthObs 도 함께 정리 (자산 탭과 정합성 유지)
+  if (typeof wealthObs !== 'undefined' && Array.isArray(wealthObs)) {
+    wealthObs = wealthObs.filter(function(o) { return o.month !== targetMonth; });
+    store('wealth-obs', wealthObs);
+  }
   renderMonthCards(); if (currentAssetView === 'item') renderItemView();
+  renderMiniChart();
+  if (typeof renderWealthPage === 'function') renderWealthPage();
   if (assetHistory.length > 0) updateHomeFromItems(assetHistory[assetHistory.length - 1]);
   else {
     // 기록 없으면 홈 초기화
@@ -10303,6 +10313,10 @@ function refreshAllStocksInDetail() {
   store('asset-history', assetHistory);
   updateHomeFromItems(latest);
   renderMonthCards();
+  renderMiniChart();
+  if (typeof renderWealthHero === 'function') renderWealthHero();
+  if (typeof renderWealthList === 'function') renderWealthList();
+  if (typeof renderAssetTabChart === 'function') renderAssetTabChart();
 
   showToast('✅ ' + updated + '개 주식 항목 업데이트 완료!');
 
@@ -10393,6 +10407,10 @@ async function refreshAllAptsInDetail() {
   renderMonthCards();
   renderHomeApt();
   renderAptList();
+  renderMiniChart();
+  if (typeof renderWealthHero === 'function') renderWealthHero();
+  if (typeof renderWealthList === 'function') renderWealthList();
+  if (typeof renderAssetTabChart === 'function') renderAssetTabChart();
 
   showToast('✅ ' + updated + '개 부동산 실거래가 업데이트 완료!');
 
@@ -13244,7 +13262,7 @@ function saveAptFromModal() {
   }
 
   store('apt-list', aptList);
-  if (typeof wSyncApts === 'function') { wSyncApts(); renderWealthList(); renderWealthHero(); }
+  if (typeof wSyncApts === 'function') { wSyncApts(); renderWealthList(); renderWealthHero(); renderAssetTabChart(); renderMiniChart(); }
   renderAptList();
   renderHomeApt();
   renderInputAptSection();
@@ -13260,7 +13278,7 @@ async function deleteAptFromModal() {
   if (!ok) return;
   aptList = aptList.filter(function(a) { return a.id !== _aptEditingId; });
   store('apt-list', aptList);
-  if (typeof wSyncApts === 'function') { wSyncApts(); renderWealthList(); renderWealthHero(); }
+  if (typeof wSyncApts === 'function') { wSyncApts(); renderWealthList(); renderWealthHero(); renderAssetTabChart(); renderMiniChart(); }
   renderAptList();
   renderHomeApt();
   closeAptModal();
@@ -13719,6 +13737,7 @@ function applyAptToAsset(priceMan, aptId) {
   updateHomeFromItems(latest);
   renderMonthCards();
   renderHomeApt();
+  renderMiniChart();
 
   const diff = priceMan - oldAmt;
   showToast('✅ ' + aptItem.name + ' 반영! ' + (diff >= 0 ? '+' : '') + (diff/10000).toFixed(2) + '억');
@@ -13864,10 +13883,11 @@ function initRealEstate() {
 }
 
 // ── 순자산 차트 기간 필터
-let chartPeriod = 3; // 기본 3개월
+let chartPeriod = load('chart-period', 3); // 기본 3개월
 
 function setChartPeriod(months) {
   chartPeriod = months;
+  store('chart-period', months);
   // 버튼 스타일 업데이트
   [3, 6, 12].forEach(function(m) {
     const btn = document.getElementById('chart-period-' + m);
@@ -13884,11 +13904,10 @@ function setChartPeriod(months) {
 }
 
 // ── 순자산 미니 차트 ──
-let assetChartPeriod = 3;
-let wAssetChartOwner = 'all'; // 'all' | 'partner1' | 'partner2'
+let assetChartPeriod = load('asset-chart-period', 3);
+let wAssetChartOwner = load('w-chart-owner', 'all'); // 'all' | 'partner1' | 'partner2'
 
-function setWealthChartOwner(owner) {
-  wAssetChartOwner = (wAssetChartOwner === owner) ? 'all' : owner;
+function _updateWealthChartOwnerButtons() {
   ['all','p1','p2'].forEach(function(k) {
     const btn = document.getElementById('wlf-' + k);
     if (!btn) return;
@@ -13898,20 +13917,32 @@ function setWealthChartOwner(owner) {
     btn.style.fontWeight = active ? '700' : '500';
     btn.style.borderBottom = active ? '1.5px solid var(--text)' : '1.5px solid transparent';
   });
-  renderWealthHero();
-  renderWealthList();
 }
 
-function setAssetChartPeriod(months) {
-  assetChartPeriod = months;
+function _updateAssetChartPeriodButtons() {
   [3, 6, 12].forEach(function(m) {
     const btn = document.getElementById('asset-chart-period-' + m);
     if (!btn) return;
-    const active = m === months;
+    const active = m === assetChartPeriod;
     btn.style.color = active ? 'var(--text)' : 'var(--muted2)';
     btn.style.fontWeight = active ? '600' : '400';
     btn.style.background = active ? 'var(--surface2)' : 'transparent';
   });
+}
+
+function setWealthChartOwner(owner) {
+  wAssetChartOwner = (wAssetChartOwner === owner) ? 'all' : owner;
+  store('w-chart-owner', wAssetChartOwner);
+  _updateWealthChartOwnerButtons();
+  renderWealthHero();
+  renderWealthList();
+  renderAssetTabChart();
+}
+
+function setAssetChartPeriod(months) {
+  assetChartPeriod = months;
+  store('asset-chart-period', months);
+  _updateAssetChartPeriodButtons();
   renderAssetTabChart();
 }
 
@@ -14017,7 +14048,10 @@ function renderMiniChart() {
   const empty = document.getElementById('mini-chart-empty');
   const badge = document.getElementById('net-change-badge');
 
-  if (!wrap || assetHistory.length < 2) {
+  // 미래 월 제외 + 히어로와 동일하게 wMonthTotals 로 실시간 계산
+  const curMonth = wCurrentMonth();
+  const histPast = assetHistory.filter(function(r) { return r.month <= curMonth; });
+  if (!wrap || histPast.length < 2) {
     if (wrap) wrap.style.display = 'none';
     if (empty) empty.style.display = 'block';
     return;
@@ -14026,8 +14060,11 @@ function renderMiniChart() {
   wrap.style.display = 'block';
 
   // 기간 필터 적용
-  const data = assetHistory.slice(-chartPeriod);
-  const nets = data.map(r => r.net);
+  const data = histPast.slice(-chartPeriod).map(function(r) {
+    const totals = wMonthTotals(r.month);
+    return { month: r.month, net: totals.net };
+  });
+  const nets = data.map(function(r) { return r.net; });
   const min = Math.min(...nets);
   const max = Math.max(...nets);
   const range = max - min || 1;
@@ -16084,6 +16121,7 @@ function saveStock() {
     showToast('✅ 종목이 추가됐어요!');
   }
   store('stocks', stocks);
+  if (typeof wSyncStocks === 'function') wSyncStocks();
   renderStockList();
   closeStockModal();
 }
@@ -16098,6 +16136,7 @@ async function deleteStock() {
   stockAccTypeOrder = stockAccTypeOrder.filter(t => existingAccTypes.has(t));
   store('stk-acc-order', stockAccTypeOrder);
   store('stocks', stocks);
+  if (typeof wSyncStocks === 'function') wSyncStocks();
   renderStockList();
   closeStockModal();
   showToast('🗑️ 종목이 삭제됐어요');
@@ -16212,6 +16251,7 @@ function saveTrade() {
   if (!stocks[idx].trades) stocks[idx].trades = [];
   stocks[idx].trades.push({ type: currentTradeType, qty, price, date, id: Date.now().toString() });
   store('stocks', stocks);
+  if (typeof wSyncStocks === 'function') wSyncStocks();
   renderStockList();
   closeTradeModal();
 }
