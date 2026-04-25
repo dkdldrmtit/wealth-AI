@@ -4775,6 +4775,9 @@ function resetInMemoryUserState() {
     if (typeof aptList !== 'undefined')        aptList = [];
     if (typeof proposals !== 'undefined')      proposals = [];
     if (typeof PARTNER_NAMES !== 'undefined')  PARTNER_NAMES = { partner1: '나', partner2: '배우자', common: '공동' };
+    if (typeof homeCardSettings !== 'undefined' && typeof HOME_CARD_DEFAULTS !== 'undefined') {
+      homeCardSettings = HOME_CARD_DEFAULTS.map(function(c) { return Object.assign({}, c); });
+    }
   } catch (e) {}
 }
 
@@ -8668,6 +8671,25 @@ function applyStagger() {
   });
 }
 
+function applyGhostSummaryValues() {
+  const card = document.getElementById('home-card-summary');
+  if (!card) return;
+  card.style.opacity = '.42';
+  card.style.pointerEvents = 'none';
+  const set = function(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; };
+  set('h-net-large', '5.42');
+  set('h-total', '6.92');
+  set('h-debt', '1.50');
+  set('h-asset-ratio', '82');
+  set('h-debt-ratio', '18');
+  const assetBar = document.getElementById('h-asset-bar');
+  const debtBar = document.getElementById('h-debt-bar');
+  if (assetBar) assetBar.style.width = '82%';
+  if (debtBar) debtBar.style.width = '18%';
+  const badge = document.getElementById('h-net-change-badge');
+  if (badge) badge.innerHTML = '<div style="font-size:11px;color:var(--teal);font-weight:700">▲ +1,200만</div><div style="font-size:9px;color:var(--muted);font-weight:500;margin-top:1px">전월 대비</div>';
+}
+
 function initHome() {
   const now = new Date();
   const sub = document.getElementById('home-date-sub');
@@ -8683,13 +8705,16 @@ function initHome() {
   if (assetHistory.length > 0) {
     updateHomeFromItems(assetHistory[assetHistory.length - 1]);
   }
-  // 자산 기록이 없으면 요약 카드 숨김 (빈 상태 처리)
+  // 자산 기록이 없으면 ghost 예시 값으로 표시
   const summaryCard = document.getElementById('home-card-summary');
   if (summaryCard) {
     if (assetHistory.length === 0) {
-      summaryCard.style.display = 'none';
+      applyGhostSummaryValues();
+      summaryCard.style.display = '';
     } else if (!summaryCard.dataset.forceHidden) {
       // homeCardSettings에 의해 명시적으로 숨겨지지 않았다면 표시
+      summaryCard.style.opacity = '';
+      summaryCard.style.pointerEvents = '';
       const setting = homeCardSettings.find(function(s) { return s.id === 'summary'; });
       summaryCard.style.display = (setting && setting.visible) ? '' : 'none';
     }
@@ -11110,10 +11135,11 @@ const HOME_CARD_DEFAULTS = [
   { id:'widget',           label:'지출 위젯',         desc:'오늘/이번달 지출 금액',        visible:true  },
   { id:'partner-activity', label:'최근 기록',         desc:'우리 둘의 최근 거래',           visible:true  },
   { id:'summary',          label:'자산 요약',         desc:'순자산 큰 숫자',              visible:true  },
+  { id:'ledger',           label:'이달 가계부',       desc:'수입/지출 요약',              visible:true  },
+  { id:'stocks-summary',   label:'주식 포트폴리오',    desc:'보유 종목 요약',              visible:true  },
   { id:'goalguage',        label:'목표 달성률',       desc:'순자산 목표 진행률',           visible:false },
   { id:'ai',               label:'AI 코멘트',         desc:'자산 분석 한마디',             visible:false },
   { id:'schedule',         label:'주요 일정',         desc:'D-day 일정 목록',             visible:false },
-  { id:'ledger',           label:'이달 가계부',       desc:'수입/지출 요약',              visible:false },
 ];
 
 
