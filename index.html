@@ -4653,7 +4653,8 @@ const { data, error } = await _supabase.auth.signUp({
     password,
     options: {
       data: { name },
-      emailRedirectTo: 'https://dkdldrmtit.github.io/wealth-AI/'
+      // 현재 호스팅 도메인을 자동 사용 — GitHub Pages·Cloudflare·커스텀 도메인 모두 대응
+      emailRedirectTo: window.location.origin + window.location.pathname
     }
   });
 
@@ -5468,11 +5469,7 @@ function showSyncError(msg) {
 // ── 입력 필드 매핑 ──
 
 
-let goals = load('goals', [
-  { name: '순자산 7억 달성', target: 70000, current: 55900, deadline: '2027-12' },
-  { name: '순자산 10억 달성', target: 100000, current: 55900, deadline: '2030-06' },
-  { name: '금융자산 2억 달성', target: 20000, current: 12890, deadline: '2028-12' },
-]);
+let goals = load('goals', []);
 
 function monthDiff(a, b) { return (b.getFullYear()-a.getFullYear())*12 + b.getMonth()-a.getMonth(); }
 
@@ -5495,9 +5492,9 @@ function getGoalCurrent(g) {
       return fin;
     }
     if (latest.detail) {
-      const ms = latest.detail.partner1 || latest.detail.minsuk || {};
-      const sy = latest.detail.partner2 || latest.detail.siyun || {};
-      return (ms.irp||0)+(ms.msSub||0)+(ms.s1||0)+(ms.toss||0)+(sy.cash||0)+(sy.sySub||0)+(sy.jump||0)+(sy.fund||0)+(sy.s2||0);
+      const p1 = latest.detail.partner1 || {};
+      const p2 = latest.detail.partner2 || {};
+      return (p1.irp||0)+(p1.msSub||0)+(p1.s1||0)+(p1.toss||0)+(p2.cash||0)+(p2.sySub||0)+(p2.jump||0)+(p2.fund||0)+(p2.s2||0);
     }
   }
   // 총자산 관련 목표
@@ -8367,10 +8364,7 @@ function saveRecord() {
 // 앱 시작 시 초기화
 // ── 일정 관리 ──
 let ledgerTxs = load('ledger-txs', []);
-let schedules = load('schedules', [
-  { name: '전세 만기일', date: '2026-07-31' },
-  { name: '오산 부동산 매각', date: '2026-06-15' },
-]);
+let schedules = load('schedules', []);
 
 let editingScheduleIdx = -1;
 
