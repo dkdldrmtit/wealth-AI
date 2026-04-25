@@ -6463,21 +6463,19 @@ function renderCoupleAssetSummary() {
     return (v < 0 ? '-' : '') + s;
   }
 
-  function col(label, net, color) {
+  function chip(label, net, color) {
     const c = net < 0 ? 'var(--red)' : color;
-    return '<div style="text-align:center;padding:10px 4px">'
-      + '<div style="font-size:9px;font-weight:600;color:var(--muted);letter-spacing:0.3px;margin-bottom:5px">' + label + '</div>'
-      + '<div style="font-size:15px;font-weight:800;color:' + c + '">' + fmtNet(net) + '</div>'
-      + '</div>';
+    return '<span style="font-size:10px;color:var(--muted)">' + label + '</span>'
+      + '<span style="font-size:11px;font-weight:700;color:' + c + ';margin-left:3px">' + fmtNet(net) + '</span>';
   }
 
-  wrap.innerHTML = '<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);'
-    + 'display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;align-items:center">'
-    + col(getP1Name(), p1.net, 'var(--blue)')
-    + '<div style="background:var(--border);height:28px"></div>'
-    + col('공동', cm.net, 'var(--muted2)')
-    + '<div style="background:var(--border);height:28px"></div>'
-    + col(getP2Name(), p2.net, 'var(--green)')
+  wrap.innerHTML = '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);'
+    + 'display:flex;align-items:center;gap:10px">'
+    + chip(getP1Name(), p1.net, 'var(--blue)')
+    + '<span style="color:var(--border2);font-size:10px">·</span>'
+    + chip('공동', cm.net, 'var(--muted2)')
+    + '<span style="color:var(--border2);font-size:10px">·</span>'
+    + chip(getP2Name(), p2.net, 'var(--green)')
     + '</div>';
 }
 
