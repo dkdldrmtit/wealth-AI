@@ -5551,6 +5551,7 @@ function renderWealthPage() {
   renderWealthMonthPicker();
   renderWealthHero();
   renderWealthList();
+  setTimeout(renderAssetTabChart, 50);
 }
 
 function renderWealthMonthPicker() {
@@ -13590,16 +13591,20 @@ function renderAssetTabChart() {
   const badge = document.getElementById('asset-chart-change-badge');
   if (!wrap) return;
 
-  if (assetHistory.length < 2) {
+  // 선택한 달 이후 미래 데이터 제외
+  const selMonth = (typeof wSelectedMonth !== 'undefined' ? wSelectedMonth : wCurrentMonth());
+  const histPast = assetHistory.filter(function(r) { return r.month <= selMonth; });
+
+  if (histPast.length < 2) {
     if (empty) empty.style.display = 'block';
     return;
   }
   if (empty) empty.style.display = 'none';
 
-  const data = assetHistory.slice(-assetChartPeriod);
+  const data = histPast.slice(-assetChartPeriod);
   const nets = data.map(function(r) { return r.net; });
-  const min = Math.min(...nets);
-  const max = Math.max(...nets);
+  const min = Math.min.apply(null, nets);
+  const max = Math.max.apply(null, nets);
   const range = max - min || 1;
 
   const wrapW = wrap.getBoundingClientRect().width || wrap.offsetWidth || 300;
@@ -13610,9 +13615,9 @@ function renderAssetTabChart() {
   const innerH = H - pad.t - pad.b;
 
   const pts = data.map(function(r, i) {
-    const x = pad.l + (i / (data.length - 1)) * innerW;
+    const x = pad.l + (data.length === 1 ? innerW / 2 : (i / (data.length - 1)) * innerW);
     const y = pad.t + innerH - ((r.net - min) / range) * innerH;
-    return { x, y, r };
+    return { x: x, y: y, r: r };
   });
 
   let svg = document.getElementById('asset-tab-chart');
@@ -13632,28 +13637,41 @@ function renderAssetTabChart() {
   svgHtml += '<path d="' + pathD + '" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
 
   pts.forEach(function(p, i) {
+    const isSelected = p.r.month === selMonth;
     const isLast = i === pts.length - 1;
     const isFirst = i === 0;
-    const [yr, mo] = p.r.month.split('-');
-    const showLabel = isLast || isFirst || data.length <= 6;
+    const mo = p.r.month.split('-')[1];
+    const showLabel = isSelected || isLast || isFirst || data.length <= 6;
     if (showLabel) {
       const above = p.y > pad.t + 15;
       const labelY = above ? p.y - 7 : p.y + 14;
-      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + labelY + '" text-anchor="middle" fill="' + (isLast?'var(--text)':'var(--muted2)') + '" font-size="9" font-weight="700" font-family="Noto Sans KR">' + (p.r.net/10000).toFixed(1) + '억</text>';
+      const labelColor = isSelected ? 'var(--text)' : 'var(--muted2)';
+      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + labelY + '" text-anchor="middle" fill="' + labelColor + '" font-size="9" font-weight="' + (isSelected?'900':'700') + '" font-family="Noto Sans KR">' + (p.r.net/10000).toFixed(1) + '억</text>';
     }
     if (showLabel || data.length <= 12) {
-      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + (H-4) + '" text-anchor="middle" fill="var(--muted)" font-size="8" font-family="Noto Sans KR">' + parseInt(mo) + '월</text>';
+      const moColor = isSelected ? 'var(--blue)' : 'var(--muted)';
+      svgHtml += '<text x="' + p.x.toFixed(1) + '" y="' + (H-4) + '" text-anchor="middle" fill="' + moColor + '" font-size="8" font-weight="' + (isSelected?'700':'400') + '" font-family="Noto Sans KR">' + parseInt(mo) + '월</text>';
+    }
+    if (isSelected) {
+      svgHtml += '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="3.5" fill="var(--blue)"/>';
     }
   });
 
   svg.innerHTML = svgHtml;
 
-  // 전월 대비 배지
+  // 선택한 달 기준 전월 대비 배지
   if (badge) {
-    const diff = nets[nets.length-1] - nets[nets.length-2];
-    badge.innerHTML = diff >= 0
-      ? '<span style="background:rgba(74,222,128,.12);color:var(--green);padding:3px 8px;border-radius:20px">▲ +' + (diff/10000).toFixed(2) + '억</span>'
-      : '<span style="background:rgba(239,68,68,.12);color:var(--red);padding:3px 8px;border-radius:20px">▼ ' + (diff/10000).toFixed(2) + '억</span>';
+    const selIdx = data.findIndex(function(r) { return r.month === selMonth; });
+    const curNet = selIdx >= 0 ? nets[selIdx] : nets[nets.length - 1];
+    const prevNet = selIdx > 0 ? nets[selIdx - 1] : (nets.length >= 2 ? nets[nets.length - 2] : null);
+    if (prevNet !== null) {
+      const diff = curNet - prevNet;
+      badge.innerHTML = diff >= 0
+        ? '<span style="background:rgba(74,222,128,.12);color:var(--green);padding:3px 8px;border-radius:20px">▲ +' + (diff/10000).toFixed(2) + '억</span>'
+        : '<span style="background:rgba(239,68,68,.12);color:var(--red);padding:3px 8px;border-radius:20px">▼ ' + (diff/10000).toFixed(2) + '억</span>';
+    } else {
+      badge.innerHTML = '';
+    }
   }
 }
 
