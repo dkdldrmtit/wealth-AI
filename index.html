@@ -1098,11 +1098,11 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
 <!-- ══ 온보딩 ══ -->
 <div id="onboarding-overlay" style="display:none;position:fixed;inset:0;background:#080808;z-index:9999;overflow:hidden;font-family:'Noto Sans KR',sans-serif">
-  <!-- 슬라이드 컨테이너 (2 슬라이드) -->
-  <div id="ob-slides" style="display:flex;width:200%;height:100%;transition:transform .4s cubic-bezier(.4,0,.2,1)">
+  <!-- 슬라이드 컨테이너 (3 슬라이드) -->
+  <div id="ob-slides" style="display:flex;width:300%;height:100%;transition:transform .4s cubic-bezier(.4,0,.2,1)">
 
     <!-- Step 1: 핵심 가치 -->
-    <div style="width:50%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 160px;text-align:center">
+    <div style="width:33.3333%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 160px;text-align:center">
       <div style="font-size:11px;font-weight:400;letter-spacing:6px;color:rgba(90,159,196,0.6);margin-bottom:28px;text-transform:uppercase">For Couples</div>
       <div style="font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:#f0f0f0;margin-bottom:16px;letter-spacing:-.5px;line-height:1.3">부부가 함께<br>돈을 관리해요</div>
       <div style="font-size:14px;color:rgba(255,255,255,0.55);line-height:1.8;max-width:280px">배우자가 지출하면 바로 알림이 와요.<br>큰 소비 전에는 먼저 물어볼 수 있고요.<br>둘이 함께 보는 진짜 가계부.</div>
@@ -1120,19 +1120,47 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       </div>
     </div>
 
-    <!-- Step 2: 이름 설정 -->
-    <div style="width:50%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 160px;text-align:center">
+    <!-- Step 2: 혼자 vs 부부 선택 -->
+    <div style="width:33.3333%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 160px;text-align:center">
+      <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#f0f0f0;margin-bottom:10px;letter-spacing:-.5px">어떻게 사용하세요?</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.45);line-height:1.7;margin-bottom:32px;max-width:280px">언제든 설정에서 바꿀 수 있어요</div>
+      <div style="width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px">
+        <button id="ob-mode-couple" onclick="obSelectMode('couple')"
+          style="width:100%;padding:18px 20px;border-radius:14px;background:rgba(30,58,82,0.18);border:1.5px solid var(--blue);color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;cursor:pointer;text-align:left;transition:all .2s">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="font-size:24px">👫</div>
+            <div style="flex:1">
+              <div style="font-size:15px;font-weight:700;margin-bottom:3px">부부가 함께 써요</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5">배우자와 자산·지출을 공유</div>
+            </div>
+          </div>
+        </button>
+        <button id="ob-mode-solo" onclick="obSelectMode('solo')"
+          style="width:100%;padding:18px 20px;border-radius:14px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.10);color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;cursor:pointer;text-align:left;transition:all .2s">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="font-size:24px">🙋</div>
+            <div style="flex:1">
+              <div style="font-size:15px;font-weight:700;margin-bottom:3px">혼자 써요</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5">개인 자산·가계부로 시작</div>
+            </div>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 3: 이름 설정 -->
+    <div style="width:33.3333%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px 160px;text-align:center">
       <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#f0f0f0;margin-bottom:10px;letter-spacing:-.5px">이름을 알려주세요</div>
-      <div style="font-size:13px;color:rgba(255,255,255,0.45);line-height:1.7;margin-bottom:32px;max-width:280px">자산과 소비를 누가 한 건지 구분할 때 써요.<br>혼자 쓰신다면 배우자 이름은 비워도 돼요.</div>
+      <div id="ob-name-sub" style="font-size:13px;color:rgba(255,255,255,0.45);line-height:1.7;margin-bottom:32px;max-width:280px">자산과 소비를 누가 한 건지 구분할 때 써요.</div>
       <div style="width:100%;max-width:300px;display:flex;flex-direction:column;gap:12px;text-align:left">
         <div>
           <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:.5px">나</div>
           <input id="ob-name1" type="text" placeholder="이름 입력" maxlength="10"
             style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;padding:13px 16px;outline:none;box-sizing:border-box;-webkit-appearance:none">
         </div>
-        <div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:.5px">배우자 <span style="color:rgba(255,255,255,0.25)">(선택)</span></div>
-          <input id="ob-name2" type="text" placeholder="배우자 이름 (선택)" maxlength="10"
+        <div id="ob-name2-wrap">
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:.5px">배우자</div>
+          <input id="ob-name2" type="text" placeholder="배우자 이름" maxlength="10"
             style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;padding:13px 16px;outline:none;box-sizing:border-box;-webkit-appearance:none">
         </div>
       </div>
@@ -1144,6 +1172,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <!-- 점 인디케이터 -->
     <div id="ob-dots" style="display:flex;justify-content:center;gap:6px;margin-bottom:20px">
       <div class="ob-dot" style="width:20px;height:4px;border-radius:2px;background:var(--blue);transition:all .3s"></div>
+      <div class="ob-dot" style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);transition:all .3s"></div>
       <div class="ob-dot" style="width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);transition:all .3s"></div>
     </div>
     <!-- 버튼 -->
@@ -5507,7 +5536,33 @@ function getGoalCurrent(g) {
 
 function renderGoals() {
   const list = document.getElementById('goals-list');
-  if (!goals.length) { list.innerHTML = '<div class="empty-state"><div class="es-icon">🎯</div><div class="es-title">아직 목표가 없어요</div><div class="es-sub">아래에서 목표를 추가하면<br>달성률을 자동으로 추적해드려요!</div></div>'; return; }
+  if (!goals.length) {
+    // 빈 상태: 안내 + ghost 예시 (실제 데이터처럼 보이지만 회색 처리, 클릭 시 새 목표 추가)
+    list.innerHTML =
+      '<div class="empty-state"><div class="es-icon">🎯</div><div class="es-title">아직 목표가 없어요</div><div class="es-sub">아래 + 버튼으로 목표를 추가하면<br>달성률을 자동으로 추적해드려요!</div></div>'
+      + '<div style="margin-top:14px;padding:0 4px">'
+      +   '<div style="font-size:11px;color:var(--muted2);margin-bottom:8px;letter-spacing:.3px">예시 — 이렇게 보여요</div>'
+      +   '<div style="opacity:.45;pointer-events:none">'
+      +     '<div class="goal-item">'
+      +       '<div class="goal-header">'
+      +         '<div class="goal-name">순자산 5억 달성</div>'
+      +         '<div class="goal-pct" style="color:#fbbf24">42%</div>'
+      +       '</div>'
+      +       '<div class="goal-bar-bg"><div class="goal-bar-fill pct-mid" style="width:42%"></div></div>'
+      +       '<div style="font-size:11px;color:var(--muted);margin-top:6px">2030년 12월까지</div>'
+      +     '</div>'
+      +     '<div class="goal-item" style="margin-top:10px">'
+      +       '<div class="goal-header">'
+      +         '<div class="goal-name">비상금 2,000만원 모으기</div>'
+      +         '<div class="goal-pct" style="color:var(--green)">75%</div>'
+      +       '</div>'
+      +       '<div class="goal-bar-bg"><div class="goal-bar-fill pct-high" style="width:75%"></div></div>'
+      +       '<div style="font-size:11px;color:var(--muted);margin-top:6px">2026년 12월까지</div>'
+      +     '</div>'
+      +   '</div>'
+      + '</div>';
+    return;
+  }
 
   const latest = assetHistory.length > 0 ? assetHistory[assetHistory.length-1] : null;
   const latestMonth = latest ? latest.month : null;
@@ -6854,7 +6909,32 @@ function renderMonthCards() {
   renderCoupleAssetSummary();
 
   if (!assetHistory.length) {
-    wrap.innerHTML = '<div class="empty-state"><div class="es-icon">📊</div><div class="es-title">아직 자산 기록이 없어요</div><div class="es-sub">위 버튼을 눌러<br>첫 번째 자산 기록을 추가해보세요!</div></div>';
+    wrap.innerHTML =
+      '<div class="empty-state"><div class="es-icon">📊</div><div class="es-title">아직 자산 기록이 없어요</div><div class="es-sub">위 버튼을 눌러<br>첫 번째 자산 기록을 추가해보세요!</div></div>'
+      + '<div style="margin-top:14px">'
+      +   '<div style="font-size:11px;color:var(--muted2);margin-bottom:8px;letter-spacing:.3px;padding:0 4px">예시 — 이렇게 기록돼요</div>'
+      +   '<div style="opacity:.45;pointer-events:none;display:flex;flex-direction:column;gap:8px">'
+      +     '<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px">'
+      +       '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">'
+      +         '<div>'
+      +           '<div style="font-size:11px;color:var(--muted)">2026년 4월</div>'
+      +           '<div style="font-size:20px;font-weight:700;color:var(--text);margin-top:4px">5.42억</div>'
+      +         '</div>'
+      +         '<span style="font-size:12px;font-weight:600;color:var(--text)">▲ +0.18억</span>'
+      +       '</div>'
+      +       '<div style="font-size:11px;color:var(--muted);margin-top:6px">자산 4.20억 · 부채 -0.78억</div>'
+      +     '</div>'
+      +     '<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px">'
+      +       '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">'
+      +         '<div>'
+      +           '<div style="font-size:11px;color:var(--muted)">2026년 3월</div>'
+      +           '<div style="font-size:20px;font-weight:700;color:var(--text);margin-top:4px">5.24억</div>'
+      +         '</div>'
+      +         '<span style="font-size:11px;color:var(--muted)">첫 기록</span>'
+      +       '</div>'
+      +     '</div>'
+      +   '</div>'
+      + '</div>';
     return;
   }
   const rows = [...assetHistory].reverse();
@@ -8197,16 +8277,17 @@ function openModal(month) {
   updatePreview();
 }
 
-// ── 온보딩 (심플: 2단계) ──
+// ── 온보딩 (3단계: 가치 → 모드 선택 → 이름) ──
 var _obStep = 0;
-var _obTotal = 2;
+var _obTotal = 3;
+var _obMode = 'couple'; // 기본값: 부부
 
 function obUpdateUI() {
   var slides = document.getElementById('ob-slides');
   var dots = document.querySelectorAll('.ob-dot');
   var nextBtn = document.getElementById('ob-next-btn');
   var skipBtn = document.getElementById('ob-skip-btn');
-  if (slides) slides.style.transform = 'translateX(-' + (_obStep * 50) + '%)';
+  if (slides) slides.style.transform = 'translateX(-' + (_obStep * (100 / _obTotal)) + '%)';
   dots.forEach(function(d, i) {
     d.style.width = i === _obStep ? '20px' : '4px';
     d.style.background = i === _obStep ? 'var(--blue)' : 'rgba(255,255,255,0.2)';
@@ -8215,10 +8296,36 @@ function obUpdateUI() {
   if (skipBtn) skipBtn.style.display = _obStep === _obTotal - 1 ? 'none' : 'block';
 }
 
+function obSelectMode(mode) {
+  _obMode = mode;
+  // 시각적 선택 표시
+  var coupleBtn = document.getElementById('ob-mode-couple');
+  var soloBtn = document.getElementById('ob-mode-solo');
+  if (coupleBtn) {
+    coupleBtn.style.background = mode === 'couple' ? 'rgba(30,58,82,0.18)' : 'rgba(255,255,255,0.04)';
+    coupleBtn.style.borderColor = mode === 'couple' ? 'var(--blue)' : 'rgba(255,255,255,0.10)';
+  }
+  if (soloBtn) {
+    soloBtn.style.background = mode === 'solo' ? 'rgba(30,58,82,0.18)' : 'rgba(255,255,255,0.04)';
+    soloBtn.style.borderColor = mode === 'solo' ? 'var(--blue)' : 'rgba(255,255,255,0.10)';
+  }
+  // 솔로 모드면 이름 단계의 배우자 입력 영역 숨김
+  var name2Wrap = document.getElementById('ob-name2-wrap');
+  var nameSub = document.getElementById('ob-name-sub');
+  if (mode === 'solo') {
+    if (name2Wrap) name2Wrap.style.display = 'none';
+    if (nameSub) nameSub.textContent = '내 자산·지출 기록에 사용해요.';
+  } else {
+    if (name2Wrap) name2Wrap.style.display = '';
+    if (nameSub) nameSub.textContent = '자산과 소비를 누가 한 건지 구분할 때 써요.';
+  }
+}
+
 function obNext() {
   if (_obStep < _obTotal - 1) {
     _obStep++;
     obUpdateUI();
+    // 마지막 단계 진입 시 이름 입력란 포커스
     if (_obStep === _obTotal - 1) {
       setTimeout(function() {
         var el = document.getElementById('ob-name1');
@@ -8242,6 +8349,8 @@ function obFinish() {
     PARTNER_NAMES.partner2 = n2.trim() || '배우자';
     savePartnerNames();
   }
+  // 솔로 모드 저장 (홈 화면에서 솔로 전용 UI 적용에 사용)
+  try { store('solo-mode', _obMode === 'solo'); } catch (e) {}
   if (currentUser) store('onboarding-done-' + currentUser.id, true);
   var ob = document.getElementById('onboarding-overlay');
   if (ob) {
@@ -8249,6 +8358,8 @@ function obFinish() {
     ob.style.opacity = '0';
     setTimeout(function() { ob.style.display = 'none'; }, 300);
   }
+  // 솔로 모드 UI 즉시 적용
+  if (typeof applySoloModeVisibility === 'function') applySoloModeVisibility();
 }
 
 function closeModal() {
@@ -8405,7 +8516,20 @@ function renderSchedules() {
     .sort((a,b) => parseLocalDate(a.date)-parseLocalDate(b.date));
 
   if (!sorted.length) {
-    list.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:12px 0">+ 추가 버튼으로 일정을 등록해보세요!</div>';
+    // 빈 상태: 안내 + ghost 예시
+    list.innerHTML =
+      '<div style="text-align:center;color:var(--muted);font-size:12px;padding:8px 0 12px">+ 버튼으로 일정을 등록하면 D-day로 표시돼요</div>'
+      + '<div style="opacity:.4;pointer-events:none;font-size:11px;color:var(--muted2);margin-bottom:6px;letter-spacing:.3px">예시</div>'
+      + '<div style="opacity:.4;pointer-events:none;display:flex;flex-direction:column;gap:6px">'
+      +   '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--surface2);border-radius:8px">'
+      +     '<div style="font-size:12px;color:var(--text)">전세 계약 만기일</div>'
+      +     '<div style="font-size:11px;color:var(--blue);font-weight:700">D-185</div>'
+      +   '</div>'
+      +   '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--surface2);border-radius:8px">'
+      +     '<div style="font-size:12px;color:var(--text)">결혼기념일</div>'
+      +     '<div style="font-size:11px;color:var(--gold);font-weight:700">D-42</div>'
+      +   '</div>'
+      + '</div>';
     return;
   }
 
@@ -11398,8 +11522,13 @@ function loadPartnerNamesUI() {
 
 // ── 혼자 모드 감지 및 배우자 UI 제어 ──
 function isSoloMode() {
-  // 커플 연결 안 됨 + 배우자 이름이 비어있거나 기본값이면 혼자 모드
+  // 커플 연결돼있으면 무조건 부부 모드
   if (currentCoupleId) return false;
+  // 온보딩에서 명시적으로 선택한 모드가 있으면 그것을 우선
+  const explicit = load('solo-mode', null);
+  if (explicit === true) return true;
+  if (explicit === false) return false;
+  // 미선택 상태(기존 사용자)면 배우자 이름으로 추정
   const p2 = (PARTNER_NAMES.partner2 || '').trim();
   return !p2 || p2 === '배우자';
 }
@@ -17913,14 +18042,31 @@ function renderLedgerList(txs) {
   if (!wrap) return;
 
   if (!txs.length) {
-    wrap.innerHTML = '<div style="text-align:center;padding:50px 0;color:var(--muted)">'
+    wrap.innerHTML = '<div style="text-align:center;padding:40px 0 24px;color:var(--muted)">'
       + '<div style="font-size:40px;margin-bottom:12px">📭</div>'
       + '<div style="font-size:14px;font-weight:600;margin-bottom:6px">내역이 없어요</div>'
       + '<div style="font-size:12px;margin-bottom:20px">이번달 첫 거래를 기록해보세요!</div>'
       + '<div style="display:flex;gap:8px;justify-content:center">'
       + '<button onclick="openLedgerAdd(\'expense\')" style="padding:12px 20px;border-radius:12px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--red);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:700;cursor:pointer">💸 지출 추가</button>'
       + '<button onclick="openLedgerAdd(\'income\')" style="padding:12px 20px;border-radius:12px;background:rgba(90,159,196,.12);border:1px solid rgba(90,159,196,.3);color:var(--blue);font-family:\'Noto Sans KR\',sans-serif;font-size:13px;font-weight:700;cursor:pointer">💰 수입 추가</button>'
-      + '</div></div>';
+      + '</div></div>'
+      + '<div style="margin-top:8px;padding:0 4px">'
+      +   '<div style="font-size:11px;color:var(--muted2);margin-bottom:8px;letter-spacing:.3px">예시 — 이렇게 보여요</div>'
+      +   '<div style="opacity:.4;pointer-events:none;display:flex;flex-direction:column;gap:6px">'
+      +     '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center">'
+      +       '<div><div style="font-size:13px;color:var(--text);font-weight:600">스타벅스</div><div style="font-size:11px;color:var(--muted);margin-top:2px">☕ 카페 · 오늘</div></div>'
+      +       '<div style="font-size:14px;font-weight:700;color:var(--red)">-5,500원</div>'
+      +     '</div>'
+      +     '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center">'
+      +       '<div><div style="font-size:13px;color:var(--text);font-weight:600">월급</div><div style="font-size:11px;color:var(--muted);margin-top:2px">💰 수입 · 어제</div></div>'
+      +       '<div style="font-size:14px;font-weight:700;color:var(--blue)">+3,200,000원</div>'
+      +     '</div>'
+      +     '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center">'
+      +       '<div><div style="font-size:13px;color:var(--text);font-weight:600">마트 장보기</div><div style="font-size:11px;color:var(--muted);margin-top:2px">🛒 식비 · 2일 전</div></div>'
+      +       '<div style="font-size:14px;font-weight:700;color:var(--red)">-48,200원</div>'
+      +     '</div>'
+      +   '</div>'
+      + '</div>';
     return;
   }
 
