@@ -6190,6 +6190,7 @@ async function wFetchAptHistorical(assetId, month) {
       const code = serverError && serverError.error && serverError.error.code;
       if (code === 'monthly_limit_exceeded') {
         if (typeof showToast === 'function') showToast('❗ 이번 달 실거래가 조회 한도 초과');
+        setTimeout(function() { if (typeof openPricingModal === 'function') openPricingModal(); }, 100);
         return;
       }
     } else if (data && data.xml && data.xml.includes('<item>')) {
@@ -12191,6 +12192,8 @@ async function callAi(opts) {
     const code = serverError && serverError.error && serverError.error.code;
     if (code === 'monthly_limit_exceeded') {
       const limit = (serverError.error && serverError.error.limit) || 50;
+      // 한도 초과 시 업셀 모달 자동 표시
+      setTimeout(function() { if (typeof openPricingModal === 'function') openPricingModal(); }, 100);
       const err = new Error('이번 달 무료 AI 사용량(' + limit + '회)을 모두 사용했어요. 프리미엄으로 업그레이드하면 무제한 사용 가능해요.');
       err.code = 'monthly_limit_exceeded';
       throw err;
@@ -12649,6 +12652,7 @@ async function fetchMolitData(proxyUrl, apiKey, lawdCd, aptName, areaMin, areaMa
         } catch(e) {}
         const code = serverError && serverError.error && serverError.error.code;
         if (code === 'monthly_limit_exceeded') {
+          setTimeout(function() { if (typeof openPricingModal === 'function') openPricingModal(); }, 100);
           throw new Error('이번 달 실거래가 조회 한도를 모두 사용했어요. 프리미엄으로 업그레이드하면 무제한 사용 가능해요.');
         }
         // 그 외 오류는 조용히 skip (다음 달로 진행)
