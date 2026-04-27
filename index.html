@@ -2515,6 +2515,17 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
         <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.6">배우자에게 이 코드를 알려주면<br>같은 공간에서 재무를 관리할 수 있어요</div>
       </div>
 
+      <!-- 커플 연결 해제 (연결 상태일 때만 표시) -->
+      <div id="couple-leave-section" style="display:none;margin-bottom:12px">
+        <button onclick="handleLeaveCouple()"
+          style="width:100%;padding:11px;border-radius:10px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.18);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer">
+          커플 연결 해제
+        </button>
+        <div style="font-size:10px;color:var(--muted2);text-align:center;margin-top:6px;line-height:1.5">
+          현재 데이터를 내 솔로 공간으로 가져온 뒤 분리합니다.
+        </div>
+      </div>
+
       <!-- 커플 연결 (미연결 상태일 때만 표시) -->
       <div id="couple-connect-section" style="display:none;margin-bottom:12px">
         <div style="padding:14px;background:var(--surface2);border-radius:12px">
@@ -4919,7 +4930,7 @@ async function handleJoinCouple() {
   if (bringMyData) {
     successEl.style.display = 'block';
     successEl.textContent = '📤 내 데이터를 옮기는 중...';
-    await migrateSoloDataToCouple();
+    await flushInMemoryToSupabase();
   }
 
   successEl.style.display = 'block';
@@ -5242,14 +5253,17 @@ async function saveAppDataToSupabase(key, data) {
   else console.log('✅ Supabase 저장:', key);
 }
 
-// 커플 가입 직전까지 솔로로 쌓아둔 인메모리 데이터를 새 couple_id 행에 그대로 복사한다.
-// currentCoupleId 가 이미 새 couple_id 로 세팅돼 있어야 한다.
-async function migrateSoloDataToCouple() {
-  if (!currentUser || !currentCoupleId) return { migrated: 0 };
+// 인메모리 데이터를 현재 활성 공간(couple_id 또는 user_id)에 모두 저장한다.
+// saveToSupabase / saveAppDataToSupabase 가 currentCoupleId 를 보고 키를 결정하므로,
+// 호출 직전에 currentCoupleId 를 원하는 값으로 맞춰두면 된다.
+//   - 솔로→커플 마이그레이션: currentCoupleId = newCoupleId 로 세팅 후 호출
+//   - 커플→솔로 분리: currentCoupleId = null 로 세팅 후 호출
+async function flushInMemoryToSupabase() {
+  if (!currentUser) return { migrated: 0 };
   let migrated = 0;
   const safeSave = async function(fn, label) {
     try { await fn(); migrated++; }
-    catch (e) { console.warn('마이그레이션 실패:', label, e); }
+    catch (e) { console.warn('동기화 실패:', label, e); }
   };
 
   if (assetHistory.length)   await safeSave(() => saveToSupabase('asset_history', assetHistory), 'asset_history');
@@ -5292,6 +5306,87 @@ function hasSoloDataToMigrate() {
     || (goals && goals.length > 0)
     || (wealthAssets && wealthAssets.length > 0)
     || (aptList && aptList.length > 0);
+}
+
+// 커플 연결 해제 — 현재 커플 공간 데이터를 솔로 공간으로 복사한 뒤 분리한다.
+async function handleLeaveCouple() {
+  if (!currentUser || !currentCoupleId) return;
+
+  const hasData = hasSoloDataToMigrate();
+  const ok = await showConfirm(
+    hasData
+      ? '⚠️ 커플 연결을 해제할까요?\n\n현재 커플 공간의 모든 데이터(자산·가계부·주식·목표 등)를 내 솔로 공간으로 복사한 뒤 연결을 끊습니다.\n\n• 상대방은 커플 공간 데이터를 그대로 유지해요.\n• 내 데이터는 솔로 공간에서 계속 쓸 수 있어요.'
+      : '⚠️ 커플 연결을 해제할까요?\n\n해제하면 다시 솔로로 돌아갑니다. 나중에 같은 초대 코드로 다시 연결할 수 있어요.',
+    '연결 해제'
+  );
+  if (!ok) return;
+
+  showToast('🔄 연결 해제 중...', 'info', 4000);
+
+  try {
+    // 1. 현재 커플 데이터를 내 user_id 공간에 복사
+    if (hasData) {
+      const savedCoupleId = currentCoupleId;
+      currentCoupleId = null; // saveToSupabase 가 user_id 키로 저장하도록
+      try {
+        await flushInMemoryToSupabase();
+      } finally {
+        currentCoupleId = savedCoupleId;
+      }
+    }
+
+    // 2. couples 테이블에서 내 슬롯 비우기 (RPC 가 있으면 그쪽 우선, 없으면 직접 update)
+    const userId = currentUser.id;
+    const { data: rpcRes, error: rpcErr } = await _supabase
+      .rpc('leave_couple', { p_couple_id: currentCoupleId });
+
+    if (rpcErr) {
+      // RPC 미구현이면 직접 처리 (RLS 가 허용하는 경우만)
+      const { data: coupleRow } = await _supabase
+        .from('couples')
+        .select('partner1_id,partner2_id')
+        .eq('id', currentCoupleId)
+        .maybeSingle();
+
+      if (coupleRow) {
+        const update = {};
+        if (coupleRow.partner1_id === userId) update.partner1_id = null;
+        if (coupleRow.partner2_id === userId) update.partner2_id = null;
+
+        const otherStillThere =
+          (coupleRow.partner1_id && coupleRow.partner1_id !== userId) ||
+          (coupleRow.partner2_id && coupleRow.partner2_id !== userId);
+
+        if (otherStillThere) {
+          await _supabase.from('couples').update(update).eq('id', currentCoupleId);
+        } else {
+          await _supabase.from('couples').delete().eq('id', currentCoupleId);
+        }
+      }
+    }
+
+    // 3. 내 프로필에서 couple_id 제거
+    await _supabase
+      .from('profiles')
+      .update({ couple_id: null })
+      .eq('id', userId);
+
+    // 4. 인메모리 상태 갱신
+    currentCoupleId = null;
+    if (currentProfile) currentProfile.couple_id = null;
+
+    showToast('✅ 커플 연결이 해제됐어요', 'success', 4000);
+
+    // 5. 솔로 공간 데이터로 다시 로드
+    setTimeout(async function() {
+      await loadAllDataFromSupabase();
+      if (typeof renderCoupleSettings === 'function') renderCoupleSettings();
+      if (typeof updateCoupleConnectUI === 'function') updateCoupleConnectUI();
+    }, 800);
+  } catch (e) {
+    console.warn('커플 해제 실패:', e);
+    showToast('❗ 연결 해제 중 오류가 발생했어요', 'error', 4000);
+  }
 }
 
 
@@ -11519,16 +11614,19 @@ async function renderCoupleSettings() {
 function updateCoupleConnectUI() {
   const connectSection = document.getElementById('couple-connect-section');
   const codeSection = document.getElementById('couple-code-section');
+  const leaveSection = document.getElementById('couple-leave-section');
   if (!connectSection || !codeSection) return;
 
   if (!currentCoupleId) {
-    // 미연결 → 연결 UI 표시, 초대코드 섹션 숨김
+    // 미연결 → 연결 UI 표시, 초대코드/해제 섹션 숨김
     connectSection.style.display = 'block';
     codeSection.style.display = 'none';
+    if (leaveSection) leaveSection.style.display = 'none';
   } else {
-    // 연결됨 → 초대코드 섹션 표시
+    // 연결됨 → 초대코드 / 해제 섹션 표시
     connectSection.style.display = 'none';
     codeSection.style.display = 'block';
+    if (leaveSection) leaveSection.style.display = 'block';
   }
 }
 
@@ -11643,7 +11741,7 @@ async function handleJoinCoupleFromSettings() {
 
   if (bringMyData) {
     msgEl.textContent = '📤 내 데이터를 옮기는 중...';
-    await migrateSoloDataToCouple();
+    await flushInMemoryToSupabase();
   }
 
   msgEl.style.background = 'rgba(34,197,94,0.08)';
