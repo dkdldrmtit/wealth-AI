@@ -5375,6 +5375,12 @@ function escHtml(str) {
     .replace(/'/g, '&#x27;');
 }
 
+// JS string literal safe in HTML attribute (e.g. onclick="fn(<here>)")
+// JSON.stringify gives a valid JS string literal; escHtml makes it safe in the attribute.
+function escJsAttr(str) {
+  return escHtml(JSON.stringify(str == null ? '' : String(str)));
+}
+
 // ══════════════════════════════════════
 // 🚫 iOS 호환 커스텀 Confirm 모달
 // ══════════════════════════════════════
@@ -6304,8 +6310,8 @@ function wRenderAssetRow(asset) {
   return '<div class="wealth-asset-row" onclick="wOpenEditSheet(\'' + asset.id + '\')">'
     + '<div class="wealth-owner-dot" style="background:' + ownerColor + '"></div>'
     + '<div style="flex:1;min-width:0">'
-    + '<div style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + asset.name + '</div>'
-    + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + subText + '</div>'
+    + '<div style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escHtml(asset.name) + '</div>'
+    + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + escHtml(subText) + '</div>'
     + '</div>'
     + '<div style="text-align:right;flex-shrink:0">' + valueHtml + '</div>'
     + '</div>';
@@ -6377,7 +6383,7 @@ function wOpenEditSheet(assetId) {
     + '<span style="width:8px;height:8px;border-radius:50%;background:' + ownerColor + ';flex-shrink:0;display:inline-block"></span>'
     + '<span style="font-size:11px;color:var(--muted);font-weight:600">' + ownerName + (asset.autoSrc ? ' · 자동연동' : '') + '</span>'
     + '</div>'
-    + '<div style="font-size:20px;font-weight:800;color:var(--text);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + asset.name + '</div>'
+    + '<div style="font-size:20px;font-weight:800;color:var(--text);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escHtml(asset.name) + '</div>'
     + '<div style="margin-top:5px"><span style="font-size:10px;font-weight:600;color:var(--muted2);background:var(--surface2);padding:2px 8px;border-radius:6px">' + typeLabel + '</span></div>'
     + '</div>'
     + '<button onclick="wCloseEditSheet()" style="background:none;border:none;width:36px;height:36px;cursor:pointer;color:var(--muted);font-size:18px;line-height:1;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:-4px">'
@@ -7008,7 +7014,7 @@ function renderMonthCards() {
         changes.slice(0,4).forEach(function(c) {
           const color = c.diff > 0 ? 'var(--muted2)' : 'var(--red)';
           itemChangesHtml += '<span style="font-size:11px;color:' + color + '">'
-            + c.name + ' ' + (c.diff > 0 ? '+' : '') + (c.diff/10000).toFixed(1) + '억'
+            + escHtml(c.name) + ' ' + (c.diff > 0 ? '+' : '') + (c.diff/10000).toFixed(1) + '억'
             + '</span>';
         });
         if (changes.length > 4) itemChangesHtml += '<span style="font-size:11px;color:var(--muted)">+' + (changes.length-4) + '개</span>';
@@ -7051,10 +7057,10 @@ function renderMonthCards() {
         ? '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:6px">'
           + (r.items || []).filter(i => i.stockLink).map(i =>
               '<span style="font-size:10px;font-weight:600;color:var(--blue);background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.15);border-radius:6px;padding:2px 8px">'
-              + '🔗 ' + i.name
+              + '🔗 ' + escHtml(i.name)
               + ' <span style="font-weight:400;color:var(--muted)">'
               + (i.stockLink === 'KR' ? '국내' : '해외')
-              + (i.stockLinkTime ? ' · ' + i.stockLinkTime : '')
+              + (i.stockLinkTime ? ' · ' + escHtml(i.stockLinkTime) : '')
               + '</span></span>'
             ).join('')
           + '</div>'
@@ -7316,7 +7322,7 @@ function renderItemView() {
       html += '<div onclick="closeAssetDetail();openModal(\'' + latestMonth2 + '\')" style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 12px;margin-bottom:6px;cursor:pointer;transition:transform .1s" onmousedown="this.style.transform=\'scale(0.98)\'" onmouseup="this.style.transform=\'\'" ontouchstart="this.style.transform=\'scale(0.98)\'" ontouchend="this.style.transform=\'\'">';
       html += '<div style="display:flex;justify-content:space-between;align-items:center">';
       html += '<div style="min-width:0;flex:1">';
-      html += '<div style="font-size:12px;font-weight:700;color:var(--text)">' + ik.name + '</div>';
+      html += '<div style="font-size:12px;font-weight:700;color:var(--text)">' + escHtml(ik.name) + '</div>';
       html += '<div style="font-size:15px;font-weight:900;color:' + (isDebt ? 'var(--red)' : 'var(--teal)') + ';margin-top:1px">' + amtDisplay + '</div>';
       const latestMemo = (function() {
         for (var hi = assetHistory.length - 1; hi >= 0; hi--) {
@@ -7626,21 +7632,18 @@ function renderAddItemPresets() {
       const label = [acc.broker, acc.accountType].filter(Boolean).join(' · ');
       if (isDup) {
         return '<div style="padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);opacity:0.45;margin-bottom:8px">'
-          + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">' + label + '</div>'
+          + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">' + escHtml(label) + '</div>'
           + '<div style="font-size:15px;font-weight:800;color:var(--muted)">' + evalMan.toLocaleString() + '만원</div>'
           + '<div style="font-size:10px;color:var(--muted);margin-top:2px">이미 연동됨</div>'
           + '</div>';
       }
-      // encode for safe inline onclick
-      const safeType = acc.accountType.replace(/'/g, '\\x27');
-      const safeBroker = (acc.broker || '').replace(/'/g, '\\x27');
-      return '<button onclick="linkStockByAccount(\'' + ownerId + '\',\'' + safeType + '\',\'' + safeBroker + '\')" style="'
+      return '<button onclick="linkStockByAccount(' + escJsAttr(ownerId) + ',' + escJsAttr(acc.accountType) + ',' + escJsAttr(acc.broker || '') + ')" style="'
         + 'display:block;width:100%;padding:10px 14px;border-radius:12px;'
         + 'border:1px solid rgba(30,58,82,0.2);background:rgba(30,58,82,0.04);'
         + 'font-family:\'Noto Sans KR\',sans-serif;cursor:pointer;text-align:left;margin-bottom:8px;transition:all .15s">'
         + '<div style="display:flex;justify-content:space-between;align-items:center">'
         + '<div>'
-        + '<div style="font-size:11px;color:var(--muted);margin-bottom:3px">' + label + '</div>'
+        + '<div style="font-size:11px;color:var(--muted);margin-bottom:3px">' + escHtml(label) + '</div>'
         + '<div style="font-size:16px;font-weight:900;color:var(--text)">' + evalMan.toLocaleString() + '만원</div>'
         + '</div>'
         + '<span style="font-size:10px;font-weight:700;color:var(--blue);background:rgba(30,58,82,0.1);padding:3px 10px;border-radius:10px;flex-shrink:0">연동</span>'
@@ -7661,11 +7664,11 @@ function renderAddItemPresets() {
       html += '<div style="font-size:11px;color:var(--muted);padding:12px;background:var(--surface2);border-radius:10px;text-align:center;margin-bottom:10px">⚠️ 주식 탭에서 시세 갱신 후 다시 시도해주세요</div>';
     }
     if (p1Accounts.length > 0) {
-      html += '<div style="font-size:10px;font-weight:700;color:var(--muted2);letter-spacing:0.3px;margin-bottom:6px">' + getP1Name() + '</div>';
+      html += '<div style="font-size:10px;font-weight:700;color:var(--muted2);letter-spacing:0.3px;margin-bottom:6px">' + escHtml(getP1Name()) + '</div>';
       html += p1Accounts.map(function(acc) { return accountCard('partner1', acc); }).join('');
     }
     if (p2Accounts.length > 0) {
-      html += '<div style="font-size:10px;font-weight:700;color:var(--muted2);letter-spacing:0.3px;margin-bottom:6px;margin-top:' + (p1Accounts.length > 0 ? '8px' : '0') + '">' + getP2Name() + '</div>';
+      html += '<div style="font-size:10px;font-weight:700;color:var(--muted2);letter-spacing:0.3px;margin-bottom:6px;margin-top:' + (p1Accounts.length > 0 ? '8px' : '0') + '">' + escHtml(getP2Name()) + '</div>';
       html += p2Accounts.map(function(acc) { return accountCard('partner2', acc); }).join('');
     }
 
@@ -8853,9 +8856,9 @@ function renderCatSettings() {
     wrap.innerHTML = CATEGORIES[type].map(function(cat, i) {
       const isDefault = DEFAULT_CAT_IDS[type].includes(cat.id);
       return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">'
-        + '<div style="width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;background:' + cat.color + '22">' + cat.label.split(' ')[0] + '</div>'
+        + '<div style="width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;background:' + cat.color + '22">' + escHtml(cat.label.split(' ')[0]) + '</div>'
         + '<div style="flex:1;min-width:0">'
-        + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + cat.label.split(' ').slice(1).join(' ') + '</div>'
+        + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + escHtml(cat.label.split(' ').slice(1).join(' ')) + '</div>'
         + '<div style="display:flex;align-items:center;gap:6px;margin-top:3px">'
         + '<div style="width:10px;height:10px;border-radius:3px;background:' + cat.color + '"></div>'
         + '<span style="font-size:10px;color:var(--muted)">' + cat.color + '</span>'
@@ -9361,10 +9364,10 @@ function renderPartnerActivity() {
     return '<div onclick="goToLedgerTx(\'' + tx.id + '\')" style="display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer' + (isLast ? '' : ';border-bottom:1px solid var(--border)') + '">'
       + '<div style="width:6px;height:6px;border-radius:50%;background:' + catColor + ';flex-shrink:0"></div>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:13px;color:var(--text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (tx.memo || catLabel) + '</div>'
+      + '<div style="font-size:13px;color:var(--text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escHtml(tx.memo || catLabel) + '</div>'
       + '<div style="font-size:11px;color:var(--muted);margin-top:2px">'
-      + '<span style="color:' + ownerColor + ';font-weight:700">' + ownerLabel + '</span>'
-      + ' · ' + catLabel + ' · ' + timeAgo(tx.date)
+      + '<span style="color:' + ownerColor + ';font-weight:700">' + escHtml(ownerLabel) + '</span>'
+      + ' · ' + escHtml(catLabel) + ' · ' + timeAgo(tx.date)
       + '</div>'
       + '</div>'
       + '<div style="font-size:14px;font-weight:700;color:' + amtColor + ';flex-shrink:0;font-variant-numeric:tabular-nums">' + amtSign + amountRaw.toLocaleString() + '원</div>'
@@ -9459,7 +9462,7 @@ function renderHomeLedgerSummary() {
       const cat = CATEGORIES.expense.find(c=>c.id===e[0]) || {label:e[0], color:'var(--muted)'};
       const pct = Math.round(e[1]/expense*100);
       html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">';
-      html += '<span style="font-size:12px;min-width:70px">' + cat.label + '</span>';
+      html += '<span style="font-size:12px;min-width:70px">' + escHtml(cat.label) + '</span>';
       html += '<div style="flex:1;background:rgba(255,255,255,.06);border-radius:4px;height:5px;overflow:hidden">';
       html += '<div style="height:100%;border-radius:4px;width:' + pct + '%;background:' + cat.color + '"></div></div>';
       html += '<span style="font-size:11px;font-weight:700;min-width:50px;text-align:right">' + (e[1]*10000).toLocaleString() + '원</span>';
@@ -9556,8 +9559,8 @@ function renderCoupleCard() {
     // 왼쪽
     + '<div>'
     + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:6px">'
-    + '<span style="' + badgeStyle + '">' + L.badge + '</span>'
-    + '<span style="font-size:11px;font-weight:600;color:' + lNameColor + '">' + L.name + (lWins ? ' 👑' : '') + '</span>'
+    + '<span style="' + badgeStyle + '">' + escHtml(L.badge) + '</span>'
+    + '<span style="font-size:11px;font-weight:600;color:' + lNameColor + '">' + escHtml(L.name) + (lWins ? ' 👑' : '') + '</span>'
     + '</div>'
     + '<div style="font-size:' + lAmtSize + ';font-weight:900;color:' + lAmtColor + ';line-height:1;opacity:' + lOpacity + '">' + fmtExp(L.amt) + '</div>'
     + '<div style="font-size:10px;color:var(--muted);margin-top:4px">이달 지출</div>'
@@ -9565,8 +9568,8 @@ function renderCoupleCard() {
     // 오른쪽
     + '<div style="text-align:right">'
     + '<div style="display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-bottom:6px">'
-    + '<span style="font-size:11px;font-weight:600;color:' + rNameColor + '">' + R.name + (!lWins && rPct < lPct ? ' 👑' : '') + '</span>'
-    + '<span style="' + badgeStyle + '">' + R.badge + '</span>'
+    + '<span style="font-size:11px;font-weight:600;color:' + rNameColor + '">' + escHtml(R.name) + (!lWins && rPct < lPct ? ' 👑' : '') + '</span>'
+    + '<span style="' + badgeStyle + '">' + escHtml(R.badge) + '</span>'
     + '</div>'
     + '<div style="font-size:' + rAmtSize + ';font-weight:700;color:' + rAmtColor + ';line-height:1;opacity:' + rOpacity + '">' + fmtExp(R.amt) + '</div>'
     + '<div style="font-size:10px;color:var(--muted);margin-top:4px;opacity:' + rOpacity + '">이달 지출</div>'
@@ -9653,16 +9656,16 @@ function renderLedgerCoupleCard(txs) {
     '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px">'
     + '<div>'
     + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:6px">'
-    + '<span style="' + badgeStyle + '">' + L.badge + '</span>'
-    + '<span style="font-size:11px;font-weight:600;color:' + lNameColor + '">' + L.name + '</span>'
+    + '<span style="' + badgeStyle + '">' + escHtml(L.badge) + '</span>'
+    + '<span style="font-size:11px;font-weight:600;color:' + lNameColor + '">' + escHtml(L.name) + '</span>'
     + '</div>'
     + '<div style="font-size:' + lAmtSize + ';font-weight:900;color:' + lNameColor + ';line-height:1">' + fmtExp(L.amt) + '</div>'
     + '<div style="font-size:10px;color:var(--muted);margin-top:4px">이달 지출</div>'
     + '</div>'
     + '<div style="text-align:right">'
     + '<div style="display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-bottom:6px">'
-    + '<span style="font-size:11px;font-weight:600;color:' + rNameColor + '">' + R.name + '</span>'
-    + '<span style="' + badgeStyle + '">' + R.badge + '</span>'
+    + '<span style="font-size:11px;font-weight:600;color:' + rNameColor + '">' + escHtml(R.name) + '</span>'
+    + '<span style="' + badgeStyle + '">' + escHtml(R.badge) + '</span>'
     + '</div>'
     + '<div style="font-size:' + rAmtSize + ';font-weight:700;color:' + rNameColor + ';line-height:1">' + fmtExp(R.amt) + '</div>'
     + '<div style="font-size:10px;color:var(--muted);margin-top:4px">이달 지출</div>'
@@ -9744,11 +9747,11 @@ function renderHomeStockRankList() {
       + 'background:' + (s.owner === 'partner1' ? 'rgba(30,58,82,.12)' : 'rgba(34,197,94,.12)') + ';'
       + 'color:' + (s.owner === 'partner1' ? 'var(--p1color)' : 'var(--p2color)') + ';'
       + 'border:0.5px solid ' + (s.owner === 'partner1' ? 'rgba(30,58,82,.3)' : 'rgba(34,197,94,.3)') + '">'
-      + (s.owner === 'partner1' ? getP1Name() : getP2Name()) + '</span>';
+      + escHtml(s.owner === 'partner1' ? getP1Name() : getP2Name()) + '</span>';
     const acctBadge = s.accountType
       ? '<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:6px;margin-left:4px;'
         + 'background:rgba(201,168,76,.10);color:var(--gold);border:0.5px solid rgba(201,168,76,.25)">'
-        + s.accountType + '</span>'
+        + escHtml(s.accountType) + '</span>'
       : '';
 
     let mainVal, subVal, borderColor;
@@ -9769,7 +9772,7 @@ function renderHomeStockRankList() {
     return '<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface2);border-radius:12px;border-left:3px solid ' + borderColor + '">'
       + '<div style="width:20px;height:20px;border-radius:50%;background:var(--surface3);color:var(--muted2);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + medals[rank] + '</div>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:12px;font-weight:700;display:flex;align-items:center;flex-wrap:wrap;gap:2px">' + s.name + ownerBadge + acctBadge + '</div>'
+      + '<div style="font-size:12px;font-weight:700;display:flex;align-items:center;flex-wrap:wrap;gap:2px">' + escHtml(s.name) + ownerBadge + acctBadge + '</div>'
       + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + s.qty.toLocaleString() + '주</div>'
       + '</div>'
       + '<div style="text-align:right;flex-shrink:0">'
@@ -10728,7 +10731,7 @@ function renderDetailItem(item, totalAsset, prev, isDebt, cid, showOwner) {
     const marketLabel = item.stockLink === 'KR' ? '🇰🇷 국내' : '🇺🇸 해외';
     const timeLabel = item.stockLinkTime ? ' · ' + item.stockLinkTime : '';
     badgeHtml = '<span style="font-size:9px;font-weight:600;color:var(--blue);background:rgba(30,58,82,0.10);border:1px solid rgba(30,58,82,0.2);border-radius:4px;padding:1px 6px;margin-left:5px;vertical-align:middle">🔗 ' + marketLabel + timeLabel + '</span>';
-    refreshBtnHtml = '<button onclick="refreshStockItem(\'' + item.name + '\',\'' + (item.owner||'common') + '\',\'' + item.stockLink + '\')" style="margin-left:6px;background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.2);border-radius:6px;color:var(--blue);font-size:11px;font-weight:700;padding:2px 8px;cursor:pointer;vertical-align:middle">🔄</button>';
+    refreshBtnHtml = '<button onclick="refreshStockItem(' + escJsAttr(item.name) + ',' + escJsAttr(item.owner||'common') + ',' + escJsAttr(item.stockLink) + ')" style="margin-left:6px;background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.2);border-radius:6px;color:var(--blue);font-size:11px;font-weight:700;padding:2px 8px;cursor:pointer;vertical-align:middle">🔄</button>';
   }
 
   // 소유자 표시
@@ -10740,14 +10743,14 @@ function renderDetailItem(item, totalAsset, prev, isDebt, cid, showOwner) {
       + 'background:' + (isMs?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';'
       + 'color:' + (isMs?'var(--p1color)':'var(--p2color)') + ';'
       + 'border:0.5px solid ' + (isMs?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">'
-      + ownerLabelText + '</span>';
+      + escHtml(ownerLabelText) + '</span>';
   }
 
   // 전월 대비
   var diffHtml = '';
   if (prev && prev.items) {
-    var prevItem = prev.items.find(function(p){ 
-      return p.name === item.name && (p.owner || 'common') === (item.owner || 'common'); 
+    var prevItem = prev.items.find(function(p){
+      return p.name === item.name && (p.owner || 'common') === (item.owner || 'common');
     });
 
     if (prevItem) {
@@ -10784,10 +10787,10 @@ function renderDetailItem(item, totalAsset, prev, isDebt, cid, showOwner) {
 
   return '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border)">'
     + '<div style="flex:1;min-width:0">'
-    + '<div style="font-size:13px;font-weight:500;color:' + color + '">' + item.name + stockBadge + aptBadge + ownerHtml + '</div>'
+    + '<div style="font-size:13px;font-weight:500;color:' + color + '">' + escHtml(item.name) + stockBadge + aptBadge + ownerHtml + '</div>'
 
 
-    + (item.memo ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + item.memo + '</div>' : '')
+    + (item.memo ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + escHtml(item.memo) + '</div>' : '')
     + '</div>'
 
     + '<div style="text-align:right;flex-shrink:0">'
@@ -11115,13 +11118,13 @@ function renderRecurringList() {
         + 'background:' + (isRMs?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';'
         + 'color:' + (isRMs?'var(--p1color)':'var(--p2color)') + ';'
         + 'border:0.5px solid ' + (isRMs?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">'
-        + (isRMs?getP1Name():getP2Name()) + '</span>'
+        + escHtml(isRMs?getP1Name():getP2Name()) + '</span>'
       : '';
     return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">'
-      + '<div style="width:36px;height:36px;border-radius:10px;background:' + cat.color + '22;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">' + cat.label.split(' ')[0] + '</div>'
+      + '<div style="width:36px;height:36px;border-radius:10px;background:' + cat.color + '22;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">' + escHtml(cat.label.split(' ')[0]) + '</div>'
       + '<div style="flex:1">'
-      + '<div style="font-size:13px;font-weight:600">' + r.name + '</div>'
-      + '<div style="font-size:10px;color:var(--muted);margin-top:2px;display:flex;align-items:center;flex-wrap:wrap;gap:2px">' + ownerBadge + cat.label.split(' ').slice(1).join(' ') + '</div>'
+      + '<div style="font-size:13px;font-weight:600">' + escHtml(r.name) + '</div>'
+      + '<div style="font-size:10px;color:var(--muted);margin-top:2px;display:flex;align-items:center;flex-wrap:wrap;gap:2px">' + ownerBadge + escHtml(cat.label.split(' ').slice(1).join(' ')) + '</div>'
       + '</div>'
       + '<div style="text-align:right">'
       + '<div style="font-size:14px;font-weight:800;color:var(--red)">' + (r.amount*10000).toLocaleString() + '원</div>'
@@ -11241,8 +11244,8 @@ function renderHomeCardSettingsList() {
     return '<div class="hcs-item" data-index="' + i + '" draggable="false" style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);user-select:none;transition:opacity .2s">'
       + '<div class="hcs-handle" style="color:var(--muted);font-size:16px;flex-shrink:0;padding:4px 6px;line-height:1;cursor:grab;touch-action:none">☰</div>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + card.label + '</div>'
-      + (card.desc ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + (card.id === 'couple' ? getP1Name() + ' vs ' + getP2Name() + ' 지출 비교' : card.desc) + '</div>' : '')
+      + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + escHtml(card.label) + '</div>'
+      + (card.desc ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + (card.id === 'couple' ? escHtml(getP1Name()) + ' vs ' + escHtml(getP2Name()) + ' 지출 비교' : escHtml(card.desc)) + '</div>' : '')
       + '</div>'
       + '<button onclick="toggleHomeCardVisible(' + i + ')" style="background:none;border:none;font-size:16px;cursor:pointer;flex-shrink:0;padding:4px 6px;opacity:' + (card.visible?'1':'0.3') + ';transition:opacity .2s">' + (card.visible?'◉':'◎') + '</button>'
       + '</div>';
@@ -13453,12 +13456,12 @@ function renderDonutCard() {
                 + 'background:' + (item.owner==='partner1'?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';'
                 + 'color:' + (item.owner==='partner1'?'var(--p1color)':'var(--p2color)') + ';'
                 + 'border:0.5px solid ' + (item.owner==='partner1'?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">'
-                + (item.owner==='partner1'?getP1Name():getP2Name()) + '</span>'
+                + escHtml(item.owner==='partner1'?getP1Name():getP2Name()) + '</span>'
               : '';
             return '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0 4px 13px">'
               + '<div style="display:flex;align-items:center;gap:6px">'
               + '<div style="width:4px;height:4px;border-radius:50%;background:' + color + ';opacity:0.5"></div>'
-              + '<span style="font-size:12px;color:var(--muted2)">' + item.name + itemOwnerBadge + '</span>'
+              + '<span style="font-size:12px;color:var(--muted2)">' + escHtml(item.name) + itemOwnerBadge + '</span>'
               + '</div>'
               + '<div style="display:flex;align-items:baseline;gap:6px">'
               + '<span style="font-size:11px;color:var(--muted)">' + itemPct + '%</span>'
@@ -13661,10 +13664,10 @@ function renderAptList() {
     return '<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">'
       + '<div style="flex:1;min-width:0">'
       + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'
-      + '<span style="font-size:13px;font-weight:700;color:var(--text)">' + apt.name + '</span>'
-      + '<span style="font-size:10px;font-weight:600;color:' + ownerColor + ';background:' + ownerColor + '15;padding:1px 6px;border-radius:8px">' + ownerLabel + '</span>'
+      + '<span style="font-size:13px;font-weight:700;color:var(--text)">' + escHtml(apt.name) + '</span>'
+      + '<span style="font-size:10px;font-weight:600;color:' + ownerColor + ';background:' + ownerColor + '15;padding:1px 6px;border-radius:8px">' + escHtml(ownerLabel) + '</span>'
       + '</div>'
-      + '<div style="font-size:11px;color:var(--muted)">' + apt.sigungu + (apt.areaMin ? ' · ' + apt.areaMin + '~' + apt.areaMax + '㎡' : '') + '</div>'
+      + '<div style="font-size:11px;color:var(--muted)">' + escHtml(apt.sigungu) + (apt.areaMin ? ' · ' + apt.areaMin + '~' + apt.areaMax + '㎡' : '') + '</div>'
       + (apt.cache ? '<div style="font-size:12px;font-weight:700;color:var(--blue);margin-top:2px">' + priceStr + ' <span style="font-size:10px;font-weight:400;color:var(--muted)">· ' + fetchedStr + '</span></div>' : '')
       + '</div>'
       + '<div style="display:flex;gap:6px;flex-shrink:0">'
@@ -14031,11 +14034,11 @@ async function searchAptComplex() {
     .map(function(r) {
       const areas = Array.from(r.areas).sort(function(a,b){ return a-b; });
       const areaStr = areas.length > 0 ? areas[0] + '~' + areas[areas.length-1] + '㎡' : '';
-      return '<div onclick="selectAptComplex(\'' + r.name.replace(/'/g,"\\'") + '\',\'' + r.lawdCd + '\',\'' + r.sigungu.replace(/'/g,"\\'") + '\')" '
+      return '<div onclick="selectAptComplex(' + escJsAttr(r.name) + ',' + escJsAttr(r.lawdCd) + ',' + escJsAttr(r.sigungu) + ')" '
         + 'style="padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s" '
         + 'ontouchstart="this.style.background=\'var(--surface3)\'" ontouchend="this.style.background=\'\'">'
-        + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + r.name + '</div>'
-        + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + r.sigungu + (areaStr ? ' · ' + areaStr : '') + '</div>'
+        + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + escHtml(r.name) + '</div>'
+        + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + escHtml(r.sigungu) + (areaStr ? ' · ' + areaStr : '') + '</div>'
         + '</div>';
     }).join('');
 }
@@ -14451,10 +14454,10 @@ function renderRealEstatePage() {
       + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">'
       + '<div>'
       + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'
-      + '<span style="font-size:15px;font-weight:700;color:var(--text)">' + apt.name + '</span>'
-      + '<span style="font-size:10px;font-weight:600;color:' + ownerColor + ';background:' + ownerColor + '22;padding:2px 6px;border-radius:6px">' + ownerLabel + '</span>'
+      + '<span style="font-size:15px;font-weight:700;color:var(--text)">' + escHtml(apt.name) + '</span>'
+      + '<span style="font-size:10px;font-weight:600;color:' + ownerColor + ';background:' + ownerColor + '22;padding:2px 6px;border-radius:6px">' + escHtml(ownerLabel) + '</span>'
       + '</div>'
-      + '<div style="font-size:11px;color:var(--muted)">' + (apt.sigungu || '') + (apt.areaMin ? ' · ' + apt.areaMin + '~' + apt.areaMax + '㎡' : '') + '</div>'
+      + '<div style="font-size:11px;color:var(--muted)">' + escHtml(apt.sigungu || '') + (apt.areaMin ? ' · ' + apt.areaMin + '~' + apt.areaMax + '㎡' : '') + '</div>'
       + '</div>'
       + '<div style="display:flex;gap:6px">'
       + '<button onclick="fetchSingleApt(\'' + apt.id + '\').then(renderRealEstatePage)" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;cursor:pointer">조회</button>'
@@ -14557,10 +14560,10 @@ function renderInputAptSection() {
       + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">'
       + '<div>'
       + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">'
-      + '<span style="font-size:14px;font-weight:700;color:var(--text)">' + apt.name + '</span>'
-      + '<span style="font-size:10px;font-weight:600;color:' + ownerColor + ';background:' + ownerColor + '22;padding:2px 6px;border-radius:6px">' + ownerLabel + '</span>'
+      + '<span style="font-size:14px;font-weight:700;color:var(--text)">' + escHtml(apt.name) + '</span>'
+      + '<span style="font-size:10px;font-weight:600;color:' + ownerColor + ';background:' + ownerColor + '22;padding:2px 6px;border-radius:6px">' + escHtml(ownerLabel) + '</span>'
       + '</div>'
-      + '<div style="font-size:11px;color:var(--muted)">' + (apt.sigungu || '') + (apt.areaMin ? ' · ' + apt.areaMin + '~' + apt.areaMax + '㎡' : '') + '</div>'
+      + '<div style="font-size:11px;color:var(--muted)">' + escHtml(apt.sigungu || '') + (apt.areaMin ? ' · ' + apt.areaMin + '~' + apt.areaMax + '㎡' : '') + '</div>'
       + '</div>'
       + '<button onclick="fetchSingleApt(\'' + apt.id + '\').then(renderInputAptSection)" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-size:11px;font-weight:600;padding:5px 8px;cursor:pointer;font-family:\'Noto Sans KR\',sans-serif">조회</button>'
       + '</div>';
@@ -14705,7 +14708,7 @@ function renderHomeApt() {
         + '<div style="display:flex;justify-content:space-between;align-items:flex-start">'
         + '<div style="flex:1;min-width:0">'
         + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">'
-        + '<span style="font-size:12px;font-weight:700;color:var(--text)">' + apt.name + '</span>'
+        + '<span style="font-size:12px;font-weight:700;color:var(--text)">' + escHtml(apt.name) + '</span>'
         + '<span style="font-size:9px;font-weight:600;color:' + ownerColor + ';background:' + ownerColor + '15;padding:1px 5px;border-radius:6px">' + ownerLabel + '</span>'
         + '</div>'
         + '<div style="font-size:11px;color:var(--muted)">' + apt.cache.fetchedAt + '</div>'
@@ -14808,16 +14811,16 @@ function renderAptPresets(presetsWrap) {
 
         if (isDuplicate) {
           return '<div style="padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);margin-bottom:6px;opacity:0.5">'
-            + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">' + ownerLabel + '</div>'
-            + '<div style="font-size:14px;font-weight:700;color:var(--muted)">' + apt.name + '</div>'
+            + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">' + escHtml(ownerLabel) + '</div>'
+            + '<div style="font-size:14px;font-weight:700;color:var(--muted)">' + escHtml(apt.name) + '</div>'
             + '<div style="font-size:10px;color:var(--muted);margin-top:2px">이미 연동됨</div>'
             + '</div>';
         }
 
         if (!apt.cache) {
           return '<div style="padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);margin-bottom:6px">'
-            + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">' + ownerLabel + '</div>'
-            + '<div style="font-size:13px;font-weight:700;color:var(--text)">' + apt.name + '</div>'
+            + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">' + escHtml(ownerLabel) + '</div>'
+            + '<div style="font-size:13px;font-weight:700;color:var(--text)">' + escHtml(apt.name) + '</div>'
             + '<div style="font-size:10px;color:var(--red);margin-top:3px">🔄 실거래가 조회 필요</div>'
             + '</div>';
         }
@@ -14829,11 +14832,11 @@ function renderAptPresets(presetsWrap) {
           + 'font-family:\'Noto Sans KR\',sans-serif;cursor:pointer;text-align:left;'
           + 'margin-bottom:6px;transition:all .15s">'
           + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
-          + '<span style="font-size:10px;color:var(--muted)">🏢 ' + ownerLabel + '</span>'
+          + '<span style="font-size:10px;color:var(--muted)">🏢 ' + escHtml(ownerLabel) + '</span>'
           + '<span style="font-size:9px;font-weight:700;color:var(--blue);background:rgba(30,58,82,0.1);padding:1px 6px;border-radius:8px">불러오기</span>'
           + '</div>'
-          + '<div style="font-size:15px;font-weight:800;color:var(--text)">' + apt.name + '</div>'
-          + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + priceStr + ' · ' + fetchedStr + '</div>'
+          + '<div style="font-size:15px;font-weight:800;color:var(--text)">' + escHtml(apt.name) + '</div>'
+          + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + escHtml(priceStr) + ' · ' + escHtml(fetchedStr) + '</div>'
           + '</button>';
       }).join('')
     + '</div>'
@@ -15964,14 +15967,14 @@ function _renderStockRows(list) {
       : Math.round(evalKrw).toLocaleString() + '원';
 
     const acctBadge = s.accountType
-      ? '<span style="font-size:9px;background:rgba(201,168,76,.12);color:var(--gold);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:5px;border:0.5px solid rgba(201,168,76,.25)">' + s.accountType + '</span>'
+      ? '<span style="font-size:9px;background:rgba(201,168,76,.12);color:var(--gold);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:5px;border:0.5px solid rgba(201,168,76,.25)">' + escHtml(s.accountType) + '</span>'
       : '';
 
     return '<div style="margin-bottom:14px">'
       + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px">'
       + '<div style="min-width:0">'
       + '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:2px">'
-      + '<span style="font-size:12px;font-weight:600;color:var(--text)">' + s.name + '</span>'
+      + '<span style="font-size:12px;font-weight:600;color:var(--text)">' + escHtml(s.name) + '</span>'
       + acctBadge
       + '</div>'
       + '<div style="font-size:10px;color:var(--muted2);margin-top:2px">평가 ' + evalStr + '</div>'
@@ -16120,7 +16123,7 @@ function renderStkPctChart() {
       ? (s.evalAmt / 100000000).toFixed(1) + '억'
       : Math.round(s.evalAmt / 10000).toLocaleString() + '만원';
     return '<div style="flex:1;padding:14px;border-radius:14px;background:' + bgVar + ';border:1px solid ' + colorVar + '">'
-      + '<div style="font-size:12px;font-weight:700;color:' + colorVar + ';margin-bottom:10px">' + name + '</div>'
+      + '<div style="font-size:12px;font-weight:700;color:' + colorVar + ';margin-bottom:10px">' + escHtml(name) + '</div>'
       + '<div style="font-size:20px;font-weight:900;color:' + clr + ';margin-bottom:2px">' + (isUp?'+':'') + s.pct.toFixed(2) + '%</div>'
       + '<div style="font-size:11px;color:var(--muted);margin-bottom:8px">' + (isUp?'+':'') + Math.round(s.pnl).toLocaleString() + '원</div>'
       + '<div style="font-size:10px;color:var(--muted2)">평가 ' + evalStr + ' · ' + ownerStocks.length + '종목</div>'
@@ -16137,7 +16140,7 @@ function renderStkPctChart() {
       const pct = (s.currentPrice - s.avgPrice) / s.avgPrice * 100;
       const isUp = pct >= 0;
       return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--border)">'
-        + '<span style="font-size:12px;font-weight:600;color:var(--text);flex:1">' + s.name + '</span>'
+        + '<span style="font-size:12px;font-weight:600;color:var(--text);flex:1">' + escHtml(s.name) + '</span>'
         + '<span style="font-size:11px;color:var(--muted);margin-right:8px">' + _stockPnlDisplay(s) + '</span>'
         + '<span style="font-size:13px;font-weight:800;color:' + (isUp?'var(--red)':'var(--blue)') + '">' + (isUp?'+':'') + pct.toFixed(1) + '%</span>'
         + '</div>';
@@ -16150,8 +16153,8 @@ function renderStkPctChart() {
     + ownerCard(syStocks, getP2Name(), 'var(--p2color)', 'rgba(34,197,94,.06)')
     + '</div>'
     + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
-    + '<div><div style="font-size:10px;font-weight:700;color:var(--p1color);margin-bottom:6px">' + getP1Name() + ' TOP</div>' + topRows(msStocks) + '</div>'
-    + '<div><div style="font-size:10px;font-weight:700;color:var(--p2color);margin-bottom:6px">' + getP2Name() + ' TOP</div>' + topRows(syStocks) + '</div>'
+    + '<div><div style="font-size:10px;font-weight:700;color:var(--p1color);margin-bottom:6px">' + escHtml(getP1Name()) + ' TOP</div>' + topRows(msStocks) + '</div>'
+    + '<div><div style="font-size:10px;font-weight:700;color:var(--p2color);margin-bottom:6px">' + escHtml(getP2Name()) + ' TOP</div>' + topRows(syStocks) + '</div>'
     + '</div>';
 
   // 계좌종류별 비중
@@ -16356,24 +16359,24 @@ function renderStockHistory() {
     const totalStr = t.market === 'KR' ? Math.round(t.price * t.qty).toLocaleString() + '원' : '$' + (t.price * t.qty).toFixed(2);
     const ownerBadge = currentStkOwner === 'all'
       ? (t.owner === 'partner1'
-          ? '<span style="font-size:9px;background:rgba(30,58,82,.12);color:var(--p1color);border:0.5px solid rgba(30,58,82,.3);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + getP1Name() + '</span>'
+          ? '<span style="font-size:9px;background:rgba(30,58,82,.12);color:var(--p1color);border:0.5px solid rgba(30,58,82,.3);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + escHtml(getP1Name()) + '</span>'
           : t.owner === 'partner2'
-          ? '<span style="font-size:9px;background:rgba(34,197,94,.12);color:var(--p2color);border:0.5px solid rgba(34,197,94,.3);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + getP2Name() + '</span>'
+          ? '<span style="font-size:9px;background:rgba(34,197,94,.12);color:var(--p2color);border:0.5px solid rgba(34,197,94,.3);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + escHtml(getP2Name()) + '</span>'
           : '')
       : '';
     const acctBadge = t.accountType
-      ? '<span style="font-size:9px;background:rgba(201,168,76,.1);color:var(--gold);border:0.5px solid rgba(201,168,76,.25);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + t.accountType + '</span>'
+      ? '<span style="font-size:9px;background:rgba(201,168,76,.1);color:var(--gold);border:0.5px solid rgba(201,168,76,.25);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + escHtml(t.accountType) + '</span>'
       : '';
     const brokerBadge = t.broker
-      ? '<span style="font-size:10px;color:var(--muted2);border:0.5px solid var(--border2);border-radius:6px;padding:1px 5px;margin-left:4px">' + t.broker + '</span>'
+      ? '<span style="font-size:10px;color:var(--muted2);border:0.5px solid var(--border2);border-radius:6px;padding:1px 5px;margin-left:4px">' + escHtml(t.broker) + '</span>'
       : '';
 
     return '<div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:8px">'
       + '<div style="width:40px;height:40px;border-radius:12px;background:' + (isBuy?'rgba(239,68,68,.12)':'rgba(90,159,196,.12)') + ';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:' + color + ';flex-shrink:0">' + label + '</div>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:13px;font-weight:700;display:flex;align-items:center;flex-wrap:wrap;gap:2px">' + t.stockName + ownerBadge + acctBadge + '</div>'
+      + '<div style="font-size:13px;font-weight:700;display:flex;align-items:center;flex-wrap:wrap;gap:2px">' + escHtml(t.stockName) + ownerBadge + acctBadge + '</div>'
       + '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:3px">'
-      + '<span style="font-size:11px;color:var(--muted)">' + t.date + ' · ' + t.qty + '주 @ ' + priceStr + '</span>'
+      + '<span style="font-size:11px;color:var(--muted)">' + escHtml(t.date) + ' · ' + t.qty + '주 @ ' + priceStr + '</span>'
       + brokerBadge
       + '</div>'
       + '</div>'
@@ -16466,14 +16469,14 @@ function renderStockList() {
         + 'background:transparent;'
         + 'color:' + (s.owner==='partner1'?'var(--p1color)':'var(--p2color)') + ';'
         + 'border:0.5px solid ' + (s.owner==='partner1'?'rgba(129,140,248,.45)':'rgba(251,113,133,.45)') + '">'
-        + (s.owner==='partner1'?getP1Name():getP2Name()) + '</span>' : '';
+        + escHtml(s.owner==='partner1'?getP1Name():getP2Name()) + '</span>' : '';
 
     // 종목별 모드에서 계좌종류 배지, 증권사 텍스트
     var acctBadge = (showAccBadge && s.accountType)
-      ? '<span style="font-size:9px;background:rgba(201,168,76,.12);color:var(--gold);padding:1px 6px;border-radius:5px;font-weight:700;margin-left:5px;flex-shrink:0">' + s.accountType + '</span>'
+      ? '<span style="font-size:9px;background:rgba(201,168,76,.12);color:var(--gold);padding:1px 6px;border-radius:5px;font-weight:700;margin-left:5px;flex-shrink:0">' + escHtml(s.accountType) + '</span>'
       : '';
     var brokerNote = s.broker
-      ? '<span style="font-size:10px;color:var(--muted2);border:0.5px solid var(--border2);border-radius:6px;padding:1px 5px;margin-left:4px;flex-shrink:0">' + s.broker + '</span>'
+      ? '<span style="font-size:10px;color:var(--muted2);border:0.5px solid var(--border2);border-radius:6px;padding:1px 5px;margin-left:4px;flex-shrink:0">' + escHtml(s.broker) + '</span>'
       : '';
 
     var sid = s.id;
@@ -16491,7 +16494,7 @@ function renderStockList() {
       + '</div>'
       + '<div onclick="openStockEdit(\'' + sid + '\')" style="flex:1;min-width:0;cursor:pointer">'
       + '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">'
-      + '<span style="font-size:14px;font-weight:700">' + s.name + '</span>' + ownerBadge + acctBadge + soldBadge
+      + '<span style="font-size:14px;font-weight:700">' + escHtml(s.name) + '</span>' + ownerBadge + acctBadge + soldBadge
       + (cp > 0 ? '<span style="font-size:11px;color:var(--muted)">' + fmtAmt(cp, isUS) + '</span>' : '')
       + '</div>'
       + '<div style="display:flex;align-items:center;gap:5px;margin-top:2px">'
@@ -16679,8 +16682,8 @@ function renderStockList() {
       var pnl2 = (cp - s.avgPrice) * s.qty;
       var pc2  = s.avgPrice > 0 ? ((cp - s.avgPrice) / s.avgPrice * 100) : 0;
       var pCol = pnl2 > 0 ? 'var(--red)' : pnl2 < 0 ? 'var(--blue)' : 'var(--muted)';
-      var acc  = s.accountType || '미분류';
-      var brk  = s.broker ? ' · ' + s.broker : '';
+      var acc  = escHtml(s.accountType || '미분류');
+      var brk  = s.broker ? ' · ' + escHtml(s.broker) : '';
       return '<div onclick="openStockEdit(\'' + s.id + '\')" style="display:flex;align-items:center;padding:10px 8px 10px 4px;border-top:1px solid var(--border);cursor:pointer;gap:8px">'
         + '<div style="flex:1;min-width:0">'
         + '<div style="font-size:12px;font-weight:600;color:var(--text)">' + acc
@@ -17169,11 +17172,11 @@ function openTradeModal(id) {
   const acctEl = document.getElementById('trade-modal-acct');
   if (acctEl) {
     const badges = [];
-    if (s.accountType) badges.push('<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:rgba(201,168,76,.12);color:var(--gold);border:0.5px solid rgba(201,168,76,.3)">' + s.accountType + '</span>');
-    if (s.broker) badges.push('<span style="font-size:10px;color:var(--muted2);border:0.5px solid var(--border2);border-radius:7px;padding:2px 7px">' + s.broker + '</span>');
+    if (s.accountType) badges.push('<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:rgba(201,168,76,.12);color:var(--gold);border:0.5px solid rgba(201,168,76,.3)">' + escHtml(s.accountType) + '</span>');
+    if (s.broker) badges.push('<span style="font-size:10px;color:var(--muted2);border:0.5px solid var(--border2);border-radius:7px;padding:2px 7px">' + escHtml(s.broker) + '</span>');
     if (s.owner) {
       const isMs = s.owner === 'partner1';
-      badges.push('<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:' + (isMs?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';color:' + (isMs?'var(--p1color)':'var(--p2color)') + ';border:0.5px solid ' + (isMs?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">' + (isMs?getP1Name():getP2Name()) + '</span>');
+      badges.push('<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:' + (isMs?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';color:' + (isMs?'var(--p1color)':'var(--p2color)') + ';border:0.5px solid ' + (isMs?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">' + escHtml(isMs?getP1Name():getP2Name()) + '</span>');
     }
     acctEl.innerHTML = badges.join('');
     acctEl.style.display = badges.length ? 'flex' : 'none';
@@ -17652,10 +17655,10 @@ function renderCalDayDetail(dateStr) {
       const allCats = [...CATEGORIES.expense, ...CATEGORIES.income];
       const cat = allCats.find(function(c){ return c.id === t.category; }) || { label:'기타', color:'var(--muted)' };
       html += '<div onclick="openTxEdit(\'' + t.id + '\')" style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer">'
-        + '<div style="width:28px;height:28px;border-radius:8px;background:' + cat.color + '22;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">' + cat.label.split(' ')[0] + '</div>'
+        + '<div style="width:28px;height:28px;border-radius:8px;background:' + cat.color + '22;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">' + escHtml(cat.label.split(' ')[0]) + '</div>'
         + '<div style="flex:1;min-width:0">'
-        + '<div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (t.memo || cat.label.split(' ').slice(1).join(' ')) + '</div>'
-        + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + cat.label + ' · ' + (t.owner==='partner1'?getP1Name():t.owner==='partner2'?getP2Name():getCommonName()) + '</div>'
+        + '<div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escHtml(t.memo || cat.label.split(' ').slice(1).join(' ')) + '</div>'
+        + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + escHtml(cat.label) + ' · ' + escHtml(t.owner==='partner1'?getP1Name():t.owner==='partner2'?getP2Name():getCommonName()) + '</div>'
         + '</div>'
         + '<span style="font-size:13px;font-weight:800;color:' + (t.type==='income'?'var(--blue)':'var(--red)') + ';flex-shrink:0">' + (t.type==='income'?'+':'-') + Math.round(t.amount*10000).toLocaleString() + '원</span>'
         + '</div>';
@@ -17935,7 +17938,7 @@ function renderBulkCatBtns() {
       + 'background:transparent;border:none;border-bottom:1px solid var(--border);'
       + 'font-family:\'Noto Sans KR\',sans-serif;cursor:pointer;text-align:left">'
       + '<div style="width:10px;height:10px;border-radius:50%;background:' + cat.color + ';flex-shrink:0"></div>'
-      + '<span style="font-size:13px;color:var(--text);font-weight:500">' + cat.label + '</span>'
+      + '<span style="font-size:13px;color:var(--text);font-weight:500">' + escHtml(cat.label) + '</span>'
       + '</button>';
   }).join('');
 }
@@ -18122,7 +18125,7 @@ function renderBulkCatBtns() {
       + 'background:transparent;border:none;border-bottom:1px solid var(--border);'
       + 'font-family:\'Noto Sans KR\',sans-serif;cursor:pointer;text-align:left">'
       + '<div style="width:10px;height:10px;border-radius:50%;background:' + cat.color + ';flex-shrink:0"></div>'
-      + '<span style="font-size:13px;color:var(--text);font-weight:500">' + cat.label + '</span>'
+      + '<span style="font-size:13px;color:var(--text);font-weight:500">' + escHtml(cat.label) + '</span>'
       + '</button>';
   }).join('');
 }
@@ -18231,7 +18234,7 @@ function renderLedgerList(txs) {
           + 'background:' + (isMs ? 'rgba(30,58,82,.12)' : 'rgba(34,197,94,.12)') + ';'
           + 'color:' + (isMs ? 'var(--p1color)' : 'var(--p2color)') + ';'
           + 'border:0.5px solid ' + (isMs ? 'rgba(30,58,82,.3)' : 'rgba(34,197,94,.3)') + '">'
-          + ownerName + '</span>';
+          + escHtml(ownerName) + '</span>';
       }
 
 
@@ -18279,9 +18282,9 @@ function renderLedgerList(txs) {
         + leftIcon
         + '<div style="flex:1;min-width:0">'
         + '<div style="font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'
-        + (t.memo || catName)
+        + escHtml(t.memo || catName)
         + '</div>'
-        + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + cat.label + ownerHtml + '</div>'
+        + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + escHtml(cat.label) + ownerHtml + '</div>'
         + '</div>'
         + '<div style="text-align:right;flex-shrink:0">'
         + '<div style="font-size:13px;font-weight:600;color:' + (t.type==='income'?'var(--blue)':'var(--text)') + '">'
@@ -19127,10 +19130,10 @@ function renderVoiceResult() {
     const isIncome = t.type === 'income';
     return '<div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--surface2);border:1px solid rgba(255,255,255,.3);border-radius:14px;margin-bottom:8px">'
       + '<div style="width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">'
-      + cat.label.split(' ')[0] + '</div>'
+      + escHtml(cat.label.split(' ')[0]) + '</div>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:14px;font-weight:700">' + (t.memo || cat.label) + '</div>'
-      + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + t.date + ' · ' + cat.label + '</div>'
+      + '<div style="font-size:14px;font-weight:700">' + escHtml(t.memo || cat.label) + '</div>'
+      + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + escHtml(t.date) + ' · ' + escHtml(cat.label) + '</div>'
       + '</div>'
       + '<div style="font-size:17px;font-weight:900;color:' + (isIncome?'var(--blue)':'var(--red)') + ';flex-shrink:0">'
       + (isIncome?'+':'-') + amtWon.toLocaleString() + '원</div>'
@@ -19404,8 +19407,8 @@ function renderPendingList() {
     return '<div onclick="togglePendingItem(' + i + ')" style="display:flex;align-items:center;gap:12px;padding:12px;background:' + (t.selected!==false?'var(--surface2)':'transparent') + ';border:1px solid ' + (t.selected!==false?'rgba(167,139,250,.4)':'var(--border)') + ';border-radius:12px;margin-bottom:8px;cursor:pointer;transition:all .2s">'
       + '<div style="width:28px;height:28px;border-radius:8px;background:' + (t.selected!==false?'var(--purple)':'var(--surface3)') + ';display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;color:#fff;font-weight:700">' + (t.selected!==false?'✓':'') + '</div>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (t.memo || cat.label) + '</div>'
-      + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + t.date + ' · ' + cat.label + ' · <span style="color:' + ownerColor + '">' + ownerLabel + '</span></div>'
+      + '<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escHtml(t.memo || cat.label) + '</div>'
+      + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + escHtml(t.date) + ' · ' + escHtml(cat.label) + ' · <span style="color:' + ownerColor + '">' + escHtml(ownerLabel) + '</span></div>'
       + '</div>'
       + '<div style="font-size:15px;font-weight:800;color:' + (isIncome?'var(--blue)':'var(--red)') + ';flex-shrink:0">' + (isIncome?'+':'-') + amtWon.toLocaleString() + '원</div>'
       + '</div>';
@@ -19714,8 +19717,8 @@ function renderExcelResult() {
     return '<div onclick="toggleExcelItem(' + i + ')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:' + (t.selected ? 'var(--surface2)' : 'transparent') + ';border:1px solid ' + (t.selected ? 'rgba(74,222,128,.3)' : 'var(--border)') + ';border-radius:10px;margin-bottom:6px;cursor:pointer">'
       + '<div style="width:22px;height:22px;border-radius:6px;background:' + (t.selected ? 'var(--green)' : 'var(--surface3)') + ';display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;color:#000;font-weight:900">' + (t.selected ? '✓' : '') + '</div>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + t.memo + '</div>'
-      + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + t.date + ' · ' + cat.label + '</div>'
+      + '<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escHtml(t.memo) + '</div>'
+      + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + escHtml(t.date) + ' · ' + escHtml(cat.label) + '</div>'
       + '</div>'
       + '<div style="font-size:13px;font-weight:700;color:var(--red);flex-shrink:0">-' + t.amount.toLocaleString() + '원</div>'
       + '</div>';
@@ -20120,10 +20123,10 @@ function renderSmsResult() {
     return '<div onclick="toggleSmsItem(' + i + ')" style="display:flex;align-items:center;gap:12px;padding:12px;background:' + (t.selected?'var(--surface2)':'transparent') + ';border:1px solid ' + (t.selected?'rgba(167,139,250,.4)':'var(--border)') + ';border-radius:12px;margin-bottom:8px;cursor:pointer;transition:all .2s">'
       + '<div style="width:28px;height:28px;border-radius:8px;background:' + (t.selected?'var(--purple)':'var(--surface3)') + ';display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;color:#fff;font-weight:700">' + (t.selected?'✓':'') + '</div>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (t.memo || cat.label) + '</div>'
+      + '<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escHtml(t.memo || cat.label) + '</div>'
       + '<div style="font-size:10px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:6px">'
-      + t.date + ' · ' + cat.label
-      + '<span onclick="cycleSmsItemOwner(' + i + ',event)" style="padding:1px 7px;border-radius:5px;background:rgba(0,0,0,.15);color:' + ownerColor + ';font-weight:700;cursor:pointer">' + ownerLabel + '</span>'
+      + escHtml(t.date) + ' · ' + escHtml(cat.label)
+      + '<span onclick="cycleSmsItemOwner(' + i + ',event)" style="padding:1px 7px;border-radius:5px;background:rgba(0,0,0,.15);color:' + ownerColor + ';font-weight:700;cursor:pointer">' + escHtml(ownerLabel) + '</span>'
       + '</div>'
       + '</div>'
       + '<div style="font-size:15px;font-weight:800;color:' + (isIncome?'var(--blue)':'var(--red)') + ';flex-shrink:0">' + (isIncome?'+':'-') + amtWon.toLocaleString() + '원</div>'
@@ -21336,10 +21339,10 @@ function renderProposals() {
     const reactionSection = hasReaction
       ? `<div style="margin-top:12px;padding:12px 14px;background:${rm.bg};border:1px solid ${rm.border};border-radius:12px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:${p.reaction.comment ? '8px' : '0'}">
-            <span style="font-size:14px;font-weight:700;color:${rm.color}">${rm.label}</span>
-            <span style="font-size:10px;color:var(--muted2)">${(p.reaction.reactorUserId ? getDisplayNameForUserId(p.reaction.reactorUserId) : (p.reaction.respondentName || ''))} · ${p.reaction.at ? new Date(p.reaction.at).toLocaleDateString('ko-KR',{month:'short',day:'numeric'}) : ''}</span>
+            <span style="font-size:14px;font-weight:700;color:${rm.color}">${escHtml(rm.label)}</span>
+            <span style="font-size:10px;color:var(--muted2)">${escHtml(p.reaction.reactorUserId ? getDisplayNameForUserId(p.reaction.reactorUserId) : (p.reaction.respondentName || ''))} · ${p.reaction.at ? new Date(p.reaction.at).toLocaleDateString('ko-KR',{month:'short',day:'numeric'}) : ''}</span>
           </div>
-          ${p.reaction.comment ? `<div style="font-size:13px;color:var(--text);line-height:1.6">${p.reaction.comment}</div>` : ''}
+          ${p.reaction.comment ? `<div style="font-size:13px;color:var(--text);line-height:1.6">${escHtml(p.reaction.comment)}</div>` : ''}
         </div>${purchaseAction}`
       : (!isMyProposal
           // 배우자가 반응 입력하는 UI
@@ -21371,15 +21374,15 @@ function renderProposals() {
     return `<div style="background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:16px;margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
         <div style="flex:1;min-width:0">
-          <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">${p.title}</div>
+          <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">${escHtml(p.title)}</div>
           <div style="font-size:20px;font-weight:900;color:var(--text);letter-spacing:-0.5px">${amountStr}<span style="font-size:12px;font-weight:400;color:var(--muted);margin-left:2px">원</span></div>
         </div>
         <div style="text-align:right;flex-shrink:0;margin-left:12px">
-          <div style="font-size:11px;color:var(--muted2);margin-bottom:6px">${p.proposerUserId ? getDisplayNameForUserId(p.proposerUserId) : (p.proposerName || '')} · ${dateStr}</div>
+          <div style="font-size:11px;color:var(--muted2);margin-bottom:6px">${escHtml(p.proposerUserId ? getDisplayNameForUserId(p.proposerUserId) : (p.proposerName || ''))} · ${dateStr}</div>
           ${isMyProposal ? `<button onclick="deleteProposal('${p.id}')" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:6px;color:var(--muted2);font-size:10px;font-weight:600;cursor:pointer;padding:3px 8px;font-family:'Noto Sans KR',sans-serif">삭제</button>` : ''}
         </div>
       </div>
-      ${p.memo ? `<div style="font-size:12px;color:var(--muted2);padding:9px 11px;background:var(--surface2);border-radius:8px;line-height:1.6;margin-bottom:4px">${p.memo}</div>` : ''}
+      ${p.memo ? `<div style="font-size:12px;color:var(--muted2);padding:9px 11px;background:var(--surface2);border-radius:8px;line-height:1.6;margin-bottom:4px">${escHtml(p.memo)}</div>` : ''}
       ${reactionSection}
     </div>`;
   }).join('');
