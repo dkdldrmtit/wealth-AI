@@ -5298,6 +5298,70 @@ async function coupleSpaceHasData(coupleId) {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────
+// RLS 검증 — 배포 전 콘솔에서 window.__rlsCheck() 로 한 번 돌려본다.
+// 모든 테이블에 대해 필터 없이 SELECT 를 시도하고, 본인/배우자 데이터
+// 외의 행이 보이는지 확인한다. RLS 가 제대로 걸려 있으면 본인의 행만
+// 또는 빈 결과가 반환돼야 한다.
+//
+// 필수 RLS 정책 (Supabase SQL Editor 에 적용):
+//
+//   -- profiles: 본인 + 같은 커플 파트너만 SELECT
+//   create policy profiles_self_or_partner on profiles for select using (
+//     id = auth.uid()
+//     or couple_id is not distinct from (select couple_id from profiles where id = auth.uid())
+//   );
+//   create policy profiles_self_update on profiles for update using (id = auth.uid());
+//
+//   -- couples: 본인이 partner1/partner2 인 행만 접근
+//   create policy couples_member on couples for all using (
+//     auth.uid() in (partner1_id, partner2_id)
+//   );
+//
+//   -- 데이터 테이블 (asset_history, ledger_txs, stocks, goals, schedules, app_data):
+//   create policy data_owner_or_couple on <table> for all using (
+//     user_id = auth.uid()
+//     or couple_id in (select couple_id from profiles where id = auth.uid())
+//   );
+//
+// ─────────────────────────────────────────────────────────────────
+async function __rlsCheck() {
+  if (!currentUser) { console.warn('로그인 필요'); return; }
+  const myId = currentUser.id;
+  const myCouple = currentCoupleId;
+  const tables = ['profiles','couples','asset_history','ledger_txs','stocks','goals','schedules','app_data'];
+  const issues = [];
+  for (const t of tables) {
+    try {
+      const { data, error } = await _supabase.from(t).select('*').limit(50);
+      if (error) { console.log('[' + t + '] 조회 거부:', error.message); continue; }
+      const rows = data || [];
+      const leaks = rows.filter(r => {
+        // 본인이 직접 소유한 행은 OK
+        if (r.user_id === myId || r.id === myId) return false;
+        // 본인이 속한 커플 행은 OK
+        if (myCouple && r.couple_id === myCouple) return false;
+        if (myCouple && r.id === myCouple) return false;
+        if (myCouple && (r.partner1_id === myId || r.partner2_id === myId)) return false;
+        // 배우자 프로필 (같은 커플) 은 OK
+        if (myCouple && r.couple_id === myCouple) return false;
+        return true;
+      });
+      console.log('[' + t + '] ' + rows.length + '행 조회 / 의심 누수 ' + leaks.length + '건', leaks.slice(0,3));
+      if (leaks.length > 0) issues.push({ table: t, leakCount: leaks.length, sample: leaks[0] });
+    } catch (e) {
+      console.log('[' + t + '] 예외:', e.message);
+    }
+  }
+  if (issues.length === 0) {
+    console.log('%c✅ RLS 점검 통과 — 본인/커플 데이터 외 누수 없음', 'color:#22c55e;font-weight:700');
+  } else {
+    console.error('🚨 RLS 누수 의심:', issues);
+  }
+  return issues;
+}
+if (typeof window !== 'undefined') window.__rlsCheck = __rlsCheck;
+
 // 인메모리 솔로 데이터가 의미 있는 양인지 (마이그레이션 안내 표시용).
 function hasSoloDataToMigrate() {
   return (assetHistory && assetHistory.length > 0)
