@@ -4913,9 +4913,14 @@ async function handleJoinCouple() {
 // ── Supabase 데이터 동기화 ──
 // ══════════════════════════════════════
 
+// 로드 중에는 store() 가 Supabase로 다시 쓰지 않도록 막는 플래그
+// (빈 데이터로 기존 행을 덮어쓰는 사고 방지)
+let _isLoadingFromSupabase = false;
+
 // Supabase에서 전체 데이터 불러오기
 async function loadAllDataFromSupabase() {
   if (!currentUser) return;
+  _isLoadingFromSupabase = true;
 
   // 다른 계정 잔존 상태 차단: 모든 데이터 변수를 기본값으로 리셋
   // (메모리에 이전 사용자 데이터가 남아 새 계정 화면에 노출되는 문제 방지)
@@ -5041,6 +5046,8 @@ async function loadAllDataFromSupabase() {
     showToast('❗ 데이터 로드 실패: ' + (e && e.message || e));
     // 네트워크 오류 등으로 실패해도 위에서 리셋된 기본값을 그대로 유지
     // (이전 사용자 캐시로 fallback하지 않음 — 보안상 더 안전)
+  } finally {
+    _isLoadingFromSupabase = false;
   }
 
   migrateAssetCategories();
@@ -20568,6 +20575,10 @@ async function syncLoad(silent=false) {
   store = function(k, v) {
     _origStore(k, v);
     if (SYNC_KEYS.includes(k)) {
+      // 로드 중에 Supabase에서 받아온 값을 다시 캐시할 때는 원격 저장 스킵
+      // (빈 결과로 기존 원격 행을 덮어쓰는 사고 방지)
+      if (_isLoadingFromSupabase) return;
+
       // Supabase 저장 — 솔로/커플 모두 저장 (currentCoupleId 조건 제거)
       if (currentUser) {
         if (TABLE_MAP[k]) {
