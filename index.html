@@ -9060,6 +9060,9 @@ function initHome() {
 // 앱 부팅 - DOM 준비 후 실행
 
 // ── 데이터 백업 / 복원 ──
+// 백업 파일에는 사용자 발급 비밀(국토부 API 키 등)을 포함하지 않는다.
+// 백업 파일은 평문 JSON 으로 사용자 디바이스 / 클라우드 / 메일 첨부 등으로
+// 유통될 수 있으므로, 노출되면 곤란한 키는 항상 재입력하게 한다.
 function exportBackup() {
   const backup = {
     version: '1.0',
@@ -9077,8 +9080,8 @@ function exportBackup() {
       'ledger-budgets': load('ledger-budgets', {}),
       'stocks': load('stocks', []),
       'stock-account-types': load('stock-account-types', null),
-      'molit-api-key': load('molit-api-key', ''),
-      'cloudflare-proxy': load('cloudflare-proxy', ''),
+      // 'molit-api-key': 비밀이라 백업에서 제외 (복원 후 사용자가 다시 입력)
+      // 'cloudflare-proxy': 환경별로 달라지는 값이라 제외
       'usd-krw-rate': load('usd-krw-rate', 0),
       'ai-comment-cache': load('ai-comment-cache', null),
     }
@@ -9093,7 +9096,7 @@ function exportBackup() {
   a.download = '자산관리_백업_' + dateStr + '.json';
   a.click();
   URL.revokeObjectURL(url);
-  showToast('📤 백업 파일이 저장됐어요!');
+  showToast('📤 백업 파일이 저장됐어요! (API 키 제외)');
 }
 
 // ══ 카테고리 커스터마이징 ══
