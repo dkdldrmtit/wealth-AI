@@ -5027,7 +5027,8 @@ async function loadAllDataFromSupabase() {
 
     console.log('✅ Supabase 데이터 로드 완료');
     console.log('📊 로드 결과:', {
-      keyField, keyValue,
+      coupleId: currentCoupleId,
+      userId: currentUser.id,
       assetHistory: assetHistory.length,
       ledgerTxs: ledgerTxs.length,
       stocks: stocks.length,
