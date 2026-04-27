@@ -5036,44 +5036,6 @@ async function loadAllDataFromSupabase() {
       wealthAssets: wealthAssets.length,
       aptList: aptList.length,
     });
-    showToast('로드: 자산기록 ' + assetHistory.length + '개 · 가계부 ' + ledgerTxs.length + '건 · 자산 ' + wealthAssets.length + '개');
-    showToast('계정: ' + (currentUser.email || '?') + ' · 커플:' + (currentCoupleId ? 'O' : 'X'), 'info', 6000);
-
-    // 데이터 흔적 찾기: 모든 키로 asset_history 조회
-    try {
-      const allByUser = await _supabase.from('asset_history').select('user_id,couple_id,data').eq('user_id', currentUser.id);
-      const allByCoupleId = currentCoupleId ? await _supabase.from('asset_history').select('user_id,couple_id,data').eq('couple_id', currentCoupleId) : { data: [] };
-      // 커플 기록 조회
-      const couplesRes = await _supabase.from('couples').select('*').or('partner1_id.eq.' + currentUser.id + ',partner2_id.eq.' + currentUser.id);
-      console.log('🔎 데이터 추적:', {
-        asset_by_userid: (allByUser.data || []).length,
-        asset_by_coupleid: (allByCoupleId.data || []).length,
-        couples_found: (couplesRes.data || []).length,
-        couples_data: couplesRes.data,
-        sample_userids: (allByUser.data || []).map(function(r) { return { user_id: r.user_id, couple_id: r.couple_id, count: (r.data || []).length }; }),
-      });
-      const totalRecords = (allByUser.data || []).length + (allByCoupleId.data || []).length;
-      const couplesCount = (couplesRes.data || []).length;
-      showToast('흔적: 자산행 ' + totalRecords + '개 · 커플기록 ' + couplesCount + '개', 'info', 8000);
-      // 커플 기록이 있으면 그 couple_id로 다시 시도
-      if (couplesCount > 0 && !currentCoupleId) {
-        const foundCoupleId = couplesRes.data[0].id;
-        showToast('🔄 커플 ID 발견: ' + foundCoupleId.substring(0, 8) + '... 데이터 재로드 중', 'info', 5000);
-        const retryRes = await _supabase.from('asset_history').select('data').eq('couple_id', foundCoupleId).maybeSingle();
-        if (retryRes.data && retryRes.data.data) {
-          assetHistory = retryRes.data.data;
-          showToast('✅ 자산기록 ' + assetHistory.length + '개 복구!', 'info', 6000);
-          // 프로필 couple_id 복구
-          await _supabase.from('profiles').update({ couple_id: foundCoupleId }).eq('id', currentUser.id);
-          currentCoupleId = foundCoupleId;
-          // 다른 데이터도 다시 로드
-          setTimeout(function() { window.location.reload(); }, 2000);
-        }
-      }
-    } catch (err) {
-      console.warn('데이터 추적 실패:', err);
-    }
-
   } catch(e) {
     console.log('데이터 로드 오류:', e);
     showToast('❗ 데이터 로드 실패: ' + (e && e.message || e));
