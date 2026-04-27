@@ -567,7 +567,7 @@ body[data-theme="light"] {
   --lavender: #8b5cf6;
 }
 
-/* ── 인증 화면 테마 변수 (다크 기본, 라이트 오버라이드) ── */
+/* ── 인증 화면 테마 변수 ── */
 #auth-screen, #couple-setup-screen {
   --a-bg: #080808;
   --a-surf: #111111;
@@ -581,23 +581,6 @@ body[data-theme="light"] {
   --a-subtle: #a0a0a0;
   --a-cap: rgba(255,255,255,0.2);
   --a-cap2: rgba(255,255,255,0.25);
-}
-@media (prefers-color-scheme: light) {
-  body:not([data-theme="dark"]) #auth-screen,
-  body:not([data-theme="dark"]) #couple-setup-screen {
-    --a-bg: #f0f2f8;
-    --a-surf: #ffffff;
-    --a-surf2: #f5f6f8;
-    --a-text: #111111;
-    --a-label: #888888;
-    --a-brd: rgba(0,0,0,0.12);
-    --a-brd-card: rgba(0,0,0,0.07);
-    --a-link: #555555;
-    --a-muted: #888888;
-    --a-subtle: #666666;
-    --a-cap: rgba(0,0,0,0.35);
-    --a-cap2: rgba(0,0,0,0.4);
-  }
 }
 body[data-theme="light"] #auth-screen,
 body[data-theme="light"] #couple-setup-screen {
@@ -10534,8 +10517,10 @@ function applyTheme(mode) {
     document.body.setAttribute('data-theme', 'light');
     if (iconEl) iconEl.outerHTML = moonSvg.replace('>', ' id="theme-icon-settings">');
   } else {
+    // system: matchMedia로 실제 OS 설정 읽어서 명시적으로 세팅
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     document.documentElement.style.removeProperty('color-scheme');
-    document.body.removeAttribute('data-theme');
+    document.body.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
     if (iconEl) iconEl.outerHTML = autoSvg.replace('>', ' id="theme-icon-settings">');
   }
 }
@@ -10545,6 +10530,15 @@ function toggleTheme() {
   if (_themeMode === 'system') applyTheme('dark');
   else if (_themeMode === 'dark') applyTheme('light');
   else applyTheme('system');
+}
+
+// system 모드에서 OS 테마 변경 시 실시간 반영
+if (window.matchMedia) {
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+    if (_themeMode === 'system') {
+      document.body.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+    }
+  });
 }
 
 let ledgerFilterOpen = false;
