@@ -5037,6 +5037,7 @@ async function loadAllDataFromSupabase() {
       aptList: aptList.length,
     });
     showToast('로드: 자산기록 ' + assetHistory.length + '개 · 가계부 ' + ledgerTxs.length + '건 · 자산 ' + wealthAssets.length + '개');
+    showToast('계정: ' + (currentUser.email || '?') + ' · 커플:' + (currentCoupleId ? 'O' : 'X'), 'info', 6000);
 
   } catch(e) {
     console.log('데이터 로드 오류:', e);
