@@ -20543,8 +20543,8 @@ async function syncLoad(silent=false) {
   store = function(k, v) {
     _origStore(k, v);
     if (SYNC_KEYS.includes(k)) {
-      // Supabase 저장 (비동기, 에러 묻히지 않도록 catch 추가)
-      if (currentCoupleId) {
+      // Supabase 저장 — 솔로/커플 모두 저장 (currentCoupleId 조건 제거)
+      if (currentUser) {
         if (TABLE_MAP[k]) {
           saveToSupabase(TABLE_MAP[k], v).catch(function(e) {
             console.warn('Supabase 저장 실패:', k, e);
