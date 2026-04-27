@@ -5185,72 +5185,94 @@ function migrateAssetCategories() {
 
 
 // Supabase에 데이터 저장
+// 단일 upsert 로 저장 (SELECT + UPDATE/INSERT 2회 → 1회 + race 방지)
+// 필요한 DB 인덱스:
+//   - asset_history / ledger_txs / stocks / goals / schedules:
+//       create unique index ... on <table>(couple_id) where couple_id is not null;
+//       create unique index ... on <table>(user_id)   where user_id   is not null;
+//   - app_data:
+//       create unique index ... on app_data(couple_id, key) where couple_id is not null;
+//       create unique index ... on app_data(user_id,   key) where user_id   is not null;
+// upsert 가 onConflict 매칭에 실패하면 SELECT/UPDATE 폴백을 시도한다.
 async function saveToSupabase(table, data) {
   if (!currentUser) return;
 
   const keyField = currentCoupleId ? 'couple_id' : 'user_id';
   const keyValue = currentCoupleId ? currentCoupleId : currentUser.id;
+  const row = { [keyField]: keyValue, data: data, updated_at: new Date().toISOString() };
 
-  // 기존 행이 있는지 먼저 확인
+  const { error } = await _supabase
+    .from(table)
+    .upsert(row, { onConflict: keyField });
+
+  if (error) {
+    console.log('저장 오류 (upsert):', table, error);
+    // 폴백: 인덱스 미설정 등으로 upsert 가 실패하면 SELECT+UPDATE/INSERT 로 시도
+    await _saveToSupabaseFallback(table, data, keyField, keyValue);
+  } else {
+    console.log('✅ Supabase 저장:', table);
+  }
+}
+
+async function _saveToSupabaseFallback(table, data, keyField, keyValue) {
   const { data: existing } = await _supabase
     .from(table)
     .select('id')
     .eq(keyField, keyValue)
-    .single();
+    .maybeSingle();
 
-  let error;
   if (existing) {
-    // 있으면 update
-    const { error: updateError } = await _supabase
+    await _supabase
       .from(table)
       .update({ data: data, updated_at: new Date().toISOString() })
       .eq(keyField, keyValue);
-    error = updateError;
   } else {
-    // 없으면 insert
-    const { error: insertError } = await _supabase
+    await _supabase
       .from(table)
       .insert({ [keyField]: keyValue, data: data, updated_at: new Date().toISOString() });
-    error = insertError;
   }
-
-  if (error) console.log('저장 오류:', table, error);
-  else console.log('✅ Supabase 저장:', table);
 }
 
 
-// app_data 테이블에 key-value 저장
+// app_data 테이블 (key-value) 저장 — onConflict 는 (key + 소유자 키) 복합
 async function saveAppDataToSupabase(key, data) {
   if (!currentUser) return;
 
   const keyField = currentCoupleId ? 'couple_id' : 'user_id';
   const keyValue = currentCoupleId ? currentCoupleId : currentUser.id;
+  const row = { [keyField]: keyValue, key: key, data: data, updated_at: new Date().toISOString() };
 
-  // 기존 행이 있는지 먼저 확인
+  const { error } = await _supabase
+    .from('app_data')
+    .upsert(row, { onConflict: keyField + ',key' });
+
+  if (error) {
+    console.log('저장 오류 (upsert):', key, error);
+    await _saveAppDataFallback(key, data, keyField, keyValue);
+  } else {
+    console.log('✅ Supabase 저장:', key);
+  }
+}
+
+async function _saveAppDataFallback(key, data, keyField, keyValue) {
   const { data: existing } = await _supabase
     .from('app_data')
     .select('id')
     .eq(keyField, keyValue)
     .eq('key', key)
-    .single();
+    .maybeSingle();
 
-  let error;
   if (existing) {
-    const { error: updateError } = await _supabase
+    await _supabase
       .from('app_data')
       .update({ data: data, updated_at: new Date().toISOString() })
       .eq(keyField, keyValue)
       .eq('key', key);
-    error = updateError;
   } else {
-    const { error: insertError } = await _supabase
+    await _supabase
       .from('app_data')
       .insert({ [keyField]: keyValue, key: key, data: data, updated_at: new Date().toISOString() });
-    error = insertError;
   }
-
-  if (error) console.log('저장 오류:', key, error);
-  else console.log('✅ Supabase 저장:', key);
 }
 
 // 인메모리 데이터를 현재 활성 공간(couple_id 또는 user_id)에 모두 저장한다.
