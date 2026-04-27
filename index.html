@@ -5014,9 +5014,20 @@ async function loadAllDataFromSupabase() {
     }
 
     console.log('✅ Supabase 데이터 로드 완료');
+    console.log('📊 로드 결과:', {
+      keyField, keyValue,
+      assetHistory: assetHistory.length,
+      ledgerTxs: ledgerTxs.length,
+      stocks: stocks.length,
+      goals: goals.length,
+      wealthAssets: wealthAssets.length,
+      aptList: aptList.length,
+    });
+    showToast('로드: 자산기록 ' + assetHistory.length + '개 · 가계부 ' + ledgerTxs.length + '건 · 자산 ' + wealthAssets.length + '개');
 
   } catch(e) {
     console.log('데이터 로드 오류:', e);
+    showToast('❗ 데이터 로드 실패: ' + (e && e.message || e));
     // 네트워크 오류 등으로 실패해도 위에서 리셋된 기본값을 그대로 유지
     // (이전 사용자 캐시로 fallback하지 않음 — 보안상 더 안전)
   }
