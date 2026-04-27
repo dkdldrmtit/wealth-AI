@@ -4895,7 +4895,32 @@ async function handleJoinCouple() {
     return;
   }
 
-  currentCoupleId = rpcRes.couple_id;
+  const newCoupleId = rpcRes.couple_id;
+
+  // 솔로로 쌓은 데이터가 있으면 커플 공간으로 옮길지 안내
+  const hasSolo = hasSoloDataToMigrate();
+  const coupleHasData = hasSolo ? await coupleSpaceHasData(newCoupleId) : false;
+
+  let bringMyData = false;
+  if (hasSolo && !coupleHasData) {
+    bringMyData = await showConfirm(
+      '💡 혼자 쓰던 데이터를 커플 공간으로 가져올까요?\n\n자산·가계부·주식·목표·일정 등 모든 데이터가 그대로 옮겨집니다.\n\n취소를 누르면 빈 커플 공간으로 시작해요.',
+      '가져오기'
+    );
+  } else if (hasSolo && coupleHasData) {
+    bringMyData = await showConfirm(
+      '⚠️ 커플 공간에 이미 데이터가 있어요!\n\n• 확인 → 내 데이터로 덮어씀 (상대방 데이터가 사라짐)\n• 취소 → 상대방 데이터 사용 (내 솔로 데이터는 사라짐)',
+      '내 데이터로'
+    );
+  }
+
+  currentCoupleId = newCoupleId;
+
+  if (bringMyData) {
+    successEl.style.display = 'block';
+    successEl.textContent = '📤 내 데이터를 옮기는 중...';
+    await migrateSoloDataToCouple();
+  }
 
   successEl.style.display = 'block';
   successEl.textContent = '✅ 배우자와 연결됐어요! 잠시 후 앱으로 이동해요 🎉';
@@ -5215,6 +5240,58 @@ async function saveAppDataToSupabase(key, data) {
 
   if (error) console.log('저장 오류:', key, error);
   else console.log('✅ Supabase 저장:', key);
+}
+
+// 커플 가입 직전까지 솔로로 쌓아둔 인메모리 데이터를 새 couple_id 행에 그대로 복사한다.
+// currentCoupleId 가 이미 새 couple_id 로 세팅돼 있어야 한다.
+async function migrateSoloDataToCouple() {
+  if (!currentUser || !currentCoupleId) return { migrated: 0 };
+  let migrated = 0;
+  const safeSave = async function(fn, label) {
+    try { await fn(); migrated++; }
+    catch (e) { console.warn('마이그레이션 실패:', label, e); }
+  };
+
+  if (assetHistory.length)   await safeSave(() => saveToSupabase('asset_history', assetHistory), 'asset_history');
+  if (ledgerTxs.length)      await safeSave(() => saveToSupabase('ledger_txs', ledgerTxs), 'ledger_txs');
+  if (stocks.length)         await safeSave(() => saveToSupabase('stocks', stocks), 'stocks');
+  if (goals.length)          await safeSave(() => saveToSupabase('goals', goals), 'goals');
+  if (schedules.length)      await safeSave(() => saveToSupabase('schedules', schedules), 'schedules');
+
+  if (budgets && Object.keys(budgets).length)
+                              await safeSave(() => saveAppDataToSupabase('budgets', budgets), 'budgets');
+  if (recurringItems.length) await safeSave(() => saveAppDataToSupabase('recurring_items', recurringItems), 'recurring_items');
+  if (wealthAssets.length)   await safeSave(() => saveAppDataToSupabase('wealth_assets', wealthAssets), 'wealth_assets');
+  if (wealthObs.length)      await safeSave(() => saveAppDataToSupabase('wealth_obs', wealthObs), 'wealth_obs');
+  if (aptList.length)        await safeSave(() => saveAppDataToSupabase('apt_list', aptList), 'apt_list');
+  if (proposals.length)      await safeSave(() => saveAppDataToSupabase('proposals', proposals), 'proposals');
+  if (PARTNER_NAMES)         await safeSave(() => saveAppDataToSupabase('partner_names', PARTNER_NAMES), 'partner_names');
+
+  return { migrated };
+}
+
+// 새 couple_id 공간에 이미 데이터가 있는지 빠르게 확인 (asset_history 행 존재 여부로 판단).
+async function coupleSpaceHasData(coupleId) {
+  try {
+    const { data } = await _supabase
+      .from('asset_history')
+      .select('id')
+      .eq('couple_id', coupleId)
+      .maybeSingle();
+    return !!data;
+  } catch (e) {
+    return false;
+  }
+}
+
+// 인메모리 솔로 데이터가 의미 있는 양인지 (마이그레이션 안내 표시용).
+function hasSoloDataToMigrate() {
+  return (assetHistory && assetHistory.length > 0)
+    || (ledgerTxs && ledgerTxs.length > 0)
+    || (stocks && stocks.length > 0)
+    || (goals && goals.length > 0)
+    || (wealthAssets && wealthAssets.length > 0)
+    || (aptList && aptList.length > 0);
 }
 
 
@@ -11513,27 +11590,18 @@ async function handleJoinCoupleFromSettings() {
     return;
   }
 
-  // 기존 데이터 있으면 경고
-  const hasData = assetHistory.length > 0 || ledgerTxs.length > 0 || stocks.length > 0;
-  if (hasData) {
-    const ok = await showConfirm(
-      '⚠️ 주의!\n\n내가 혼자 쓰던 데이터(자산·가계부·주식)는\n상대방 데이터로 대체됩니다.\n\n계속하시겠어요?',
-      '연결하기'
-    );
-    if (!ok) return;
+  if (!/^[a-z0-9]{6,}$/.test(inviteCode)) {
+    msgEl.style.display = 'block';
+    msgEl.style.background = 'rgba(239,68,68,0.08)';
+    msgEl.style.color = 'var(--red)';
+    msgEl.textContent = '❗ 유효하지 않은 초대 코드예요';
+    return;
   }
 
   msgEl.style.display = 'block';
   msgEl.style.background = 'rgba(30,58,82,0.08)';
   msgEl.style.color = 'var(--blue)';
   msgEl.textContent = '🔍 확인 중...';
-
-  if (!/^[a-z0-9]{6,}$/.test(inviteCode)) {
-    msgEl.style.background = 'rgba(239,68,68,0.08)';
-    msgEl.style.color = 'var(--red)';
-    msgEl.textContent = '❗ 유효하지 않은 초대 코드예요';
-    return;
-  }
 
   const { data: rpcRes, error: rpcErr } = await _supabase
     .rpc('join_couple_by_code', { p_code: inviteCode });
@@ -11551,7 +11619,32 @@ async function handleJoinCoupleFromSettings() {
     return;
   }
 
-  currentCoupleId = rpcRes.couple_id;
+  const newCoupleId = rpcRes.couple_id;
+
+  // 솔로 데이터 / 커플 공간 상태에 따라 마이그레이션 여부 결정
+  const hasSolo = hasSoloDataToMigrate();
+  const coupleHasData = hasSolo ? await coupleSpaceHasData(newCoupleId) : false;
+
+  let bringMyData = false;
+  if (hasSolo && !coupleHasData) {
+    bringMyData = await showConfirm(
+      '💡 혼자 쓰던 데이터를 커플 공간으로 가져올까요?\n\n자산·가계부·주식·목표·일정 등 모든 데이터가 그대로 옮겨집니다.\n\n취소를 누르면 빈 커플 공간으로 시작해요.',
+      '가져오기'
+    );
+  } else if (hasSolo && coupleHasData) {
+    bringMyData = await showConfirm(
+      '⚠️ 커플 공간에 이미 데이터가 있어요!\n\n• 확인 → 내 데이터로 덮어씀 (상대방 데이터가 사라짐)\n• 취소 → 상대방 데이터 사용 (내 솔로 데이터는 사라짐)',
+      '내 데이터로'
+    );
+  }
+
+  // 새 couple_id 를 인메모리에 반영 → 이후 saveToSupabase 가 couple_id 키로 저장
+  currentCoupleId = newCoupleId;
+
+  if (bringMyData) {
+    msgEl.textContent = '📤 내 데이터를 옮기는 중...';
+    await migrateSoloDataToCouple();
+  }
 
   msgEl.style.background = 'rgba(34,197,94,0.08)';
   msgEl.style.color = 'var(--green)';
