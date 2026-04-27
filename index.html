@@ -4950,9 +4950,21 @@ async function loadAllDataFromSupabase() {
     localStorage.removeItem('molit-api-key');
   } catch (e) {}
 
-  // 커플 있으면 couple_id 기준, 없으면 user_id 기준으로 조회
-  const keyField = currentCoupleId ? 'couple_id' : 'user_id';
-  const keyValue = currentCoupleId ? currentCoupleId : currentUser.id;
+  // couple_id 우선, 없으면 user_id로 fallback (데이터가 어느 키로 저장됐든 복구)
+  const tryLoad = async function(table, key) {
+    if (currentCoupleId) {
+      const r = await _supabase.from(table).select('data').eq('couple_id', currentCoupleId).maybeSingle();
+      if (r.data) return r;
+    }
+    return _supabase.from(table).select('data').eq('user_id', currentUser.id).maybeSingle();
+  };
+  const tryLoadApp = async function(key) {
+    if (currentCoupleId) {
+      const r = await _supabase.from('app_data').select('data').eq('couple_id', currentCoupleId).eq('key', key).maybeSingle();
+      if (r.data) return r;
+    }
+    return _supabase.from('app_data').select('data').eq('user_id', currentUser.id).eq('key', key).maybeSingle();
+  };
 
   try {
     const [
@@ -4969,18 +4981,18 @@ async function loadAllDataFromSupabase() {
       aptListRes,
       partnerNamesRes
     ] = await Promise.all([
-      _supabase.from('asset_history').select('data').eq(keyField, keyValue).maybeSingle(),
-      _supabase.from('ledger_txs').select('data').eq(keyField, keyValue).maybeSingle(),
-      _supabase.from('stocks').select('data').eq(keyField, keyValue).maybeSingle(),
-      _supabase.from('goals').select('data').eq(keyField, keyValue).maybeSingle(),
-      _supabase.from('schedules').select('data').eq(keyField, keyValue).maybeSingle(),
-      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'budgets').maybeSingle(),
-      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'molit-api-key').maybeSingle(),
-      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'proposals').maybeSingle(),
-      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'wealth_assets').maybeSingle(),
-      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'wealth_obs').maybeSingle(),
-      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'apt_list').maybeSingle(),
-      _supabase.from('app_data').select('data').eq(keyField, keyValue).eq('key', 'partner_names').maybeSingle()
+      tryLoad('asset_history'),
+      tryLoad('ledger_txs'),
+      tryLoad('stocks'),
+      tryLoad('goals'),
+      tryLoad('schedules'),
+      tryLoadApp('budgets'),
+      tryLoadApp('molit-api-key'),
+      tryLoadApp('proposals'),
+      tryLoadApp('wealth_assets'),
+      tryLoadApp('wealth_obs'),
+      tryLoadApp('apt_list'),
+      tryLoadApp('partner_names'),
     ]);
 
     // 각 변수는 Supabase에 데이터가 있을 때만 덮어쓰기 (없으면 위에서 리셋된 기본값 유지)
