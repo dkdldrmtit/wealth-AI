@@ -567,6 +567,54 @@ body[data-theme="light"] {
   --lavender: #8b5cf6;
 }
 
+/* ── 인증 화면 테마 변수 (다크 기본, 라이트 오버라이드) ── */
+#auth-screen, #couple-setup-screen {
+  --a-bg: #080808;
+  --a-surf: #111111;
+  --a-surf2: #181818;
+  --a-text: #f0f0f0;
+  --a-label: #505050;
+  --a-brd: rgba(255,255,255,0.08);
+  --a-brd-card: rgba(255,255,255,0.06);
+  --a-link: #404040;
+  --a-muted: #303030;
+  --a-subtle: #a0a0a0;
+  --a-cap: rgba(255,255,255,0.2);
+  --a-cap2: rgba(255,255,255,0.25);
+}
+@media (prefers-color-scheme: light) {
+  body:not([data-theme="dark"]) #auth-screen,
+  body:not([data-theme="dark"]) #couple-setup-screen {
+    --a-bg: #f0f2f8;
+    --a-surf: #ffffff;
+    --a-surf2: #f5f6f8;
+    --a-text: #111111;
+    --a-label: #888888;
+    --a-brd: rgba(0,0,0,0.12);
+    --a-brd-card: rgba(0,0,0,0.07);
+    --a-link: #555555;
+    --a-muted: #888888;
+    --a-subtle: #666666;
+    --a-cap: rgba(0,0,0,0.35);
+    --a-cap2: rgba(0,0,0,0.4);
+  }
+}
+body[data-theme="light"] #auth-screen,
+body[data-theme="light"] #couple-setup-screen {
+  --a-bg: #f0f2f8;
+  --a-surf: #ffffff;
+  --a-surf2: #f5f6f8;
+  --a-text: #111111;
+  --a-label: #888888;
+  --a-brd: rgba(0,0,0,0.12);
+  --a-brd-card: rgba(0,0,0,0.07);
+  --a-link: #555555;
+  --a-muted: #888888;
+  --a-subtle: #666666;
+  --a-cap: rgba(0,0,0,0.35);
+  --a-cap2: rgba(0,0,0,0.4);
+}
+
 /* ═══════════════════════════════════════════
    ✨ UX/UI 개선 모음
    ═══════════════════════════════════════════ */
@@ -1188,12 +1236,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 </div>
 
 <!-- ══ 로그인/회원가입 모달 ══ -->
-<div id="auth-screen" style="display:none;position:fixed;inset:0;background:#080808;z-index:99998;overflow-y:auto">
+<div id="auth-screen" style="display:none;position:fixed;inset:0;background:var(--a-bg);z-index:99998;overflow-y:auto">
 
   <!-- 상단 로고 -->
   <div style="text-align:center;padding:max(80px, calc(env(safe-area-inset-top, 0px) + 60px)) 32px 40px">
-    <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:11px;font-weight:400;letter-spacing:6px;color:rgba(255,255,255,0.25);margin-bottom:16px;text-transform:uppercase">For Couples</div>
-    <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:38px;font-weight:100;letter-spacing:8px;color:#f0f0f0;line-height:1;filter:drop-shadow(0 0 30px rgba(30,58,82,0.2))">OURs</div>
+    <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:11px;font-weight:400;letter-spacing:6px;color:var(--a-cap2);margin-bottom:16px;text-transform:uppercase">For Couples</div>
+    <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:38px;font-weight:100;letter-spacing:8px;color:var(--a-text);line-height:1;filter:drop-shadow(0 0 30px rgba(30,58,82,0.2))">OURs</div>
     <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:12px;font-weight:300;letter-spacing:8px;margin-top:8px;background:linear-gradient(90deg,rgba(30,58,82,0.35),var(--blue),rgba(30,58,82,0.35));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">함께 모으는 자산</div>
     <div style="width:40px;height:0.5px;background:linear-gradient(90deg,transparent,rgba(90,159,196,0.3),transparent);margin:20px auto 0"></div>
   </div>
@@ -1202,13 +1250,13 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div style="max-width:400px;margin:0 auto;padding:0 24px">
 
     <!-- 탭 -->
-    <div style="display:flex;background:#111111;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:4px;margin-bottom:28px;gap:3px">
+    <div style="display:flex;background:var(--a-surf);border:1px solid var(--a-brd-card);border-radius:14px;padding:4px;margin-bottom:28px;gap:3px">
       <button id="auth-tab-login" onclick="setAuthTab('login')"
         style="flex:1;padding:11px;border-radius:11px;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:rgba(30,58,82,0.15);color:var(--blue);border:0.5px solid rgba(30,58,82,0.25);transition:all .2s">
         로그인
       </button>
       <button id="auth-tab-signup" onclick="setAuthTab('signup')"
-        style="flex:1;padding:11px;border-radius:11px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#505050;transition:all .2s">
+        style="flex:1;padding:11px;border-radius:11px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--a-label);transition:all .2s">
         회원가입
       </button>
     </div>
@@ -1217,30 +1265,30 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div id="auth-login-form">
 
       <div style="margin-bottom:14px">
-        <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">이메일</div>
+        <div style="font-size:11px;color:var(--a-label);font-weight:600;letter-spacing:0.5px;margin-bottom:7px">이메일</div>
         <input type="email" id="login-email" placeholder="이메일을 입력하세요"
-          style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
+          style="width:100%;background:var(--a-surf);border:1px solid var(--a-brd);border-radius:14px;color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
           onfocus="this.style.borderColor='rgba(30,58,82,0.4)'"
-          onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+          onblur="this.style.borderColor='var(--a-brd)'">
       </div>
 
       <div style="margin-bottom:28px">
-        <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">비밀번호</div>
+        <div style="font-size:11px;color:var(--a-label);font-weight:600;letter-spacing:0.5px;margin-bottom:7px">비밀번호</div>
         <input type="password" id="login-password" placeholder="비밀번호를 입력하세요"
-          style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
+          style="width:100%;background:var(--a-surf);border:1px solid var(--a-brd);border-radius:14px;color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
           onfocus="this.style.borderColor='rgba(30,58,82,0.4)'"
-          onblur="this.style.borderColor='rgba(255,255,255,0.08)'"
+          onblur="this.style.borderColor='var(--a-brd)'"
           onkeydown="if(event.key==='Enter') handleLogin()">
       </div>
 
       <button onclick="handleLogin()" id="login-btn"
-        style="width:100%;padding:15px;border-radius:14px;background:#111111;border:0.5px solid rgba(30,58,82,0.3);color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:0.5px">
+        style="width:100%;padding:15px;border-radius:14px;background:var(--a-surf);border:0.5px solid rgba(30,58,82,0.3);color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:0.5px">
         로그인
       </button>
 
       <div style="text-align:center;margin-top:16px">
         <button onclick="handleForgotPassword()"
-          style="background:none;border:none;color:#404040;font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer;letter-spacing:0.3px">
+          style="background:none;border:none;color:var(--a-link);font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer;letter-spacing:0.3px">
           비밀번호를 잊으셨나요?
         </button>
       </div>
@@ -1252,69 +1300,69 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div id="auth-signup-form" style="display:none">
 
       <div style="margin-bottom:14px">
-        <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">이름</div>
+        <div style="font-size:11px;color:var(--a-label);font-weight:600;letter-spacing:0.5px;margin-bottom:7px">이름</div>
         <input type="text" id="signup-name" placeholder="이름을 입력하세요"
-          style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
+          style="width:100%;background:var(--a-surf);border:1px solid var(--a-brd);border-radius:14px;color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
           onfocus="this.style.borderColor='rgba(30,58,82,0.4)'"
-          onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+          onblur="this.style.borderColor='var(--a-brd)'">
       </div>
 
       <div style="margin-bottom:14px">
-        <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">이메일</div>
+        <div style="font-size:11px;color:var(--a-label);font-weight:600;letter-spacing:0.5px;margin-bottom:7px">이메일</div>
         <input type="email" id="signup-email" placeholder="이메일을 입력하세요"
-          style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
+          style="width:100%;background:var(--a-surf);border:1px solid var(--a-brd);border-radius:14px;color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
           onfocus="this.style.borderColor='rgba(30,58,82,0.4)'"
-          onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+          onblur="this.style.borderColor='var(--a-brd)'">
       </div>
 
       <div style="margin-bottom:14px">
-        <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">비밀번호 <span style="color:#303030;font-weight:400">(8자 이상, 영문+숫자)</span></div>
+        <div style="font-size:11px;color:var(--a-label);font-weight:600;letter-spacing:0.5px;margin-bottom:7px">비밀번호 <span style="color:var(--a-muted);font-weight:400">(8자 이상, 영문+숫자)</span></div>
         <input type="password" id="signup-password" placeholder="비밀번호를 입력하세요"
-          style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
+          style="width:100%;background:var(--a-surf);border:1px solid var(--a-brd);border-radius:14px;color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
           onfocus="this.style.borderColor='rgba(30,58,82,0.4)'"
-          onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+          onblur="this.style.borderColor='var(--a-brd)'">
       </div>
 
       <div style="margin-bottom:18px">
-        <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">베타 초대 코드</div>
+        <div style="font-size:11px;color:var(--a-label);font-weight:600;letter-spacing:0.5px;margin-bottom:7px">베타 초대 코드</div>
         <input type="text" id="signup-beta-code" placeholder="초대 코드를 입력하세요"
-          style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s;text-transform:uppercase;letter-spacing:1px"
+          style="width:100%;background:var(--a-surf);border:1px solid var(--a-brd);border-radius:14px;color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s;text-transform:uppercase;letter-spacing:1px"
           onfocus="this.style.borderColor='rgba(30,58,82,0.4)'"
-          onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+          onblur="this.style.borderColor='var(--a-brd)'">
       </div>
 
       <!-- 약관 동의 -->
-      <div style="margin-bottom:24px;padding:14px 16px;background:#111111;border:1px solid rgba(255,255,255,0.06);border-radius:12px">
+      <div style="margin-bottom:24px;padding:14px 16px;background:var(--a-surf);border:1px solid var(--a-brd-card);border-radius:12px">
         <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:10px">
           <input type="checkbox" id="signup-agree-all" onchange="syncAgreeAll(this.checked)"
             style="width:18px;height:18px;accent-color:var(--blue);cursor:pointer;flex-shrink:0">
-          <span style="font-size:13px;color:#f0f0f0;font-weight:700">전체 동의</span>
+          <span style="font-size:13px;color:var(--a-text);font-weight:700">전체 동의</span>
         </label>
-        <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;display:flex;flex-direction:column;gap:8px">
+        <div style="border-top:1px solid var(--a-brd-card);padding-top:10px;display:flex;flex-direction:column;gap:8px">
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
             <input type="checkbox" id="signup-agree-tos" class="signup-agree" onchange="syncAgreeAllFromItems()"
               style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer;flex-shrink:0">
-            <span style="font-size:12px;color:#a0a0a0;flex:1">[필수] 이용약관 동의</span>
+            <span style="font-size:12px;color:var(--a-subtle);flex:1">[필수] 이용약관 동의</span>
             <button type="button" onclick="event.preventDefault();openLegalModal('terms')"
               style="background:none;border:none;color:var(--blue);font-size:11px;cursor:pointer;text-decoration:underline">보기</button>
           </label>
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
             <input type="checkbox" id="signup-agree-privacy" class="signup-agree" onchange="syncAgreeAllFromItems()"
               style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer;flex-shrink:0">
-            <span style="font-size:12px;color:#a0a0a0;flex:1">[필수] 개인정보처리방침 동의</span>
+            <span style="font-size:12px;color:var(--a-subtle);flex:1">[필수] 개인정보처리방침 동의</span>
             <button type="button" onclick="event.preventDefault();openLegalModal('privacy')"
               style="background:none;border:none;color:var(--blue);font-size:11px;cursor:pointer;text-decoration:underline">보기</button>
           </label>
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
             <input type="checkbox" id="signup-agree-age" class="signup-agree" onchange="syncAgreeAllFromItems()"
               style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer;flex-shrink:0">
-            <span style="font-size:12px;color:#a0a0a0;flex:1">[필수] 만 14세 이상입니다</span>
+            <span style="font-size:12px;color:var(--a-subtle);flex:1">[필수] 만 14세 이상입니다</span>
           </label>
         </div>
       </div>
 
       <button onclick="handleSignup()" id="signup-btn"
-        style="width:100%;padding:15px;border-radius:14px;background:#111111;border:0.5px solid rgba(30,58,82,0.3);color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:0.5px">
+        style="width:100%;padding:15px;border-radius:14px;background:var(--a-surf);border:0.5px solid rgba(30,58,82,0.3);color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:0.5px">
         회원가입
       </button>
 
@@ -1328,47 +1376,47 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 </div>
 
 <!-- ══ 커플 연결 모달 ══ -->
-<div id="couple-setup-screen" style="display:none;position:fixed;inset:0;background:#080808;z-index:99997;overflow-y:auto">
+<div id="couple-setup-screen" style="display:none;position:fixed;inset:0;background:var(--a-bg);z-index:99997;overflow-y:auto">
   <div style="max-width:400px;margin:0 auto;padding:max(60px, calc(env(safe-area-inset-top, 0px) + 40px)) 24px 60px">
 
     <!-- 헤더 -->
     <div style="text-align:center;margin-bottom:40px">
-      <div style="font-size:11px;color:rgba(255,255,255,0.2);letter-spacing:4px;text-transform:uppercase;margin-bottom:20px">COUPLE SETUP</div>
-      <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:300;color:#f0f0f0;letter-spacing:1px;margin-bottom:10px">배우자 연결</div>
+      <div style="font-size:11px;color:var(--a-cap);letter-spacing:4px;text-transform:uppercase;margin-bottom:20px">COUPLE SETUP</div>
+      <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:300;color:var(--a-text);letter-spacing:1px;margin-bottom:10px">배우자 연결</div>
       <div style="width:40px;height:0.5px;background:linear-gradient(90deg,transparent,rgba(30,58,82,0.3),transparent);margin:0 auto 16px"></div>
-      <div style="font-size:13px;color:#404040;line-height:1.8">배우자와 함께<br>재무 데이터를 공유하세요</div>
+      <div style="font-size:13px;color:var(--a-link);line-height:1.8">배우자와 함께<br>재무 데이터를 공유하세요</div>
     </div>
 
     <!-- 새 커플 시작 -->
-    <div style="background:#111111;border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:22px;margin-bottom:12px">
+    <div style="background:var(--a-surf);border:1px solid var(--a-brd-card);border-radius:20px;padding:22px;margin-bottom:12px">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
         <div style="width:36px;height:36px;border-radius:10px;background:rgba(30,58,82,0.08);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🆕</div>
         <div>
-          <div style="font-size:14px;font-weight:700;color:#f0f0f0">새로 시작하기</div>
-          <div style="font-size:11px;color:#404040;margin-top:2px">커플 공간 만들고 배우자 초대</div>
+          <div style="font-size:14px;font-weight:700;color:var(--a-text)">새로 시작하기</div>
+          <div style="font-size:11px;color:var(--a-link);margin-top:2px">커플 공간 만들고 배우자 초대</div>
         </div>
       </div>
       <button onclick="handleCreateCouple()" id="create-couple-btn"
-        style="width:100%;padding:13px;border-radius:12px;background:#111111;border:0.5px solid rgba(30,58,82,0.25);color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s">
+        style="width:100%;padding:13px;border-radius:12px;background:var(--a-surf);border:0.5px solid rgba(30,58,82,0.25);color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s">
         커플 공간 만들기
       </button>
     </div>
 
     <!-- 초대 코드로 참여 -->
-    <div style="background:#111111;border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:22px;margin-bottom:20px">
+    <div style="background:var(--a-surf);border:1px solid var(--a-brd-card);border-radius:20px;padding:22px;margin-bottom:20px">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
         <div style="width:36px;height:36px;border-radius:10px;background:rgba(34,197,94,0.08);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🔗</div>
         <div>
-          <div style="font-size:14px;font-weight:700;color:#f0f0f0">초대 코드로 참여</div>
-          <div style="font-size:11px;color:#404040;margin-top:2px">배우자에게 받은 코드 입력</div>
+          <div style="font-size:14px;font-weight:700;color:var(--a-text)">초대 코드로 참여</div>
+          <div style="font-size:11px;color:var(--a-link);margin-top:2px">배우자에게 받은 코드 입력</div>
         </div>
       </div>
       <input type="text" id="couple-invite-input" placeholder="초대 코드 입력"
-        style="width:100%;background:#181818;border:1px solid rgba(255,255,255,0.08);border-radius:12px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:13px 14px;outline:none;margin-bottom:10px;text-transform:lowercase;letter-spacing:1px;transition:border-color .2s"
+        style="width:100%;background:var(--a-surf2);border:1px solid var(--a-brd);border-radius:12px;color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:13px 14px;outline:none;margin-bottom:10px;text-transform:lowercase;letter-spacing:1px;transition:border-color .2s"
         onfocus="this.style.borderColor='rgba(34,197,94,0.4)'"
-        onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+        onblur="this.style.borderColor='var(--a-brd)'">
       <button onclick="handleJoinCouple()" id="join-couple-btn"
-        style="width:100%;padding:13px;border-radius:12px;background:#111111;border:0.5px solid rgba(34,197,94,0.25);color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s">
+        style="width:100%;padding:13px;border-radius:12px;background:var(--a-surf);border:0.5px solid rgba(34,197,94,0.25);color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s">
         참여하기
       </button>
     </div>
@@ -1379,7 +1427,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <!-- 혼자 시작 -->
     <div style="text-align:center;margin-top:18px">
       <button onclick="handleStartSolo()"
-        style="background:none;border:none;color:#7a7a7a;font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer;text-decoration:underline;text-underline-offset:3px">
+        style="background:none;border:none;color:var(--a-subtle);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer;text-decoration:underline;text-underline-offset:3px">
         혼자 사용하기 (배우자 없이)
       </button>
     </div>
@@ -1387,7 +1435,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <!-- 로그아웃 -->
     <div style="text-align:center;margin-top:14px">
       <button onclick="handleLogout()"
-        style="background:none;border:none;color:#303030;font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer;letter-spacing:0.3px">
+        style="background:none;border:none;color:var(--a-muted);font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer;letter-spacing:0.3px">
         로그아웃
       </button>
     </div>
@@ -4603,7 +4651,6 @@ async function handleLogin() {
     return;
   }
 
-  try { localStorage.clear(); } catch (e) {}
   resetInMemoryUserState();
   currentUser = data.user;
   btn.textContent = '로그인';
