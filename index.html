@@ -1006,35 +1006,38 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 }
 .wealth-asset-row:active { transform:scale(0.98); background:var(--surface3); }
 .wealth-owner-dot { width:7px;height:7px;border-radius:50%;flex-shrink:0; }
-.wealth-section { margin-bottom:14px; }
+.wealth-section { margin-bottom:10px; }
 .wealth-section-header {
-  display:flex;align-items:center;gap:10px;
-  background:var(--surface2);border-radius:14px;
-  padding:13px 14px;cursor:pointer;
-  border:1px solid var(--border);transition:all .15s;
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface2);border-radius:16px;
+  padding:15px 16px;cursor:pointer;
+  border:1px solid var(--border);
   -webkit-tap-highlight-color:transparent;
-  user-select:none;
+  user-select:none;transition:background .12s;
 }
-.wealth-section-header:active { transform:scale(0.99); background:var(--surface3); }
-.wealth-section-chevron {
-  width:12px;height:12px;color:var(--muted2);flex-shrink:0;
-  transition:transform .2s ease;
-}
-.wealth-section-chevron.open { transform:rotate(90deg); }
+.wealth-section-header:active { background:var(--surface3); }
+.wealth-section-info { flex:1;min-width:0; }
 .wealth-section-name {
-  font-size:14px;font-weight:700;color:var(--text);letter-spacing:0.1px;
+  font-size:15px;font-weight:700;color:var(--text);letter-spacing:-0.2px;
 }
-.wealth-section-count {
-  font-size:10px;font-weight:700;color:var(--muted2);
-  background:var(--surface3);padding:2px 7px;border-radius:8px;
-  letter-spacing:0.2px;
+.wealth-section-sub {
+  font-size:11px;color:var(--muted);margin-top:3px;
+}
+.wealth-section-right {
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
 }
 .wealth-section-total {
-  margin-left:auto;font-size:14px;font-weight:700;color:var(--text);
-  white-space:nowrap;
+  font-size:16px;font-weight:800;color:var(--text);
+  letter-spacing:-0.4px;white-space:nowrap;
 }
 .wealth-section-total.debt { color:var(--red); }
-.wealth-section-body { padding:6px 0 0 0; }
+.wealth-section-chevron {
+  width:16px;height:16px;color:var(--muted2);flex-shrink:0;
+  transition:transform .22s cubic-bezier(.4,0,.2,1);
+}
+.wealth-section-chevron.open { transform:rotate(90deg); }
+.wealth-section-body { margin-top:8px; }
+
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -6648,10 +6651,14 @@ function wRenderSection(title, assets, key) {
 
   let html = '<div class="wealth-section">'
     + '<div class="wealth-section-header" onclick="wToggleSection(\'' + safeKey + '\', ' + assets.length + ')">'
-    + '<svg class="wealth-section-chevron' + chevronOpen + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>'
-    + '<span class="wealth-section-name">' + title + '</span>'
-    + '<span class="wealth-section-count">' + assets.length + '</span>'
+    + '<div class="wealth-section-info">'
+    + '<div class="wealth-section-name">' + title + '</div>'
+    + '<div class="wealth-section-sub">' + assets.length + '개 항목</div>'
+    + '</div>'
+    + '<div class="wealth-section-right">'
     + '<span class="wealth-section-total' + totalClass + '">' + formatted + '</span>'
+    + '<svg class="wealth-section-chevron' + chevronOpen + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>'
+    + '</div>'
     + '</div>';
   if (expanded) {
     html += '<div class="wealth-section-body">';
