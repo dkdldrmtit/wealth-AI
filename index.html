@@ -567,6 +567,37 @@ body[data-theme="light"] {
   --lavender: #8b5cf6;
 }
 
+/* ── 인증 화면 테마 변수 ── */
+#auth-screen, #couple-setup-screen {
+  --a-bg: #080808;
+  --a-surf: #111111;
+  --a-surf2: #181818;
+  --a-text: #f0f0f0;
+  --a-label: #505050;
+  --a-brd: rgba(255,255,255,0.08);
+  --a-brd-card: rgba(255,255,255,0.06);
+  --a-link: #404040;
+  --a-muted: #303030;
+  --a-subtle: #a0a0a0;
+  --a-cap: rgba(255,255,255,0.2);
+  --a-cap2: rgba(255,255,255,0.25);
+}
+body[data-theme="light"] #auth-screen,
+body[data-theme="light"] #couple-setup-screen {
+  --a-bg: #f0f2f8;
+  --a-surf: #ffffff;
+  --a-surf2: #f5f6f8;
+  --a-text: #111111;
+  --a-label: #888888;
+  --a-brd: rgba(0,0,0,0.12);
+  --a-brd-card: rgba(0,0,0,0.07);
+  --a-link: #555555;
+  --a-muted: #888888;
+  --a-subtle: #666666;
+  --a-cap: rgba(0,0,0,0.35);
+  --a-cap2: rgba(0,0,0,0.4);
+}
+
 /* ═══════════════════════════════════════════
    ✨ UX/UI 개선 모음
    ═══════════════════════════════════════════ */
@@ -1035,15 +1066,15 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     transition:opacity .7s ease, transform .7s ease;
     text-align:center;
   ">
-    <!-- OURs 상단 라인 -->
+    <!-- 상단 캡션 -->
     <div style="
       font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
       font-size:11px;font-weight:400;
       letter-spacing:6px;
-      color:rgba(255,255,255,0.3);
-      margin-bottom:14px;
+      color:rgba(255,255,255,0.25);
+      margin-bottom:16px;
       text-transform:uppercase;
-    ">M & S</div>
+    ">For Couples</div>
 
     <!-- 메인 타이틀 -->
     <div style="
@@ -1052,20 +1083,20 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       letter-spacing:8px;
       color:var(--text);
       line-height:1;
-      filter:drop-shadow(0 0 30px rgba(90,159,196,0.2));
-    ">WEALTH</div>
+      filter:drop-shadow(0 0 30px rgba(30,58,82,0.2));
+    ">OURs</div>
 
-    <!-- AI 강조 -->
+    <!-- 서브타이틀 -->
     <div style="
       font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
-      font-size:13px;font-weight:300;
-      letter-spacing:12px;
+      font-size:12px;font-weight:300;
+      letter-spacing:8px;
       margin-top:8px;
       background:linear-gradient(90deg, rgba(30,58,82,0.35), var(--blue), rgba(30,58,82,0.35));
       -webkit-background-clip:text;
       -webkit-text-fill-color:transparent;
       background-clip:text;
-    ">A I</div>
+    ">함께 모으는 자산</div>
 
     <!-- 구분선 -->
     <div style="
@@ -1073,15 +1104,6 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
       background:linear-gradient(90deg, transparent, rgba(90,159,196,0.3), transparent);
       margin:20px auto;
     "></div>
-
-    <!-- 태그라인 -->
-    <div style="
-      font-size:9px;
-      color:rgba(90,159,196,0.35);
-      letter-spacing:3px;
-      font-weight:400;
-      text-transform:uppercase;
-    ">Designed by a Banker</div>
   </div>
 
   <!-- 로딩 점 -->
@@ -1188,12 +1210,12 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 </div>
 
 <!-- ══ 로그인/회원가입 모달 ══ -->
-<div id="auth-screen" style="display:none;position:fixed;inset:0;background:#080808;z-index:99998;overflow-y:auto">
+<div id="auth-screen" style="display:none;position:fixed;inset:0;background:var(--a-bg);z-index:99998;overflow-y:auto">
 
   <!-- 상단 로고 -->
   <div style="text-align:center;padding:max(80px, calc(env(safe-area-inset-top, 0px) + 60px)) 32px 40px">
-    <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:11px;font-weight:400;letter-spacing:6px;color:rgba(255,255,255,0.25);margin-bottom:16px;text-transform:uppercase">For Couples</div>
-    <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:38px;font-weight:100;letter-spacing:8px;color:#f0f0f0;line-height:1;filter:drop-shadow(0 0 30px rgba(30,58,82,0.2))">OURs</div>
+    <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:11px;font-weight:400;letter-spacing:6px;color:var(--a-cap2);margin-bottom:16px;text-transform:uppercase">For Couples</div>
+    <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:38px;font-weight:100;letter-spacing:8px;color:var(--a-text);line-height:1;filter:drop-shadow(0 0 30px rgba(30,58,82,0.2))">OURs</div>
     <div style="font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;font-size:12px;font-weight:300;letter-spacing:8px;margin-top:8px;background:linear-gradient(90deg,rgba(30,58,82,0.35),var(--blue),rgba(30,58,82,0.35));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">함께 모으는 자산</div>
     <div style="width:40px;height:0.5px;background:linear-gradient(90deg,transparent,rgba(90,159,196,0.3),transparent);margin:20px auto 0"></div>
   </div>
@@ -1202,13 +1224,13 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
   <div style="max-width:400px;margin:0 auto;padding:0 24px">
 
     <!-- 탭 -->
-    <div style="display:flex;background:#111111;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:4px;margin-bottom:28px;gap:3px">
+    <div style="display:flex;background:var(--a-surf);border:1px solid var(--a-brd-card);border-radius:14px;padding:4px;margin-bottom:28px;gap:3px">
       <button id="auth-tab-login" onclick="setAuthTab('login')"
         style="flex:1;padding:11px;border-radius:11px;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:rgba(30,58,82,0.15);color:var(--blue);border:0.5px solid rgba(30,58,82,0.25);transition:all .2s">
         로그인
       </button>
       <button id="auth-tab-signup" onclick="setAuthTab('signup')"
-        style="flex:1;padding:11px;border-radius:11px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#505050;transition:all .2s">
+        style="flex:1;padding:11px;border-radius:11px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--a-label);transition:all .2s">
         회원가입
       </button>
     </div>
@@ -1217,30 +1239,30 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div id="auth-login-form">
 
       <div style="margin-bottom:14px">
-        <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">이메일</div>
+        <div style="font-size:11px;color:var(--a-label);font-weight:600;letter-spacing:0.5px;margin-bottom:7px">이메일</div>
         <input type="email" id="login-email" placeholder="이메일을 입력하세요"
-          style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
+          style="width:100%;background:var(--a-surf);border:1px solid var(--a-brd);border-radius:14px;color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
           onfocus="this.style.borderColor='rgba(30,58,82,0.4)'"
-          onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+          onblur="this.style.borderColor='var(--a-brd)'">
       </div>
 
       <div style="margin-bottom:28px">
-        <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">비밀번호</div>
+        <div style="font-size:11px;color:var(--a-label);font-weight:600;letter-spacing:0.5px;margin-bottom:7px">비밀번호</div>
         <input type="password" id="login-password" placeholder="비밀번호를 입력하세요"
-          style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
+          style="width:100%;background:var(--a-surf);border:1px solid var(--a-brd);border-radius:14px;color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
           onfocus="this.style.borderColor='rgba(30,58,82,0.4)'"
-          onblur="this.style.borderColor='rgba(255,255,255,0.08)'"
+          onblur="this.style.borderColor='var(--a-brd)'"
           onkeydown="if(event.key==='Enter') handleLogin()">
       </div>
 
       <button onclick="handleLogin()" id="login-btn"
-        style="width:100%;padding:15px;border-radius:14px;background:#111111;border:0.5px solid rgba(30,58,82,0.3);color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:0.5px">
+        style="width:100%;padding:15px;border-radius:14px;background:var(--a-surf);border:0.5px solid rgba(30,58,82,0.3);color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:0.5px">
         로그인
       </button>
 
       <div style="text-align:center;margin-top:16px">
         <button onclick="handleForgotPassword()"
-          style="background:none;border:none;color:#404040;font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer;letter-spacing:0.3px">
+          style="background:none;border:none;color:var(--a-link);font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer;letter-spacing:0.3px">
           비밀번호를 잊으셨나요?
         </button>
       </div>
@@ -1252,69 +1274,69 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <div id="auth-signup-form" style="display:none">
 
       <div style="margin-bottom:14px">
-        <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">이름</div>
+        <div style="font-size:11px;color:var(--a-label);font-weight:600;letter-spacing:0.5px;margin-bottom:7px">이름</div>
         <input type="text" id="signup-name" placeholder="이름을 입력하세요"
-          style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
+          style="width:100%;background:var(--a-surf);border:1px solid var(--a-brd);border-radius:14px;color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
           onfocus="this.style.borderColor='rgba(30,58,82,0.4)'"
-          onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+          onblur="this.style.borderColor='var(--a-brd)'">
       </div>
 
       <div style="margin-bottom:14px">
-        <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">이메일</div>
+        <div style="font-size:11px;color:var(--a-label);font-weight:600;letter-spacing:0.5px;margin-bottom:7px">이메일</div>
         <input type="email" id="signup-email" placeholder="이메일을 입력하세요"
-          style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
+          style="width:100%;background:var(--a-surf);border:1px solid var(--a-brd);border-radius:14px;color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
           onfocus="this.style.borderColor='rgba(30,58,82,0.4)'"
-          onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+          onblur="this.style.borderColor='var(--a-brd)'">
       </div>
 
       <div style="margin-bottom:14px">
-        <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">비밀번호 <span style="color:#303030;font-weight:400">(8자 이상, 영문+숫자)</span></div>
+        <div style="font-size:11px;color:var(--a-label);font-weight:600;letter-spacing:0.5px;margin-bottom:7px">비밀번호 <span style="color:var(--a-muted);font-weight:400">(8자 이상, 영문+숫자)</span></div>
         <input type="password" id="signup-password" placeholder="비밀번호를 입력하세요"
-          style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
+          style="width:100%;background:var(--a-surf);border:1px solid var(--a-brd);border-radius:14px;color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s"
           onfocus="this.style.borderColor='rgba(30,58,82,0.4)'"
-          onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+          onblur="this.style.borderColor='var(--a-brd)'">
       </div>
 
       <div style="margin-bottom:18px">
-        <div style="font-size:11px;color:#505050;font-weight:600;letter-spacing:0.5px;margin-bottom:7px">베타 초대 코드</div>
+        <div style="font-size:11px;color:var(--a-label);font-weight:600;letter-spacing:0.5px;margin-bottom:7px">베타 초대 코드</div>
         <input type="text" id="signup-beta-code" placeholder="초대 코드를 입력하세요"
-          style="width:100%;background:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s;text-transform:uppercase;letter-spacing:1px"
+          style="width:100%;background:var(--a-surf);border:1px solid var(--a-brd);border-radius:14px;color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s;text-transform:uppercase;letter-spacing:1px"
           onfocus="this.style.borderColor='rgba(30,58,82,0.4)'"
-          onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+          onblur="this.style.borderColor='var(--a-brd)'">
       </div>
 
       <!-- 약관 동의 -->
-      <div style="margin-bottom:24px;padding:14px 16px;background:#111111;border:1px solid rgba(255,255,255,0.06);border-radius:12px">
+      <div style="margin-bottom:24px;padding:14px 16px;background:var(--a-surf);border:1px solid var(--a-brd-card);border-radius:12px">
         <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:10px">
           <input type="checkbox" id="signup-agree-all" onchange="syncAgreeAll(this.checked)"
             style="width:18px;height:18px;accent-color:var(--blue);cursor:pointer;flex-shrink:0">
-          <span style="font-size:13px;color:#f0f0f0;font-weight:700">전체 동의</span>
+          <span style="font-size:13px;color:var(--a-text);font-weight:700">전체 동의</span>
         </label>
-        <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;display:flex;flex-direction:column;gap:8px">
+        <div style="border-top:1px solid var(--a-brd-card);padding-top:10px;display:flex;flex-direction:column;gap:8px">
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
             <input type="checkbox" id="signup-agree-tos" class="signup-agree" onchange="syncAgreeAllFromItems()"
               style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer;flex-shrink:0">
-            <span style="font-size:12px;color:#a0a0a0;flex:1">[필수] 이용약관 동의</span>
+            <span style="font-size:12px;color:var(--a-subtle);flex:1">[필수] 이용약관 동의</span>
             <button type="button" onclick="event.preventDefault();openLegalModal('terms')"
               style="background:none;border:none;color:var(--blue);font-size:11px;cursor:pointer;text-decoration:underline">보기</button>
           </label>
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
             <input type="checkbox" id="signup-agree-privacy" class="signup-agree" onchange="syncAgreeAllFromItems()"
               style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer;flex-shrink:0">
-            <span style="font-size:12px;color:#a0a0a0;flex:1">[필수] 개인정보처리방침 동의</span>
+            <span style="font-size:12px;color:var(--a-subtle);flex:1">[필수] 개인정보처리방침 동의</span>
             <button type="button" onclick="event.preventDefault();openLegalModal('privacy')"
               style="background:none;border:none;color:var(--blue);font-size:11px;cursor:pointer;text-decoration:underline">보기</button>
           </label>
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
             <input type="checkbox" id="signup-agree-age" class="signup-agree" onchange="syncAgreeAllFromItems()"
               style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer;flex-shrink:0">
-            <span style="font-size:12px;color:#a0a0a0;flex:1">[필수] 만 14세 이상입니다</span>
+            <span style="font-size:12px;color:var(--a-subtle);flex:1">[필수] 만 14세 이상입니다</span>
           </label>
         </div>
       </div>
 
       <button onclick="handleSignup()" id="signup-btn"
-        style="width:100%;padding:15px;border-radius:14px;background:#111111;border:0.5px solid rgba(30,58,82,0.3);color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:0.5px">
+        style="width:100%;padding:15px;border-radius:14px;background:var(--a-surf);border:0.5px solid rgba(30,58,82,0.3);color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:0.5px">
         회원가입
       </button>
 
@@ -1328,47 +1350,47 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 </div>
 
 <!-- ══ 커플 연결 모달 ══ -->
-<div id="couple-setup-screen" style="display:none;position:fixed;inset:0;background:#080808;z-index:99997;overflow-y:auto">
+<div id="couple-setup-screen" style="display:none;position:fixed;inset:0;background:var(--a-bg);z-index:99997;overflow-y:auto">
   <div style="max-width:400px;margin:0 auto;padding:max(60px, calc(env(safe-area-inset-top, 0px) + 40px)) 24px 60px">
 
     <!-- 헤더 -->
     <div style="text-align:center;margin-bottom:40px">
-      <div style="font-size:11px;color:rgba(255,255,255,0.2);letter-spacing:4px;text-transform:uppercase;margin-bottom:20px">COUPLE SETUP</div>
-      <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:300;color:#f0f0f0;letter-spacing:1px;margin-bottom:10px">배우자 연결</div>
+      <div style="font-size:11px;color:var(--a-cap);letter-spacing:4px;text-transform:uppercase;margin-bottom:20px">COUPLE SETUP</div>
+      <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:300;color:var(--a-text);letter-spacing:1px;margin-bottom:10px">배우자 연결</div>
       <div style="width:40px;height:0.5px;background:linear-gradient(90deg,transparent,rgba(30,58,82,0.3),transparent);margin:0 auto 16px"></div>
-      <div style="font-size:13px;color:#404040;line-height:1.8">배우자와 함께<br>재무 데이터를 공유하세요</div>
+      <div style="font-size:13px;color:var(--a-link);line-height:1.8">배우자와 함께<br>재무 데이터를 공유하세요</div>
     </div>
 
     <!-- 새 커플 시작 -->
-    <div style="background:#111111;border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:22px;margin-bottom:12px">
+    <div style="background:var(--a-surf);border:1px solid var(--a-brd-card);border-radius:20px;padding:22px;margin-bottom:12px">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
         <div style="width:36px;height:36px;border-radius:10px;background:rgba(30,58,82,0.08);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🆕</div>
         <div>
-          <div style="font-size:14px;font-weight:700;color:#f0f0f0">새로 시작하기</div>
-          <div style="font-size:11px;color:#404040;margin-top:2px">커플 공간 만들고 배우자 초대</div>
+          <div style="font-size:14px;font-weight:700;color:var(--a-text)">새로 시작하기</div>
+          <div style="font-size:11px;color:var(--a-link);margin-top:2px">커플 공간 만들고 배우자 초대</div>
         </div>
       </div>
       <button onclick="handleCreateCouple()" id="create-couple-btn"
-        style="width:100%;padding:13px;border-radius:12px;background:#111111;border:0.5px solid rgba(30,58,82,0.25);color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s">
+        style="width:100%;padding:13px;border-radius:12px;background:var(--a-surf);border:0.5px solid rgba(30,58,82,0.25);color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s">
         커플 공간 만들기
       </button>
     </div>
 
     <!-- 초대 코드로 참여 -->
-    <div style="background:#111111;border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:22px;margin-bottom:20px">
+    <div style="background:var(--a-surf);border:1px solid var(--a-brd-card);border-radius:20px;padding:22px;margin-bottom:20px">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
         <div style="width:36px;height:36px;border-radius:10px;background:rgba(34,197,94,0.08);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🔗</div>
         <div>
-          <div style="font-size:14px;font-weight:700;color:#f0f0f0">초대 코드로 참여</div>
-          <div style="font-size:11px;color:#404040;margin-top:2px">배우자에게 받은 코드 입력</div>
+          <div style="font-size:14px;font-weight:700;color:var(--a-text)">초대 코드로 참여</div>
+          <div style="font-size:11px;color:var(--a-link);margin-top:2px">배우자에게 받은 코드 입력</div>
         </div>
       </div>
       <input type="text" id="couple-invite-input" placeholder="초대 코드 입력"
-        style="width:100%;background:#181818;border:1px solid rgba(255,255,255,0.08);border-radius:12px;color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:13px 14px;outline:none;margin-bottom:10px;text-transform:lowercase;letter-spacing:1px;transition:border-color .2s"
+        style="width:100%;background:var(--a-surf2);border:1px solid var(--a-brd);border-radius:12px;color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:13px 14px;outline:none;margin-bottom:10px;text-transform:lowercase;letter-spacing:1px;transition:border-color .2s"
         onfocus="this.style.borderColor='rgba(34,197,94,0.4)'"
-        onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+        onblur="this.style.borderColor='var(--a-brd)'">
       <button onclick="handleJoinCouple()" id="join-couple-btn"
-        style="width:100%;padding:13px;border-radius:12px;background:#111111;border:0.5px solid rgba(34,197,94,0.25);color:#f0f0f0;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s">
+        style="width:100%;padding:13px;border-radius:12px;background:var(--a-surf);border:0.5px solid rgba(34,197,94,0.25);color:var(--a-text);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s">
         참여하기
       </button>
     </div>
@@ -1379,7 +1401,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <!-- 혼자 시작 -->
     <div style="text-align:center;margin-top:18px">
       <button onclick="handleStartSolo()"
-        style="background:none;border:none;color:#7a7a7a;font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer;text-decoration:underline;text-underline-offset:3px">
+        style="background:none;border:none;color:var(--a-subtle);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer;text-decoration:underline;text-underline-offset:3px">
         혼자 사용하기 (배우자 없이)
       </button>
     </div>
@@ -1387,7 +1409,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     <!-- 로그아웃 -->
     <div style="text-align:center;margin-top:14px">
       <button onclick="handleLogout()"
-        style="background:none;border:none;color:#303030;font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer;letter-spacing:0.3px">
+        style="background:none;border:none;color:var(--a-muted);font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer;letter-spacing:0.3px">
         로그아웃
       </button>
     </div>
@@ -1469,6 +1491,24 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     </div>
   </div>
 
+  <!-- 첫 방문 웰컴 카드 (데이터 없을 때만 표시) -->
+  <div id="home-welcome-card" style="display:none;margin-bottom:14px">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:20px;box-shadow:0 1px 8px var(--shadow)">
+      <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px">첫 기록을 남겨보세요</div>
+      <div style="font-size:12px;color:var(--muted2);line-height:1.6;margin-bottom:16px">지출이나 자산을 기록하면 자동으로 분석돼요</div>
+      <div style="display:flex;gap:8px">
+        <button onclick="goPage('ledger',document.querySelectorAll('.nav-item')[1]);setTimeout(()=>openLedgerAdd('expense'),300)"
+          style="flex:1;padding:11px 0;border-radius:12px;background:var(--blue);border:none;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
+          + 지출 기록
+        </button>
+        <button onclick="goPage('assets',document.querySelectorAll('.nav-item')[2])"
+          style="flex:1;padding:11px 0;border-radius:12px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer">
+          자산 추가
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ① 오늘 지출 위젯 -->
   <div data-card="widget" id="home-card-widget">
   <div id="home-widget" onclick="goPage('ledger',document.querySelectorAll('.nav-item')[1]);setTimeout(()=>setLedgerTab('list'),300)"
@@ -1519,7 +1559,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
 
   <!-- ① ⓑ 배우자 최근 활동 (신규) -->
-  <div data-card="partner-activity" data-couple-only="1" id="home-card-partner-activity">
+  <div data-card="partner-activity" id="home-card-partner-activity">
     <div id="home-partner-activity"
       style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:18px 20px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 1px 8px var(--shadow)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -2513,6 +2553,17 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
           초대 코드 복사
         </button>
         <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.6">배우자에게 이 코드를 알려주면<br>같은 공간에서 재무를 관리할 수 있어요</div>
+      </div>
+
+      <!-- 커플 연결 해제 (연결 상태일 때만 표시) -->
+      <div id="couple-leave-section" style="display:none;margin-bottom:12px">
+        <button onclick="handleLeaveCouple()"
+          style="width:100%;padding:11px;border-radius:10px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.18);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:600;cursor:pointer">
+          커플 연결 해제
+        </button>
+        <div style="font-size:10px;color:var(--muted2);text-align:center;margin-top:6px;line-height:1.5">
+          현재 데이터를 내 솔로 공간으로 가져온 뒤 분리합니다.
+        </div>
       </div>
 
       <!-- 커플 연결 (미연결 상태일 때만 표시) -->
@@ -4592,7 +4643,6 @@ async function handleLogin() {
     return;
   }
 
-  try { localStorage.clear(); } catch (e) {}
   resetInMemoryUserState();
   currentUser = data.user;
   btn.textContent = '로그인';
@@ -4895,7 +4945,32 @@ async function handleJoinCouple() {
     return;
   }
 
-  currentCoupleId = rpcRes.couple_id;
+  const newCoupleId = rpcRes.couple_id;
+
+  // 솔로로 쌓은 데이터가 있으면 커플 공간으로 옮길지 안내
+  const hasSolo = hasSoloDataToMigrate();
+  const coupleHasData = hasSolo ? await coupleSpaceHasData(newCoupleId) : false;
+
+  let bringMyData = false;
+  if (hasSolo && !coupleHasData) {
+    bringMyData = await showConfirm(
+      '💡 혼자 쓰던 데이터를 커플 공간으로 가져올까요?\n\n자산·가계부·주식·목표·일정 등 모든 데이터가 그대로 옮겨집니다.\n\n취소를 누르면 빈 커플 공간으로 시작해요.',
+      '가져오기'
+    );
+  } else if (hasSolo && coupleHasData) {
+    bringMyData = await showConfirm(
+      '⚠️ 커플 공간에 이미 데이터가 있어요!\n\n• 확인 → 내 데이터로 덮어씀 (상대방 데이터가 사라짐)\n• 취소 → 상대방 데이터 사용 (내 솔로 데이터는 사라짐)',
+      '내 데이터로'
+    );
+  }
+
+  currentCoupleId = newCoupleId;
+
+  if (bringMyData) {
+    successEl.style.display = 'block';
+    successEl.textContent = '📤 내 데이터를 옮기는 중...';
+    await flushInMemoryToSupabase();
+  }
 
   successEl.style.display = 'block';
   successEl.textContent = '✅ 배우자와 연결됐어요! 잠시 후 앱으로 이동해요 🎉';
@@ -4913,9 +4988,14 @@ async function handleJoinCouple() {
 // ── Supabase 데이터 동기화 ──
 // ══════════════════════════════════════
 
+// 로드 중에는 store() 가 Supabase로 다시 쓰지 않도록 막는 플래그
+// (빈 데이터로 기존 행을 덮어쓰는 사고 방지)
+let _isLoadingFromSupabase = false;
+
 // Supabase에서 전체 데이터 불러오기
 async function loadAllDataFromSupabase() {
   if (!currentUser) return;
+  _isLoadingFromSupabase = true;
 
   // 다른 계정 잔존 상태 차단: 모든 데이터 변수를 기본값으로 리셋
   // (메모리에 이전 사용자 데이터가 남아 새 계정 화면에 노출되는 문제 방지)
@@ -5036,49 +5116,13 @@ async function loadAllDataFromSupabase() {
       wealthAssets: wealthAssets.length,
       aptList: aptList.length,
     });
-    showToast('로드: 자산기록 ' + assetHistory.length + '개 · 가계부 ' + ledgerTxs.length + '건 · 자산 ' + wealthAssets.length + '개');
-    showToast('계정: ' + (currentUser.email || '?') + ' · 커플:' + (currentCoupleId ? 'O' : 'X'), 'info', 6000);
-
-    // 데이터 흔적 찾기: 모든 키로 asset_history 조회
-    try {
-      const allByUser = await _supabase.from('asset_history').select('user_id,couple_id,data').eq('user_id', currentUser.id);
-      const allByCoupleId = currentCoupleId ? await _supabase.from('asset_history').select('user_id,couple_id,data').eq('couple_id', currentCoupleId) : { data: [] };
-      // 커플 기록 조회
-      const couplesRes = await _supabase.from('couples').select('*').or('partner1_id.eq.' + currentUser.id + ',partner2_id.eq.' + currentUser.id);
-      console.log('🔎 데이터 추적:', {
-        asset_by_userid: (allByUser.data || []).length,
-        asset_by_coupleid: (allByCoupleId.data || []).length,
-        couples_found: (couplesRes.data || []).length,
-        couples_data: couplesRes.data,
-        sample_userids: (allByUser.data || []).map(function(r) { return { user_id: r.user_id, couple_id: r.couple_id, count: (r.data || []).length }; }),
-      });
-      const totalRecords = (allByUser.data || []).length + (allByCoupleId.data || []).length;
-      const couplesCount = (couplesRes.data || []).length;
-      showToast('흔적: 자산행 ' + totalRecords + '개 · 커플기록 ' + couplesCount + '개', 'info', 8000);
-      // 커플 기록이 있으면 그 couple_id로 다시 시도
-      if (couplesCount > 0 && !currentCoupleId) {
-        const foundCoupleId = couplesRes.data[0].id;
-        showToast('🔄 커플 ID 발견: ' + foundCoupleId.substring(0, 8) + '... 데이터 재로드 중', 'info', 5000);
-        const retryRes = await _supabase.from('asset_history').select('data').eq('couple_id', foundCoupleId).maybeSingle();
-        if (retryRes.data && retryRes.data.data) {
-          assetHistory = retryRes.data.data;
-          showToast('✅ 자산기록 ' + assetHistory.length + '개 복구!', 'info', 6000);
-          // 프로필 couple_id 복구
-          await _supabase.from('profiles').update({ couple_id: foundCoupleId }).eq('id', currentUser.id);
-          currentCoupleId = foundCoupleId;
-          // 다른 데이터도 다시 로드
-          setTimeout(function() { window.location.reload(); }, 2000);
-        }
-      }
-    } catch (err) {
-      console.warn('데이터 추적 실패:', err);
-    }
-
   } catch(e) {
     console.log('데이터 로드 오류:', e);
     showToast('❗ 데이터 로드 실패: ' + (e && e.message || e));
     // 네트워크 오류 등으로 실패해도 위에서 리셋된 기본값을 그대로 유지
     // (이전 사용자 캐시로 fallback하지 않음 — 보안상 더 안전)
+  } finally {
+    _isLoadingFromSupabase = false;
   }
 
   migrateAssetCategories();
@@ -5180,72 +5224,294 @@ function migrateAssetCategories() {
 
 
 // Supabase에 데이터 저장
+// 단일 upsert 로 저장 (SELECT + UPDATE/INSERT 2회 → 1회 + race 방지)
+// 필요한 DB 인덱스:
+//   - asset_history / ledger_txs / stocks / goals / schedules:
+//       create unique index ... on <table>(couple_id) where couple_id is not null;
+//       create unique index ... on <table>(user_id)   where user_id   is not null;
+//   - app_data:
+//       create unique index ... on app_data(couple_id, key) where couple_id is not null;
+//       create unique index ... on app_data(user_id,   key) where user_id   is not null;
+// upsert 가 onConflict 매칭에 실패하면 SELECT/UPDATE 폴백을 시도한다.
 async function saveToSupabase(table, data) {
   if (!currentUser) return;
 
   const keyField = currentCoupleId ? 'couple_id' : 'user_id';
   const keyValue = currentCoupleId ? currentCoupleId : currentUser.id;
+  const row = { [keyField]: keyValue, data: data, updated_at: new Date().toISOString() };
 
-  // 기존 행이 있는지 먼저 확인
+  const { error } = await _supabase
+    .from(table)
+    .upsert(row, { onConflict: keyField });
+
+  if (error) {
+    console.log('저장 오류 (upsert):', table, error);
+    // 폴백: 인덱스 미설정 등으로 upsert 가 실패하면 SELECT+UPDATE/INSERT 로 시도
+    await _saveToSupabaseFallback(table, data, keyField, keyValue);
+  } else {
+    console.log('✅ Supabase 저장:', table);
+  }
+}
+
+async function _saveToSupabaseFallback(table, data, keyField, keyValue) {
   const { data: existing } = await _supabase
     .from(table)
     .select('id')
     .eq(keyField, keyValue)
-    .single();
+    .maybeSingle();
 
-  let error;
   if (existing) {
-    // 있으면 update
-    const { error: updateError } = await _supabase
+    await _supabase
       .from(table)
       .update({ data: data, updated_at: new Date().toISOString() })
       .eq(keyField, keyValue);
-    error = updateError;
   } else {
-    // 없으면 insert
-    const { error: insertError } = await _supabase
+    await _supabase
       .from(table)
       .insert({ [keyField]: keyValue, data: data, updated_at: new Date().toISOString() });
-    error = insertError;
   }
-
-  if (error) console.log('저장 오류:', table, error);
-  else console.log('✅ Supabase 저장:', table);
 }
 
 
-// app_data 테이블에 key-value 저장
+// app_data 테이블 (key-value) 저장 — onConflict 는 (key + 소유자 키) 복합
 async function saveAppDataToSupabase(key, data) {
   if (!currentUser) return;
 
   const keyField = currentCoupleId ? 'couple_id' : 'user_id';
   const keyValue = currentCoupleId ? currentCoupleId : currentUser.id;
+  const row = { [keyField]: keyValue, key: key, data: data, updated_at: new Date().toISOString() };
 
-  // 기존 행이 있는지 먼저 확인
+  const { error } = await _supabase
+    .from('app_data')
+    .upsert(row, { onConflict: keyField + ',key' });
+
+  if (error) {
+    console.log('저장 오류 (upsert):', key, error);
+    await _saveAppDataFallback(key, data, keyField, keyValue);
+  } else {
+    console.log('✅ Supabase 저장:', key);
+  }
+}
+
+async function _saveAppDataFallback(key, data, keyField, keyValue) {
   const { data: existing } = await _supabase
     .from('app_data')
     .select('id')
     .eq(keyField, keyValue)
     .eq('key', key)
-    .single();
+    .maybeSingle();
 
-  let error;
   if (existing) {
-    const { error: updateError } = await _supabase
+    await _supabase
       .from('app_data')
       .update({ data: data, updated_at: new Date().toISOString() })
       .eq(keyField, keyValue)
       .eq('key', key);
-    error = updateError;
   } else {
-    const { error: insertError } = await _supabase
+    await _supabase
       .from('app_data')
       .insert({ [keyField]: keyValue, key: key, data: data, updated_at: new Date().toISOString() });
-    error = insertError;
   }
+}
 
-  if (error) console.log('저장 오류:', key, error);
-  else console.log('✅ Supabase 저장:', key);
+// 인메모리 데이터를 현재 활성 공간(couple_id 또는 user_id)에 모두 저장한다.
+// saveToSupabase / saveAppDataToSupabase 가 currentCoupleId 를 보고 키를 결정하므로,
+// 호출 직전에 currentCoupleId 를 원하는 값으로 맞춰두면 된다.
+//   - 솔로→커플 마이그레이션: currentCoupleId = newCoupleId 로 세팅 후 호출
+//   - 커플→솔로 분리: currentCoupleId = null 로 세팅 후 호출
+async function flushInMemoryToSupabase() {
+  if (!currentUser) return { migrated: 0 };
+  let migrated = 0;
+  const safeSave = async function(fn, label) {
+    try { await fn(); migrated++; }
+    catch (e) { console.warn('동기화 실패:', label, e); }
+  };
+
+  if (assetHistory.length)   await safeSave(() => saveToSupabase('asset_history', assetHistory), 'asset_history');
+  if (ledgerTxs.length)      await safeSave(() => saveToSupabase('ledger_txs', ledgerTxs), 'ledger_txs');
+  if (stocks.length)         await safeSave(() => saveToSupabase('stocks', stocks), 'stocks');
+  if (goals.length)          await safeSave(() => saveToSupabase('goals', goals), 'goals');
+  if (schedules.length)      await safeSave(() => saveToSupabase('schedules', schedules), 'schedules');
+
+  if (budgets && Object.keys(budgets).length)
+                              await safeSave(() => saveAppDataToSupabase('budgets', budgets), 'budgets');
+  if (recurringItems.length) await safeSave(() => saveAppDataToSupabase('recurring_items', recurringItems), 'recurring_items');
+  if (wealthAssets.length)   await safeSave(() => saveAppDataToSupabase('wealth_assets', wealthAssets), 'wealth_assets');
+  if (wealthObs.length)      await safeSave(() => saveAppDataToSupabase('wealth_obs', wealthObs), 'wealth_obs');
+  if (aptList.length)        await safeSave(() => saveAppDataToSupabase('apt_list', aptList), 'apt_list');
+  if (proposals.length)      await safeSave(() => saveAppDataToSupabase('proposals', proposals), 'proposals');
+  if (PARTNER_NAMES)         await safeSave(() => saveAppDataToSupabase('partner_names', PARTNER_NAMES), 'partner_names');
+
+  return { migrated };
+}
+
+// 새 couple_id 공간에 이미 데이터가 있는지 빠르게 확인 (asset_history 행 존재 여부로 판단).
+async function coupleSpaceHasData(coupleId) {
+  try {
+    const { data } = await _supabase
+      .from('asset_history')
+      .select('id')
+      .eq('couple_id', coupleId)
+      .maybeSingle();
+    return !!data;
+  } catch (e) {
+    return false;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// RLS 검증 — 배포 전 콘솔에서 window.__rlsCheck() 로 한 번 돌려본다.
+// 모든 테이블에 대해 필터 없이 SELECT 를 시도하고, 본인/배우자 데이터
+// 외의 행이 보이는지 확인한다. RLS 가 제대로 걸려 있으면 본인의 행만
+// 또는 빈 결과가 반환돼야 한다.
+//
+// 필수 RLS 정책 (Supabase SQL Editor 에 적용):
+//
+//   -- profiles: 본인 + 같은 커플 파트너만 SELECT
+//   create policy profiles_self_or_partner on profiles for select using (
+//     id = auth.uid()
+//     or couple_id is not distinct from (select couple_id from profiles where id = auth.uid())
+//   );
+//   create policy profiles_self_update on profiles for update using (id = auth.uid());
+//
+//   -- couples: 본인이 partner1/partner2 인 행만 접근
+//   create policy couples_member on couples for all using (
+//     auth.uid() in (partner1_id, partner2_id)
+//   );
+//
+//   -- 데이터 테이블 (asset_history, ledger_txs, stocks, goals, schedules, app_data):
+//   create policy data_owner_or_couple on <table> for all using (
+//     user_id = auth.uid()
+//     or couple_id in (select couple_id from profiles where id = auth.uid())
+//   );
+//
+// ─────────────────────────────────────────────────────────────────
+async function __rlsCheck() {
+  if (!currentUser) { console.warn('로그인 필요'); return; }
+  const myId = currentUser.id;
+  const myCouple = currentCoupleId;
+  const tables = ['profiles','couples','asset_history','ledger_txs','stocks','goals','schedules','app_data'];
+  const issues = [];
+  for (const t of tables) {
+    try {
+      const { data, error } = await _supabase.from(t).select('*').limit(50);
+      if (error) { console.log('[' + t + '] 조회 거부:', error.message); continue; }
+      const rows = data || [];
+      const leaks = rows.filter(r => {
+        // 본인이 직접 소유한 행은 OK
+        if (r.user_id === myId || r.id === myId) return false;
+        // 본인이 속한 커플 행은 OK
+        if (myCouple && r.couple_id === myCouple) return false;
+        if (myCouple && r.id === myCouple) return false;
+        if (myCouple && (r.partner1_id === myId || r.partner2_id === myId)) return false;
+        // 배우자 프로필 (같은 커플) 은 OK
+        if (myCouple && r.couple_id === myCouple) return false;
+        return true;
+      });
+      console.log('[' + t + '] ' + rows.length + '행 조회 / 의심 누수 ' + leaks.length + '건', leaks.slice(0,3));
+      if (leaks.length > 0) issues.push({ table: t, leakCount: leaks.length, sample: leaks[0] });
+    } catch (e) {
+      console.log('[' + t + '] 예외:', e.message);
+    }
+  }
+  if (issues.length === 0) {
+    console.log('%c✅ RLS 점검 통과 — 본인/커플 데이터 외 누수 없음', 'color:#22c55e;font-weight:700');
+  } else {
+    console.error('🚨 RLS 누수 의심:', issues);
+  }
+  return issues;
+}
+if (typeof window !== 'undefined') window.__rlsCheck = __rlsCheck;
+
+// 인메모리 솔로 데이터가 의미 있는 양인지 (마이그레이션 안내 표시용).
+function hasSoloDataToMigrate() {
+  return (assetHistory && assetHistory.length > 0)
+    || (ledgerTxs && ledgerTxs.length > 0)
+    || (stocks && stocks.length > 0)
+    || (goals && goals.length > 0)
+    || (wealthAssets && wealthAssets.length > 0)
+    || (aptList && aptList.length > 0);
+}
+
+// 커플 연결 해제 — 현재 커플 공간 데이터를 솔로 공간으로 복사한 뒤 분리한다.
+async function handleLeaveCouple() {
+  if (!currentUser || !currentCoupleId) return;
+
+  const hasData = hasSoloDataToMigrate();
+  const ok = await showConfirm(
+    hasData
+      ? '⚠️ 커플 연결을 해제할까요?\n\n현재 커플 공간의 모든 데이터(자산·가계부·주식·목표 등)를 내 솔로 공간으로 복사한 뒤 연결을 끊습니다.\n\n• 상대방은 커플 공간 데이터를 그대로 유지해요.\n• 내 데이터는 솔로 공간에서 계속 쓸 수 있어요.'
+      : '⚠️ 커플 연결을 해제할까요?\n\n해제하면 다시 솔로로 돌아갑니다. 나중에 같은 초대 코드로 다시 연결할 수 있어요.',
+    '연결 해제'
+  );
+  if (!ok) return;
+
+  showToast('🔄 연결 해제 중...', 'info', 4000);
+
+  try {
+    // 1. 현재 커플 데이터를 내 user_id 공간에 복사
+    if (hasData) {
+      const savedCoupleId = currentCoupleId;
+      currentCoupleId = null; // saveToSupabase 가 user_id 키로 저장하도록
+      try {
+        await flushInMemoryToSupabase();
+      } finally {
+        currentCoupleId = savedCoupleId;
+      }
+    }
+
+    // 2. couples 테이블에서 내 슬롯 비우기 (RPC 가 있으면 그쪽 우선, 없으면 직접 update)
+    const userId = currentUser.id;
+    const { data: rpcRes, error: rpcErr } = await _supabase
+      .rpc('leave_couple', { p_couple_id: currentCoupleId });
+
+    if (rpcErr) {
+      // RPC 미구현이면 직접 처리 (RLS 가 허용하는 경우만)
+      const { data: coupleRow } = await _supabase
+        .from('couples')
+        .select('partner1_id,partner2_id')
+        .eq('id', currentCoupleId)
+        .maybeSingle();
+
+      if (coupleRow) {
+        const update = {};
+        if (coupleRow.partner1_id === userId) update.partner1_id = null;
+        if (coupleRow.partner2_id === userId) update.partner2_id = null;
+
+        const otherStillThere =
+          (coupleRow.partner1_id && coupleRow.partner1_id !== userId) ||
+          (coupleRow.partner2_id && coupleRow.partner2_id !== userId);
+
+        if (otherStillThere) {
+          await _supabase.from('couples').update(update).eq('id', currentCoupleId);
+        } else {
+          await _supabase.from('couples').delete().eq('id', currentCoupleId);
+        }
+      }
+    }
+
+    // 3. 내 프로필에서 couple_id 제거
+    await _supabase
+      .from('profiles')
+      .update({ couple_id: null })
+      .eq('id', userId);
+
+    // 4. 인메모리 상태 갱신
+    currentCoupleId = null;
+    if (currentProfile) currentProfile.couple_id = null;
+
+    showToast('✅ 커플 연결이 해제됐어요', 'success', 4000);
+
+    // 5. 솔로 공간 데이터로 다시 로드
+    setTimeout(async function() {
+      await loadAllDataFromSupabase();
+      if (typeof renderCoupleSettings === 'function') renderCoupleSettings();
+      if (typeof updateCoupleConnectUI === 'function') updateCoupleConnectUI();
+    }, 800);
+  } catch (e) {
+    console.warn('커플 해제 실패:', e);
+    showToast('❗ 연결 해제 중 오류가 발생했어요', 'error', 4000);
+  }
 }
 
 
@@ -5411,6 +5677,12 @@ function escHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#x27;');
+}
+
+// JS string literal safe in HTML attribute (e.g. onclick="fn(<here>)")
+// JSON.stringify gives a valid JS string literal; escHtml makes it safe in the attribute.
+function escJsAttr(str) {
+  return escHtml(JSON.stringify(str == null ? '' : String(str)));
 }
 
 // ══════════════════════════════════════
@@ -6342,8 +6614,8 @@ function wRenderAssetRow(asset) {
   return '<div class="wealth-asset-row" onclick="wOpenEditSheet(\'' + asset.id + '\')">'
     + '<div class="wealth-owner-dot" style="background:' + ownerColor + '"></div>'
     + '<div style="flex:1;min-width:0">'
-    + '<div style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + asset.name + '</div>'
-    + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + subText + '</div>'
+    + '<div style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escHtml(asset.name) + '</div>'
+    + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + escHtml(subText) + '</div>'
     + '</div>'
     + '<div style="text-align:right;flex-shrink:0">' + valueHtml + '</div>'
     + '</div>';
@@ -6415,7 +6687,7 @@ function wOpenEditSheet(assetId) {
     + '<span style="width:8px;height:8px;border-radius:50%;background:' + ownerColor + ';flex-shrink:0;display:inline-block"></span>'
     + '<span style="font-size:11px;color:var(--muted);font-weight:600">' + ownerName + (asset.autoSrc ? ' · 자동연동' : '') + '</span>'
     + '</div>'
-    + '<div style="font-size:20px;font-weight:800;color:var(--text);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + asset.name + '</div>'
+    + '<div style="font-size:20px;font-weight:800;color:var(--text);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escHtml(asset.name) + '</div>'
     + '<div style="margin-top:5px"><span style="font-size:10px;font-weight:600;color:var(--muted2);background:var(--surface2);padding:2px 8px;border-radius:6px">' + typeLabel + '</span></div>'
     + '</div>'
     + '<button onclick="wCloseEditSheet()" style="background:none;border:none;width:36px;height:36px;cursor:pointer;color:var(--muted);font-size:18px;line-height:1;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:-4px">'
@@ -7046,7 +7318,7 @@ function renderMonthCards() {
         changes.slice(0,4).forEach(function(c) {
           const color = c.diff > 0 ? 'var(--muted2)' : 'var(--red)';
           itemChangesHtml += '<span style="font-size:11px;color:' + color + '">'
-            + c.name + ' ' + (c.diff > 0 ? '+' : '') + (c.diff/10000).toFixed(1) + '억'
+            + escHtml(c.name) + ' ' + (c.diff > 0 ? '+' : '') + (c.diff/10000).toFixed(1) + '억'
             + '</span>';
         });
         if (changes.length > 4) itemChangesHtml += '<span style="font-size:11px;color:var(--muted)">+' + (changes.length-4) + '개</span>';
@@ -7089,10 +7361,10 @@ function renderMonthCards() {
         ? '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:6px">'
           + (r.items || []).filter(i => i.stockLink).map(i =>
               '<span style="font-size:10px;font-weight:600;color:var(--blue);background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.15);border-radius:6px;padding:2px 8px">'
-              + '🔗 ' + i.name
+              + '🔗 ' + escHtml(i.name)
               + ' <span style="font-weight:400;color:var(--muted)">'
               + (i.stockLink === 'KR' ? '국내' : '해외')
-              + (i.stockLinkTime ? ' · ' + i.stockLinkTime : '')
+              + (i.stockLinkTime ? ' · ' + escHtml(i.stockLinkTime) : '')
               + '</span></span>'
             ).join('')
           + '</div>'
@@ -7354,7 +7626,7 @@ function renderItemView() {
       html += '<div onclick="closeAssetDetail();openModal(\'' + latestMonth2 + '\')" style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 12px;margin-bottom:6px;cursor:pointer;transition:transform .1s" onmousedown="this.style.transform=\'scale(0.98)\'" onmouseup="this.style.transform=\'\'" ontouchstart="this.style.transform=\'scale(0.98)\'" ontouchend="this.style.transform=\'\'">';
       html += '<div style="display:flex;justify-content:space-between;align-items:center">';
       html += '<div style="min-width:0;flex:1">';
-      html += '<div style="font-size:12px;font-weight:700;color:var(--text)">' + ik.name + '</div>';
+      html += '<div style="font-size:12px;font-weight:700;color:var(--text)">' + escHtml(ik.name) + '</div>';
       html += '<div style="font-size:15px;font-weight:900;color:' + (isDebt ? 'var(--red)' : 'var(--teal)') + ';margin-top:1px">' + amtDisplay + '</div>';
       const latestMemo = (function() {
         for (var hi = assetHistory.length - 1; hi >= 0; hi--) {
@@ -7664,21 +7936,18 @@ function renderAddItemPresets() {
       const label = [acc.broker, acc.accountType].filter(Boolean).join(' · ');
       if (isDup) {
         return '<div style="padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);opacity:0.45;margin-bottom:8px">'
-          + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">' + label + '</div>'
+          + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">' + escHtml(label) + '</div>'
           + '<div style="font-size:15px;font-weight:800;color:var(--muted)">' + evalMan.toLocaleString() + '만원</div>'
           + '<div style="font-size:10px;color:var(--muted);margin-top:2px">이미 연동됨</div>'
           + '</div>';
       }
-      // encode for safe inline onclick
-      const safeType = acc.accountType.replace(/'/g, '\\x27');
-      const safeBroker = (acc.broker || '').replace(/'/g, '\\x27');
-      return '<button onclick="linkStockByAccount(\'' + ownerId + '\',\'' + safeType + '\',\'' + safeBroker + '\')" style="'
+      return '<button onclick="linkStockByAccount(' + escJsAttr(ownerId) + ',' + escJsAttr(acc.accountType) + ',' + escJsAttr(acc.broker || '') + ')" style="'
         + 'display:block;width:100%;padding:10px 14px;border-radius:12px;'
         + 'border:1px solid rgba(30,58,82,0.2);background:rgba(30,58,82,0.04);'
         + 'font-family:\'Noto Sans KR\',sans-serif;cursor:pointer;text-align:left;margin-bottom:8px;transition:all .15s">'
         + '<div style="display:flex;justify-content:space-between;align-items:center">'
         + '<div>'
-        + '<div style="font-size:11px;color:var(--muted);margin-bottom:3px">' + label + '</div>'
+        + '<div style="font-size:11px;color:var(--muted);margin-bottom:3px">' + escHtml(label) + '</div>'
         + '<div style="font-size:16px;font-weight:900;color:var(--text)">' + evalMan.toLocaleString() + '만원</div>'
         + '</div>'
         + '<span style="font-size:10px;font-weight:700;color:var(--blue);background:rgba(30,58,82,0.1);padding:3px 10px;border-radius:10px;flex-shrink:0">연동</span>'
@@ -7699,11 +7968,11 @@ function renderAddItemPresets() {
       html += '<div style="font-size:11px;color:var(--muted);padding:12px;background:var(--surface2);border-radius:10px;text-align:center;margin-bottom:10px">⚠️ 주식 탭에서 시세 갱신 후 다시 시도해주세요</div>';
     }
     if (p1Accounts.length > 0) {
-      html += '<div style="font-size:10px;font-weight:700;color:var(--muted2);letter-spacing:0.3px;margin-bottom:6px">' + getP1Name() + '</div>';
+      html += '<div style="font-size:10px;font-weight:700;color:var(--muted2);letter-spacing:0.3px;margin-bottom:6px">' + escHtml(getP1Name()) + '</div>';
       html += p1Accounts.map(function(acc) { return accountCard('partner1', acc); }).join('');
     }
     if (p2Accounts.length > 0) {
-      html += '<div style="font-size:10px;font-weight:700;color:var(--muted2);letter-spacing:0.3px;margin-bottom:6px;margin-top:' + (p1Accounts.length > 0 ? '8px' : '0') + '">' + getP2Name() + '</div>';
+      html += '<div style="font-size:10px;font-weight:700;color:var(--muted2);letter-spacing:0.3px;margin-bottom:6px;margin-top:' + (p1Accounts.length > 0 ? '8px' : '0') + '">' + escHtml(getP2Name()) + '</div>';
       html += p2Accounts.map(function(acc) { return accountCard('partner2', acc); }).join('');
     }
 
@@ -8801,6 +9070,7 @@ function initHome() {
   renderHomeStocksSummary();
   renderPartnerActivity();
 
+  updateWelcomeCard();
   applyPartnerNamesToUI();
   applySoloModeVisibility();
   setDonutTab('all');
@@ -8830,6 +9100,9 @@ function initHome() {
 // 앱 부팅 - DOM 준비 후 실행
 
 // ── 데이터 백업 / 복원 ──
+// 백업 파일에는 사용자 발급 비밀(국토부 API 키 등)을 포함하지 않는다.
+// 백업 파일은 평문 JSON 으로 사용자 디바이스 / 클라우드 / 메일 첨부 등으로
+// 유통될 수 있으므로, 노출되면 곤란한 키는 항상 재입력하게 한다.
 function exportBackup() {
   const backup = {
     version: '1.0',
@@ -8847,8 +9120,8 @@ function exportBackup() {
       'ledger-budgets': load('ledger-budgets', {}),
       'stocks': load('stocks', []),
       'stock-account-types': load('stock-account-types', null),
-      'molit-api-key': load('molit-api-key', ''),
-      'cloudflare-proxy': load('cloudflare-proxy', ''),
+      // 'molit-api-key': 비밀이라 백업에서 제외 (복원 후 사용자가 다시 입력)
+      // 'cloudflare-proxy': 환경별로 달라지는 값이라 제외
       'usd-krw-rate': load('usd-krw-rate', 0),
       'ai-comment-cache': load('ai-comment-cache', null),
     }
@@ -8863,7 +9136,7 @@ function exportBackup() {
   a.download = '자산관리_백업_' + dateStr + '.json';
   a.click();
   URL.revokeObjectURL(url);
-  showToast('📤 백업 파일이 저장됐어요!');
+  showToast('📤 백업 파일이 저장됐어요! (API 키 제외)');
 }
 
 // ══ 카테고리 커스터마이징 ══
@@ -8891,9 +9164,9 @@ function renderCatSettings() {
     wrap.innerHTML = CATEGORIES[type].map(function(cat, i) {
       const isDefault = DEFAULT_CAT_IDS[type].includes(cat.id);
       return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">'
-        + '<div style="width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;background:' + cat.color + '22">' + cat.label.split(' ')[0] + '</div>'
+        + '<div style="width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;background:' + cat.color + '22">' + escHtml(cat.label.split(' ')[0]) + '</div>'
         + '<div style="flex:1;min-width:0">'
-        + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + cat.label.split(' ').slice(1).join(' ') + '</div>'
+        + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + escHtml(cat.label.split(' ').slice(1).join(' ')) + '</div>'
         + '<div style="display:flex;align-items:center;gap:6px;margin-top:3px">'
         + '<div style="width:10px;height:10px;border-radius:3px;background:' + cat.color + '"></div>'
         + '<span style="font-size:10px;color:var(--muted)">' + cat.color + '</span>'
@@ -9324,24 +9597,19 @@ function importBackup(event) {
 
 
 // ── 배우자 최근 활동 피드 (홈)
+function updateWelcomeCard() {
+  const card = document.getElementById('home-welcome-card');
+  if (!card) return;
+  const hasData = (ledgerTxs && ledgerTxs.length > 0) || (assetHistory && assetHistory.length > 0);
+  card.style.display = hasData ? 'none' : '';
+}
+
 function renderPartnerActivity() {
   const wrap = document.getElementById('partner-activity-content');
   const statusEl = document.getElementById('partner-activity-status');
   if (!wrap) return;
 
-  // 커플 미연결 시: 초대 CTA
-  if (!currentCoupleId) {
-    if (statusEl) statusEl.textContent = '';
-    wrap.innerHTML = '<div style="padding:10px 4px 4px;text-align:center">'
-      + '<div style="font-size:12px;color:var(--muted2);line-height:1.7;margin-bottom:12px">배우자와 연결하면 서로의 기록을<br>한눈에 볼 수 있어요</div>'
-      + '<button onclick="goPage(\'settings\',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab(\'account\'),200)" '
-      + 'style="padding:9px 16px;border-radius:10px;background:rgba(90,159,196,0.10);border:1px solid rgba(90,159,196,0.25);color:var(--blue);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:700;cursor:pointer">'
-      + '배우자 초대</button>'
-      + '</div>';
-    return;
-  }
-
-  // 양쪽 모두의 최근 거래 (감시 프레임 제거)
+  // 최근 거래 (솔로/커플 공통)
   const recent = (ledgerTxs || [])
     .slice()
     .sort(function(a, b) { return (b.date || '').localeCompare(a.date || '') || (parseInt(b.id||'0',10) - parseInt(a.id||'0',10)); })
@@ -9399,10 +9667,10 @@ function renderPartnerActivity() {
     return '<div onclick="goToLedgerTx(\'' + tx.id + '\')" style="display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer' + (isLast ? '' : ';border-bottom:1px solid var(--border)') + '">'
       + '<div style="width:6px;height:6px;border-radius:50%;background:' + catColor + ';flex-shrink:0"></div>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:13px;color:var(--text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (tx.memo || catLabel) + '</div>'
+      + '<div style="font-size:13px;color:var(--text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escHtml(tx.memo || catLabel) + '</div>'
       + '<div style="font-size:11px;color:var(--muted);margin-top:2px">'
-      + '<span style="color:' + ownerColor + ';font-weight:700">' + ownerLabel + '</span>'
-      + ' · ' + catLabel + ' · ' + timeAgo(tx.date)
+      + '<span style="color:' + ownerColor + ';font-weight:700">' + escHtml(ownerLabel) + '</span>'
+      + ' · ' + escHtml(catLabel) + ' · ' + timeAgo(tx.date)
       + '</div>'
       + '</div>'
       + '<div style="font-size:14px;font-weight:700;color:' + amtColor + ';flex-shrink:0;font-variant-numeric:tabular-nums">' + amtSign + amountRaw.toLocaleString() + '원</div>'
@@ -9497,7 +9765,7 @@ function renderHomeLedgerSummary() {
       const cat = CATEGORIES.expense.find(c=>c.id===e[0]) || {label:e[0], color:'var(--muted)'};
       const pct = Math.round(e[1]/expense*100);
       html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">';
-      html += '<span style="font-size:12px;min-width:70px">' + cat.label + '</span>';
+      html += '<span style="font-size:12px;min-width:70px">' + escHtml(cat.label) + '</span>';
       html += '<div style="flex:1;background:rgba(255,255,255,.06);border-radius:4px;height:5px;overflow:hidden">';
       html += '<div style="height:100%;border-radius:4px;width:' + pct + '%;background:' + cat.color + '"></div></div>';
       html += '<span style="font-size:11px;font-weight:700;min-width:50px;text-align:right">' + (e[1]*10000).toLocaleString() + '원</span>';
@@ -9594,8 +9862,8 @@ function renderCoupleCard() {
     // 왼쪽
     + '<div>'
     + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:6px">'
-    + '<span style="' + badgeStyle + '">' + L.badge + '</span>'
-    + '<span style="font-size:11px;font-weight:600;color:' + lNameColor + '">' + L.name + (lWins ? ' 👑' : '') + '</span>'
+    + '<span style="' + badgeStyle + '">' + escHtml(L.badge) + '</span>'
+    + '<span style="font-size:11px;font-weight:600;color:' + lNameColor + '">' + escHtml(L.name) + (lWins ? ' 👑' : '') + '</span>'
     + '</div>'
     + '<div style="font-size:' + lAmtSize + ';font-weight:900;color:' + lAmtColor + ';line-height:1;opacity:' + lOpacity + '">' + fmtExp(L.amt) + '</div>'
     + '<div style="font-size:10px;color:var(--muted);margin-top:4px">이달 지출</div>'
@@ -9603,8 +9871,8 @@ function renderCoupleCard() {
     // 오른쪽
     + '<div style="text-align:right">'
     + '<div style="display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-bottom:6px">'
-    + '<span style="font-size:11px;font-weight:600;color:' + rNameColor + '">' + R.name + (!lWins && rPct < lPct ? ' 👑' : '') + '</span>'
-    + '<span style="' + badgeStyle + '">' + R.badge + '</span>'
+    + '<span style="font-size:11px;font-weight:600;color:' + rNameColor + '">' + escHtml(R.name) + (!lWins && rPct < lPct ? ' 👑' : '') + '</span>'
+    + '<span style="' + badgeStyle + '">' + escHtml(R.badge) + '</span>'
     + '</div>'
     + '<div style="font-size:' + rAmtSize + ';font-weight:700;color:' + rAmtColor + ';line-height:1;opacity:' + rOpacity + '">' + fmtExp(R.amt) + '</div>'
     + '<div style="font-size:10px;color:var(--muted);margin-top:4px;opacity:' + rOpacity + '">이달 지출</div>'
@@ -9691,16 +9959,16 @@ function renderLedgerCoupleCard(txs) {
     '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px">'
     + '<div>'
     + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:6px">'
-    + '<span style="' + badgeStyle + '">' + L.badge + '</span>'
-    + '<span style="font-size:11px;font-weight:600;color:' + lNameColor + '">' + L.name + '</span>'
+    + '<span style="' + badgeStyle + '">' + escHtml(L.badge) + '</span>'
+    + '<span style="font-size:11px;font-weight:600;color:' + lNameColor + '">' + escHtml(L.name) + '</span>'
     + '</div>'
     + '<div style="font-size:' + lAmtSize + ';font-weight:900;color:' + lNameColor + ';line-height:1">' + fmtExp(L.amt) + '</div>'
     + '<div style="font-size:10px;color:var(--muted);margin-top:4px">이달 지출</div>'
     + '</div>'
     + '<div style="text-align:right">'
     + '<div style="display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-bottom:6px">'
-    + '<span style="font-size:11px;font-weight:600;color:' + rNameColor + '">' + R.name + '</span>'
-    + '<span style="' + badgeStyle + '">' + R.badge + '</span>'
+    + '<span style="font-size:11px;font-weight:600;color:' + rNameColor + '">' + escHtml(R.name) + '</span>'
+    + '<span style="' + badgeStyle + '">' + escHtml(R.badge) + '</span>'
     + '</div>'
     + '<div style="font-size:' + rAmtSize + ';font-weight:700;color:' + rNameColor + ';line-height:1">' + fmtExp(R.amt) + '</div>'
     + '<div style="font-size:10px;color:var(--muted);margin-top:4px">이달 지출</div>'
@@ -9782,11 +10050,11 @@ function renderHomeStockRankList() {
       + 'background:' + (s.owner === 'partner1' ? 'rgba(30,58,82,.12)' : 'rgba(34,197,94,.12)') + ';'
       + 'color:' + (s.owner === 'partner1' ? 'var(--p1color)' : 'var(--p2color)') + ';'
       + 'border:0.5px solid ' + (s.owner === 'partner1' ? 'rgba(30,58,82,.3)' : 'rgba(34,197,94,.3)') + '">'
-      + (s.owner === 'partner1' ? getP1Name() : getP2Name()) + '</span>';
+      + escHtml(s.owner === 'partner1' ? getP1Name() : getP2Name()) + '</span>';
     const acctBadge = s.accountType
       ? '<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:6px;margin-left:4px;'
         + 'background:rgba(201,168,76,.10);color:var(--gold);border:0.5px solid rgba(201,168,76,.25)">'
-        + s.accountType + '</span>'
+        + escHtml(s.accountType) + '</span>'
       : '';
 
     let mainVal, subVal, borderColor;
@@ -9807,7 +10075,7 @@ function renderHomeStockRankList() {
     return '<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface2);border-radius:12px;border-left:3px solid ' + borderColor + '">'
       + '<div style="width:20px;height:20px;border-radius:50%;background:var(--surface3);color:var(--muted2);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + medals[rank] + '</div>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:12px;font-weight:700;display:flex;align-items:center;flex-wrap:wrap;gap:2px">' + s.name + ownerBadge + acctBadge + '</div>'
+      + '<div style="font-size:12px;font-weight:700;display:flex;align-items:center;flex-wrap:wrap;gap:2px">' + escHtml(s.name) + ownerBadge + acctBadge + '</div>'
       + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + s.qty.toLocaleString() + '주</div>'
       + '</div>'
       + '<div style="text-align:right;flex-shrink:0">'
@@ -10085,6 +10353,7 @@ function _renderWidgetContent(tab) {
 
 
 function updateHomeWidget() {
+  updateWelcomeCard();
   const now = new Date();
   const today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
   const thisMonth = today.substring(0,7);
@@ -10263,8 +10532,10 @@ function applyTheme(mode) {
     document.body.setAttribute('data-theme', 'light');
     if (iconEl) iconEl.outerHTML = moonSvg.replace('>', ' id="theme-icon-settings">');
   } else {
+    // system: matchMedia로 실제 OS 설정 읽어서 명시적으로 세팅
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     document.documentElement.style.removeProperty('color-scheme');
-    document.body.removeAttribute('data-theme');
+    document.body.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
     if (iconEl) iconEl.outerHTML = autoSvg.replace('>', ' id="theme-icon-settings">');
   }
 }
@@ -10274,6 +10545,15 @@ function toggleTheme() {
   if (_themeMode === 'system') applyTheme('dark');
   else if (_themeMode === 'dark') applyTheme('light');
   else applyTheme('system');
+}
+
+// system 모드에서 OS 테마 변경 시 실시간 반영
+if (window.matchMedia) {
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+    if (_themeMode === 'system') {
+      document.body.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+    }
+  });
 }
 
 let ledgerFilterOpen = false;
@@ -10766,7 +11046,7 @@ function renderDetailItem(item, totalAsset, prev, isDebt, cid, showOwner) {
     const marketLabel = item.stockLink === 'KR' ? '🇰🇷 국내' : '🇺🇸 해외';
     const timeLabel = item.stockLinkTime ? ' · ' + item.stockLinkTime : '';
     badgeHtml = '<span style="font-size:9px;font-weight:600;color:var(--blue);background:rgba(30,58,82,0.10);border:1px solid rgba(30,58,82,0.2);border-radius:4px;padding:1px 6px;margin-left:5px;vertical-align:middle">🔗 ' + marketLabel + timeLabel + '</span>';
-    refreshBtnHtml = '<button onclick="refreshStockItem(\'' + item.name + '\',\'' + (item.owner||'common') + '\',\'' + item.stockLink + '\')" style="margin-left:6px;background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.2);border-radius:6px;color:var(--blue);font-size:11px;font-weight:700;padding:2px 8px;cursor:pointer;vertical-align:middle">🔄</button>';
+    refreshBtnHtml = '<button onclick="refreshStockItem(' + escJsAttr(item.name) + ',' + escJsAttr(item.owner||'common') + ',' + escJsAttr(item.stockLink) + ')" style="margin-left:6px;background:rgba(30,58,82,0.08);border:1px solid rgba(30,58,82,0.2);border-radius:6px;color:var(--blue);font-size:11px;font-weight:700;padding:2px 8px;cursor:pointer;vertical-align:middle">🔄</button>';
   }
 
   // 소유자 표시
@@ -10778,14 +11058,14 @@ function renderDetailItem(item, totalAsset, prev, isDebt, cid, showOwner) {
       + 'background:' + (isMs?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';'
       + 'color:' + (isMs?'var(--p1color)':'var(--p2color)') + ';'
       + 'border:0.5px solid ' + (isMs?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">'
-      + ownerLabelText + '</span>';
+      + escHtml(ownerLabelText) + '</span>';
   }
 
   // 전월 대비
   var diffHtml = '';
   if (prev && prev.items) {
-    var prevItem = prev.items.find(function(p){ 
-      return p.name === item.name && (p.owner || 'common') === (item.owner || 'common'); 
+    var prevItem = prev.items.find(function(p){
+      return p.name === item.name && (p.owner || 'common') === (item.owner || 'common');
     });
 
     if (prevItem) {
@@ -10822,10 +11102,10 @@ function renderDetailItem(item, totalAsset, prev, isDebt, cid, showOwner) {
 
   return '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border)">'
     + '<div style="flex:1;min-width:0">'
-    + '<div style="font-size:13px;font-weight:500;color:' + color + '">' + item.name + stockBadge + aptBadge + ownerHtml + '</div>'
+    + '<div style="font-size:13px;font-weight:500;color:' + color + '">' + escHtml(item.name) + stockBadge + aptBadge + ownerHtml + '</div>'
 
 
-    + (item.memo ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + item.memo + '</div>' : '')
+    + (item.memo ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + escHtml(item.memo) + '</div>' : '')
     + '</div>'
 
     + '<div style="text-align:right;flex-shrink:0">'
@@ -11153,13 +11433,13 @@ function renderRecurringList() {
         + 'background:' + (isRMs?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';'
         + 'color:' + (isRMs?'var(--p1color)':'var(--p2color)') + ';'
         + 'border:0.5px solid ' + (isRMs?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">'
-        + (isRMs?getP1Name():getP2Name()) + '</span>'
+        + escHtml(isRMs?getP1Name():getP2Name()) + '</span>'
       : '';
     return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">'
-      + '<div style="width:36px;height:36px;border-radius:10px;background:' + cat.color + '22;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">' + cat.label.split(' ')[0] + '</div>'
+      + '<div style="width:36px;height:36px;border-radius:10px;background:' + cat.color + '22;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">' + escHtml(cat.label.split(' ')[0]) + '</div>'
       + '<div style="flex:1">'
-      + '<div style="font-size:13px;font-weight:600">' + r.name + '</div>'
-      + '<div style="font-size:10px;color:var(--muted);margin-top:2px;display:flex;align-items:center;flex-wrap:wrap;gap:2px">' + ownerBadge + cat.label.split(' ').slice(1).join(' ') + '</div>'
+      + '<div style="font-size:13px;font-weight:600">' + escHtml(r.name) + '</div>'
+      + '<div style="font-size:10px;color:var(--muted);margin-top:2px;display:flex;align-items:center;flex-wrap:wrap;gap:2px">' + ownerBadge + escHtml(cat.label.split(' ').slice(1).join(' ')) + '</div>'
       + '</div>'
       + '<div style="text-align:right">'
       + '<div style="font-size:14px;font-weight:800;color:var(--red)">' + (r.amount*10000).toLocaleString() + '원</div>'
@@ -11209,8 +11489,8 @@ const HOME_CARD_DEFAULTS = [
   { id:'widget',           label:'지출 위젯',         desc:'오늘/이번달 지출 금액',        visible:true  },
   { id:'partner-activity', label:'최근 기록',         desc:'우리 둘의 최근 거래',           visible:true  },
   { id:'summary',          label:'자산 요약',         desc:'순자산 큰 숫자',              visible:true  },
-  { id:'ledger',           label:'이달 가계부',       desc:'수입/지출 요약',              visible:true  },
-  { id:'stocks-summary',   label:'주식 포트폴리오',    desc:'보유 종목 요약',              visible:true  },
+  { id:'ledger',           label:'이달 가계부',       desc:'수입/지출 요약',              visible:false },
+  { id:'stocks-summary',   label:'주식 포트폴리오',    desc:'보유 종목 요약',              visible:false },
   { id:'goalguage',        label:'목표 달성률',       desc:'순자산 목표 진행률',           visible:false },
   { id:'ai',               label:'AI 코멘트',         desc:'자산 분석 한마디',             visible:false },
   { id:'schedule',         label:'주요 일정',         desc:'D-day 일정 목록',             visible:false },
@@ -11220,7 +11500,8 @@ const HOME_CARD_DEFAULTS = [
 // ── 홈 카드 설정 버전 마이그레이션 ──
 // v4: 중복 카드 제거 (chart/apt/stocks-summary/couple) — 각 탭에 큰 버전이 있음
 // v5: stocks-summary, ledger 기본 표시 — 신규 사용자에게 ghost 데이터 보이도록
-const HOME_CARD_SETTINGS_VERSION = 5;
+// v6: 첫 인상 단순화 — 지출 위젯·최근 기록·순자산 3개만 기본 표시
+const HOME_CARD_SETTINGS_VERSION = 6;
 
 const _saved = load('home-card-settings', null);
 const _savedVersion = load('home-card-settings-version', 0);
@@ -11279,8 +11560,8 @@ function renderHomeCardSettingsList() {
     return '<div class="hcs-item" data-index="' + i + '" draggable="false" style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);user-select:none;transition:opacity .2s">'
       + '<div class="hcs-handle" style="color:var(--muted);font-size:16px;flex-shrink:0;padding:4px 6px;line-height:1;cursor:grab;touch-action:none">☰</div>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + card.label + '</div>'
-      + (card.desc ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + (card.id === 'couple' ? getP1Name() + ' vs ' + getP2Name() + ' 지출 비교' : card.desc) + '</div>' : '')
+      + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + escHtml(card.label) + '</div>'
+      + (card.desc ? '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + (card.id === 'couple' ? escHtml(getP1Name()) + ' vs ' + escHtml(getP2Name()) + ' 지출 비교' : escHtml(card.desc)) + '</div>' : '')
       + '</div>'
       + '<button onclick="toggleHomeCardVisible(' + i + ')" style="background:none;border:none;font-size:16px;cursor:pointer;flex-shrink:0;padding:4px 6px;opacity:' + (card.visible?'1':'0.3') + ';transition:opacity .2s">' + (card.visible?'◉':'◎') + '</button>'
       + '</div>';
@@ -11470,16 +11751,19 @@ async function renderCoupleSettings() {
 function updateCoupleConnectUI() {
   const connectSection = document.getElementById('couple-connect-section');
   const codeSection = document.getElementById('couple-code-section');
+  const leaveSection = document.getElementById('couple-leave-section');
   if (!connectSection || !codeSection) return;
 
   if (!currentCoupleId) {
-    // 미연결 → 연결 UI 표시, 초대코드 섹션 숨김
+    // 미연결 → 연결 UI 표시, 초대코드/해제 섹션 숨김
     connectSection.style.display = 'block';
     codeSection.style.display = 'none';
+    if (leaveSection) leaveSection.style.display = 'none';
   } else {
-    // 연결됨 → 초대코드 섹션 표시
+    // 연결됨 → 초대코드 / 해제 섹션 표시
     connectSection.style.display = 'none';
     codeSection.style.display = 'block';
+    if (leaveSection) leaveSection.style.display = 'block';
   }
 }
 
@@ -11541,27 +11825,18 @@ async function handleJoinCoupleFromSettings() {
     return;
   }
 
-  // 기존 데이터 있으면 경고
-  const hasData = assetHistory.length > 0 || ledgerTxs.length > 0 || stocks.length > 0;
-  if (hasData) {
-    const ok = await showConfirm(
-      '⚠️ 주의!\n\n내가 혼자 쓰던 데이터(자산·가계부·주식)는\n상대방 데이터로 대체됩니다.\n\n계속하시겠어요?',
-      '연결하기'
-    );
-    if (!ok) return;
+  if (!/^[a-z0-9]{6,}$/.test(inviteCode)) {
+    msgEl.style.display = 'block';
+    msgEl.style.background = 'rgba(239,68,68,0.08)';
+    msgEl.style.color = 'var(--red)';
+    msgEl.textContent = '❗ 유효하지 않은 초대 코드예요';
+    return;
   }
 
   msgEl.style.display = 'block';
   msgEl.style.background = 'rgba(30,58,82,0.08)';
   msgEl.style.color = 'var(--blue)';
   msgEl.textContent = '🔍 확인 중...';
-
-  if (!/^[a-z0-9]{6,}$/.test(inviteCode)) {
-    msgEl.style.background = 'rgba(239,68,68,0.08)';
-    msgEl.style.color = 'var(--red)';
-    msgEl.textContent = '❗ 유효하지 않은 초대 코드예요';
-    return;
-  }
 
   const { data: rpcRes, error: rpcErr } = await _supabase
     .rpc('join_couple_by_code', { p_code: inviteCode });
@@ -11579,7 +11854,32 @@ async function handleJoinCoupleFromSettings() {
     return;
   }
 
-  currentCoupleId = rpcRes.couple_id;
+  const newCoupleId = rpcRes.couple_id;
+
+  // 솔로 데이터 / 커플 공간 상태에 따라 마이그레이션 여부 결정
+  const hasSolo = hasSoloDataToMigrate();
+  const coupleHasData = hasSolo ? await coupleSpaceHasData(newCoupleId) : false;
+
+  let bringMyData = false;
+  if (hasSolo && !coupleHasData) {
+    bringMyData = await showConfirm(
+      '💡 혼자 쓰던 데이터를 커플 공간으로 가져올까요?\n\n자산·가계부·주식·목표·일정 등 모든 데이터가 그대로 옮겨집니다.\n\n취소를 누르면 빈 커플 공간으로 시작해요.',
+      '가져오기'
+    );
+  } else if (hasSolo && coupleHasData) {
+    bringMyData = await showConfirm(
+      '⚠️ 커플 공간에 이미 데이터가 있어요!\n\n• 확인 → 내 데이터로 덮어씀 (상대방 데이터가 사라짐)\n• 취소 → 상대방 데이터 사용 (내 솔로 데이터는 사라짐)',
+      '내 데이터로'
+    );
+  }
+
+  // 새 couple_id 를 인메모리에 반영 → 이후 saveToSupabase 가 couple_id 키로 저장
+  currentCoupleId = newCoupleId;
+
+  if (bringMyData) {
+    msgEl.textContent = '📤 내 데이터를 옮기는 중...';
+    await flushInMemoryToSupabase();
+  }
 
   msgEl.style.background = 'rgba(34,197,94,0.08)';
   msgEl.style.color = 'var(--green)';
@@ -13491,12 +13791,12 @@ function renderDonutCard() {
                 + 'background:' + (item.owner==='partner1'?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';'
                 + 'color:' + (item.owner==='partner1'?'var(--p1color)':'var(--p2color)') + ';'
                 + 'border:0.5px solid ' + (item.owner==='partner1'?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">'
-                + (item.owner==='partner1'?getP1Name():getP2Name()) + '</span>'
+                + escHtml(item.owner==='partner1'?getP1Name():getP2Name()) + '</span>'
               : '';
             return '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0 4px 13px">'
               + '<div style="display:flex;align-items:center;gap:6px">'
               + '<div style="width:4px;height:4px;border-radius:50%;background:' + color + ';opacity:0.5"></div>'
-              + '<span style="font-size:12px;color:var(--muted2)">' + item.name + itemOwnerBadge + '</span>'
+              + '<span style="font-size:12px;color:var(--muted2)">' + escHtml(item.name) + itemOwnerBadge + '</span>'
               + '</div>'
               + '<div style="display:flex;align-items:baseline;gap:6px">'
               + '<span style="font-size:11px;color:var(--muted)">' + itemPct + '%</span>'
@@ -13699,10 +13999,10 @@ function renderAptList() {
     return '<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">'
       + '<div style="flex:1;min-width:0">'
       + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'
-      + '<span style="font-size:13px;font-weight:700;color:var(--text)">' + apt.name + '</span>'
-      + '<span style="font-size:10px;font-weight:600;color:' + ownerColor + ';background:' + ownerColor + '15;padding:1px 6px;border-radius:8px">' + ownerLabel + '</span>'
+      + '<span style="font-size:13px;font-weight:700;color:var(--text)">' + escHtml(apt.name) + '</span>'
+      + '<span style="font-size:10px;font-weight:600;color:' + ownerColor + ';background:' + ownerColor + '15;padding:1px 6px;border-radius:8px">' + escHtml(ownerLabel) + '</span>'
       + '</div>'
-      + '<div style="font-size:11px;color:var(--muted)">' + apt.sigungu + (apt.areaMin ? ' · ' + apt.areaMin + '~' + apt.areaMax + '㎡' : '') + '</div>'
+      + '<div style="font-size:11px;color:var(--muted)">' + escHtml(apt.sigungu) + (apt.areaMin ? ' · ' + apt.areaMin + '~' + apt.areaMax + '㎡' : '') + '</div>'
       + (apt.cache ? '<div style="font-size:12px;font-weight:700;color:var(--blue);margin-top:2px">' + priceStr + ' <span style="font-size:10px;font-weight:400;color:var(--muted)">· ' + fetchedStr + '</span></div>' : '')
       + '</div>'
       + '<div style="display:flex;gap:6px;flex-shrink:0">'
@@ -14069,11 +14369,11 @@ async function searchAptComplex() {
     .map(function(r) {
       const areas = Array.from(r.areas).sort(function(a,b){ return a-b; });
       const areaStr = areas.length > 0 ? areas[0] + '~' + areas[areas.length-1] + '㎡' : '';
-      return '<div onclick="selectAptComplex(\'' + r.name.replace(/'/g,"\\'") + '\',\'' + r.lawdCd + '\',\'' + r.sigungu.replace(/'/g,"\\'") + '\')" '
+      return '<div onclick="selectAptComplex(' + escJsAttr(r.name) + ',' + escJsAttr(r.lawdCd) + ',' + escJsAttr(r.sigungu) + ')" '
         + 'style="padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s" '
         + 'ontouchstart="this.style.background=\'var(--surface3)\'" ontouchend="this.style.background=\'\'">'
-        + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + r.name + '</div>'
-        + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + r.sigungu + (areaStr ? ' · ' + areaStr : '') + '</div>'
+        + '<div style="font-size:13px;font-weight:600;color:var(--text)">' + escHtml(r.name) + '</div>'
+        + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + escHtml(r.sigungu) + (areaStr ? ' · ' + areaStr : '') + '</div>'
         + '</div>';
     }).join('');
 }
@@ -14489,10 +14789,10 @@ function renderRealEstatePage() {
       + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">'
       + '<div>'
       + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'
-      + '<span style="font-size:15px;font-weight:700;color:var(--text)">' + apt.name + '</span>'
-      + '<span style="font-size:10px;font-weight:600;color:' + ownerColor + ';background:' + ownerColor + '22;padding:2px 6px;border-radius:6px">' + ownerLabel + '</span>'
+      + '<span style="font-size:15px;font-weight:700;color:var(--text)">' + escHtml(apt.name) + '</span>'
+      + '<span style="font-size:10px;font-weight:600;color:' + ownerColor + ';background:' + ownerColor + '22;padding:2px 6px;border-radius:6px">' + escHtml(ownerLabel) + '</span>'
       + '</div>'
-      + '<div style="font-size:11px;color:var(--muted)">' + (apt.sigungu || '') + (apt.areaMin ? ' · ' + apt.areaMin + '~' + apt.areaMax + '㎡' : '') + '</div>'
+      + '<div style="font-size:11px;color:var(--muted)">' + escHtml(apt.sigungu || '') + (apt.areaMin ? ' · ' + apt.areaMin + '~' + apt.areaMax + '㎡' : '') + '</div>'
       + '</div>'
       + '<div style="display:flex;gap:6px">'
       + '<button onclick="fetchSingleApt(\'' + apt.id + '\').then(renderRealEstatePage)" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-family:\'Noto Sans KR\',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;cursor:pointer">조회</button>'
@@ -14595,10 +14895,10 @@ function renderInputAptSection() {
       + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">'
       + '<div>'
       + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">'
-      + '<span style="font-size:14px;font-weight:700;color:var(--text)">' + apt.name + '</span>'
-      + '<span style="font-size:10px;font-weight:600;color:' + ownerColor + ';background:' + ownerColor + '22;padding:2px 6px;border-radius:6px">' + ownerLabel + '</span>'
+      + '<span style="font-size:14px;font-weight:700;color:var(--text)">' + escHtml(apt.name) + '</span>'
+      + '<span style="font-size:10px;font-weight:600;color:' + ownerColor + ';background:' + ownerColor + '22;padding:2px 6px;border-radius:6px">' + escHtml(ownerLabel) + '</span>'
       + '</div>'
-      + '<div style="font-size:11px;color:var(--muted)">' + (apt.sigungu || '') + (apt.areaMin ? ' · ' + apt.areaMin + '~' + apt.areaMax + '㎡' : '') + '</div>'
+      + '<div style="font-size:11px;color:var(--muted)">' + escHtml(apt.sigungu || '') + (apt.areaMin ? ' · ' + apt.areaMin + '~' + apt.areaMax + '㎡' : '') + '</div>'
       + '</div>'
       + '<button onclick="fetchSingleApt(\'' + apt.id + '\').then(renderInputAptSection)" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:8px;color:var(--muted2);font-size:11px;font-weight:600;padding:5px 8px;cursor:pointer;font-family:\'Noto Sans KR\',sans-serif">조회</button>'
       + '</div>';
@@ -14743,7 +15043,7 @@ function renderHomeApt() {
         + '<div style="display:flex;justify-content:space-between;align-items:flex-start">'
         + '<div style="flex:1;min-width:0">'
         + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">'
-        + '<span style="font-size:12px;font-weight:700;color:var(--text)">' + apt.name + '</span>'
+        + '<span style="font-size:12px;font-weight:700;color:var(--text)">' + escHtml(apt.name) + '</span>'
         + '<span style="font-size:9px;font-weight:600;color:' + ownerColor + ';background:' + ownerColor + '15;padding:1px 5px;border-radius:6px">' + ownerLabel + '</span>'
         + '</div>'
         + '<div style="font-size:11px;color:var(--muted)">' + apt.cache.fetchedAt + '</div>'
@@ -14846,16 +15146,16 @@ function renderAptPresets(presetsWrap) {
 
         if (isDuplicate) {
           return '<div style="padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);margin-bottom:6px;opacity:0.5">'
-            + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">' + ownerLabel + '</div>'
-            + '<div style="font-size:14px;font-weight:700;color:var(--muted)">' + apt.name + '</div>'
+            + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">' + escHtml(ownerLabel) + '</div>'
+            + '<div style="font-size:14px;font-weight:700;color:var(--muted)">' + escHtml(apt.name) + '</div>'
             + '<div style="font-size:10px;color:var(--muted);margin-top:2px">이미 연동됨</div>'
             + '</div>';
         }
 
         if (!apt.cache) {
           return '<div style="padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);margin-bottom:6px">'
-            + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">' + ownerLabel + '</div>'
-            + '<div style="font-size:13px;font-weight:700;color:var(--text)">' + apt.name + '</div>'
+            + '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">' + escHtml(ownerLabel) + '</div>'
+            + '<div style="font-size:13px;font-weight:700;color:var(--text)">' + escHtml(apt.name) + '</div>'
             + '<div style="font-size:10px;color:var(--red);margin-top:3px">🔄 실거래가 조회 필요</div>'
             + '</div>';
         }
@@ -14867,11 +15167,11 @@ function renderAptPresets(presetsWrap) {
           + 'font-family:\'Noto Sans KR\',sans-serif;cursor:pointer;text-align:left;'
           + 'margin-bottom:6px;transition:all .15s">'
           + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
-          + '<span style="font-size:10px;color:var(--muted)">🏢 ' + ownerLabel + '</span>'
+          + '<span style="font-size:10px;color:var(--muted)">🏢 ' + escHtml(ownerLabel) + '</span>'
           + '<span style="font-size:9px;font-weight:700;color:var(--blue);background:rgba(30,58,82,0.1);padding:1px 6px;border-radius:8px">불러오기</span>'
           + '</div>'
-          + '<div style="font-size:15px;font-weight:800;color:var(--text)">' + apt.name + '</div>'
-          + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + priceStr + ' · ' + fetchedStr + '</div>'
+          + '<div style="font-size:15px;font-weight:800;color:var(--text)">' + escHtml(apt.name) + '</div>'
+          + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + escHtml(priceStr) + ' · ' + escHtml(fetchedStr) + '</div>'
           + '</button>';
       }).join('')
     + '</div>'
@@ -16002,14 +16302,14 @@ function _renderStockRows(list) {
       : Math.round(evalKrw).toLocaleString() + '원';
 
     const acctBadge = s.accountType
-      ? '<span style="font-size:9px;background:rgba(201,168,76,.12);color:var(--gold);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:5px;border:0.5px solid rgba(201,168,76,.25)">' + s.accountType + '</span>'
+      ? '<span style="font-size:9px;background:rgba(201,168,76,.12);color:var(--gold);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:5px;border:0.5px solid rgba(201,168,76,.25)">' + escHtml(s.accountType) + '</span>'
       : '';
 
     return '<div style="margin-bottom:14px">'
       + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px">'
       + '<div style="min-width:0">'
       + '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:2px">'
-      + '<span style="font-size:12px;font-weight:600;color:var(--text)">' + s.name + '</span>'
+      + '<span style="font-size:12px;font-weight:600;color:var(--text)">' + escHtml(s.name) + '</span>'
       + acctBadge
       + '</div>'
       + '<div style="font-size:10px;color:var(--muted2);margin-top:2px">평가 ' + evalStr + '</div>'
@@ -16158,7 +16458,7 @@ function renderStkPctChart() {
       ? (s.evalAmt / 100000000).toFixed(1) + '억'
       : Math.round(s.evalAmt / 10000).toLocaleString() + '만원';
     return '<div style="flex:1;padding:14px;border-radius:14px;background:' + bgVar + ';border:1px solid ' + colorVar + '">'
-      + '<div style="font-size:12px;font-weight:700;color:' + colorVar + ';margin-bottom:10px">' + name + '</div>'
+      + '<div style="font-size:12px;font-weight:700;color:' + colorVar + ';margin-bottom:10px">' + escHtml(name) + '</div>'
       + '<div style="font-size:20px;font-weight:900;color:' + clr + ';margin-bottom:2px">' + (isUp?'+':'') + s.pct.toFixed(2) + '%</div>'
       + '<div style="font-size:11px;color:var(--muted);margin-bottom:8px">' + (isUp?'+':'') + Math.round(s.pnl).toLocaleString() + '원</div>'
       + '<div style="font-size:10px;color:var(--muted2)">평가 ' + evalStr + ' · ' + ownerStocks.length + '종목</div>'
@@ -16175,7 +16475,7 @@ function renderStkPctChart() {
       const pct = (s.currentPrice - s.avgPrice) / s.avgPrice * 100;
       const isUp = pct >= 0;
       return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--border)">'
-        + '<span style="font-size:12px;font-weight:600;color:var(--text);flex:1">' + s.name + '</span>'
+        + '<span style="font-size:12px;font-weight:600;color:var(--text);flex:1">' + escHtml(s.name) + '</span>'
         + '<span style="font-size:11px;color:var(--muted);margin-right:8px">' + _stockPnlDisplay(s) + '</span>'
         + '<span style="font-size:13px;font-weight:800;color:' + (isUp?'var(--red)':'var(--blue)') + '">' + (isUp?'+':'') + pct.toFixed(1) + '%</span>'
         + '</div>';
@@ -16188,8 +16488,8 @@ function renderStkPctChart() {
     + ownerCard(syStocks, getP2Name(), 'var(--p2color)', 'rgba(34,197,94,.06)')
     + '</div>'
     + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
-    + '<div><div style="font-size:10px;font-weight:700;color:var(--p1color);margin-bottom:6px">' + getP1Name() + ' TOP</div>' + topRows(msStocks) + '</div>'
-    + '<div><div style="font-size:10px;font-weight:700;color:var(--p2color);margin-bottom:6px">' + getP2Name() + ' TOP</div>' + topRows(syStocks) + '</div>'
+    + '<div><div style="font-size:10px;font-weight:700;color:var(--p1color);margin-bottom:6px">' + escHtml(getP1Name()) + ' TOP</div>' + topRows(msStocks) + '</div>'
+    + '<div><div style="font-size:10px;font-weight:700;color:var(--p2color);margin-bottom:6px">' + escHtml(getP2Name()) + ' TOP</div>' + topRows(syStocks) + '</div>'
     + '</div>';
 
   // 계좌종류별 비중
@@ -16394,24 +16694,24 @@ function renderStockHistory() {
     const totalStr = t.market === 'KR' ? Math.round(t.price * t.qty).toLocaleString() + '원' : '$' + (t.price * t.qty).toFixed(2);
     const ownerBadge = currentStkOwner === 'all'
       ? (t.owner === 'partner1'
-          ? '<span style="font-size:9px;background:rgba(30,58,82,.12);color:var(--p1color);border:0.5px solid rgba(30,58,82,.3);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + getP1Name() + '</span>'
+          ? '<span style="font-size:9px;background:rgba(30,58,82,.12);color:var(--p1color);border:0.5px solid rgba(30,58,82,.3);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + escHtml(getP1Name()) + '</span>'
           : t.owner === 'partner2'
-          ? '<span style="font-size:9px;background:rgba(34,197,94,.12);color:var(--p2color);border:0.5px solid rgba(34,197,94,.3);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + getP2Name() + '</span>'
+          ? '<span style="font-size:9px;background:rgba(34,197,94,.12);color:var(--p2color);border:0.5px solid rgba(34,197,94,.3);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + escHtml(getP2Name()) + '</span>'
           : '')
       : '';
     const acctBadge = t.accountType
-      ? '<span style="font-size:9px;background:rgba(201,168,76,.1);color:var(--gold);border:0.5px solid rgba(201,168,76,.25);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + t.accountType + '</span>'
+      ? '<span style="font-size:9px;background:rgba(201,168,76,.1);color:var(--gold);border:0.5px solid rgba(201,168,76,.25);padding:1px 5px;border-radius:5px;font-weight:700;margin-left:4px">' + escHtml(t.accountType) + '</span>'
       : '';
     const brokerBadge = t.broker
-      ? '<span style="font-size:10px;color:var(--muted2);border:0.5px solid var(--border2);border-radius:6px;padding:1px 5px;margin-left:4px">' + t.broker + '</span>'
+      ? '<span style="font-size:10px;color:var(--muted2);border:0.5px solid var(--border2);border-radius:6px;padding:1px 5px;margin-left:4px">' + escHtml(t.broker) + '</span>'
       : '';
 
     return '<div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:8px">'
       + '<div style="width:40px;height:40px;border-radius:12px;background:' + (isBuy?'rgba(239,68,68,.12)':'rgba(90,159,196,.12)') + ';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:' + color + ';flex-shrink:0">' + label + '</div>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:13px;font-weight:700;display:flex;align-items:center;flex-wrap:wrap;gap:2px">' + t.stockName + ownerBadge + acctBadge + '</div>'
+      + '<div style="font-size:13px;font-weight:700;display:flex;align-items:center;flex-wrap:wrap;gap:2px">' + escHtml(t.stockName) + ownerBadge + acctBadge + '</div>'
       + '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:3px">'
-      + '<span style="font-size:11px;color:var(--muted)">' + t.date + ' · ' + t.qty + '주 @ ' + priceStr + '</span>'
+      + '<span style="font-size:11px;color:var(--muted)">' + escHtml(t.date) + ' · ' + t.qty + '주 @ ' + priceStr + '</span>'
       + brokerBadge
       + '</div>'
       + '</div>'
@@ -16504,14 +16804,14 @@ function renderStockList() {
         + 'background:transparent;'
         + 'color:' + (s.owner==='partner1'?'var(--p1color)':'var(--p2color)') + ';'
         + 'border:0.5px solid ' + (s.owner==='partner1'?'rgba(129,140,248,.45)':'rgba(251,113,133,.45)') + '">'
-        + (s.owner==='partner1'?getP1Name():getP2Name()) + '</span>' : '';
+        + escHtml(s.owner==='partner1'?getP1Name():getP2Name()) + '</span>' : '';
 
     // 종목별 모드에서 계좌종류 배지, 증권사 텍스트
     var acctBadge = (showAccBadge && s.accountType)
-      ? '<span style="font-size:9px;background:rgba(201,168,76,.12);color:var(--gold);padding:1px 6px;border-radius:5px;font-weight:700;margin-left:5px;flex-shrink:0">' + s.accountType + '</span>'
+      ? '<span style="font-size:9px;background:rgba(201,168,76,.12);color:var(--gold);padding:1px 6px;border-radius:5px;font-weight:700;margin-left:5px;flex-shrink:0">' + escHtml(s.accountType) + '</span>'
       : '';
     var brokerNote = s.broker
-      ? '<span style="font-size:10px;color:var(--muted2);border:0.5px solid var(--border2);border-radius:6px;padding:1px 5px;margin-left:4px;flex-shrink:0">' + s.broker + '</span>'
+      ? '<span style="font-size:10px;color:var(--muted2);border:0.5px solid var(--border2);border-radius:6px;padding:1px 5px;margin-left:4px;flex-shrink:0">' + escHtml(s.broker) + '</span>'
       : '';
 
     var sid = s.id;
@@ -16529,7 +16829,7 @@ function renderStockList() {
       + '</div>'
       + '<div onclick="openStockEdit(\'' + sid + '\')" style="flex:1;min-width:0;cursor:pointer">'
       + '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">'
-      + '<span style="font-size:14px;font-weight:700">' + s.name + '</span>' + ownerBadge + acctBadge + soldBadge
+      + '<span style="font-size:14px;font-weight:700">' + escHtml(s.name) + '</span>' + ownerBadge + acctBadge + soldBadge
       + (cp > 0 ? '<span style="font-size:11px;color:var(--muted)">' + fmtAmt(cp, isUS) + '</span>' : '')
       + '</div>'
       + '<div style="display:flex;align-items:center;gap:5px;margin-top:2px">'
@@ -16717,8 +17017,8 @@ function renderStockList() {
       var pnl2 = (cp - s.avgPrice) * s.qty;
       var pc2  = s.avgPrice > 0 ? ((cp - s.avgPrice) / s.avgPrice * 100) : 0;
       var pCol = pnl2 > 0 ? 'var(--red)' : pnl2 < 0 ? 'var(--blue)' : 'var(--muted)';
-      var acc  = s.accountType || '미분류';
-      var brk  = s.broker ? ' · ' + s.broker : '';
+      var acc  = escHtml(s.accountType || '미분류');
+      var brk  = s.broker ? ' · ' + escHtml(s.broker) : '';
       return '<div onclick="openStockEdit(\'' + s.id + '\')" style="display:flex;align-items:center;padding:10px 8px 10px 4px;border-top:1px solid var(--border);cursor:pointer;gap:8px">'
         + '<div style="flex:1;min-width:0">'
         + '<div style="font-size:12px;font-weight:600;color:var(--text)">' + acc
@@ -17207,11 +17507,11 @@ function openTradeModal(id) {
   const acctEl = document.getElementById('trade-modal-acct');
   if (acctEl) {
     const badges = [];
-    if (s.accountType) badges.push('<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:rgba(201,168,76,.12);color:var(--gold);border:0.5px solid rgba(201,168,76,.3)">' + s.accountType + '</span>');
-    if (s.broker) badges.push('<span style="font-size:10px;color:var(--muted2);border:0.5px solid var(--border2);border-radius:7px;padding:2px 7px">' + s.broker + '</span>');
+    if (s.accountType) badges.push('<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:rgba(201,168,76,.12);color:var(--gold);border:0.5px solid rgba(201,168,76,.3)">' + escHtml(s.accountType) + '</span>');
+    if (s.broker) badges.push('<span style="font-size:10px;color:var(--muted2);border:0.5px solid var(--border2);border-radius:7px;padding:2px 7px">' + escHtml(s.broker) + '</span>');
     if (s.owner) {
       const isMs = s.owner === 'partner1';
-      badges.push('<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:' + (isMs?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';color:' + (isMs?'var(--p1color)':'var(--p2color)') + ';border:0.5px solid ' + (isMs?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">' + (isMs?getP1Name():getP2Name()) + '</span>');
+      badges.push('<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:' + (isMs?'rgba(30,58,82,.12)':'rgba(34,197,94,.12)') + ';color:' + (isMs?'var(--p1color)':'var(--p2color)') + ';border:0.5px solid ' + (isMs?'rgba(30,58,82,.3)':'rgba(34,197,94,.3)') + '">' + escHtml(isMs?getP1Name():getP2Name()) + '</span>');
     }
     acctEl.innerHTML = badges.join('');
     acctEl.style.display = badges.length ? 'flex' : 'none';
@@ -17690,10 +17990,10 @@ function renderCalDayDetail(dateStr) {
       const allCats = [...CATEGORIES.expense, ...CATEGORIES.income];
       const cat = allCats.find(function(c){ return c.id === t.category; }) || { label:'기타', color:'var(--muted)' };
       html += '<div onclick="openTxEdit(\'' + t.id + '\')" style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer">'
-        + '<div style="width:28px;height:28px;border-radius:8px;background:' + cat.color + '22;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">' + cat.label.split(' ')[0] + '</div>'
+        + '<div style="width:28px;height:28px;border-radius:8px;background:' + cat.color + '22;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">' + escHtml(cat.label.split(' ')[0]) + '</div>'
         + '<div style="flex:1;min-width:0">'
-        + '<div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (t.memo || cat.label.split(' ').slice(1).join(' ')) + '</div>'
-        + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + cat.label + ' · ' + (t.owner==='partner1'?getP1Name():t.owner==='partner2'?getP2Name():getCommonName()) + '</div>'
+        + '<div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escHtml(t.memo || cat.label.split(' ').slice(1).join(' ')) + '</div>'
+        + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + escHtml(cat.label) + ' · ' + escHtml(t.owner==='partner1'?getP1Name():t.owner==='partner2'?getP2Name():getCommonName()) + '</div>'
         + '</div>'
         + '<span style="font-size:13px;font-weight:800;color:' + (t.type==='income'?'var(--blue)':'var(--red)') + ';flex-shrink:0">' + (t.type==='income'?'+':'-') + Math.round(t.amount*10000).toLocaleString() + '원</span>'
         + '</div>';
@@ -17973,7 +18273,7 @@ function renderBulkCatBtns() {
       + 'background:transparent;border:none;border-bottom:1px solid var(--border);'
       + 'font-family:\'Noto Sans KR\',sans-serif;cursor:pointer;text-align:left">'
       + '<div style="width:10px;height:10px;border-radius:50%;background:' + cat.color + ';flex-shrink:0"></div>'
-      + '<span style="font-size:13px;color:var(--text);font-weight:500">' + cat.label + '</span>'
+      + '<span style="font-size:13px;color:var(--text);font-weight:500">' + escHtml(cat.label) + '</span>'
       + '</button>';
   }).join('');
 }
@@ -18160,7 +18460,7 @@ function renderBulkCatBtns() {
       + 'background:transparent;border:none;border-bottom:1px solid var(--border);'
       + 'font-family:\'Noto Sans KR\',sans-serif;cursor:pointer;text-align:left">'
       + '<div style="width:10px;height:10px;border-radius:50%;background:' + cat.color + ';flex-shrink:0"></div>'
-      + '<span style="font-size:13px;color:var(--text);font-weight:500">' + cat.label + '</span>'
+      + '<span style="font-size:13px;color:var(--text);font-weight:500">' + escHtml(cat.label) + '</span>'
       + '</button>';
   }).join('');
 }
@@ -18269,7 +18569,7 @@ function renderLedgerList(txs) {
           + 'background:' + (isMs ? 'rgba(30,58,82,.12)' : 'rgba(34,197,94,.12)') + ';'
           + 'color:' + (isMs ? 'var(--p1color)' : 'var(--p2color)') + ';'
           + 'border:0.5px solid ' + (isMs ? 'rgba(30,58,82,.3)' : 'rgba(34,197,94,.3)') + '">'
-          + ownerName + '</span>';
+          + escHtml(ownerName) + '</span>';
       }
 
 
@@ -18317,9 +18617,9 @@ function renderLedgerList(txs) {
         + leftIcon
         + '<div style="flex:1;min-width:0">'
         + '<div style="font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'
-        + (t.memo || catName)
+        + escHtml(t.memo || catName)
         + '</div>'
-        + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + cat.label + ownerHtml + '</div>'
+        + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + escHtml(cat.label) + ownerHtml + '</div>'
         + '</div>'
         + '<div style="text-align:right;flex-shrink:0">'
         + '<div style="font-size:13px;font-weight:600;color:' + (t.type==='income'?'var(--blue)':'var(--text)') + '">'
@@ -19165,10 +19465,10 @@ function renderVoiceResult() {
     const isIncome = t.type === 'income';
     return '<div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--surface2);border:1px solid rgba(255,255,255,.3);border-radius:14px;margin-bottom:8px">'
       + '<div style="width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">'
-      + cat.label.split(' ')[0] + '</div>'
+      + escHtml(cat.label.split(' ')[0]) + '</div>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:14px;font-weight:700">' + (t.memo || cat.label) + '</div>'
-      + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + t.date + ' · ' + cat.label + '</div>'
+      + '<div style="font-size:14px;font-weight:700">' + escHtml(t.memo || cat.label) + '</div>'
+      + '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + escHtml(t.date) + ' · ' + escHtml(cat.label) + '</div>'
       + '</div>'
       + '<div style="font-size:17px;font-weight:900;color:' + (isIncome?'var(--blue)':'var(--red)') + ';flex-shrink:0">'
       + (isIncome?'+':'-') + amtWon.toLocaleString() + '원</div>'
@@ -19442,8 +19742,8 @@ function renderPendingList() {
     return '<div onclick="togglePendingItem(' + i + ')" style="display:flex;align-items:center;gap:12px;padding:12px;background:' + (t.selected!==false?'var(--surface2)':'transparent') + ';border:1px solid ' + (t.selected!==false?'rgba(167,139,250,.4)':'var(--border)') + ';border-radius:12px;margin-bottom:8px;cursor:pointer;transition:all .2s">'
       + '<div style="width:28px;height:28px;border-radius:8px;background:' + (t.selected!==false?'var(--purple)':'var(--surface3)') + ';display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;color:#fff;font-weight:700">' + (t.selected!==false?'✓':'') + '</div>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (t.memo || cat.label) + '</div>'
-      + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + t.date + ' · ' + cat.label + ' · <span style="color:' + ownerColor + '">' + ownerLabel + '</span></div>'
+      + '<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escHtml(t.memo || cat.label) + '</div>'
+      + '<div style="font-size:10px;color:var(--muted);margin-top:2px">' + escHtml(t.date) + ' · ' + escHtml(cat.label) + ' · <span style="color:' + ownerColor + '">' + escHtml(ownerLabel) + '</span></div>'
       + '</div>'
       + '<div style="font-size:15px;font-weight:800;color:' + (isIncome?'var(--blue)':'var(--red)') + ';flex-shrink:0">' + (isIncome?'+':'-') + amtWon.toLocaleString() + '원</div>'
       + '</div>';
@@ -19752,8 +20052,8 @@ function renderExcelResult() {
     return '<div onclick="toggleExcelItem(' + i + ')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:' + (t.selected ? 'var(--surface2)' : 'transparent') + ';border:1px solid ' + (t.selected ? 'rgba(74,222,128,.3)' : 'var(--border)') + ';border-radius:10px;margin-bottom:6px;cursor:pointer">'
       + '<div style="width:22px;height:22px;border-radius:6px;background:' + (t.selected ? 'var(--green)' : 'var(--surface3)') + ';display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;color:#000;font-weight:900">' + (t.selected ? '✓' : '') + '</div>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + t.memo + '</div>'
-      + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + t.date + ' · ' + cat.label + '</div>'
+      + '<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escHtml(t.memo) + '</div>'
+      + '<div style="font-size:10px;color:var(--muted);margin-top:1px">' + escHtml(t.date) + ' · ' + escHtml(cat.label) + '</div>'
       + '</div>'
       + '<div style="font-size:13px;font-weight:700;color:var(--red);flex-shrink:0">-' + t.amount.toLocaleString() + '원</div>'
       + '</div>';
@@ -20158,10 +20458,10 @@ function renderSmsResult() {
     return '<div onclick="toggleSmsItem(' + i + ')" style="display:flex;align-items:center;gap:12px;padding:12px;background:' + (t.selected?'var(--surface2)':'transparent') + ';border:1px solid ' + (t.selected?'rgba(167,139,250,.4)':'var(--border)') + ';border-radius:12px;margin-bottom:8px;cursor:pointer;transition:all .2s">'
       + '<div style="width:28px;height:28px;border-radius:8px;background:' + (t.selected?'var(--purple)':'var(--surface3)') + ';display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;color:#fff;font-weight:700">' + (t.selected?'✓':'') + '</div>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (t.memo || cat.label) + '</div>'
+      + '<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escHtml(t.memo || cat.label) + '</div>'
       + '<div style="font-size:10px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:6px">'
-      + t.date + ' · ' + cat.label
-      + '<span onclick="cycleSmsItemOwner(' + i + ',event)" style="padding:1px 7px;border-radius:5px;background:rgba(0,0,0,.15);color:' + ownerColor + ';font-weight:700;cursor:pointer">' + ownerLabel + '</span>'
+      + escHtml(t.date) + ' · ' + escHtml(cat.label)
+      + '<span onclick="cycleSmsItemOwner(' + i + ',event)" style="padding:1px 7px;border-radius:5px;background:rgba(0,0,0,.15);color:' + ownerColor + ';font-weight:700;cursor:pointer">' + escHtml(ownerLabel) + '</span>'
       + '</div>'
       + '</div>'
       + '<div style="font-size:15px;font-weight:800;color:' + (isIncome?'var(--blue)':'var(--red)') + ';flex-shrink:0">' + (isIncome?'+':'-') + amtWon.toLocaleString() + '원</div>'
@@ -20603,6 +20903,10 @@ async function syncLoad(silent=false) {
   store = function(k, v) {
     _origStore(k, v);
     if (SYNC_KEYS.includes(k)) {
+      // 로드 중에 Supabase에서 받아온 값을 다시 캐시할 때는 원격 저장 스킵
+      // (빈 결과로 기존 원격 행을 덮어쓰는 사고 방지)
+      if (_isLoadingFromSupabase) return;
+
       // Supabase 저장 — 솔로/커플 모두 저장 (currentCoupleId 조건 제거)
       if (currentUser) {
         if (TABLE_MAP[k]) {
@@ -21374,10 +21678,10 @@ function renderProposals() {
     const reactionSection = hasReaction
       ? `<div style="margin-top:12px;padding:12px 14px;background:${rm.bg};border:1px solid ${rm.border};border-radius:12px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:${p.reaction.comment ? '8px' : '0'}">
-            <span style="font-size:14px;font-weight:700;color:${rm.color}">${rm.label}</span>
-            <span style="font-size:10px;color:var(--muted2)">${(p.reaction.reactorUserId ? getDisplayNameForUserId(p.reaction.reactorUserId) : (p.reaction.respondentName || ''))} · ${p.reaction.at ? new Date(p.reaction.at).toLocaleDateString('ko-KR',{month:'short',day:'numeric'}) : ''}</span>
+            <span style="font-size:14px;font-weight:700;color:${rm.color}">${escHtml(rm.label)}</span>
+            <span style="font-size:10px;color:var(--muted2)">${escHtml(p.reaction.reactorUserId ? getDisplayNameForUserId(p.reaction.reactorUserId) : (p.reaction.respondentName || ''))} · ${p.reaction.at ? new Date(p.reaction.at).toLocaleDateString('ko-KR',{month:'short',day:'numeric'}) : ''}</span>
           </div>
-          ${p.reaction.comment ? `<div style="font-size:13px;color:var(--text);line-height:1.6">${p.reaction.comment}</div>` : ''}
+          ${p.reaction.comment ? `<div style="font-size:13px;color:var(--text);line-height:1.6">${escHtml(p.reaction.comment)}</div>` : ''}
         </div>${purchaseAction}`
       : (!isMyProposal
           // 배우자가 반응 입력하는 UI
@@ -21409,15 +21713,15 @@ function renderProposals() {
     return `<div style="background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:16px;margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
         <div style="flex:1;min-width:0">
-          <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">${p.title}</div>
+          <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">${escHtml(p.title)}</div>
           <div style="font-size:20px;font-weight:900;color:var(--text);letter-spacing:-0.5px">${amountStr}<span style="font-size:12px;font-weight:400;color:var(--muted);margin-left:2px">원</span></div>
         </div>
         <div style="text-align:right;flex-shrink:0;margin-left:12px">
-          <div style="font-size:11px;color:var(--muted2);margin-bottom:6px">${p.proposerUserId ? getDisplayNameForUserId(p.proposerUserId) : (p.proposerName || '')} · ${dateStr}</div>
+          <div style="font-size:11px;color:var(--muted2);margin-bottom:6px">${escHtml(p.proposerUserId ? getDisplayNameForUserId(p.proposerUserId) : (p.proposerName || ''))} · ${dateStr}</div>
           ${isMyProposal ? `<button onclick="deleteProposal('${p.id}')" style="background:var(--surface2);border:0.5px solid var(--border2);border-radius:6px;color:var(--muted2);font-size:10px;font-weight:600;cursor:pointer;padding:3px 8px;font-family:'Noto Sans KR',sans-serif">삭제</button>` : ''}
         </div>
       </div>
-      ${p.memo ? `<div style="font-size:12px;color:var(--muted2);padding:9px 11px;background:var(--surface2);border-radius:8px;line-height:1.6;margin-bottom:4px">${p.memo}</div>` : ''}
+      ${p.memo ? `<div style="font-size:12px;color:var(--muted2);padding:9px 11px;background:var(--surface2);border-radius:8px;line-height:1.6;margin-bottom:4px">${escHtml(p.memo)}</div>` : ''}
       ${reactionSection}
     </div>`;
   }).join('');
