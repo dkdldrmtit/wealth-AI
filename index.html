@@ -1006,6 +1006,35 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 }
 .wealth-asset-row:active { transform:scale(0.98); background:var(--surface3); }
 .wealth-owner-dot { width:7px;height:7px;border-radius:50%;flex-shrink:0; }
+.wealth-section { margin-bottom:14px; }
+.wealth-section-header {
+  display:flex;align-items:center;gap:10px;
+  background:var(--surface2);border-radius:14px;
+  padding:13px 14px;cursor:pointer;
+  border:1px solid var(--border);transition:all .15s;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+.wealth-section-header:active { transform:scale(0.99); background:var(--surface3); }
+.wealth-section-chevron {
+  width:12px;height:12px;color:var(--muted2);flex-shrink:0;
+  transition:transform .2s ease;
+}
+.wealth-section-chevron.open { transform:rotate(90deg); }
+.wealth-section-name {
+  font-size:14px;font-weight:700;color:var(--text);letter-spacing:0.1px;
+}
+.wealth-section-count {
+  font-size:10px;font-weight:700;color:var(--muted2);
+  background:var(--surface3);padding:2px 7px;border-radius:8px;
+  letter-spacing:0.2px;
+}
+.wealth-section-total {
+  margin-left:auto;font-size:14px;font-weight:700;color:var(--text);
+  white-space:nowrap;
+}
+.wealth-section-total.debt { color:var(--red); }
+.wealth-section-body { padding:6px 0 0 0; }
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -6520,6 +6549,30 @@ function wSortByValue(assets) {
   });
 }
 
+// 자산 섹션 접힘/펼침 상태 — localStorage에 사용자가 명시적으로 토글한 항목만 저장
+let _wExpandedSections = (function() {
+  try {
+    const raw = localStorage.getItem('wealth-expanded-sections');
+    if (raw) return JSON.parse(raw) || {};
+  } catch (e) {}
+  return {};
+})();
+
+// 섹션이 펼쳐졌는지 판정 — 사용자 명시 토글이 있으면 그 값, 없으면 항목 ≤ 2일 때만 펼침
+function wIsSectionExpanded(key, count) {
+  if (Object.prototype.hasOwnProperty.call(_wExpandedSections, key)) {
+    return !!_wExpandedSections[key];
+  }
+  return count <= 2;
+}
+
+function wToggleSection(key, count) {
+  const cur = wIsSectionExpanded(key, count);
+  _wExpandedSections[key] = !cur;
+  try { localStorage.setItem('wealth-expanded-sections', JSON.stringify(_wExpandedSections)); } catch (e) {}
+  renderWealthList();
+}
+
 function renderWealthList() {
   const wrap = document.getElementById('wealth-list');
   if (!wrap) return;
@@ -6555,10 +6608,10 @@ function renderWealthList() {
   const debtAssets = visible.filter(function(a) { return a.isDebt; });
 
   let html = '';
-  if (aptAssets.length) html += wRenderSection('부동산', wSortByValue(aptAssets));
-  if (stockAssets.length) html += wRenderSection('주식 계좌', wSortByValue(stockAssets));
-  if (manualAssets.length) html += wRenderSection('금융자산', wSortByValue(manualAssets));
-  if (debtAssets.length) html += wRenderSection('부채', wSortByValue(debtAssets));
+  if (aptAssets.length) html += wRenderSection('부동산', wSortByValue(aptAssets), 'apt');
+  if (stockAssets.length) html += wRenderSection('주식 계좌', wSortByValue(stockAssets), 'stock');
+  if (manualAssets.length) html += wRenderSection('금융자산', wSortByValue(manualAssets), 'manual');
+  if (debtAssets.length) html += wRenderSection('부채', wSortByValue(debtAssets), 'debt');
 
   if (isPast) {
     const unrecorded = wealthAssets.filter(function(a) { return wGetValue(a, wSelectedMonth).value === null; });
@@ -6573,10 +6626,38 @@ function renderWealthList() {
   wrap.innerHTML = html;
 }
 
-function wRenderSection(title, assets) {
-  let html = '<div style="margin-bottom:18px">'
-    + '<div class="wealth-section-title">' + title + '</div>';
-  assets.forEach(function(asset) { html += wRenderAssetRow(asset); });
+function wRenderSection(title, assets, key) {
+  // 섹션 합계 계산 (만원 단위, 부채는 음수로)
+  let total = 0;
+  let recordedCount = 0;
+  assets.forEach(function(a) {
+    const v = wGetValue(a, wSelectedMonth);
+    if (v.value === null) return;
+    recordedCount++;
+    total += (a.isDebt ? -1 : 1) * v.value;
+  });
+  const abs = Math.abs(total);
+  const formatted = recordedCount === 0
+    ? '<span style="color:var(--muted2);font-weight:600;font-size:12px">미기록</span>'
+    : (total < 0 ? '-' : '') + (abs >= 10000 ? (abs / 10000).toFixed(2) + '억원' : abs.toLocaleString() + '만원');
+  const totalClass = total < 0 ? ' debt' : '';
+
+  const expanded = wIsSectionExpanded(key, assets.length);
+  const chevronOpen = expanded ? ' open' : '';
+  const safeKey = key.replace(/'/g, "\\'");
+
+  let html = '<div class="wealth-section">'
+    + '<div class="wealth-section-header" onclick="wToggleSection(\'' + safeKey + '\', ' + assets.length + ')">'
+    + '<svg class="wealth-section-chevron' + chevronOpen + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>'
+    + '<span class="wealth-section-name">' + title + '</span>'
+    + '<span class="wealth-section-count">' + assets.length + '</span>'
+    + '<span class="wealth-section-total' + totalClass + '">' + formatted + '</span>'
+    + '</div>';
+  if (expanded) {
+    html += '<div class="wealth-section-body">';
+    assets.forEach(function(asset) { html += wRenderAssetRow(asset); });
+    html += '</div>';
+  }
   html += '</div>';
   return html;
 }
