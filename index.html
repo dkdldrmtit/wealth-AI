@@ -1491,6 +1491,24 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
     </div>
   </div>
 
+  <!-- 첫 방문 웰컴 카드 (데이터 없을 때만 표시) -->
+  <div id="home-welcome-card" style="display:none;margin-bottom:14px">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:20px;box-shadow:0 1px 8px var(--shadow)">
+      <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px">첫 기록을 남겨보세요</div>
+      <div style="font-size:12px;color:var(--muted2);line-height:1.6;margin-bottom:16px">지출이나 자산을 기록하면 자동으로 분석돼요</div>
+      <div style="display:flex;gap:8px">
+        <button onclick="goPage('ledger',document.querySelectorAll('.nav-item')[1]);setTimeout(()=>openLedgerAdd('expense'),300)"
+          style="flex:1;padding:11px 0;border-radius:12px;background:var(--blue);border:none;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
+          + 지출 기록
+        </button>
+        <button onclick="goPage('assets',document.querySelectorAll('.nav-item')[2])"
+          style="flex:1;padding:11px 0;border-radius:12px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer">
+          자산 추가
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ① 오늘 지출 위젯 -->
   <div data-card="widget" id="home-card-widget">
   <div id="home-widget" onclick="goPage('ledger',document.querySelectorAll('.nav-item')[1]);setTimeout(()=>setLedgerTab('list'),300)"
@@ -1541,7 +1559,7 @@ body[data-theme="light"] #splash-screen { background:#f0f2f8 !important; }
 
 
   <!-- ① ⓑ 배우자 최근 활동 (신규) -->
-  <div data-card="partner-activity" data-couple-only="1" id="home-card-partner-activity">
+  <div data-card="partner-activity" id="home-card-partner-activity">
     <div id="home-partner-activity"
       style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:18px 20px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 1px 8px var(--shadow)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -9052,6 +9070,7 @@ function initHome() {
   renderHomeStocksSummary();
   renderPartnerActivity();
 
+  updateWelcomeCard();
   applyPartnerNamesToUI();
   applySoloModeVisibility();
   setDonutTab('all');
@@ -9578,24 +9597,19 @@ function importBackup(event) {
 
 
 // ── 배우자 최근 활동 피드 (홈)
+function updateWelcomeCard() {
+  const card = document.getElementById('home-welcome-card');
+  if (!card) return;
+  const hasData = (ledgerTxs && ledgerTxs.length > 0) || (assetHistory && assetHistory.length > 0);
+  card.style.display = hasData ? 'none' : '';
+}
+
 function renderPartnerActivity() {
   const wrap = document.getElementById('partner-activity-content');
   const statusEl = document.getElementById('partner-activity-status');
   if (!wrap) return;
 
-  // 커플 미연결 시: 초대 CTA
-  if (!currentCoupleId) {
-    if (statusEl) statusEl.textContent = '';
-    wrap.innerHTML = '<div style="padding:10px 4px 4px;text-align:center">'
-      + '<div style="font-size:12px;color:var(--muted2);line-height:1.7;margin-bottom:12px">배우자와 연결하면 서로의 기록을<br>한눈에 볼 수 있어요</div>'
-      + '<button onclick="goPage(\'settings\',{classList:{add:()=>{},remove:()=>{}}});setTimeout(()=>setSettingsTab(\'account\'),200)" '
-      + 'style="padding:9px 16px;border-radius:10px;background:rgba(90,159,196,0.10);border:1px solid rgba(90,159,196,0.25);color:var(--blue);font-family:\'Noto Sans KR\',sans-serif;font-size:12px;font-weight:700;cursor:pointer">'
-      + '배우자 초대</button>'
-      + '</div>';
-    return;
-  }
-
-  // 양쪽 모두의 최근 거래 (감시 프레임 제거)
+  // 최근 거래 (솔로/커플 공통)
   const recent = (ledgerTxs || [])
     .slice()
     .sort(function(a, b) { return (b.date || '').localeCompare(a.date || '') || (parseInt(b.id||'0',10) - parseInt(a.id||'0',10)); })
@@ -10339,6 +10353,7 @@ function _renderWidgetContent(tab) {
 
 
 function updateHomeWidget() {
+  updateWelcomeCard();
   const now = new Date();
   const today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
   const thisMonth = today.substring(0,7);
