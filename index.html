@@ -4867,7 +4867,15 @@ function resetInMemoryUserState() {
 // 로그아웃
 async function handleLogout() {
   await _supabase.auth.signOut();
+  // 기기 설정(cloudflare proxy, API 키, 테마)은 로그아웃 후에도 유지
+  const KEEP_KEYS = ['cloudflare-proxy', 'molit-api-key', 'theme', 'wealth-expanded-sections'];
+  const preserved = {};
+  KEEP_KEYS.forEach(function(k) {
+    const v = localStorage.getItem(k);
+    if (v !== null) preserved[k] = v;
+  });
   try { localStorage.clear(); } catch (e) {}
+  Object.keys(preserved).forEach(function(k) { localStorage.setItem(k, preserved[k]); });
   resetInMemoryUserState();
   currentUser = null;
   currentProfile = null;
